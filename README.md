@@ -1,2 +1,6 @@
-# artMS
-Analytical R Tools for MS
+artMS
+===
+
+Analytical R Tools for Mass Spectrometry
+
+---
