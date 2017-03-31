@@ -1,0 +1,27 @@
+Package: RMSQ
+Title: Modify and analyze MaxQuant searched data with MSStats.
+Version: 0.0.0.2017
+Authors@R: person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", role = c("aut", "cre"))
+Description: This package will convert data from the MaxQuant search results format to be compatible with other analytical tools, including MSStats, Mist, Saint, and Comppass. This also includes quality control plots and post processing of the results to make them more legible. data.table, reshape2 
+Depends: R (>= 3.3.2)
+Imports: biomaRt,
+  bit64,
+  data.table,
+  getopt,
+  ggplot2,
+  graphics,
+  grDevices,
+  limma,
+  pheatmap,
+  plotly,
+  RColorBrewer,
+  reshape2,
+  seqinr,
+  stats,
+  shiny,
+  stringr,
+  yaml
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1

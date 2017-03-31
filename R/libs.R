@@ -1,0 +1,17 @@
+#' @import biomaRt
+#' @import bit64
+#' @import data.table
+#' @import getopt
+#' @import ggplot2
+#' @import graphics
+#' @import grDevices
+#' @import limma
+#' @import pheatmap
+#' @import plotly
+#' @import RColorBrewer
+#' @import reshape2
+#' @import seqinr
+#' @import shiny
+#' @import stats
+#' @import stringr
+#' @import yaml
