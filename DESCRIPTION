@@ -1,4 +1,4 @@
-Package: RMSQ
+Package: artMS
 Title: Modify and analyze MaxQuant searched data with MSStats.
 Version: 0.0.0.2017
 Authors@R: person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", role = c("aut", "cre"))
