@@ -423,7 +423,8 @@ MQutil.simplify = function(input_file, output_file){
 MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_variable='spectral_count'){
   cat(">> CONVERTING TO SAINT FORMAT\n")
 
-  data = fread(data_file, integer64 = 'double')
+  # data = fread(data_file, integer64 = 'double')
+  data = read_evidence_file(data_file)
   keys = fread(keys_file, integer64 = 'double')
 
   ## write baits in format
