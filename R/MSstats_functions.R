@@ -12,6 +12,8 @@ is.uniprotAc = function(identifier){
 
 filterMaxqData = function(data){
   data_selected = data[grep("CON__|REV__",data$Proteins, invert=T),]
+  idx <- which(data_selected$Proteins =="")
+  if(length(idx)>0) data_selected = data_selected[-idx,]
   return(data_selected)
 }
 
