@@ -54,7 +54,8 @@ mq2mss <- function(evidence_file, keys_file, protein_groups="ignore", contaminan
   config$filters$protein_groups = protein_groups
   config$filters$contaminants = contaminants
   config$filters$modification = modification
-  if(!is.null(config$filters$modification) | (config$filters$contaminants==F) | (config$filters$protein_groups!="ignore")) data_f = filterData(data, config) else data_f=data #!!!!!!!
+  config$files$data = output_file
+  if(!is.null(config$filters$modification) | (config$filters$contaminants!=F) | (config$filters$protein_groups!="ignore")) data_f = filterData(data, config) else data_f=data #!!!!!!!
 
   ## FORMATTING IN WIDE FORMAT FOR NORMALIZATION PURPOSES
   if(!is.null(config$filters$modification)) castFun = castMaxQToWidePTM else castFun = castMaxQToWide  #!!!!!! SOMETHING WEIRD HERE
