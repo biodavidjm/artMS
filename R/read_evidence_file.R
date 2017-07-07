@@ -13,7 +13,7 @@ read_evidence_file <- function(evidence_file){
   cols$idx <- 1:dim(cols)[1]
 
   # get data frame of pre-recorded column names and their respective classes
-  col.classes <- as.data.frame( matrix(c("Sequence","character","Length","integer","Modifications","character","Modified sequence","character","Oxidation (M) Probabilities","character","Oxidation (M) Score Diffs","character","Acetyl (Protein N-term)","integer","Oxidation (M)","integer","Missed cleavages","integer","Proteins","character","Leading proteins","character","Leading razor protein","character","Gene names","character","Protein names","character","Type","character","Raw file","character","Experiment","character","MS/MS m/z","numeric","Charge","integer","m/z","numeric","Mass","numeric","Resolution","numeric","Uncalibrated - Calibrated m/z [ppm]","numeric","Uncalibrated - Calibrated m/z [Da]","numeric","Mass Error [ppm]","numeric","Mass error [ppm]","numeric","Mass Error [Da]","numeric","Mass error [Da]","numeric","Uncalibrated Mass Error [ppm]","numeric","Uncalibrated mass error [ppm]","numeric","Uncalibrated Mass Error [Da]","numeric","Uncalibrated mass error [Da]","numeric","Max intensity m/z 0","numeric","Retention time","numeric","Retention length","numeric","Calibrated retention time","numeric","Calibrated retention time start","numeric","Calibrated retention time finish","numeric","Retention time calibration","numeric","Match time difference","numeric","Match m/z difference","numeric","Match q-value","numeric","Match score","numeric","Number of data points","integer","Number of scans","integer","Number of isotopic peaks","integer","PIF","numeric","Fraction of total spectrum","numeric","Base peak fraction","numeric","PEP","numeric","MS/MS Count","integer","MS/MS count","integer","MS/MS Scan Number","integer","MS/MS scan number","integer","Score","numeric","Delta score","numeric","Combinatorics","integer","Intensity","numeric","Reverse","character","Potential contaminant","character","id","integer","Protein group IDs","character","Peptide ID","integer","Mod. peptide ID","integer","MS/MS IDs","character","Best MS/MS","integer","AIF MS/MS IDs","logical","Oxidation (M) site IDs","character"          ,"Acetyl (K) Probabilities","character","GlyGly (K) Probabilities","character","Phospho (STY) Probabilities","Character","Acetyl (K) Score Diffs","character","GlyGly (K) Score Diffs","character","Phospho (STY) Score Diffs","character","Acetyl (K)","integer","GlyGly (K)","integer","Phospho (STY)","integer","Acetyl (K) site IDs","character","GlyGly (K) site IDs","character","Phospho (STY) site IDs","character"), ncol=2, byrow=T), stringsAsFactors = F)
+  col.classes <- as.data.frame( matrix(c("Sequence","character","Length","integer","Modifications","character","Modified sequence","character","Oxidation (M) Probabilities","character","Oxidation (M) Score Diffs","character","Acetyl (Protein N-term)","integer","Oxidation (M)","integer","Missed cleavages","integer","Proteins","character","Leading proteins","character","Leading Proteins","character","Leading razor protein","character","Leading Razor Protein","character","Gene names","character","Gene Names","character","Protein names","character","Protein Names","character","Type","character","Raw file","character","Experiment","character","MS/MS m/z","numeric","Charge","integer","m/z","numeric","Mass","numeric","Resolution","numeric","Uncalibrated - Calibrated m/z [ppm]","numeric","Uncalibrated - Calibrated m/z [Da]","numeric","Mass Error [ppm]","numeric","Mass error [ppm]","numeric","Mass Error [Da]","numeric","Mass error [Da]","numeric","Uncalibrated Mass Error [ppm]","numeric","Uncalibrated mass error [ppm]","numeric","Uncalibrated Mass Error [Da]","numeric","Uncalibrated mass error [Da]","numeric","Max intensity m/z 0","numeric","Retention time","numeric","Retention length","numeric","Calibrated retention time","numeric","Calibrated retention time start","numeric","Calibrated retention time finish","numeric","Retention time calibration","numeric","Match time difference","numeric","Match m/z difference","numeric","Match q-value","numeric","Match score","numeric","Number of data points","integer","Number of scans","integer","Number of isotopic peaks","integer","PIF","numeric","Fraction of total spectrum","numeric","Base peak fraction","numeric","PEP","numeric","MS/MS Count","integer","MS/MS count","integer","MS/MS Scan Number","integer","MS/MS scan number","integer","Score","numeric","Delta score","numeric","Combinatorics","integer","Intensity","numeric","Reverse","character","Potential contaminant","character","id","integer","Protein group IDs","character","Peptide ID","integer","Mod. peptide ID","integer","MS/MS IDs","character","Best MS/MS","integer","AIF MS/MS IDs","logical","Oxidation (M) site IDs","character" ,"Acetyl (K) Probabilities","character","GlyGly (K) Probabilities","character","Phospho (STY) Probabilities","Character","Acetyl (K) Score Diffs","character","GlyGly (K) Score Diffs","character","Phospho (STY) Score Diffs","character","Acetyl (K)","integer","GlyGly (K)","integer","Phospho (STY)","integer","Acetyl (K) site IDs","character","GlyGly (K) site IDs","character","Phospho (STY) site IDs","character","Contaminant","character", "Fraction", "integer"), ncol=2, byrow=T), stringsAsFactors = F)
   # merge the classes to the columns
   cols.matched = merge(cols, col.classes, by="V1", all.x=T)
   # re-order things to match the initial order
@@ -26,6 +26,34 @@ read_evidence_file <- function(evidence_file){
 
   # read in the evidence file with their classes
   x <- fread(evidence_file, integer64 = 'double', colClasses = cols.matched$V2)
+  # make sure all the column names are the same as supporting analytical functions are looking for
+  x <- unifyColumnNames(x)
   return(x)
 }
+
+
+
+
+# The newer versions of MaxQuant change the letter case in the column names, which throws off the legacy RMSQ functions.
+#   This is to help keep things unified still.
+unifyColumnNames <- function(x){
+  
+  names(x) = gsub("^Mass error \\[ppm\\]$","Mass Error \\[ppm\\]", names(x))
+  names(x) = gsub("^Mass error \\[Da\\]$","Mass Error \\[Da\\]", names(x))
+  names(x) = gsub("^Protein Names$","Protein names", names(x))
+  names(x) = gsub("^Leading Razor Protein$","Leading razor protein", names(x))
+  names(x) = gsub("^Leading Proteins$","Leading proteins", names(x))
+  names(x) = gsub("^Gene Names$","Gene names", names(x))
+  names(x) = gsub("^MS/MS count$","MS/MS Count", names(x))
+  names(x) = gsub("^MS/MS scan number$","MS/MS Scan Number", names(x))
+  names(x) = gsub("^Uncalibrated mass error \\[Da\\]$","Uncalibrated Mass Error \\[Da\\]", names(x))
+  names(x) = gsub("^Uncalibrated mass error \\[ppm\\]$","Uncalibrated Mass Error \\[ppm\\]", names(x))
+  
+  return(x)
+}
+
+
+
+
+
 
