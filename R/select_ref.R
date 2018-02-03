@@ -1,3 +1,7 @@
+#' @import ggplot2
+#' @import shiny
+#' @import reshape2
+#' @import plotly
 
 
 #' @title Select Reference protein(s) for normalization
@@ -8,10 +12,10 @@
 #' select_ref()
 select_ref <- function(keys_file, dat_file){
   
-  
   cat("Reading in files...\n")
   keys <- read.delim(keys_file, stringsAsFactors = F)
   dat <- x <- read.delim(dat_file, stringsAsFactors = F)
+  # dat <- x <- checkIfFile(dat_file, is.evidence=T)
   cat("Removing MaxQuant described contaminants...\n")
   x <- x[-grep("__|;",x$Proteins),]
   if(length(which(x$Proteins==""))>0) x <- x[-which(x$Proteins==""),]
@@ -83,27 +87,27 @@ select_ref <- function(keys_file, dat_file){
   
   ## Active shiny scripts
   #~~~~~~~~~~~~~~~~~~~~~~~~
-  serv <- shinyServer(
+  serv <- shiny::shinyServer(
     function(input, output) {
       # output dynamic range
-      output$text1 <- renderText({ 
+      output$text1 <- shiny::renderText({ 
         idx <- intersect( grep(paste(input$check_proteins,collapse="|"), x.clust$prot_names), which(x.clust$cluster %in% input$check_clusters) )
         paste("You have chosen a the following proteins:  \n", paste(unique(x.clust$Proteins[idx]),collapse=","))
       })
       
       # output the dynamically filtered data
-      output$plot1 <- renderPlotly({
+      output$plot1 <- plotly::renderPlotly({
         idx <- intersect( grep(paste(input$check_proteins,collapse="|"), x.clust$prot_names), which(x.clust$cluster %in% input$check_clusters) )
         p <- ggplot(data=x.clust[idx,], aes(x=sample_name, y=value, colour=prot_names )) + geom_line(aes(group=prot_names))  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
         # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse="|"), tmp$Proteins),], aes(x=variable, y=(value), colour=Proteins )) + geom_line(aes(group=Proteins))  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-        ggplotly(p)
+        plotly::ggplotly(p)
       })
       
-      output$plot_clusts <- renderPlotly({
+      output$plot_clusts <- plotly::renderPlotly({
         # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse="|"), tmp$Proteins),], aes(x=variable, y=(value), colour=Proteins )) + geom_line(aes(group=Proteins))  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
         idx <- intersect( grep(paste(input$check_proteins,collapse="|"), x.clust$prot_names), which(x.clust$cluster %in% input$check_clusters) )
         p <- ggplot(data=x.clust[idx,], aes(x=sample_name, y=value, colour=cluster )) + geom_line(aes(group=prot_names))  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-        ggplotly(p)
+        plotly::ggplotly(p)
       })
     }
   )
@@ -115,38 +119,38 @@ select_ref <- function(keys_file, dat_file){
   
   
   
-  ui <- shinyUI(basicPage(
+  ui <- shiny::shinyUI(shiny::basicPage(
     
-    titlePanel("Reference Protein Selction"),
+    shiny::titlePanel("Reference Protein Selction"),
     
-    sidebarLayout(
-      div(style="width: 1000px",
-          sidebarPanel(
-            #       helpText("Create demographic maps with 
-            #                information from the 2010 US Census."),
-            
-            checkboxGroupInput('check_proteins', 'Proteins displayed:',
-                               sort(unique(x.clust$prot_names)),
-                               selected = unique(x.clust$prot_names))
-          )
+    shiny::sidebarLayout(
+      shiny::div(style="width: 1000px",
+                 shiny::sidebarPanel(
+                   #       helpText("Create demographic maps with 
+                   #                information from the 2010 US Census."),
+                   
+                   shiny::checkboxGroupInput('check_proteins', 'Proteins displayed:',
+                                      sort(unique(x.clust$prot_names)),
+                                      selected = unique(x.clust$prot_names))
+                 )
       ),
       
-      div(align='left',
-          mainPanel(
+      shiny::div(align='left',
+                 shiny::mainPanel(
             #tags$head(tags$style(".leftAlign{float:left;}"),
             #          tags$style("#plot1{height:100vh !important;width:100vw !important;}")),
-            tabsetPanel(
-              tabPanel("Main", plotlyOutput("plot1", height="800px")),
+                   shiny::tabsetPanel(
+                     shiny::tabPanel("Main", plotly::plotlyOutput("plot1", height="800px")),
               
-              tabPanel("Clusters", 
-                       checkboxGroupInput('check_clusters', 'Proteins displayed:',
+                     shiny::tabPanel("Clusters", 
+                                     shiny::checkboxGroupInput('check_clusters', 'Proteins displayed:',
                                           sort(unique(x.clust$cluster)),
                                           selected = unique(x.clust$cluster),
                                           inline = TRUE),
-                       plotlyOutput("plot_clusts", height="800px")
+                       plotly::plotlyOutput("plot_clusts", height="800px")
               ),
               
-              tabPanel("Proteins", textOutput("text1"))
+              shiny::tabPanel("Proteins", shiny::textOutput("text1"))
               
             )
           )
@@ -155,10 +159,9 @@ select_ref <- function(keys_file, dat_file){
   ))
   
   
-  shinyApp(ui=ui, server=serv)
+  shiny::shinyApp(ui=ui, server=serv)
   
 }
-
 
 
 

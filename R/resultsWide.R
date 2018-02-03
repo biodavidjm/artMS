@@ -10,11 +10,12 @@
 #' resultsWide()
 resultsWide = function(input_file, save_file=F, return_results=F){
   input = read.delim(input_file, stringsAsFactors = F)
-  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
+  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue')],id.vars=c('Protein', 'Label'))
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
+  input_w = dcast( Protein ~ Label+variable, data=input_l, value.var=c('value'))
   if(save_file){
+    output_file = gsub(".txt","-wide.txt",input_file)
     write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
   }
   if(return_results){

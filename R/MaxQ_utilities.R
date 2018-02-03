@@ -1,38 +1,18 @@
 
+#' @import data.table
+#' @import seqinr
+#' @import stringr
+#' @import bit64
+#' @import getopt
+#' @import reshape2
+#' @import biomaRt
+#' @import limma
+#' @import ggplot2
+#' @import bit64
 
-# suppressMessages(library(data.table))
-# suppressWarnings(library(seqinr))
-# suppressMessages(library(stringr))
-# suppressMessages(require(bit64))
-# suppressMessages(library(getopt))
-# suppressMessages(library(reshape2))
-# suppressMessages(library(biomaRt))
-# suppressMessages(library(limma))
-# suppressMessages(library(ggplot2))
-
-###############################
-## FILE AND LIB LOADING #######
-
-#########################
-## CONFIG LOADING #######
-
-# loadLibs = function(){
-#   cat(">> LOADING EXTERNAL FILES AND LIBRARIES\n")
-#   # set source directory
-#   args <- commandArgs(trailingOnly = F)
-#   scriptPath <- normalizePath(dirname(sub("^--file=", "", args[grep("^--file=", args)])))
-#
-#   ## load all external files
-#   if(length(scriptPath)==0){
-#     source("R/MSstats_functions.R")
-#   }else{
-#     source(paste(scriptPath,"/MSstats_functions.R",sep=""))
-#   }
-# }
 
 
 # ~~~~~~~~~~~~~~~~~~~ BEGIN FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~~~
-
 
 
 #' @title Convert Silac to Long Format
@@ -311,20 +291,26 @@ MQutil.annotate = function(input_file=opt$input, output_file=opt$output, uniprot
 }
 
 
-#' @title Convert default MSStat results file to Wide format.
-#' @description Converts the normal MSStats output file into "wide" format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param output_file The filepath to the intended output file (txt tab delimited file).
-#' @keywords wide MSStats results
-#' MQutil.resultsWide()
-MQutil.resultsWide = function(input_file, output_file){
-  input = fread(input_file, integer64 = 'double')
-  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
-
-  ## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
-  write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-}
+#' #' @title Convert default MSStat results file to Wide format.
+#' #' @description Converts the normal MSStats output file into "wide" format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
+#' #' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
+#' #' @param save_file The filepath to the intended output file (txt tab delimited file).
+#' #' @param return_results Whether to return the results at the end of the function (default =F).
+#' #' @keywords wide MSStats results
+#' #' MQutil.resultsWide()
+#' MQutil.resultsWide = function(input_file, save_file=F, return_results=F){
+#'   input = checkIfFile(input_file)
+#'   input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
+#' 
+#'   ## then cast to get combinations of LFCV/PVAl and Label as columns
+#'   input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
+#'   if(save_file){
+#'     write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+#'   }
+#'   if(return_results){
+#'     return(input_w)
+#'   }
+#' }
 
 
 #' @title Map the results back into sites format after MSStats PTM site analysis.
@@ -418,26 +404,26 @@ MQutil.simplify = function(input_file, output_file){
 #' @param keys_file The filepath to the keys file used in the MSStats analysis.
 #' @param ref_proteome_file The filepath to the reference proteom (txt tab delimited file).
 #' @param quant_variable Pick which quantitative value to use: "spectral_counts" or "ms1"
+#' @param output_file Path of where to output the results to.
 #' @keywords SAINT spectral spectral_counts ms1 intensity
 #' MQutil.MaxQToSaint()
-MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_variable='spectral_count'){
+MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_variable='spectral_count', output_file){
   cat(">> CONVERTING TO SAINT FORMAT\n")
-
-  # data = fread(data_file, integer64 = 'double')
-  data = read_evidence_file(data_file)
+  
+  data = fread(data_file, integer64 = 'double')
   keys = fread(keys_file, integer64 = 'double')
-
+  
   ## write baits in format
   ## hIP101-10       PV_2C_co_uni    T
-
+  
   saint_baits = keys[,c('BioReplicate','Condition','SAINT'),with=F]
-
+  
   ## write interactions in format
   ## hIP101-10       PV_2C_co_uni    Q9NTG7  1
-
+  
   tryCatch(setnames(data, 'Raw file', 'RawFile'), error=function(e) cat('Raw.file not found\n'))
   tryCatch(setnames(keys, 'Raw.file', 'RawFile'), error=function(e) cat('Raw.file not found\n'))
-
+  
   cat('\tVERIFYING DATA AND KEYS\n')
   if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run','SAINT') %in% colnames(keys))){
     stop('COLNAMES IN KEYS NOT CONFORM TO SCHEMA\n\tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n')
@@ -446,7 +432,7 @@ MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_var
   data = mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_f = filterMaxqData(data)
   data_f = removeMaxQProteinGroups(data_f) ## do we want this or not?
-
+  
   cat("\tAGGREGATING ON", quant_variable,"VALUES...\n")
   ## aggregate over technical replicates if necessary
   if(quant_variable=='spectral_count'){
@@ -459,13 +445,13 @@ MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_var
   }else{
     stop("ERROR!! Wrong value for variable to quantify. Please use 'spectral_count' or 'ms1'.")
   }
-
+  
   ## IP name, bait name, prey name, and spectral counts or intensity values
   saint_interactions = data_f_agg
-
+  
   ## write preys in format
   ## Q9NTG7  43573.5 Q9NTG7
-
+  
   ref_proteome = read.fasta(file = ref_proteome_file,
                             seqtype = "AA", as.string = T,
                             set.attributes = TRUE, legacy.mode = TRUE, seqonly = FALSE, strip.desc = FALSE)
@@ -478,7 +464,7 @@ MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_var
   ref_table = data.table(names=p_names, lengths=p_lengths)
   ref_table[,uniprot_ac:=gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)','\\2',names)]
   ref_table[,uniprot_id:=gsub('([a-z,0-9,A-Z]+\\|{1})([a-z,0-9,A-Z]+\\|{1})([A-Z,a-z,0-9,_]+)','\\3',names)]
-
+  
   unique_preys = data.table(uniprot_ac=unique(data_f_agg$Proteins))
   saint_preys = ref_table[,c('uniprot_ac','lengths','uniprot_id'),with=F]
   saint_preys = merge(unique_preys, saint_preys, by='uniprot_ac', all.x=T)
@@ -488,11 +474,17 @@ MQutil.MaxQToSaint = function(data_file, keys_file, ref_proteome_file, quant_var
     cat(sprintf("\tWARNING!\tCOMPUTING %s MISSING LENGTHS WITH THE MEDIAN LENGTH FROM THE DATASET\n",missing_lengths))
     saint_preys[is.na(saint_preys$lengths),]$lengths=median(saint_preys$lengths,na.rm = T)
   }
-
+  
+  
+  # Check if output directory exists and create it if not.
+  if(!dir.exists(dirname(output_file))){
+    dir.create(dirname(output_file), recursive=T)
+  }
+  
   ## WRITE
-  write.table(saint_baits,file = gsub('.txt','-saint-baits.txt',keys_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
-  write.table(saint_preys,file = gsub('.txt','-saint-preys.txt',keys_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
-  write.table(saint_interactions,file = gsub('.txt','-saint-interactions.txt',keys_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
+  write.table(saint_baits,file = gsub('.txt','-saint-baits.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
+  write.table(saint_preys,file = gsub('.txt','-saint-preys.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
+  write.table(saint_interactions,file = gsub('.txt','-saint-interactions.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
 }
 
 
@@ -748,6 +740,13 @@ MQutil.combine_sq_values <- function(dat, pos, neg){
 }
 
 
+#' @title Add Abundancd data to Results.
+#' @description Aggregates the normalized abundance and replicate data from the samples. Uses the MSstat output file ...mss-sampleQuant.txt for the aggregations, and is applied directly to the MSstats results in wide format. The resulting file will have "abundance" appended to the end of the file name.
+#' @param sq_file The filepath to the Sample Quantification file (txt tab delimited file).
+#' @param contrast_file The filepath to the Contrst file used to generate the MSstats results (txt tab delimited file).
+#' @param results_file The filepath to the results in wide format file used (txt tab delimited file).
+#' @keywords abundance msstats sample quatification samplequantification
+#' MQutil.sampleQuant()
 # Main wrapper that consolidates the abundance data for a results.wide file
 MQutil.sampleQuant <- function(sq_file, contrast_file, results_file){
   cat(">>SUMMARIZING ABUNDANCE DATA\n")
