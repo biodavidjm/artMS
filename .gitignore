@@ -1,4 +1,10 @@
+*.so
 .Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+/.Rhistory
+
+## Qt Creator
+*.pro
+*.pro.user
+inst/doc
+revdep/checks
+revdep/library
