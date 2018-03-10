@@ -1,6 +1,7 @@
 *.so
 .Rproj.user
 /.Rhistory
+*.Rproj
 
 ## Qt Creator
 *.pro
