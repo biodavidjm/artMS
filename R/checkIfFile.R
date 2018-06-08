@@ -6,18 +6,19 @@
 #' @keywords file, evidence, input
 #' checkIfFile()
 #' @export
-checkIfFile <- function(input_file, is.evidence=FALSE){
+checkIfFile <- function(input_file, is.evidence = FALSE) {
     # check if already a data.frame or data.table
-  if(is.data.table(input_file) | is.data.frame(input_file)){
-    x <-  data.table(input_file)
-  }else if(tryCatch(file.exists(input_file), error=function(e) return(FALSE))){   # check if file path is legit
-    if(is.evidence){
-      x <- read_evidence_file(input_file)
-    }else{
-      x <- fread(input_file, integer64 = 'double')
+    if (is.data.table(input_file) | is.data.frame(input_file)) {
+        x <- data.table(input_file)
+    } else if (tryCatch(file.exists(input_file), error = function(e) return(FALSE))) {
+        # check if file path is legit
+        if (is.evidence) {
+            x <- read_evidence_file(input_file)
+        } else {
+            x <- fread(input_file, integer64 = "double")
+        }
+    } else {
+        stop("There's something wrong with the file/object you submitted:\n\t", input_file, "\nPlease check that the file directory is correct, or that the data is in `data.frame` or `data.table` format.")
     }
-  }else{
-    stop("There's something wrong with the file/object you submitted:\n\t", input_file,"\nPlease check that the file directory is correct, or that the data is in `data.frame` or `data.table` format.")
-  }
-  return(x)
+    return(x)
 }
