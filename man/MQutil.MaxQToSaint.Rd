@@ -12,7 +12,7 @@ MQutil.MaxQToSaint(data_file, keys_file, ref_proteome_file,
 
 \item{ref_proteome_file}{The filepath to the reference proteom (txt tab delimited file).}
 
-\item{quant_variable}{Pick which quantitative value to use: "spectral_counts" or "ms1"}
+\item{quant_variable}{Pick which quantitative value to use: 'spectral_counts' or 'ms1'}
 
 \item{output_file}{Path of where to output the results to.}
 

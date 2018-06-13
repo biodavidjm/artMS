@@ -14,7 +14,7 @@ MQutil.sampleQuant(sq_file, contrast_file, results_file)
 \item{results_file}{The filepath to the results in wide format file used (txt tab delimited file).}
 }
 \description{
-Aggregates the normalized abundance and replicate data from the samples. Uses the MSstat output file ...mss-sampleQuant.txt for the aggregations, and is applied directly to the MSstats results in wide format. The resulting file will have "abundance" appended to the end of the file name.
+Aggregates the normalized abundance and replicate data from the samples. Uses the MSstat output file ...mss-sampleQuant.txt for the aggregations, and is applied directly to the MSstats results in wide format. The resulting file will have 'abundance' appended to the end of the file name.
 }
 \keyword{MQutil.sampleQuant()}
 \keyword{abundance}

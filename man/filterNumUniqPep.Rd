@@ -10,11 +10,11 @@ filterNumUniqPep(evidence_file, keys_file, prot_groups_file, min_pep,
 \arguments{
 \item{evidence_file}{The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).}
 
-\item{keys_file}{The filepath to the keys file used with MSStats (txt tab delimited file).}
+\item{keys_file}{The filepath to the keys file used with MSStats (txt tab delimited file). The condition names must match the Condition names provided to the proteinGroups file replicates.}
 
 \item{prot_groups_file}{The filepath to the MaxQuant searched Protein Groups file (txt tab delimited file).}
 
-\item{min_pep}{The minimum number of peptides that need to be found with a protein to consider it a real hit. Anything not meeting this criteria is removed before scoring.}
+\item{min_pep}{The minimum number of peptides that need to be found with at least one bait-prey protein pair to consider it a real hit. Anything not meeting this criteria is removed before scoring.}
 
 \item{verbose}{Whether or not to display status reports. Default = TRUE}
 

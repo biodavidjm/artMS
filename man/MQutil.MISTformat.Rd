@@ -14,12 +14,12 @@ MQutil.MISTformat(input_file, keys_file, output_file, species = "HUMAN",
 
 \item{output_file}{The filepath to the intended output file (txt tab delimited file).}
 
-\item{species}{The species to in the data to be used to get weights from. Multiple species can be listed, separating with a "-". (eg. HUMAN-MOUSE)}
+\item{species}{The species to in the data to be used to get weights from. Multiple species can be listed, separating with a '-'. (eg. HUMAN-MOUSE)}
 
 \item{uniprot_dir}{The directory where the uniprot files are for the different species.}
 }
 \description{
-Converts MaxQuant evidence file into a file format compatible with the MiST pipeline using MS/MS.Count. Note that this is the MiST data file, and that an additional keys file will have to be constructed before running MiST. Multiple species can be searched at once, simply separate them by a "-". (eg. HUMAN-MOUSE).
+Converts MaxQuant evidence file into a file format compatible with the MiST pipeline using MS/MS.Count. Note that this is the MiST data file, and that an additional keys file will have to be constructed before running MiST. Multiple species can be searched at once, simply separate them by a '-'. (eg. HUMAN-MOUSE).
 }
 \keyword{MIST}
 \keyword{MQutil.MISTformat()}

@@ -9,34 +9,12 @@ MQutil.mapSitesBack(input_file, mapping_file, output_file)
 \arguments{
 \item{input_file}{The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.}
 
-\item{mapping_file}{The filepath to the mapping file (ending in "-mapping.txt")}
+\item{mapping_file}{The filepath to the mapping file (ending in '-mapping.txt')}
 
 \item{output_file}{The filepath to the intended output file (txt tab delimited file).}
 }
 \description{
 Used with PTM datasets. Map back the sites to correct proteins after MSStats analysis. This file is created previously when running the conver-sites function.
-}
-\details{
-#' @title Convert default MSStat results file to Wide format.
-#' @description Converts the normal MSStats output file into "wide" format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param save_file The filepath to the intended output file (txt tab delimited file).
-#' @param return_results Whether to return the results at the end of the function (default =F).
-#' @keywords wide MSStats results
-#' MQutil.resultsWide()
-MQutil.resultsWide = function(input_file, save_file=F, return_results=F){
-  input = checkIfFile(input_file)
-  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
-
-## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
-  if(save_file){
-    write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-  }
-  if(return_results){
-    return(input_w)
-  }
-}
 }
 \keyword{MQutil.mapSitesBack()}
 \keyword{MSStats}

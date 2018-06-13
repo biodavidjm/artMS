@@ -13,14 +13,14 @@ MQutil.annotate(input_file = opt$input, output_file = opt$output,
 
 \item{output_file}{The filepath to the intended output file (txt tab delimited file).}
 
-\item{uniprot_ac_col}{Name of the column containing the uniprot ID's. Defaults to "Protein".}
+\item{uniprot_ac_col}{Name of the column containing the uniprot ID's. Defaults to 'Protein'.}
 
 \item{uniprot_dir}{Directory location of where the uniprot database flatfiles are located.}
 
-\item{species}{The species contained in this search of uniprot files. Can include multiple species separated by a "-" .}
+\item{species}{The species contained in this search of uniprot files. Can include multiple species separated by a '-' .}
 }
 \description{
-Annotates the proteins in the results or results-wide files after they've been through the MSStats pipeline. Multiple species can be searched at once, simply separate them by a "-". (eg. human-mouse).
+Annotates the proteins in the results or results-wide files after they've been through the MSStats pipeline. Multiple species can be searched at once, simply separate them by a '-'. (eg. human-mouse).
 }
 \keyword{MQutil.annotate()}
 \keyword{annotate}

@@ -4,21 +4,21 @@
 \alias{volcanoPlot}
 \title{Create Volcano Plots from MSstats results}
 \usage{
-volcanoPlot(mss_results_sel, lfc_upper = 2, lfc_lower = -2, FDR = 0.05,
-  file_name = "", PDF = F, decimal_threshold = 16)
+volcanoPlot(mss_results_sel, lfc_upper = 1, lfc_lower = -1, FDR = 0.05,
+  PDF = F, file_name = "volcano.pdf", decimal_threshold = 16)
 }
 \arguments{
 \item{mss_results_sel}{The filepath to the MSstats results file (txt tab delimited file).}
 
-\item{lfc_upper}{The starting point of the upper region on interest based on the Log2FC (default = 2).}
+\item{lfc_upper}{The starting point of the upper region on interest based on the Log2FC (default = 1).}
 
-\item{lfc_lower}{The starting point of the lower region on interest based on the Log2FC (default = -2).}
+\item{lfc_lower}{The starting point of the lower region on interest based on the Log2FC (default = -1).}
 
 \item{FDR}{The adjusted p-value cutoff to define the region of interest (default = 0.05).}
 
-\item{file_name}{The filepath to the intended output file (txt tab delimited file).}
-
 \item{PDF}{Whether or not to write ou a pdf of the results or not. (default = F).}
+
+\item{file_name}{The filepath and file name to the intended output file (e.g `volcano.pdf`).}
 
 \item{decimal_threshold}{Apply a decimal threshold. (default = 16).}
 }

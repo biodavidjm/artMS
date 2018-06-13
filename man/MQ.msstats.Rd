@@ -7,7 +7,7 @@
 MQ.msstats(opt)
 }
 \arguments{
-\item{opt}{Pick which quantitative value to use: "spectral_counts" or "ms1"}
+\item{opt}{Pick which quantitative value to use: 'spectral_counts' or 'ms1'}
 }
 \description{
 This function will take a MaxQuant file, keys, contrast, and config file, and handle all the file processing and conversions before running MSStats on the data. This is designed using the MSStats constraints/options outlined in the config.yaml file.
