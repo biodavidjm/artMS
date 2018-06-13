@@ -5,7 +5,7 @@ Authors@R: c(
     person("David", "Jimenez-Morales", email = "biodavidjm@gmail.com", 
     role = c("aut", "cre", "cph")),
     person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", 
-    role = c("aut", "cre"))
+    role = c("aut"))
     )
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
