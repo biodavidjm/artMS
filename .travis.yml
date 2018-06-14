@@ -13,3 +13,6 @@ bioc_packages:
 r_check_args: --no-build-vignettes --no-vignettes
 
 warnings_are_errors: false
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'
