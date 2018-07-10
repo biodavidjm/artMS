@@ -14,10 +14,10 @@ mq2mss(evidence_file, keys_file, protein_groups = "ignore",
 \item{keys_file}{The filepath to the keys file used with MSStats (txt tab delimited file).}
 
 \item{protein_groups}{How to handle protein groups. Default = 'ignore'
-  \itemize{
-    \item{'remove'}{: This will remove the protein groups entirely from the data set.}
-    \item{'explode'}{: This will create a new row for each protein in the group, copying the MS data for all proteins.}
-    \item{'ignore'}{: This will treate the protein group as if it were a normal protein unique identifier.}
+\itemize{
+\item{'remove'}{: This will remove the protein groups entirely from the data set.}
+\item{'explode'}{: This will create a new row for each protein in the group, copying the MS data for all proteins.}
+\item{'ignore'}{: This will treate the protein group as if it were a normal protein unique identifier.}
 }}
 
 \item{contaminants}{Whether or not to filter out MaxQuant labeled contaminants. Default = TRUE}

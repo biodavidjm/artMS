@@ -18,7 +18,7 @@ volcanoPlot(mss_results_sel, lfc_upper = 1, lfc_lower = -1, FDR = 0.05,
 
 \item{PDF}{Whether or not to write ou a pdf of the results or not. (default = F).}
 
-\item{file_name}{The filepath and file name to the intended output file (e.g `volcano.pdf`).}
+\item{file_name}{The filepath and file name to the intended output file (e.g \code{volcano.pdf}).}
 
 \item{decimal_threshold}{Apply a decimal threshold. (default = 16).}
 }

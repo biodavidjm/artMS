@@ -9,10 +9,10 @@ interaction_overlap(results, out_file, annotate = T, plot.venn = T)
 \arguments{
 \item{results}{The filepath to OR a dataframe containing the following columns:
 \itemize{
- \item{Protein : }{a unique identifier for the protein, such as Uniprot Accession. The annotation feature only works with Uniprot Accession codes.}
- \item{dataset : }{The name of the group/dataset/bait associated with this protein. (interaction)}
- \item{thresh : }{Whether the protein is to be considered a confident interactor in this dataset.}
- \item{plot.venn : }{Whether or not to plot and save the venn diagrams of the overlaps. May not want to if there are a ton of comparisons.}
+\item{Protein : }{a unique identifier for the protein, such as Uniprot Accession. The annotation feature only works with Uniprot Accession codes.}
+\item{dataset : }{The name of the group/dataset/bait associated with this protein. (interaction)}
+\item{thresh : }{Whether the protein is to be considered a confident interactor in this dataset.}
+\item{plot.venn : }{Whether or not to plot and save the venn diagrams of the overlaps. May not want to if there are a ton of comparisons.}
 }}
 
 \item{out_file}{A file path to where the files will be saved.}

@@ -10,7 +10,8 @@ read_evidence_file(evidence_file)
 \item{evidence_file}{The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).}
 }
 \description{
-Read in a MaxQuant searched Evidence file using data.table. This function propperly classes each column and so fread doesn't have to guess.
+Read in a MaxQuant searched Evidence file using data.table.
+This function properly classes each column and so fread doesn't have to guess.
 }
 \keyword{MaxQuant,}
 \keyword{evidence}

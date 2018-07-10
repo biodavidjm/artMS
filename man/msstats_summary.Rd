@@ -8,7 +8,8 @@ msstats_summary(evidence_file, prot_group_file, keys_file, results_file,
   return.results = FALSE)
 }
 \arguments{
-\item{evidence_file}{The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).}
+\item{evidence_file}{The filepath to the MaxQuant searched data (evidence)
+file (txt tab delimited file).}
 
 \item{return.results}{Whether or not to return the results to the R environment upon completion. This is useful if this is being used in an R pipeline and you want to feed the results directly into the next stage of analysis via an R environment/terminal. Regardless, the results will be written to file. Default = FALSE}
 
@@ -19,7 +20,12 @@ msstats_summary(evidence_file, prot_group_file, keys_file, results_file,
 \item{results_groups_file}{The filepath to the MSStats results file in the default long format (txt tab delimited file).}
 }
 \description{
-Converts the MSStats results file to wide format (columns are the contrasts), as well as adds BioReplicate information about the Number of Unique Peptides, Spectral Counts, and Intensities for each protein. In cases where there are multiple values for a Protein-BioReplicate pair due to minute changes in sequence, the maximum value is taken for the pair. Any pairs without a value are assigned a value of NA.
+Converts the MSStats results file to wide format
+(columns are the contrasts), as well as adds BioReplicate information about
+the Number of Unique Peptides, Spectral Counts, and Intensities for each
+protein. In cases where there are multiple values for a Protein-BioReplicate
+pair due to minute changes in sequence, the maximum value is taken for the
+pair. Any pairs without a value are assigned a value of NA.
 }
 \keyword{MSStats}
 \keyword{MaxQuant,}

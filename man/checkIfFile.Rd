@@ -9,10 +9,14 @@ checkIfFile(input_file, is.evidence = FALSE)
 \arguments{
 \item{input_file}{The filepath/object to be checked.}
 
-\item{is.evidence}{Whether or not the file to be read in is an evidence file. This will assign proper classes to the evidence file when being read in.}
+\item{is.evidence}{Whether or not the file to be read in is an
+evidence file. This will assign proper classes to the evidence file
+when being read in.}
 }
 \description{
-This function is used in order to make it so a user can submit either a path to a data file or a data object in data.frame or data.table form.
+This function is used in order to make it so a user can submit
+either a path to a data file or a data object in data.frame or data.table
+form.
 }
 \keyword{checkIfFile()}
 \keyword{evidence,}

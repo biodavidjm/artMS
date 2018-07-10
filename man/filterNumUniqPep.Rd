@@ -21,7 +21,7 @@ filterNumUniqPep(evidence_file, keys_file, prot_groups_file, min_pep,
 \item{return.results}{Whether or not to return the results to the R environment upon completion. This is useful if this is being used in an R pipeline and you want to feed the results directly into the next stage of analysis via an R environment/terminal. Regardless, the results will be written to file. Default = FALSE}
 }
 \description{
-This will remove all condition-protein instance where the number of unique peptides is below the `min_pep` threshold. The results are written out to a file that is named similar to the evidence file, but also contains the filtering cutoff used.
+This will remove all condition-protein instance where the number of unique peptides is below the \code{min_pep} threshold. The results are written out to a file that is named similar to the evidence file, but also contains the filtering cutoff used.
 }
 \keyword{MSStats}
 \keyword{MaxQuant,}
