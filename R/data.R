@@ -12,14 +12,13 @@
 
 #' MaxQuant Phosphorylation evidence file
 #' 
-#' Phosphorylation data set generated on Human cell lines
-#' 
-#' Two different cell lines analyzed:  `Cal33` and `HSC6`
+#' Comparison of the phosphoproteome of two head and neck cancer cell lines, 
+#' Cal33 and HSC6.
 #' 
 #' 4 replicates per cell line
 #' 
 #' The information about the experimental design of the evidence file can 
-#' be found in the data.frame also available in this package named `ph_keys`
+#' be found the data object called `ph_keys` also available in `artMS`
 #' 
 #' @format tab delimited file
 #' \describe{
@@ -29,15 +28,14 @@
 #' }
 "ph_evidence"
 
-#' Keys file: Experimental design describing the `ph_evidence` file
+#' Keys file: Experimental design describing the `ph_evidence` data object
 #' 
 #' Data frame with the information about the experimental design.
-#' It provides the metadata of the `ph_evidence` data.frame also available in 
+#' It provides the metadata of the `ph_evidence` data object also available in 
 #' this package (see `vignettes` to find out more)
 #' 
-#' Phosphorylation data set generated on Human cell lines
-#' 
-#' Two different cell lines analyzed:  Cal33 and HSC6
+#' Comparison of the phosphoproteome of two head and neck cancer cell lines, 
+#' Cal33 and HSC6.
 #' 
 #' 4 replicates per cell line
 #' 
