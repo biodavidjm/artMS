@@ -1,7 +1,16 @@
-# Create data files
+# CREATE SAMPLE DATA FILES FOR THE PACKAGE
 
-# Generate Random File
+setwd("~/github/biodavidjm/artMS/")
+
+# GENERATE RANDOM FILE
 randomDF <- data.frame(replicate(10,sample(0:1,100,rep=TRUE)))
+save(randomDF, file = 'data/randomDF.Rdata')
 
-save(randomDF, file = '~/github/biodavidjm/artMS/data/randomDF.Rdata')
+# PH FILES
+# MaxQuant Evidence file
+ph_evidence <- read.delim('data-raw/ph/evidence.txt', stringsAsFactors = F)
+save(ph_keys, file='data/ph_keys.Rdata')
 
+# Keys file (experimental design)
+ph_keys <- read.delim("data-raw/ph/keys.txt", stringsAsFactors = F)
+save(ph_evidence, file='data/ph_evidence.Rdata')

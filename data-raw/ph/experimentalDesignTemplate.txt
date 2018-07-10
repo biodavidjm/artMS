@@ -1,0 +1,9 @@
+Name	Fraction	Experiment
+qx006145		Cal33_1
+qx006146		Cal33_2
+qx006147		Cal33_3
+qx006148		Cal33_4
+qx006151		HSC6_2
+qx006152		HSC6_3
+qx006153		HSC6_4
+qx006154		HSC6_1
