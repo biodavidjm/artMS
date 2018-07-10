@@ -2,6 +2,7 @@
 
 export(avg_intensity_RT)
 export(checkDir)
+export(checkEvidenceVersion)
 export(checkIfFile)
 export(corrPlot)
 export(filterNumUniqPep)
