@@ -1,5 +1,6 @@
-#' @import reshape2
 #' @import data.table
+#' @importFrom reshape2 dcast
+
 
 #' @title Summarize the MSStats results and data quantification
 #' @description Converts the MSStats results file to wide format 
@@ -29,7 +30,7 @@ msstats_summary <- function(evidence_file, prot_group_file, keys_file, results_f
     dat <- merge(evidence, keys, by.x = "Raw file", by.y = "Raw.file")
     # get SPECTRAL COUNTS
     cat(">>   Summarizing Spectral Counts\n")
-    dat.sc <- reshape::dcast(data = dat, Proteins ~ BioReplicate, value.var = "MS/MS Count", max, fill = NA_real_)
+    dat.sc <- reshape2::dcast(data = dat, Proteins ~ BioReplicate, value.var = "MS/MS Count", max, fill = NA_real_)
     names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
     # get INTENSITIES
     cat(">>   Summarizing Intensities\n")
