@@ -1,74 +1,71 @@
 #' @import RColorBrewer
 #' @import pheatmap
 #' @import ggplot2
-# theme_set(theme_bw(base_size = 15, base_family='Helvetica'))
 
-############ FUNCTIONS
-
-is.uniprotAc = function(identifier) {
+is.uniprotAc <- function(identifier) {
     grepl("[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}", identifier)
 }
 
-filterMaxqData = function(data) {
-    data_selected = data[grep("CON__|REV__", data$Proteins, invert = T), ]
+filterMaxqData <- function(data) {
+    data_selected <- data[grep("CON__|REV__", data$Proteins, invert = T), ]
     idx <- which(data_selected$Proteins == "")
     if (length(idx) > 0) 
-        data_selected = data_selected[-idx, ]
+        data_selected <- data_selected[-idx, ]
     return(data_selected)
 }
 
-explodeMaxQProteinGroups = function(data) {
+explodeMaxQProteinGroups <- function(data) {
     return(data)
 }
 
-removeMaxQProteinGroups = function(data) {
-    data_selected = data[grep(";", data$Proteins, invert = T), ]
+removeMaxQProteinGroups <- function(data) {
+    data_selected <- data[grep(";", data$Proteins, invert = T), ]
     return(data_selected)
 }
 
-########################## MELTING AND CASTING ###
+#' MELTING AND CASTING
 
-naMax = function(x) {
+naMax <- function(x) {
     return(max(x, na.rm = T))
 }
 
-castMaxQToWide = function(d_long) {
-    data_w = dcast.data.table(Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType, data = d_long, value.var = "Intensity", 
+castMaxQToWide <- function(d_long) {
+    data_w <- dcast.data.table(Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType, data = d_long, value.var = "Intensity", 
         fun.aggregate = sum, fill = NA)
     # setnames(data_w,2,'Sequence')
     return(data_w)
 }
 
-castMaxQToWidePTM = function(d_long) {
-    data_w = dcast.data.table(Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType, data = d_long, value.var = "Intensity", 
+castMaxQToWidePTM <- function(d_long) {
+    data_w <- dcast.data.table(Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType, data = d_long, value.var = "Intensity", 
         fun.aggregate = sum, fill = NA)
     setnames(data_w, 2, "Sequence")
     return(data_w)
 }
 
-# eg. getIsotopeLabel('VE20130426_04_dbdbk_Light')
-getIsotopeLabel = function(str) {
-    last_idx = regexpr("\\_[^\\_]*$", str)[1]
+#' eg. getIsotopeLabel('VE20130426_04_dbdbk_Light')
+getIsotopeLabel <- function(str) {
+    last_idx <- regexpr("\\_[^\\_]*$", str)[1]
     return(substr(str, last_idx + 1, nchar(str)))
 }
 
 ## eg. getFileNameWithoutLabel('VE20130426_04_dbdbk_Light')
-getFileNameWithoutLabel = function(str) {
-    last_idx = regexpr("\\_[^\\_]*$", str)[1]
+getFileNameWithoutLabel <- function(str) {
+    last_idx <- regexpr("\\_[^\\_]*$", str)[1]
     return(substr(str, 0, last_idx - 1))
 }
 
-meltMaxQToLong = function(data_w, na.rm = F) {
-    data_l = reshape2::melt(data_w, id.vars = c("Proteins", "Sequence", "Charge"), na.rm = na.rm)
+meltMaxQToLong <- function(data_w, na.rm = F) {
+    data_l <- reshape2::melt(data_w, id.vars = c("Proteins", "Sequence", "Charge"), na.rm = na.rm)
     setnames(data_l, old = 4:5, new = c("RawFile", "Intensity"))
     data_l[, `:=`("IsotopeLabelType", NA)]
-    data_l$IsotopeLabelType = apply(data_l, 1, function(x) getIsotopeLabel(x["RawFile"]))
-    data_l$RawFile = apply(data_l, 1, function(x) getFileNameWithoutLabel(x["RawFile"]))
+    data_l$IsotopeLabelType <- apply(data_l, 1, function(x) getIsotopeLabel(x["RawFile"]))
+    data_l$RawFile <- apply(data_l, 1, function(x) getFileNameWithoutLabel(x["RawFile"]))
     return(data_l)
 }
 
-fillMissingMaxQEntries = function(data_w, perRun = F) {
-    mins = apply(data_w[, 4:ncol(data_w), with = F], 2, function(x) min(x[x > 0], na.rm = T))
+fillMissingMaxQEntries <- function(data_w, perRun = F) {
+    mins <- apply(data_w[, 4:ncol(data_w), with = F], 2, function(x) min(x[x > 0], na.rm = T))
     for (j in (4:ncol(data_w))) if (perRun) {
         set(data_w, which(is.na(data_w[[j]])), j, mins[j - 3])
     } else {
@@ -77,18 +74,18 @@ fillMissingMaxQEntries = function(data_w, perRun = F) {
     return(data_w)
 }
 
-cleanMissingMaxQEntries = function(data_l) {
+cleanMissingMaxQEntries <- function(data_l) {
     data_l[data_l$Intensity <= 0 | is.infinite(data_l$Intensity) | is.nan(data_l$Intensity), ]$Intensity = NA
     return(data_l)
 }
 
-flattenMaxQTechRepeats = function(data_l) {
+flattenMaxQTechRepeats <- function(data_l) {
     
 }
 
-flattenKeysTechRepeats = function(keys) {
-    keys_agg = aggregate(. ~ BioReplicate, data = keys, FUN = function(x) unique(x)[1])
-    keys_agg$Run = keys_agg$BioReplicate
+flattenKeysTechRepeats <- function(keys) {
+    keys_agg <- aggregate(. ~ BioReplicate, data = keys, FUN = function(x) unique(x)[1])
+    keys_agg$Run <- keys_agg$BioReplicate
     return(keys_agg)
 }
 
@@ -101,14 +98,14 @@ flattenKeysTechRepeats = function(keys) {
 #' @keywords MSStats MaxQuant mss
 #' mergeMaxQDataWithKeys()
 #' @export
-mergeMaxQDataWithKeys = function(data, keys, by = c("RawFile")) {
+mergeMaxQDataWithKeys <- function(data, keys, by = c("RawFile")) {
     # Check if the number of RawFiles is the same.
     unique_data <- unique(data$RawFile)
     unique_keys <- unique(keys$RawFile)
     
     if (length(unique_keys) != length(unique_data)) {
-        keys_not_found = setdiff(unique_keys, unique_data)
-        data_not_found = setdiff(unique_data, unique_keys)
+        keys_not_found <- setdiff(unique_keys, unique_data)
+        data_not_found <- setdiff(unique_data, unique_keys)
         cat(sprintf("keys found: %s \t keys not in data file:\n%s\n", length(unique_keys) - length(keys_not_found), paste(keys_not_found, 
             collapse = "\t")))
         cat(sprintf("data found: %s \t data not in keys file:\n%s\n", length(unique_data) - length(data_not_found), paste(data_not_found, 
@@ -118,29 +115,29 @@ mergeMaxQDataWithKeys = function(data, keys, by = c("RawFile")) {
     }
     
     ## select only required attributes from MQ format
-    data = merge(data, keys, by = by)
+    data <- merge(data, keys, by = by)
     return(data)
 }
 
-normalizePerCondition = function(d, NORMALIZATION_METHOD = "scale") {
-    unique_conditions = unique(d$Condition)
-    d_tmp = c()
+normalizePerCondition <- function(d, NORMALIZATION_METHOD = "scale") {
+    unique_conditions <- unique(d$Condition)
+    d_tmp <- c()
     
     for (u in unique_conditions) {
         print(sprintf("normalizing\t%s", u))
-        ss = data_w[d$Condition == u, ]
-        tmp = normalizeSingle(ss, NORMALIZATION_METHOD)
-        d_tmp = rbind(d_tmp, tmp)
+        ss <- data_w[d$Condition == u, ]
+        tmp <- normalizeSingle(ss, NORMALIZATION_METHOD)
+        d_tmp <- rbind(d_tmp, tmp)
     }
     d_tmp
 }
 
-na.replace = function(v, value = 0) {
+na.replace <- function(v, value = 0) {
     v[is.na(v)] = value
     return(v)
 }
 
-myNormalizeMedianValues = function(x) {
+myNormalizeMedianValues <- function(x) {
     narrays <- NCOL(x)
     if (narrays == 1) 
         return(x)
@@ -149,39 +146,39 @@ myNormalizeMedianValues = function(x) {
     t(t(x)/cmed)
 }
 
-normalizeSingle = function(data_w, NORMALIZATION_METHOD = "scale") {
+normalizeSingle <- function(data_w, NORMALIZATION_METHOD = "scale") {
     
-    data_part = as.matrix(data_w[, 4:ncol(data_w), with = F])
+    data_part <- as.matrix(data_w[, 4:ncol(data_w), with = F])
     if (NORMALIZATION_METHOD == "scale") {
-        res = myNormalizeMedianValues(data_part)
+        res <- myNormalizeMedianValues(data_part)
     } else if (NORMALIZATION_METHOD == "quantile") {
-        res = normalizeBetweenArrays(data_part, method = NORMALIZATION_METHOD)
+        res <- normalizeBetweenArrays(data_part, method = NORMALIZATION_METHOD)
     }
-    data_part_n = normalizeBetweenArrays(data_part, method = NORMALIZATION_METHOD)
-    res_f = data.table(cbind(data_w[, 1:3, with = F], res))
+    data_part_n <- normalizeBetweenArrays(data_part, method = NORMALIZATION_METHOD)
+    res_f <- data.table(cbind(data_w[, 1:3, with = F], res))
     return(res_f)
 }
 
-dataToMSSFormat = function(d) {
-    tmp = data.frame(ProteinName = d$Proteins, PeptideSequence = d$Sequence, PrecursorCharge = NA, FragmentIon = NA, ProductCharge = d$Charge, 
+dataToMSSFormat <- function(d) {
+    tmp <- data.frame(ProteinName = d$Proteins, PeptideSequence = d$Sequence, PrecursorCharge = NA, FragmentIon = NA, ProductCharge = d$Charge, 
         IsotopeLabelType = d$IsotopeLabelType, Condition = d$Condition, BioReplicate = d$BioReplicate, Run = d$Run, Intensity = d$Intensity)
     tmp
 }
 
-samplePeptideBarplot = function(data_f, config) {
+samplePeptideBarplot <- function(data_f, config) {
     # set up data into ggplot compatible format
-    data_f = data.table(data_f, labels = paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
-    data_f = data_f[with(data_f, order(labels, decreasing = T)), ]
+    data_f <- data.table(data_f, labels = paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
+    data_f <- data_f[with(data_f, order(labels, decreasing = T)), ]
     
     # plot the peptide counts for all the samples TOGETHER
-    p = ggplot(data = data_f, aes(x = labels))
-    p = p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = "mono")) + ggtitle("Unique peptides per run\n after filtering") + 
+    p <- ggplot(data = data_f, aes(x = labels))
+    p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = "mono")) + ggtitle("Unique peptides per run\n after filtering") + 
         coord_flip()
     ggsave(filename = gsub(".txt", "-peptidecounts.pdf", config$files$output), plot = p, width = 8, height = 10)
     
     # plot the peptide counts for all the samples PER BAIT
-    p = ggplot(data = data_f, aes(x = BioReplicate))
-    p = p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = "mono")) + ggtitle("Unique peptides per run\n after filtering") + 
+    p <- ggplot(data = data_f, aes(x = BioReplicate))
+    p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = "mono")) + ggtitle("Unique peptides per run\n after filtering") + 
         facet_wrap(~Condition, scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
     ggsave(filename = gsub(".txt", "-peptidecounts-perBait.pdf", config$files$output), plot = p, width = 8, height = 10)
     
@@ -203,7 +200,7 @@ sampleCorrelationHeatmap <- function(data_w, keys, config) {
     
 }
 
-plotHeat = function(mss_F, out_file, labelOrder = NULL, names = "Protein", cluster_cols = F, display = "log2FC") {
+plotHeat <- function(mss_F, out_file, labelOrder = NULL, names = "Protein", cluster_cols = F, display = "log2FC") {
     heat_data = data.frame(mss_F, names = names)
     # heat_data = mss_F[,c('uniprot_id','Label','log2FC')]
     
@@ -248,7 +245,7 @@ plotHeat = function(mss_F, out_file, labelOrder = NULL, names = "Protein", clust
     heat_data_w
 }
 
-significantHits = function(mss_results, labels = "*", LFC = c(-2, 2), FDR = 0.05) {
+significantHits <- function(mss_results, labels = "*", LFC = c(-2, 2), FDR = 0.05) {
     ## get subset based on labels
     selected_results = mss_results[grep(labels, mss_results$Label), ]
     cat(sprintf("\tAVAILABLE LABELS FOR HEATMAP:\t%s\n", paste(unique(mss_results$Label), collapse = ",")))
@@ -259,7 +256,7 @@ significantHits = function(mss_results, labels = "*", LFC = c(-2, 2), FDR = 0.05
     return(significant_results)
 }
 
-logScale = function(data, format = "wide", base = 2) {
+logScale <- function(data, format = "wide", base = 2) {
     if (format == "wide") {
         data[, 4:ncol(data)] = log(data[, 4:ncol(data)], base = base)
     } else {
@@ -270,7 +267,7 @@ logScale = function(data, format = "wide", base = 2) {
 
 ################################### doesnt work so far with new code
 
-peptideDistribution = function(data_l, output_file, PDF = T) {
+peptideDistribution <- function(data_l, output_file, PDF = T) {
     ## look at peptide distribution of all proteins
     if (PDF) 
         pdf(output_file, width = 10, height = 7)
@@ -280,7 +277,7 @@ peptideDistribution = function(data_l, output_file, PDF = T) {
         dev.off()
 }
 
-peptideIntensityPerFile = function(ref_peptides, output_file, PDF = T) {
+peptideIntensityPerFile <- function(ref_peptides, output_file, PDF = T) {
     if (PDF) 
         pdf(output_file, width = 10, height = 7)
     p = ggplot(data = ref_peptides, aes(x = Raw.file, y = Intensity, group = protein_id))
@@ -292,62 +289,7 @@ peptideIntensityPerFile = function(ref_peptides, output_file, PDF = T) {
 
 
 
-
-
-#' #' @title Create Volcano Plots from MSstats results
-#' #' @description This function creates volcanon plots of the MSstats results, allowing the user to define regions of interest (confident hits) based on the Log2FC and adjusted p-value.
-#' #' @param mss_results_sel The filepath to the MSstats results file (txt tab delimited file).
-#' #' @param file_name The filepath to the intended output file (txt tab delimited file).
-#' #' @param lfc_upper The starting point of the upper region on interest based on the Log2FC.
-#' #' @param lfc_lower The starting point of the lower region on interest based on the Log2FC.
-#' #' @param FDR The adjusted p-value cutoff to define the region of interest.
-#' #' @param PDF Whether or not to write ou a pdf of the results or not. (default = T).
-#' #' @param decimal_threshold Apply a decimal threshold. (default = 16).
-#' #' @keywords volcano, MSstats
-#' #' volcanoPlot()
-#' volcanoPlot = function(mss_results_sel, lfc_upper, lfc_lower, FDR, file_name='', PDF=T, decimal_threshold=16){
-#' 
-#'   mss_results_sel = checkIfFile(mss_results_sel, is.evidence=FALSE)
-#'     
-#'   # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
-#'   # Issues with extreme_val later if we have Inf/-Inf values.
-#'   if( sum(is.infinite(mss_results_sel$log2FC)) > 0 ){
-#'     idx <- is.infinite(mss_results_sel$log2FC)
-#'     mss_results_sel$log2FC[ idx ] <- NA
-#'   }
-#' 
-#'   min_x = -ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
-#'   max_x = ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
-#'   # Deal with special cases in the data where we have pvalues = Inf,NA,0
-#'   if( sum(is.na(mss_results_sel$adj.pvalue))>0 ) mss_results_sel <- mss_results_sel[!is.na(mss_results_sel$adj.pvalue),]
-#'   if(nrow(mss_results_sel[mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf,]) > 0) mss_results_sel[!is.na(mss_results_sel$adj.pvalue) & (mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf),]$adj.pvalue = 10^-decimal_threshold
-#'   max_y = ceiling(-log10(min(mss_results_sel[mss_results_sel$adj.pvalue > 0,]$adj.pvalue, na.rm=T))) + 1
-#' 
-#'   l = length(unique(mss_results_sel$Label))
-#'   w_base = 7
-#'   h_base = 7
-#' 
-#'   if(l<=2){
-#'     w=w_base*l
-#'   }else{
-#'     w=w_base*2
-#'   }
-#'   h = h_base*ceiling(l/2)
-#' 
-#'   if(PDF) pdf(file_name, width=w, height=h)
-#'   p = ggplot(mss_results_sel, aes(x=log2FC,y=-log10(adj.pvalue)))
-#'   print(p + geom_point(colour='grey') +
-#'     geom_point(data = mss_results_sel[mss_results_sel$adj.pvalue <= FDR & mss_results_sel$log2FC>=lfc_upper,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='red', size=2) +
-#'     geom_point(data = mss_results_sel[mss_results_sel$adj.pvalue <= FDR & mss_results_sel$log2FC<=lfc_lower,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='blue', size=2) +
-#'     geom_vline(xintercept=c(lfc_lower,lfc_upper), lty='dashed') +
-#'     geom_hline(yintercept=-log10(FDR), lty='dashed') +
-#'     xlim(min_x,max_x) +
-#'     ylim(0,max_y) +
-#'     facet_wrap(facets = ~Label, ncol = 2, scales = 'fixed'))
-#'   if(PDF) dev.off()
-#' }
-
-prettyPrintHeatmapLabels = function(uniprot_acs, uniprot_ids, gene_names) {
+prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names) {
     # uniprot_ids_trunc = gsub('([A-Z,0-9]+)_([A-Z,0-9]+)','\\1',uniprot_ids) longest_id = max(nchar(uniprot_ids_trunc))
     # tmp_frame = data.frame(t=uniprot_ids_trunc, s=longest_id-nchar(uniprot_ids_trunc)+1, g=gene_names,a=uniprot_acs,
     # stringsAsFactors=F) tmp_frame[is.na(tmp_frame$t),]$t=tmp_frame[is.na(tmp_frame$t),]$a result = apply(tmp_frame, 1,
@@ -357,7 +299,7 @@ prettyPrintHeatmapLabels = function(uniprot_acs, uniprot_ids, gene_names) {
     return(result)
 }
 
-normalizeToReference = function(data_l_ref, ref_protein, PDF = T, output_file) {
+normalizeToReference <- function(data_l_ref, ref_protein, PDF = T, output_file) {
     
     data_l_ref$Intensity = log2(data_l_ref$Intensity)
     
@@ -398,7 +340,7 @@ normalizeToReference = function(data_l_ref, ref_protein, PDF = T, output_file) {
     return(data_l_ref)
 }
 
-simplifyAggregate = function(str, sep = ",", numeric = F) {
+simplifyAggregate <- function(str, sep = ",", numeric = F) {
     str_vec = unlist(str_split(str, pattern = sep))
     if (numeric) {
         str_vec = sort(unique(as.numeric(str_vec)))
@@ -410,7 +352,7 @@ simplifyAggregate = function(str, sep = ",", numeric = F) {
     return(str_new)
 }
 
-simplifyOutput = function(input) {
+simplifyOutput <- function(input) {
     input$Protein = apply(input, 1, function(x) simplifyAggregate(unname(x["Protein"]), sep = ";"))
     if (any(grepl("mod_sites", colnames(input)))) {
         input$mod_sites = apply(input, 1, function(x) simplifyAggregate(unname(x["mod_sites"])))

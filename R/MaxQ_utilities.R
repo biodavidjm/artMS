@@ -11,10 +11,6 @@
 #' @import bit64
 
 
-
-# ~~~~~~~~~~~~~~~~~~~ BEGIN FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~~~
-
-
 #' @title Convert Silac to Long Format
 #' @description This function converts a silac labeled MaxQuant file and splits the H/L cases apart into separate rows.
 #' @param filename The filepath to the MaxQuant silac data (txt tab delimited file).
@@ -302,26 +298,26 @@ MQutil.annotate = function(input_file = opt$input, output_file = opt$output, uni
 }
 
 
-#' #' @title Convert default MSStat results file to Wide format.
-#' #' @description Converts the normal MSStats output file into 'wide' format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
-#' #' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' #' @param save_file The filepath to the intended output file (txt tab delimited file).
-#' #' @param return_results Whether to return the results at the end of the function (default =F).
-#' #' @keywords wide MSStats results
-#' #' MQutil.resultsWide()
-#' MQutil.resultsWide = function(input_file, save_file=F, return_results=F){
-#'   input = checkIfFile(input_file)
-#'   input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
-#' 
-#'   ## then cast to get combinations of LFCV/PVAl and Label as columns
-#'   input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
-#'   if(save_file){
-#'     write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-#'   }
-#'   if(return_results){
-#'     return(input_w)
-#'   }
-#' }
+#' @title Convert default MSStat results file to Wide format.
+#' @description Converts the normal MSStats output file into 'wide' format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
+#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
+#' @param save_file The filepath to the intended output file (txt tab delimited file).
+#' @param return_results Whether to return the results at the end of the function (default =F).
+#' @keywords wide MSStats results
+#' MQutil.resultsWide()
+MQutil.resultsWide = function(input_file, save_file=F, return_results=F){
+  input = checkIfFile(input_file)
+  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
+
+  ## then cast to get combinations of LFCV/PVAl and Label as columns
+  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
+  if(save_file){
+    write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+  }
+  if(return_results){
+    return(input_w)
+  }
+}
 
 
 #' @title Map the results back into sites format after MSStats PTM site analysis.
@@ -338,8 +334,12 @@ MQutil.mapSitesBack = function(input_file, mapping_file, output_file) {
     mapping = unique(mapping[!is.na(mod_sites), c("Protein", "mod_sites"), with = F])
     mapping = aggregate(Protein ~ mod_sites, data = mapping, FUN = function(x) paste(x, collapse = ";"))
     out = merge(input, mapping, by = "mod_sites", all.x = T)
-    write.table(out[, c(ncol(out), 1:(ncol(out) - 1)), with = F], file = output_file, eol = "\n", sep = "\t", quote = F, row.names = F, 
-        col.names = T)
+    write.table(out[, c(ncol(out), 1:(ncol(out) - 1)), with = F], 
+                file = output_file, eol = "\n", 
+                sep = "\t", 
+                quote = F, 
+                row.names = F, 
+                col.names = T)
 }
 
 

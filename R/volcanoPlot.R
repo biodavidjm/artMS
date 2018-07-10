@@ -1,15 +1,15 @@
 #' @title Create Volcano Plots from MSstats results
 #' @description This function creates volcanon plots of the MSstats results, allowing the user to define regions of interest (confident hits) based on the Log2FC and adjusted p-value. A ggplot object will be returned. 
 #' @param mss_results_sel The filepath to the MSstats results file (txt tab delimited file).
-#' @param file_name The filepath to the intended output file (txt tab delimited file).
-#' @param lfc_upper The starting point of the upper region on interest based on the Log2FC (default = 2).
-#' @param lfc_lower The starting point of the lower region on interest based on the Log2FC (default = -2).
+#' @param file_name The filepath and file name to the intended output file (e.g `volcano.pdf`).
+#' @param lfc_upper The starting point of the upper region on interest based on the Log2FC (default = 1).
+#' @param lfc_lower The starting point of the lower region on interest based on the Log2FC (default = -1).
 #' @param FDR The adjusted p-value cutoff to define the region of interest (default = 0.05).
 #' @param PDF Whether or not to write ou a pdf of the results or not. (default = F).
 #' @param decimal_threshold Apply a decimal threshold. (default = 16).
 #' @keywords volcano, MSstats
 #' volcanoPlot()
-volcanoPlot = function(mss_results_sel, lfc_upper = 2, lfc_lower = -2, FDR = 0.05, file_name = "", PDF = F, decimal_threshold = 16) {
+volcanoPlot = function(mss_results_sel, lfc_upper = 1, lfc_lower = -1, FDR = 0.05, PDF = F, file_name = "volcano.pdf", decimal_threshold = 16) {
     
     mss_results_sel = checkIfFile(mss_results_sel, is.evidence = FALSE)
     

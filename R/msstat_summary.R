@@ -2,8 +2,14 @@
 #' @import data.table
 
 #' @title Summarize the MSStats results and data quantification
-#' @description Converts the MSStats results file to wide format (columns are the contrasts), as well as adds BioReplicate information about the Number of Unique Peptides, Spectral Counts, and Intensities for each protein. In cases where there are multiple values for a Protein-BioReplicate pair due to minute changes in sequence, the maximum value is taken for the pair. Any pairs without a value are assigned a value of NA.
-#' @param evidence_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).
+#' @description Converts the MSStats results file to wide format 
+#' (columns are the contrasts), as well as adds BioReplicate information about 
+#' the Number of Unique Peptides, Spectral Counts, and Intensities for each 
+#' protein. In cases where there are multiple values for a Protein-BioReplicate
+#' pair due to minute changes in sequence, the maximum value is taken for the 
+#' pair. Any pairs without a value are assigned a value of NA.
+#' @param evidence_file The filepath to the MaxQuant searched data (evidence) 
+#' file (txt tab delimited file).
 #' @param prot_groups_file The filepath to the MaxQuant searched Protein Groups file (txt tab delimited file).
 #' @param keys_groups_file The filepath to the keys file used with MSStats (txt tab delimited file).
 #' @param results_groups_file The filepath to the MSStats results file in the default long format (txt tab delimited file).
@@ -23,7 +29,7 @@ msstats_summary <- function(evidence_file, prot_group_file, keys_file, results_f
     dat <- merge(evidence, keys, by.x = "Raw file", by.y = "Raw.file")
     # get SPECTRAL COUNTS
     cat(">>   Summarizing Spectral Counts\n")
-    dat.sc <- dcast(data = dat, Proteins ~ BioReplicate, value.var = "MS/MS Count", max, fill = NA_real_)
+    dat.sc <- reshape::dcast(data = dat, Proteins ~ BioReplicate, value.var = "MS/MS Count", max, fill = NA_real_)
     names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
     # get INTENSITIES
     cat(">>   Summarizing Intensities\n")

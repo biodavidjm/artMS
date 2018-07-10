@@ -3,8 +3,8 @@
 #' @import data.table
 #' @import getopt
 #' @import ggplot2
-#' @import graphics
-#' @import grDevices
+#' @importFrom graphics pairs
+#' @importFrom grDevices colorRampPalette dev.off pdf
 #' @import limma
 #' @import pheatmap
 #' @import plotly
@@ -12,6 +12,7 @@
 #' @import reshape2
 #' @import seqinr
 #' @import shiny
-#' @import stats
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
 #' @import stringr
+#' @importFrom utils combn installed.packages read.delim read.delim2 write.table
 #' @import yaml
