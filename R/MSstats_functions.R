@@ -1,14 +1,3 @@
-#' @import data.table
-#' @import ggplot2
-#' @import graphics
-#' @import grDevices
-#' @import limma
-#' @import pheatmap
-#' @import RColorBrewer
-#' @import reshape2
-#' @import stats
-#' @import stringr
-
 # ==============================================================================
 ## Small RMSQv3 FUNCTIONS
 
@@ -160,8 +149,6 @@ mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
 #' MQutil.SILACToLong()
 #' @export
 MQutil.SILACToLong = function(filename, output){
-  library(data.table)
-  library(reshape2)
   file = Sys.glob(filename)
   cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
   tmp = fread(file, integer64 = 'double')

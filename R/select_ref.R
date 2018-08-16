@@ -1,9 +1,3 @@
-#' @import ggplot2
-#' @import shiny
-#' @import reshape2
-#' @import plotly
-
-
 #' @title Select Reference protein(s) for normalization
 #' @description This function creates an interactive environment where the user can select which prein(s) to use as a reference when normalizing the different samples prior to analysis. Only proteins that are present in each sample are considered. The user can remove the unnecessary/unwanted proteins by checking the box next to the protein name. One can use the general view of the proteins plotted across the samples, or at a clustering of the proteins.
 #' @param dat_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).

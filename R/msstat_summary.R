@@ -1,7 +1,3 @@
-#' @import data.table
-#' @importFrom reshape2 dcast
-
-
 #' @title Summarize the MSStats results and data quantification
 #' @description Converts the MSStats results file to wide format 
 #' (columns are the contrasts), as well as adds BioReplicate information about 

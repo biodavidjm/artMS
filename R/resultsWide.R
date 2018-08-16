@@ -1,5 +1,3 @@
-#' @import reshape2
-
 
 #' @title Convert default MSStat results file to Wide format.
 #' @description Converts the normal MSStats output file into 'wide' format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.

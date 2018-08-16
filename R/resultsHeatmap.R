@@ -1,8 +1,3 @@
-#' @import ggplot2
-#' @import ggdendro
-#' @import plotly
-#' @import reshape2
-
 
 #' @title Create Heatmap from MSStat Results
 #' @description This will read in the MSStats results file (original long form) and output a heatmap of the results. The plot, as a ggplot object, is returned.

@@ -1,6 +1,3 @@
-#' @import data.table
-
-# Format MaxQuant file to MSStats format ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Convert MaxQuant evidence file to MSStats compatible format
 #' @description This will take a MaxQuant searched evidence data and convert it to a format compatible with MSStats.
 #' @param evidence_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).

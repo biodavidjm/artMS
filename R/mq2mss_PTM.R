@@ -1,6 +1,3 @@
-# WARNING: Does not account for Silac data
-
-#' @import reshape2
 #' @title MaxQuant PTM to MSStats.
 #' @description Converts a MaxQuant PTM Sites file into a MSStats compatible file.
 #' @param ptmsites_file The filepath/object to the PTM Sites.
@@ -61,26 +58,6 @@ mq2mss_PTM = function(ptmsites_file) {
     cat("MSS COMPATIBLE FILE SAVED. \n\tHAVE A NICE DAY :)")
     return(mss)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

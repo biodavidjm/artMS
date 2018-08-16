@@ -1,16 +1,4 @@
 
-#' @import data.table
-#' @import seqinr
-#' @import stringr
-#' @import bit64
-#' @import getopt
-#' @import reshape2
-#' @import biomaRt
-#' @import limma
-#' @import ggplot2
-#' @import bit64
-
-
 #' @title Convert Silac to Long Format
 #' @description This function converts a silac labeled MaxQuant file and splits the H/L cases apart into separate rows.
 #' @param filename The filepath to the MaxQuant silac data (txt tab delimited file).
@@ -18,8 +6,6 @@
 #' @keywords silac
 #' MQutil.SILACToLong()
 MQutil.SILACToLong = function(filename, output) {
-    library(data.table)
-    library(reshape2)
     file = Sys.glob(filename)
     cat(sprintf("\tPROCESSING:\n\t%s\n", paste(file, collapse = "\n\t")))
     tmp = fread(file, integer64 = "double")
@@ -42,7 +28,6 @@ MQutil.SILACToLong = function(filename, output) {
 #' @keywords concatenate join merge
 #' MQutil.concat()
 MQutil.concat = function(filenames, output) {
-    library(data.table)
     files = Sys.glob(filenames)
     cat(sprintf("\tPROCESSING:\n\t%s\n", paste(files, collapse = "\n\t")))
     
@@ -75,7 +60,6 @@ MQutil.concat = function(filenames, output) {
 }
 
 MQutil.getKeys = function(filename, output) {
-    library(data.table)
     file = Sys.glob(filename)
     cat(sprintf("\tPROCESSING:\n\t%s\n", paste(file, collapse = "\n\t")))
     # tmp = data.table(read.delim(file, stringsAsFactors=F))
