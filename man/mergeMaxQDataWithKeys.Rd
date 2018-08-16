@@ -2,21 +2,25 @@
 % Please edit documentation in R/MSstats_functions.R
 \name{mergeMaxQDataWithKeys}
 \alias{mergeMaxQDataWithKeys}
-\title{Merge MaxQuant Data with Keys}
+\title{Merge evidence and keys files}
 \usage{
 mergeMaxQDataWithKeys(data, keys, by = c("RawFile"))
 }
 \arguments{
-\item{data}{Data from the evidence file in a data.table .}
+\item{data}{The evidence in data.frame}
 
-\item{keys}{The information from the keys file in a data.table .}
+\item{keys}{The keys in data.frame}
 
-\item{by}{What column(s) to merge the data and keys data on. Default = 'RawFile'}
+\item{by}{Vector specifying the columns use to merge the evidence and keys.}
+}
+\value{
+A new data.frame with the evidence and keys merged
+Default: \code{RawFile}
 }
 \description{
-This will merge a MaxQuant evidence file and keys file.
+Merge the evidence and keys files on the given columns
 }
-\keyword{MSStats}
-\keyword{MaxQuant}
+\keyword{evidence,}
+\keyword{keys}
+\keyword{merge,}
 \keyword{mergeMaxQDataWithKeys()}
-\keyword{mss}

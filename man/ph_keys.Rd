@@ -3,7 +3,7 @@
 \docType{data}
 \name{ph_keys}
 \alias{ph_keys}
-\title{Keys file: Experimental design describing the \code{ph_evidence} file}
+\title{Keys file: Experimental design describing the \code{ph_evidence} data object}
 \format{Tab delimited file with the following columns:
 \describe{
 \item{Raw.file}{Raw file processed. Each one should be either a
@@ -25,13 +25,12 @@ ph_keys
 }
 \description{
 Data frame with the information about the experimental design.
-It provides the metadata of the \code{ph_evidence} data.frame also available in
+It provides the metadata of the \code{ph_evidence} data object also available in
 this package (see \code{vignettes} to find out more)
 }
 \details{
-Phosphorylation data set generated on Human cell lines
-
-Two different cell lines analyzed:  Cal33 and HSC6
+Comparison of the phosphoproteome of two head and neck cancer cell lines,
+Cal33 and HSC6.
 
 4 replicates per cell line
 }

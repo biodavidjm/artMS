@@ -14,14 +14,13 @@ more about it:
 ph_evidence
 }
 \description{
-Phosphorylation data set generated on Human cell lines
+Comparison of the phosphoproteome of two head and neck cancer cell lines,
+Cal33 and HSC6.
 }
 \details{
-Two different cell lines analyzed:  \code{Cal33} and \code{HSC6}
-
 4 replicates per cell line
 
 The information about the experimental design of the evidence file can
-be found in the data.frame also available in this package named \code{ph_keys}
+be found the data object called \code{ph_keys} also available in \code{artMS}
 }
 \keyword{datasets}

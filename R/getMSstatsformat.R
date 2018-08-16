@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#' @title Generate MSstats format file
+#' @title Generate MSstats format object and file
 #' @description Takes as input a reduced version of the Evidence file and 
 #' generates the input data.frame required by MSstats. It processes fractionated
 #' data.

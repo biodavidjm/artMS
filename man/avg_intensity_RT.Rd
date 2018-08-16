@@ -7,19 +7,25 @@
 avg_intensity_RT(evidence_file, protein_file = NULL, output_file = FALSE)
 }
 \arguments{
-\item{evidence_file}{The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).}
+\item{evidence_file}{The filepath to the MaxQuant searched data (evidence)
+file (txt tab delimited file).}
 
-\item{protein_file}{The filepath to a file or vector conatining a list of proteins of interest.}
+\item{protein_file}{The filepath to a file or vector conatining a list of
+proteins of interest.}
 
-\item{output_file}{The filepath to where you want the results saved. If no file path is given, then the results will be returned as an R object.}
+\item{output_file}{The filepath to where you want the results saved. If no
+file path is given, then the results will be returned as an R object.}
 }
 \description{
-This will summarize the evidence file and report back the average intensity, average retention time, and the average caliberated retention time. If a list of proteins is provided, then only those proteins will be summarized and returned.
+This will summarize the evidence file and report back the
+average intensity, average retention time, and the average caliberated
+retention time. If a list of proteins is provided, then only those proteins
+will be summarized and returned.
 }
 \keyword{MaxQuant,}
+\keyword{avg_intensity_RT()}
 \keyword{caliberated}
 \keyword{evidence,}
-\keyword{file_summary()}
 \keyword{intensity,}
 \keyword{retention}
 \keyword{summary,}

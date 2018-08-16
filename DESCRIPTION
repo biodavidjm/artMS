@@ -5,6 +5,8 @@ Authors@R: c(
     person("David", "Jimenez-Morales", email = "biodavidjm@gmail.com", 
     role = c("aut", "cre", "cph")),
     person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", 
+    role = c("aut")),
+    person("Alexandre", "Rosa Campos", email = "arosacampos@sbpdiscovery.org", 
     role = c("aut"))
     )
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
@@ -18,7 +20,7 @@ Description: artMS provides a set of tools for the analysis of proteomics
 License: GPL-3
 URL: https://github.com/biodavidjm/artMS
 BugReports: https://github.com/biodavidjm/artMS/issues
-Depends: R (>= 3.3.0)
+Depends: R (>= 3.5.0)
 Imports:
   biomaRt,
   bit64,
