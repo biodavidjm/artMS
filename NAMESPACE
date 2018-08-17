@@ -3,6 +3,7 @@
 export(Extras.annotate)
 export(MQutil.SILACToLong)
 export(artms_proteinToSiteConversion)
+export(artms_resultsWide)
 export(avg_intensity_RT)
 export(castMaxQToWide)
 export(castMaxQToWidePTM)

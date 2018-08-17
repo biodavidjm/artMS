@@ -1,122 +1,26 @@
 
-#' @title Annotate MSStats results file.
-#' @description Annotates the proteins in the results or results-wide files after they've been through the MSStats pipeline. Multiple species can be searched at once, simply separate them by a '-'. (eg. human-mouse).
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param output_file The filepath to the intended output file (txt tab delimited file).
-#' @param uniprot_ac_col Name of the column containing the uniprot ID's. Defaults to 'Protein'.
-#' @param uniprot_dir Directory location of where the uniprot database flatfiles are located.
-#' @param species The species contained in this search of uniprot files. Can include multiple species separated by a '-' .
-#' @keywords annotate annotation uniprot
-#' MQutil.annotate()
-MQutil.annotate = function(input_file = opt$input, output_file = opt$output, uniprot_ac_col = "Protein", group_sep = ";", uniprot_dir = "~/Box Sync/db/mist/", 
-    species = "HUMAN") {
-    cat(">> ANNOTATING\n")
-    results = read.delim(input_file, stringsAsFactors = F, sep = "\t")
-    
-    # remove unnamed proteins that are listed as ''
-    if (length(which(results$Protein == "")) > 0) 
-        results <- results[-which(results$Protein == ""), ]
-    
-    # read in all the annotation files from the uniprot_db directory
-    species_split = unlist(strsplit(species, "-"))
-    Uniprot = NULL
-    for (org in species_split) {
-        cat(sprintf("\tLOADING %s\n", org))
-        tmp = read.delim2(sprintf("%s/uniprot_protein_descriptions_%s.txt", uniprot_dir, org), stringsAsFactors = F, quote = "")
-        if (is.null(Uniprot)) {
-            Uniprot = as.data.frame(tmp)
-        } else {
-            Uniprot = rbind(Uniprot, tmp)
-        }
-    }
-    
-    # get list of all unique prey entries in this file. Keep 'group_sep' in mind.
-    preys <- unique(results$Protein)
-    preys <- preys.original <- data.frame(prey = preys, idx = 1:length(preys), stringsAsFactors = F)
-    # split apart all the preys and index them so we can piece them back together when merging
-    preys <- do.call(rbind, apply(preys, 1, function(y) {
-        data.frame(prey = unlist(strsplit(y[1], ";")), idx = as.numeric(y[2]), stringsAsFactors = F)
-    }))
-    
-    
-    if (!any(Uniprot$Entry %in% preys$prey)) {
-        return(warning("NO ANNOTATIONS FOUND IN THE DATABASES. PLEASE CHECK THAT THE CORRECT DATABASES WERE ENTERED,\n  AND THAT THE PROTEIN COLUMN CONTAINS THE CORRECT NAMES TO SEARCH."))
-    }
-    # annotate all the preys wiht the Uniprot info
-    preys <- merge(preys, Uniprot[, c("Entry", "Entry.name", "Protein.names", "Gene.names")], by.x = "prey", by.y = "Entry", all.x = T)
-    # aggregate all the preys on the indexes so we can merge with the original data
-    
-    # merge protein name
-    tmp <- aggregate(data = preys[, c("prey", "idx", "Entry.name")], . ~ idx, paste, collapse = ";")
-    names(tmp) <- c("idx", "uniprot_ac", "Protein_name")
-    preys.new <- merge(preys.original, tmp, by = "idx", all.x = T)
-    
-    # merge protein description
-    tmp <- aggregate(data = preys[, c("idx", "Protein.names")], . ~ idx, paste, collapse = ";")
-    names(tmp) <- c("idx", "Protein_desc")
-    preys.new <- merge(preys.new, tmp, by = "idx", all.x = T)
-    
-    # merge protein description
-    preys$Gene.names <- gsub(" .*", "", preys$Gene.names)
-    tmp <- aggregate(data = preys[, c("idx", "Gene.names")], . ~ idx, paste, collapse = ";")
-    names(tmp) <- c("idx", "Gene.names")
-    preys.new <- merge(preys.new, tmp, by = "idx", all.x = T)
-    
-    # merge the annotations all back into the original data
-    results_out <- merge(results, preys.new, by.x = "Protein", by.y = "prey", all.x = T)
-    results_out$idx = c()
-    
-    # alert user of any unmapped proteins
-    unmapped = unique(results_out[is.na(results_out$uniprot_ac), "Protein"])
-    cat("UNMAPPED PROTEINS\t", length(unmapped), "\n")
-    cat("\t", paste(unmapped, collapse = "\n\t"), "\n")
-    write.table(results_out, file = output_file, sep = "\t", quote = F, row.names = F, col.names = T)
-    cat(">> ANNOTATING COMPLETE!\n")
-}
-
-
-#' @title Convert default MSStat results file to Wide format.
-#' @description Converts the normal MSStats output file into 'wide' format where each row represents a protein's results, and each column represents the comparison made by MSStats. The fold change and p-value of each comparison will be it's own column.
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param save_file The filepath to the intended output file (txt tab delimited file).
-#' @param return_results Whether to return the results at the end of the function (default =F).
-#' @keywords wide MSStats results
-#' MQutil.resultsWide()
-MQutil.resultsWide = function(input_file, save_file=F, return_results=F){
-  input = checkIfFile(input_file)
-  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'),with=F],id.vars=c('Protein', 'Label'))
-
+# ------------------------------------------------------------------------------
+#' @title Reshape the MSstats results file from long to wide format
+#' 
+#' @description Converts the normal MSStats output file into "wide" format 
+#' where each row represents a protein's results, and each column represents 
+#' the comparison made by MSStats. The fold change and p-value of each 
+#' comparison will be it's own column.
+#' @param input_file Input file name and location (MSstats `results.txt` file)
+#' @param output_file Output file name and location
+#' @return Reshaped file with unique protein ids and as many columns log2fc
+#' and adj.pvalues as comparisons available
+#' for as many 
+#' @keywords
+#' artms_resultsWide()
+#' @export
+artms_resultsWide <- function(input_file, output_file){
+  input = fread(input_file, integer64 = 'double')
+  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'), with=F], id.vars = c('Protein', 'Label'))
+  
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
-  if(save_file){
-    write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-  }
-  if(return_results){
-    return(input_w)
-  }
-}
-
-
-#' @title Map the results back into sites format after MSStats PTM site analysis.
-#' @description Used with PTM datasets. Map back the sites to correct proteins after MSStats analysis. This file is created previously when running the conver-sites function.
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param mapping_file The filepath to the mapping file (ending in '-mapping.txt')
-#' @param output_file The filepath to the intended output file (txt tab delimited file).
-#' @keywords map mapping MSStats results ptm sites
-#' MQutil.mapSitesBack()
-MQutil.mapSitesBack = function(input_file, mapping_file, output_file) {
-    input = fread(input_file, integer64 = "double")
-    setnames(input, "Protein", "mod_sites")
-    mapping = fread(mapping_file, integer64 = "double")
-    mapping = unique(mapping[!is.na(mod_sites), c("Protein", "mod_sites"), with = F])
-    mapping = aggregate(Protein ~ mod_sites, data = mapping, FUN = function(x) paste(x, collapse = ";"))
-    out = merge(input, mapping, by = "mod_sites", all.x = T)
-    write.table(out[, c(ncol(out), 1:(ncol(out) - 1)), with = F], 
-                file = output_file, eol = "\n", 
-                sep = "\t", 
-                quote = F, 
-                row.names = F, 
-                col.names = T)
+  write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
 }
 
 
