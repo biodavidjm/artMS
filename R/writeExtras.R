@@ -74,7 +74,7 @@ writeExtras <- function(results, config){
 #' @keywords extras, annotations
 #' Extras.annotate()
 #' @export
-Extras.annotate <- function(results, output_file=opt$output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
+Extras.annotate <- function(results, output_file=output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
   cat(">> ANNOTATING\n")
   
   # remove unnamed proteins that are listed as ""
@@ -85,7 +85,7 @@ Extras.annotate <- function(results, output_file=opt$output, uniprot_ac_col='Pro
   Uniprot = NULL
   for(org in species_split){
     cat(sprintf("\tLOADING %s\n",org))
-    tmp = read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt",uniprot_dir,org), stringsAsFactors=F, quote="")    
+    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt",uniprot_dir,org), stringsAsFactors=F, quote="")    
     if(is.null(Uniprot)){
       Uniprot = as.data.frame(tmp)
     }else{
@@ -115,7 +115,7 @@ Extras.annotate <- function(results, output_file=opt$output, uniprot_ac_col='Pro
   
   # merge protein description
   preys$Gene.names <- gsub(" .*","", preys$Gene.names)
-  tmp <- aggregate(data = preys[,c('idx','Gene.names')], .~idx, paste, collapse=";")
+  tmp <- aggregate(data = preys[,c('idx','Gene.names')], .~idx, kkpaste, collapse=";")
   names(tmp) <- c('idx','Gene.names')
   preys.new <- merge(preys.new, tmp, by='idx',all.x=T)
   

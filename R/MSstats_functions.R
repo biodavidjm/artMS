@@ -214,8 +214,8 @@ plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_
   if(extreme_val %% 2 != 0) extreme_val=extreme_val+1
   bin_size=2
   signed_bins = (extreme_val/bin_size)
-  colors_neg = rev(colorRampPalette(brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
-  colors_pos = colorRampPalette(brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
+  colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
+  colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
   colors_tot = c(colors_neg, colors_pos)
   
   if(is.null(labelOrder)){
@@ -311,8 +311,8 @@ sampleCorrelationHeatmap <- function (data_w, keys, config) {
   mat_names = paste(ordered_keys$Condition, ordered_keys$BioReplicate, ordered_keys$Run)
   colnames(mat_cor) = mat_names
   rownames(mat_cor) = mat_names
-  colors_pos = colorRampPalette(brewer.pal("Blues",n=5))(10)
-  colors_neg = rev(colorRampPalette(brewer.pal("Reds",n=5))(10))
+  colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Blues",n=5))(10)
+  colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Reds",n=5))(10))
   colors_tot = c(colors_neg, colors_pos)
   pheatmap(mat = mat_cor, cellwidth = 10, cellheight = 10, scale = 'none', filename = gsub('.txt','-heatmap.pdf',config$files$output), color = colors_tot, breaks = seq(from=-1,to = 1, by=.1), fontfamily="mono")
   

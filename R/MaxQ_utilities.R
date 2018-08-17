@@ -353,8 +353,8 @@ MQutil.plotHeat = function(input_file, output_file, labels = NULL, names = "Prot
         extreme_val = extreme_val + 1
     bin_size = 2
     signed_bins = (extreme_val/bin_size)
-    colors_neg = rev(colorRampPalette(brewer.pal("Blues", n = extreme_val/bin_size))(signed_bins))
-    colors_pos = colorRampPalette(brewer.pal("Reds", n = extreme_val/bin_size))(signed_bins)
+    colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Blues", n = extreme_val/bin_size))(signed_bins))
+    colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds", n = extreme_val/bin_size))(signed_bins)
     colors_tot = c(colors_neg, colors_pos)
     
     if (is.null(labelOrder)) {
