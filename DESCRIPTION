@@ -24,6 +24,7 @@ Depends: R (>= 3.5.0)
 Imports:
   biomaRt,
   bit64,
+  ComplexHeatmap,
   corrplot,
   data.table,
   ggdendro,
@@ -33,6 +34,7 @@ Imports:
   grDevices,
   grid,
   limma,
+  MSstats,
   org.Hs.eg.db,
   pheatmap,
   plotly,
@@ -43,6 +45,7 @@ Imports:
   stats,
   shiny,
   stringr,
+  utils,
   VennDiagram,
   yaml
 Encoding: UTF-8

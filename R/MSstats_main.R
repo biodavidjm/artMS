@@ -1,15 +1,41 @@
+#' @import biomaRt
+#' @import bit64
+#' @import corrplot
+#' @import data.table
+#' @import getopt
+#' @import ggdendro
+#' @import ggplot2
+#' @import grid
+#' @import limma
+#' @import MSstats
+#' @import org.Hs.eg.db
+#' @import pheatmap
+#' @import plotly
+#' @import plyr
+#' @import RColorBrewer
+#' @import reshape2
+#' @import seqinr
+#' @import shiny
+#' @import stringr
+#' @import VennDiagram
+#' @import yaml
+#' @importFrom graphics pairs
+#' @importFrom grDevices colorRampPalette dev.off pdf
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
+#' @importFrom utils combn installed.packages read.delim read.delim2 write.table
+
+
 # ------------------------------------------------------------------------------
 #' @title Main Function
 #' @description Main function running all the selected options
-#' @param opt the object with all the options
+#' @param yaml_config_file The yaml file name and location
 #' @return All the selected options
 #' @keywords main, driver, function
-#' main()
+#' mainART()
 #' @export
-main <- function(opt){
-  cat(">> MSSTATS PIPELINE\n")
-  config = tryCatch(yaml.load_file(opt$config), error = function(e) {cat(opt$config);break} )
-  
+mainART <- function(yaml_config_file){
+  cat(">> RUNNING artMS. LOADING CONFIGURATION FILE...\n")
+  config <- yaml.load_file(yaml_config_file)
   # process MaxQuant data, link with keys, and convert for MSStats format
   if(config$data$enabled){
     cat(">> LOADING DATA\n")
@@ -144,7 +170,3 @@ main <- function(opt){
 }
 
 
-## CONFIG LOADING
-
-# opt = getopt(spec = spec, opt = commandArgs(TRUE), command = get_Rscript_filename(), usage = FALSE, debug = FALSE)
-# opt = c(opt, config='~/experiments/artms/technical_replicas/configTR.yaml')

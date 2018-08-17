@@ -3,6 +3,10 @@
 .Rapp.history
 .Rprofile
 
+# MSstats files
+msstats.log*
+sessionInfo.txt
+
 # Session Data files
 .RData
 # Example code in package build process
