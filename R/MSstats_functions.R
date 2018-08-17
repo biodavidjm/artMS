@@ -1,5 +1,5 @@
 # ==============================================================================
-## Small RMSQv3 FUNCTIONS
+## Small MSstats-related Functions
 
 # ------------------------------------------------------------------------------
 #' @title Long to Wide format using the `Sequence` column of the evidence file
