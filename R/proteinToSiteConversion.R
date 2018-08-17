@@ -1,11 +1,11 @@
 
 # ------------------------------------------------------------------------------
-#' @title Converts the Protein IDs column of the evidence file to site-specific
-#' Uniprot_PTM notation
+#' @title Converts the `Proteins` column of the evidence file to site-specific
+#' `Uniprot_PTM` notation
 #' @description It enables the site-specific quantification of PTMs by
-#' converting the `Proteins` column of the evidence file into a `Uniprot_PTM`
+#' converting the `Proteins` column of the evidence file to a `Uniprot_PTM`
 #' notation. In this way, each of the modified peptides can be quantified
-#' independently
+#' independently.
 #' @param maxq_file The evidence file name and location
 #' @param ref_proteome_file The reference proteome (to map the peptide
 #' to the protein sequence and find out the site location)
@@ -14,8 +14,9 @@
 #' `ac`
 #' @return Return a new evidence file with the `Proteins` column modified by
 #' adding the sequence site location(s) + postranslational modification(s) 
-#' to the uniprot entry id. Examples: A34890_ph3; Q64890_ph24_ph456;
-#' Q64890_ub34_ub129_ub234; Q64890_ac35.
+#' to the uniprot entry id. 
+#' Examples: `A34890_ph3`; `Q64890_ph24_ph456`;
+#' `Q64890_ub34_ub129_ub234`; `Q64890_ac35`.
 #' @keywords
 #' artms_proteinToSiteConversion()
 #' @export
@@ -32,6 +33,7 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
     mod_residue = 'K'
   }
   
+  cat(">> READING REFERENCE PROTEOME\n")
   ## read in reference proteome
   ref_proteome = read.fasta(file = ref_proteome_file, 
                             seqtype = "AA", 
@@ -68,7 +70,7 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   protein_indices = data.table(uniprot_ac=keys, ptm_site=unlist(ptm_sites), res_index = unlist(indices))
   
   ## map mod sites in data to index 
-  
+  cat(">> OPENING EVIDENCE FILE\n")
   ## read in maxq. data
   maxq_data = fread(maxq_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
@@ -79,6 +81,7 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   mod_sites = c()
   mod_seqs = c()
   
+  cat("---Extracting information from the modified peptides (it might take some time)\n")
   for(i in 1:nrow(unique_peptides_in_data)){
     entry = unique_peptides_in_data[i,]
     peptide_seq = entry$sequence
@@ -130,10 +133,10 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   unmapped_mod_seqs = maxq_data[!(mod_seqs %in% mod_site_mapping_agg$mod_seqs) & grepl('(gl)',mod_seqs) & !grepl('REV__|CON__',Proteins),]
   unmapped_mod_seqs = unique(unmapped_mod_seqs[,c('mod_seqs','Proteins'),with=F])
   if(dim(unmapped_mod_seqs)[1]>0){
-    cat('UNABLE TO MAP\n')
+    cat('>> UNABLE TO MAP\n\t')
     print(unmapped_mod_seqs)
   }else{
-    cat('ALL SEQUENCES MAPPED\n')
+    cat(">> ALL SEQUENCES MAPPED\n")
   }
   
   final_data = merge(maxq_data, mod_site_mapping_agg, by='mod_seqs')
@@ -145,5 +148,9 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   setnames(protein_seq_mapping,'Proteins','Protein')
   mapping_table = merge(protein_seq_mapping, mod_site_mapping_agg, by='mod_seqs', all=T)
   write.table(mapping_table, file=gsub('.txt','-mapping.txt',output_file), eol='\n', sep='\t',quote=F, row.names=F, col.names=T)
+  
+  cat(">>FILES OUT:\n",
+      "\t---New evidence-site file: ", output_file, "\n",
+      "\t---Details of the Mappings: ", gsub('.txt','-mapping.txt',output_file),"\n")
 }
 

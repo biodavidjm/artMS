@@ -2,6 +2,7 @@
 
 export(Extras.annotate)
 export(MQutil.SILACToLong)
+export(artms_proteinToSiteConversion)
 export(avg_intensity_RT)
 export(castMaxQToWide)
 export(castMaxQToWidePTM)
