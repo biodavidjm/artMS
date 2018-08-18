@@ -31,9 +31,9 @@
 #' @param yaml_config_file The yaml file name and location
 #' @return All the selected options
 #' @keywords main, driver, function
-#' mainART()
+#' artms_main()
 #' @export
-mainART <- function(yaml_config_file){
+artms_main <- function(yaml_config_file){
   cat(">> RUNNING artMS. LOADING CONFIGURATION FILE...\n")
   config <- yaml.load_file(yaml_config_file)
   # process MaxQuant data, link with keys, and convert for MSStats format
