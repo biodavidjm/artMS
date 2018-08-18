@@ -167,69 +167,6 @@ MQutil.SILACToLong = function(filename, output){
 }
 
 # ------------------------------------------------------------------------------
-#' @title Heatmap of significant values
-#' 
-#' @description heatmap plot to represent proteins with significant changes
-#' @param mss_F data.frame with the significant values (log2fc, pvalues)
-#' @param out_file Name for the output
-#' @param labelOrder Vector with the particular order for the IDs (default, 
-#' `NULL` no order)
-#' @param names Type of ID used. Default is `Protein`` (uniprot entry id). 
-#' Soon will be possible to use 'Gene' name ids.
-#' @param cluster_cols Select whether to cluster the columns. Options: `T` 
-#' or `F`. Default `T`.
-#' @param display Value used to genarate the heatmaps. Options: `log2FC`, 
-#' `adj.pvalue`, `pvalue`. Default: `log2FC`
-#' @return A heatmap of significant values
-#' @keywords significant, heatmap
-#' plotHeat()
-#' @export
-plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_cols=F, display='log2FC'){
-  heat_data = data.frame(mss_F, names=names)
-  
-  ## create matrix from log2FC or p-value as user defined
-  if(display=='log2FC'){
-    # Issues with extreme_val later if we have Inf/-Inf values.
-    if( sum(is.infinite(heat_data$log2FC)) > 0 ){
-      idx <- is.infinite(heat_data$log2FC)
-      heat_data$log2FC[ idx ] <- NA
-    }
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='log2FC') 
-  }else if(display=='adj.pvalue'){
-    heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='adj.pvalue')  
-  }else if(display=='pvalue'){
-    heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='pvalue')  
-  }
-  
-  ## try
-  #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
-  rownames(heat_data_w) = heat_data_w$names
-  heat_data_w = heat_data_w[,-1]
-  heat_data_w[is.na(heat_data_w)]=0
-  max_val = ceiling(max(heat_data_w))
-  min_val = floor(min(heat_data_w))
-  extreme_val = max(max_val, abs(min_val))
-  if(extreme_val %% 2 != 0) extreme_val=extreme_val+1
-  bin_size=2
-  signed_bins = (extreme_val/bin_size)
-  colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
-  colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
-  colors_tot = c(colors_neg, colors_pos)
-  
-  if(is.null(labelOrder)){
-    cat("\t Saving heatmap\n")
-    pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename =out_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")  
-  }else{
-    heat_data_w = heat_data_w[,labelOrder]
-    pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename=out_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")
-  }
-  
-  heat_data_w
-}
-
-# ------------------------------------------------------------------------------
 #' @title Pretty Labels for Heatmaps
 #' @description Generates pretty labels for the heatmaps.
 #' @param uniprot_acs Uniprot accession id

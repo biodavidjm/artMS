@@ -2,6 +2,7 @@
 
 export(Extras.annotate)
 export(MQutil.SILACToLong)
+export(artms_plotHeatmap)
 export(artms_proteinToSiteConversion)
 export(artms_resultsWide)
 export(avg_intensity_RT)
