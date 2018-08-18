@@ -3,6 +3,8 @@
 export(Extras.annotate)
 export(MQutil.SILACToLong)
 export(artms_dataPlots)
+export(artms_evidenceToMISTINTformat)
+export(artms_evidenceToMISTformat)
 export(artms_evidenceToSaintExpressFormat)
 export(artms_plotHeatmap)
 export(artms_proteinToSiteConversion)
