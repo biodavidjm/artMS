@@ -54,11 +54,11 @@ mq2mss <- function(evidence_file, keys_file, protein_groups = "ignore", contamin
     config$filters$modification = modification
     config$files$data = output_file
     if (!is.null(config$filters$modification) | (config$filters$contaminants != F) | (config$filters$protein_groups != "ignore")) 
-        data_f = filterData(data, config) else data_f = data  #!!!!!!!
+        data_f = artms_filterData(data, config) else data_f = data  #!!!!!!!
     
     ## FORMATTING IN WIDE FORMAT FOR NORMALIZATION PURPOSES
     if (!is.null(config$filters$modification)) 
-        castFun = castMaxQToWidePTM else castFun = castMaxQToWide  #!!!!!! SOMETHING WEIRD HERE
+        castFun = artms_castMaxQToWidePTM else castFun = artms_castMaxQToWide 
     data_w = castFun(data_f)
     
     # Create heatmap
@@ -94,23 +94,6 @@ mq2mss <- function(evidence_file, keys_file, protein_groups = "ignore", contamin
             "Condition")])
     return(dmss)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -7,9 +7,9 @@
 #' - volcano plot (pdf)
 #' - Adding annotations (gene symbol based on uniprot)
 #' @keywords extras, annotations, volcano
-#' writeExtras()
+#' artms_writeExtras()
 #' @export
-writeExtras <- function(results, config){
+artms_writeExtras <- function(results, config){
   
   if(length(results)==0 | !exists('results')){
     stop("ERROR!! NO RESULTS FOUND TO ANNOTATE!")
@@ -56,7 +56,7 @@ writeExtras <- function(results, config){
   if(config$output_extras$volcano){
     cat(">>   PLOTTING VOLCANO PLOT\n")
     file_name = gsub('.txt','-volcano.pdf',config$files$output)
-    volcanoPlot(results_ann[grep(selected_labels,results_ann$Label),], lfc_upper, lfc_lower, FDR=config$output_extras$FDR, file_name=file_name)  
+    artms_volcanoPlot(results_ann[grep(selected_labels,results_ann$Label),], lfc_upper, lfc_lower, FDR=config$output_extras$FDR, file_name=file_name)  
   }
 }
 

@@ -9,9 +9,9 @@
 #' @param d_long the data.frame in long format
 #' @return Evidence file reshaped by rawfile and IsotopeLabelType
 #' @keywords data.frame, dcast
-#' castMaxQToWide()
+#' artms_castMaxQToWide()
 #' @export
-castMaxQToWide <- function(d_long){
+artms_castMaxQToWide <- function(d_long){
   data_w = data.table::dcast( Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill = NA)
   return(data_w)
 }
@@ -24,9 +24,9 @@ castMaxQToWide <- function(d_long){
 #' @param d_long the data.frame in long format
 #' @return Evidence file reshaped by rawfile and IsotopeLabelType
 #' @keywords data.frame, dcast
-#' castMaxQToWidePTM()
+#' artms_castMaxQToWidePTM()
 #' @export
-castMaxQToWidePTM <- function(d_long){
+artms_castMaxQToWidePTM <- function(d_long){
   data_w = data.table::dcast( Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill=NA)
   setnames(data_w,2,'Sequence')
   return(data_w)
@@ -95,9 +95,9 @@ artms_dataPlots <- function(input_file, output_file){
 #' @param data Evidence file (data.frame)
 #' @param config Configuration object (opened yaml file)
 #' @keywords filtering, remove, proteingroups, ptms
-#' filterData()
+#' artms_filterData()
 #' @export
-filterData <- function(data, config){
+artms_filterData <- function(data, config){
   cat(">> FILTERING\n")
   if(config$filters$protein_groups == 'remove'){
     cat("\tPROTEIN GROUPS\tREMOVE\n")
@@ -111,7 +111,7 @@ filterData <- function(data, config){
   
   if(config$filters$contaminants){
     cat("\tCONTAMINANTS\tREMOVE\n")
-    data_f = filterMaxqData(data_f)  
+    data_f = artms_filterMaxqData(data_f)  
   }
   
   if(!is.null(config$filters$modification)){
@@ -130,11 +130,11 @@ filterData <- function(data, config){
 #' @description Remove contaminants and erronously identified 'reverse' 
 #' sequences by MaxQuant
 #' @param data the data.frame in long format
-#' @return A new data.frame without REV__ and CON__ Proteins
+#' @return A new data.frame without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
-#' filterMaxqData()
+#' artms_filterMaxqData()
 #' @export
-filterMaxqData <- function(data){
+artms_filterMaxqData <- function(data){
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
   data_selected = data[grep("CON__|REV__",data$Proteins, invert=T),]
   # Remove empty proteins names
@@ -294,7 +294,7 @@ artms_resultsWide <- function(input_file, output_file){
 #' @title Correlation heatmaps of all the individual features
 #' @description Correlation heatmap using intensity values across all the 
 #' conditions
-#' @param data_w reshaped data.frame resulting from the `castMaxQToWidePTM` 
+#' @param data_w reshaped data.frame resulting from the `artms_castMaxQToWidePTM` 
 #' function
 #' @param keys keys data.frame
 #' @return A heatmap
@@ -398,9 +398,6 @@ artms_spectralCounts <- function(input_file, keys_file, output_file){
   write.table(data_sel[,c('bait_name','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
 }
 
-
-
-
 # ------------------------------------------------------------------------------
 #' @title Remove white spaces
 #' @description Remove white spaces
@@ -410,60 +407,6 @@ artms_spectralCounts <- function(input_file, keys_file, output_file){
 #' @export
 trim <- function (x){
   gsub("^\\s+|\\s+$", "", x)
-}
-
-# ------------------------------------------------------------------------------
-#' @title Volcano plot (log2fc / pvalues)
-#' @description It generates a scatter-plot used to quickly identify changes
-#' @param mss_results_sel Selected MSstats results
-#' @param lfc_upper log2fc upper threshold (positive value)
-#' @param lfc_lower log2fc lower threshold (negative value)
-#' @param FDR False Discovery Rate threshold
-#' @param file_name Name for the output file
-#' @param PDF Option to generate pdf format. Default: `T`
-#' @param decimal_threshold Decimal threshold for the pvalue. 
-#' Default: 16 (10^-16)
-#' @keywords plot, volcano
-#' volcanoPlot()
-#' @export
-volcanoPlot <- function(mss_results_sel, lfc_upper, lfc_lower, FDR, file_name='', PDF=T, decimal_threshold=16){
-  
-  # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
-  # Issues with extreme_val later if we have Inf/-Inf values.
-  if( sum(is.infinite(mss_results_sel$log2FC)) > 0 ){
-    idx <- is.infinite(mss_results_sel$log2FC)
-    mss_results_sel$log2FC[ idx ] <- NA
-  }
-  
-  min_x = -ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
-  max_x = ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
-  # Deal with special cases in the data where we have pvalues = Inf,NA,0
-  if( sum(is.na(mss_results_sel$adj.pvalue))>0 ) mss_results_sel <- mss_results_sel[!is.na(mss_results_sel$adj.pvalue),]
-  if(nrow(mss_results_sel[mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf,]) > 0) mss_results_sel[!is.na(mss_results_sel$adj.pvalue) & (mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf),]$adj.pvalue = 10^-decimal_threshold
-  max_y = ceiling(-log10(min(mss_results_sel[mss_results_sel$adj.pvalue > 0,]$adj.pvalue, na.rm=T))) + 1
-  
-  l = length(unique(mss_results_sel$Label))
-  w_base = 7
-  h_base = 7
-  
-  if(l<=2){
-    w=w_base*l 
-  }else{
-    w=w_base*2
-  }
-  h = h_base*ceiling(l/2)
-  
-  if(PDF) pdf(file_name, width=w, height=h)
-  p = ggplot(mss_results_sel, aes(x=log2FC,y=-log10(adj.pvalue)))
-  print(p + geom_point(colour='grey') + 
-          geom_point(data = mss_results_sel[mss_results_sel$adj.pvalue <= FDR & mss_results_sel$log2FC>=lfc_upper,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='red', size=2) +
-          geom_point(data = mss_results_sel[mss_results_sel$adj.pvalue <= FDR & mss_results_sel$log2FC<=lfc_lower,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='blue', size=2) +
-          geom_vline(xintercept=c(lfc_lower,lfc_upper), lty='dashed') + 
-          geom_hline(yintercept=-log10(FDR), lty='dashed') + 
-          xlim(min_x,max_x) + 
-          ylim(0,max_y) + 
-          facet_wrap(facets = ~Label, ncol = 2, scales = 'fixed')) 
-  if(PDF) dev.off()
 }
 
 

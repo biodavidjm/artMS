@@ -18,9 +18,9 @@
 #' - MSstats `designSampleSize` sample size
 #' - MSstats `designSampleSize` power experiment
 #' @keywords run, MSstats, contrast, intensity, plots, QC
-#' runMSstats()
+#' artms_runMSstats()
 #' @export
-runMSstats <- function(dmss, contrasts, config){
+artms_runMSstats <- function(dmss, contrasts, config){
   # plot the data BEFORE normalization
   if(grepl('before', config$msstats$profilePlots)){
     mssquant = dataProcess(raw = dmss, 

@@ -99,16 +99,16 @@ artms_main <- function(yaml_config_file){
     data[Intensity<1,]$Intensity=NA 
     
     ## FILTERING : handles Protein Groups and Modifications
-    if(config$filters$enabled) data_f = filterData(data, config) else data_f=data
+    if(config$filters$enabled) data_f = artms_filterData(data, config) else data_f=data
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if(!is.null(config$files$sequence_type)){
       cat(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED. 
           WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n")
-      if(config$files$sequence_type == 'modified') castFun = castMaxQToWidePTM else castFun = castMaxQToWide
+      if(config$files$sequence_type == 'modified') castFun = artms_castMaxQToWidePTM else castFun = artms_castMaxQToWide
       data_w = castFun(data_f)
     }else{
-      data_w = castMaxQToWidePTM(data_f)
+      data_w = artms_castMaxQToWidePTM(data_f)
     }
     
     ## HEATMAPS
@@ -136,7 +136,7 @@ artms_main <- function(yaml_config_file){
         config$files$sequence_type <- 'modified'
       }
       
-      dmss <- getMSstatsFormat(data_f, config$fractions$enabled, config$files$data, config$fractions$aggregate_fun)
+      dmss <- artms_getMSstatsFormat(data_f, config$fractions$enabled, config$files$data, config$fractions$aggregate_fun)
       
       ## DEPRECATED : Make sure there are no doubles !!
       ## doubles could arise when protein groups are being kept and the same 
@@ -157,13 +157,13 @@ artms_main <- function(yaml_config_file){
     contrasts <- writeContrast(config$files$contrasts)
     # make sure the column names are in alphabetical order before continuing
     contrasts = as.matrix( contrasts[,order(dimnames(contrasts)[[2]], decreasing=F)] )
-    results = runMSstats(dmss, contrasts, config)
+    results = artms_runMSstats(dmss, contrasts, config)
   }
   
   ## ANNOTATING RESULT FILE
   if(config$output_extras$enabled){
     if(!config$msstats$enabled) results = read.delim(config$output_extras$msstats_output, stringsAsFactors=F)
-    writeExtras(results$ComparisonResult, config)
+    artms_writeExtras(results$ComparisonResult, config)
   }
   
   cat(">> ANALYSIS COMPLETE! HAVE A NICE DAY :)\n")

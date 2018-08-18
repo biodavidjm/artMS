@@ -7,7 +7,7 @@
 sampleCorrelationHeatmap(data_w, keys, config)
 }
 \arguments{
-\item{data_w}{reshaped data.frame resulting from the \code{castMaxQToWidePTM}
+\item{data_w}{reshaped data.frame resulting from the \code{artms_castMaxQToWidePTM}
 function}
 
 \item{keys}{keys data.frame}

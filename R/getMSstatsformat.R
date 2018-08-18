@@ -10,9 +10,9 @@
 #' @param funfunc The function to use to aggregating the data if it is a 
 #' fractionated experiment (`sum` recommended)
 #' @keywords MSstats, format, input, fractions
-#' getMSstatsFormat()
+#' artms_getMSstatsFormat()
 #' @export
-getMSstatsFormat <- function(data_f, fraction, datafile, funfunc){
+artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc){
   cat(">> ADAPTING THE DATA TO MSSTATS FORMAT\n")
   
   data_f <- changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
