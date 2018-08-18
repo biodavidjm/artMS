@@ -2,10 +2,12 @@
 
 export(Extras.annotate)
 export(MQutil.SILACToLong)
+export(artms_dataPlots)
 export(artms_evidenceToSaintExpressFormat)
 export(artms_plotHeatmap)
 export(artms_proteinToSiteConversion)
 export(artms_resultsWide)
+export(artms_spectralCounts)
 export(avg_intensity_RT)
 export(castMaxQToWide)
 export(castMaxQToWidePTM)

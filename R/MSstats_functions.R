@@ -51,6 +51,44 @@ changeColumnName <- function(dataset, oldname, newname){
 }
 
 # ------------------------------------------------------------------------------
+#' @title Protein abundance dot plots
+#' 
+#' @description Protein abundance dot plots for each unique uniprot id
+#' @param input_file The `-normalized.txt` output file from MSstats
+#' @param output_file Wished output file name (add the `.pdf` extension)
+#' @return A pdf file with each individual protein abundance plot for each
+#' conditions
+#' @keywords abundance, dotplots, plot
+#' artms_dataPlots()
+#' @export
+artms_dataPlots <- function(input_file, output_file){
+  
+  data_mss = fread(input_file, integer64 = 'double')
+  unique_subjects = unique(data_mss$PROTEIN)
+  condition_length = length(unique(data_mss$GROUP_ORIGINAL))
+  min_abu = min(data_mss$ABUNDANCE, na.rm = T)
+  max_abu = max(data_mss$ABUNDANCE, na.rm=T)
+  
+  pdf(output_file, width = condition_length*1.5, height = 3)
+  
+  cat('PRINTING CONDITION PLOTS\n')
+  for(subject in unique_subjects){
+    subject_data = data_mss[PROTEIN==subject,]
+    cat(sprintf('\t%s\n',subject))
+    p = ggplot(data = subject_data, aes(x=SUBJECT_ORIGINAL,y=ABUNDANCE, colour=FEATURE))
+    p = p + geom_point(size=2) + 
+      facet_wrap(facets = ~ GROUP_ORIGINAL, drop = T, scales = 'free_x', ncol = condition_length) + 
+      ylim(min_abu,max_abu) +
+      theme(axis.text.x=element_text(angle=-90,hjust=1)) +
+      guides(colour=FALSE) +
+      xlab(NULL) +
+      ggtitle(subject)
+    print(p)
+  }
+  dev.off()
+}
+
+# ------------------------------------------------------------------------------
 #' @title Filtering data
 #' @description Apply the filtering options, i.e., remove protein groups and/or
 #' contaminants, and/or, select posttranslational modification (if any)
@@ -59,7 +97,6 @@ changeColumnName <- function(dataset, oldname, newname){
 #' @keywords filtering, remove, proteingroups, ptms
 #' filterData()
 #' @export
-
 filterData <- function(data, config){
   cat(">> FILTERING\n")
   if(config$filters$protein_groups == 'remove'){
@@ -330,6 +367,39 @@ significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
   significant_results = selected_results[selected_results$Protein %in% significant_proteins, ]
   return(significant_results)
 }
+
+
+# ------------------------------------------------------------------------------
+#' @title Outputs the spectral counts from the MaxQuant evidence file.
+#' 
+#' @description Outputs the spectral counts from the MaxQuant evidence file.
+#' @param input_file Maxquant evidence file
+#' @param keys_file Keys file with the experimental design
+#' @param output_file Output file name (add `.txt` extenstion)
+#' @return A txt file with biological replicates, protein id, and spectral 
+#' count columns
+#' @keywords spectral_counts, evidence
+#' artms_spectralCounts()
+#' @export
+artms_spectralCounts <- function(input_file, keys_file, output_file){
+  data = fread(input_file, integer64 = 'double')
+  keys = fread(keys_file, integer64 = 'double')
+  
+  tryCatch(setnames(data, 'Raw file', 'RawFile'), error=function(e) cat('Raw file not found. Try searching Raw.file instead\n'))
+  tryCatch(setnames(keys, 'Raw.file', 'RawFile'), error=function(e) cat('Raw file not found. Try searching Raw file instead\n'))
+  
+  cat('\tVERIFYING DATA AND KEYS\n')
+  if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
+  data = mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data_sel = data[,c('Proteins','Condition','BioReplicate','Run','MS/MS Count'),with=F]
+  setnames(data_sel,'MS/MS Count','spectral_counts')
+  data_sel = aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
+  data_sel = data.frame(data_sel, bait_name=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
+  write.table(data_sel[,c('bait_name','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+}
+
+
+
 
 # ------------------------------------------------------------------------------
 #' @title Remove white spaces

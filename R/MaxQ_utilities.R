@@ -2,59 +2,6 @@
 
 
 
-
-
-
-MQutil.dataPlots = function(input_file, output_file) {
-    data_mss = fread(input_file, integer64 = "double")
-    unique_subjects = unique(data_mss$PROTEIN)
-    condition_length = length(unique(data_mss$GROUP_ORIGINAL))
-    min_abu = min(data_mss$ABUNDANCE, na.rm = T)
-    max_abu = max(data_mss$ABUNDANCE, na.rm = T)
-    
-    pdf(output_file, width = condition_length * 1.5, height = 3)
-    
-    cat("PRINTING CONDITION PLOTS\n")
-    for (subject in unique_subjects) {
-        subject_data = data_mss[PROTEIN == subject, ]
-        cat(sprintf("\t%s\n", subject))
-        p = ggplot(data = subject_data, aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, colour = FEATURE))
-        p = p + geom_point(size = 2) + facet_wrap(facets = ~GROUP_ORIGINAL, drop = T, scales = "free_x", ncol = condition_length) + 
-            ylim(min_abu, max_abu) + theme(axis.text.x = element_text(angle = -90, hjust = 1)) + guides(colour = FALSE) + xlab(NULL) + 
-            ggtitle(subject)
-        print(p)
-    }
-    dev.off()
-}
-
-
-#' @title Get Spectral Counts
-#' @description Outputs the spectral counts from the MaxQuant evidence file.
-#' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
-#' @param keys_file The filepath to the keys file used in the MSStats analysis.
-#' @param output_file The filepath to the intended output file (txt tab delimited file).
-#' @keywords spectral spectral_counts spectral
-#' MQutil.spectralCounts()
-MQutil.spectralCounts = function(input_file, keys_file, output_file) {
-    data = fread(input_file, integer64 = "double")
-    keys = fread(keys_file, integer64 = "double")
-    
-    tryCatch(setnames(data, "Raw file", "RawFile"), error = function(e) cat("Raw file not found. Try searching Raw.file instead\n"))
-    tryCatch(setnames(keys, "Raw.file", "RawFile"), error = function(e) cat("Raw file not found. Try searching Raw file instead\n"))
-    
-    cat("\tVERIFYING DATA AND KEYS\n")
-    if (!"IsotopeLabelType" %in% colnames(data)) 
-        data[, `:=`(IsotopeLabelType, "L")]
-    data = mergeMaxQDataWithKeys(data, keys, by = c("RawFile", "IsotopeLabelType"))
-    data_sel = data[, c("Proteins", "Condition", "BioReplicate", "Run", "MS/MS Count"), with = F]
-    setnames(data_sel, "MS/MS Count", "spectral_counts")
-    data_sel = aggregate(spectral_counts ~ Proteins + Condition + BioReplicate + Run, data = data_sel, FUN = sum)
-    data_sel = data.frame(data_sel, bait_name = paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep = "_"))
-    write.table(data_sel[, c("bait_name", "Proteins", "spectral_counts")], file = output_file, eol = "\n", sep = "\t", quote = F, 
-        row.names = F, col.names = T)
-}
-
-
 #' @title Convert MaxQuant to MIST format
 #' @description Converts MaxQuant evidence file into a file format compatible with the MiST pipeline using MS/MS.Count. Note that this is the MiST data file, and that an additional keys file will have to be constructed before running MiST. Multiple species can be searched at once, simply separate them by a '-'. (eg. HUMAN-MOUSE).
 #' @param input_file The filepath to the MaxQuant searched results file (txt tab delimited file). This can either be in either long or wide format.
