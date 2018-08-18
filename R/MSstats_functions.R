@@ -230,6 +230,30 @@ removeMaxQProteinGroups <- function(data){
 }
 
 # ------------------------------------------------------------------------------
+#' @title Reshape the MSstats results file from long to wide format
+#' 
+#' @description Converts the normal MSStats output file into "wide" format 
+#' where each row represents a protein's results, and each column represents 
+#' the comparison made by MSStats. The fold change and p-value of each 
+#' comparison will be it's own column.
+#' @param input_file Input file name and location (MSstats `results.txt` file)
+#' @param output_file Output file name and location
+#' @return Reshaped file with unique protein ids and as many columns log2fc
+#' and adj.pvalues as comparisons available
+#' for as many 
+#' @keywords
+#' artms_resultsWide()
+#' @export
+artms_resultsWide <- function(input_file, output_file){
+  input = fread(input_file, integer64 = 'double')
+  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'), with=F], id.vars = c('Protein', 'Label'))
+  
+  ## then cast to get combinations of LFCV/PVAl and Label as columns
+  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
+  write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+}
+
+# ------------------------------------------------------------------------------
 #' @title Correlation heatmaps of all the individual features
 #' @description Correlation heatmap using intensity values across all the 
 #' conditions
