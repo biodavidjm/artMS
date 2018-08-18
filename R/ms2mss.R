@@ -37,7 +37,7 @@ mq2mss <- function(evidence_file, keys_file, protein_groups = "ignore", contamin
     if (!"IsotopeLabelType" %in% colnames(data)) 
         data[, `:=`(IsotopeLabelType, "L")]
     
-    data = mergeMaxQDataWithKeys(data, keys, by = c("RawFile", "IsotopeLabelType"))
+    data = artms_mergeMaxQDataWithKeys(data, keys, by = c("RawFile", "IsotopeLabelType"))
     data$RawFile = paste(data$RawFile, data$IsotopeLabelType, sep = "")
     keys$RawFile = paste(keys$RawFile, keys$IsotopeLabelType, sep = "")
     keys$Run = paste(keys$IsotopeLabelType, keys$Run, sep = "")
@@ -67,8 +67,8 @@ mq2mss <- function(evidence_file, keys_file, protein_groups = "ignore", contamin
         if (is.null(output_file)) 
             stop("No output file designated for heatmap! Please enter a file path for the heatmap to be saved.\n")
         config$files$output = output_file
-        sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config)
-        samplePeptideBarplot(data_f, config)
+        artms_sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config)
+        artms_samplePeptideBarplot(data_f, config)
     }
     
     ## AGGREGATION Aggregate Intensitis based on unique RawFileCombined + Proteins + Sequence + Charge + IsotopeLabelType

@@ -38,9 +38,9 @@ artms_writeExtras <- function(results, config){
   results_ann <- results_ann[!is.infinite(results_ann$log2FC),]
   
   ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
-  sign_hits = significantHits(results_ann,labels=selected_labels,LFC=c(lfc_lower,lfc_upper),FDR=config$output_extras$FDR)
+  sign_hits <- artms_significantHits(results_ann,labels=selected_labels,LFC=c(lfc_lower,lfc_upper),FDR=config$output_extras$FDR)
   if( dim(sign_hits)[1] == 0 ) stop("NO SIGNIFICANT HITS DETECTED IN THIS EXPERIMENT. ABORTING PLOTS.\n")
-  sign_labels = unique(sign_hits$Label)
+  sign_labels <- unique(sign_hits$Label)
   cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, config$output_extras$FDR, nrow(sign_hits)/length(sign_labels))) 
   
   cat(paste("output_file: ", config$files$output, "\n"))

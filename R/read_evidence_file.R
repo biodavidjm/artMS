@@ -1,8 +1,13 @@
 
-#' @title Read in Evidence File
+# ------------------------------------------------------------------------------
+#' @title Read the Evidence File
+#' 
 #' @description Read in a MaxQuant searched Evidence file using data.table. 
-#' This function properly classes each column and so fread doesn't have to guess.
-#' @param evidence_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).
+#' This function properly classes each column and so fread doesn't have 
+#' to guess.
+#' @param evidence_file The filepath to the MaxQuant searched data (evidence) 
+#' file (txt tab delimited file).
+#' @return A data.frame with the evidence file with defining classes 
 #' @keywords MaxQuant, evidence
 #' read_evidence_file()
 #' @export
@@ -50,7 +55,8 @@ read_evidence_file <- function(evidence_file) {
     
     # read in the evidence file with their classes
     x <- fread(evidence_file, integer64 = "double", colClasses = cols.matched$V2)
-    # make sure all the column names are the same as supporting analytical functions are looking for
+    # make sure all the column names are the same as supporting analytical 
+    # functions are looking for
     x <- unifyColumnNames(x)
     return(x)
 }
@@ -58,10 +64,22 @@ read_evidence_file <- function(evidence_file) {
 
 
 
-# The newer versions of MaxQuant change the letter case in the column names, which throws off the legacy RMSQ functions.  This
+# The newer versions of MaxQuant change the letter case in the column names, 
+# which throws off the legacy RMSQ functions.  This
 # is to help keep things unified still.
+# ------------------------------------------------------------------------------
+#' @title Unify column names
+#' 
+#' @description The newer versions of MaxQuant change the letter case in the 
+#' column names, which throws off the legacy RMSQ functions.
+#' This is to help keep things unified still.
+#' @param x Loaded evidence file.
+#' @return A data.frame with the evidence file with defining classes and
+#' unified columns 
+#' @keywords MaxQuant, evidence
+#' unifyColumnNames()
+#' @export
 unifyColumnNames <- function(x) {
-    
     names(x) = gsub("^Mass error \\[ppm\\]$", "Mass Error \\[ppm\\]", names(x))
     names(x) = gsub("^Mass error \\[Da\\]$", "Mass Error \\[Da\\]", names(x))
     names(x) = gsub("^Protein Names$", "Protein names", names(x))
@@ -75,9 +93,5 @@ unifyColumnNames <- function(x) {
     
     return(x)
 }
-
-
-
-
 
 

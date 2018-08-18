@@ -9,6 +9,7 @@
 #' simply separate them by a "-". (eg. `HUMAN-MOUSE`)
 #' @param input_file MaxQuant evidence file and location
 #' @param keys_file Keys file with the experimental details
+#' @param output_file Output file name
 #' @param species Specie name. If several, used a `dash` symbol to separate them
 #' @param uniprot_dir Directory with the uniprot files with the mapping 
 #' information. Default '~/Box Sync/db/mist/'
@@ -45,7 +46,7 @@ artms_evidenceToMISTformat <- function(input_file, keys_file, output_file, speci
   
   cat('\n\tVERIFYING DATA AND KEYS\n')
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data <- mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_spectral_counts'),with=F]
   
   data_sel <- aggregate( ms_spectral_counts ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)
@@ -120,6 +121,7 @@ artms_evidenceToMISTformat <- function(input_file, keys_file, output_file, speci
 #' simply separate them by a "-". (eg. `HUMAN-MOUSE`)
 #' @param input_file MaxQuant evidence file and location
 #' @param keys_file Keys file with the experimental details
+#' @param output_file Output file name
 #' @param species Specie name. If several, used a `dash` symbol to separate them
 #' @param uniprot_dir Directory with the uniprot files with the mapping 
 #' information. Default '~/Box Sync/db/mist/'
@@ -154,7 +156,7 @@ artms_evidenceToMISTINTformat <- function(input_file, keys_file, output_file, sp
   
   cat('\n\tVERIFYING DATA AND KEYS\n')
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data <- mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_intensity'),with=F]
   
   data_sel <- aggregate( ms_intensity ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)

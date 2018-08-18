@@ -13,6 +13,8 @@ artms_evidenceToMISTformat(input_file, keys_file, output_file, species,
 
 \item{keys_file}{Keys file with the experimental details}
 
+\item{output_file}{Output file name}
+
 \item{species}{Specie name. If several, used a \code{dash} symbol to separate them}
 
 \item{uniprot_dir}{Directory with the uniprot files with the mapping

@@ -49,7 +49,7 @@ artms_main <- function(yaml_config_file){
     if(!is.null(config$silac$enabled)){
       if(config$silac$enabled){
         output <- gsub(".txt","-silac.txt",config$files$data)
-        data <- MQutil.SILACToLong(config$files$data, output)
+        data <- artms_SILACtoLong(config$files$data, output)
       }else{
         data <- read.delim(config$files$data, stringsAsFactors=F, sep='\t')
       }
@@ -87,12 +87,12 @@ artms_main <- function(yaml_config_file){
         keys$Run = paste(keys$IsotopeLabelType,keys$Run , sep='')
         data$IsotopeLabelType = 'L'
         keys$IsotopeLabelType = 'L'
-        data <- mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+        data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
       }else{
-        data <- mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+        data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
       }
     }else{
-      data <- mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+      data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
     }
     
     ## fix for weird converted values from fread
@@ -114,8 +114,8 @@ artms_main <- function(yaml_config_file){
     ## HEATMAPS
     if(!is.null(config$files$sample_plots) && config$files$sample_plots){
       keys_in_data = keys[keys$RawFile %in% unique(data$RawFile),]
-      sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config) 
-      samplePeptideBarplot(data_f, config)
+      artms_sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config) 
+      artms_samplePeptideBarplot(data_f, config)
     }
   }
   
@@ -154,7 +154,7 @@ artms_main <- function(yaml_config_file){
     
     # Read in contrasts file
     # contrasts = read.delim(config$files$contrasts, stringsAsFactors=F)
-    contrasts <- writeContrast(config$files$contrasts)
+    contrasts <- artms_writeContrast(config$files$contrasts)
     # make sure the column names are in alphabetical order before continuing
     contrasts = as.matrix( contrasts[,order(dimnames(contrasts)[[2]], decreasing=F)] )
     results = artms_runMSstats(dmss, contrasts, config)

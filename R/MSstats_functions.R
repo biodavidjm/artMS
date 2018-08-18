@@ -152,9 +152,9 @@ artms_filterMaxqData <- function(data){
 #' @return A new data.frame with the evidence and keys merged
 #' Default: `RawFile`
 #' @keywords merge, evidence, keys
-#' mergeMaxQDataWithKeys()
+#' artms_mergeMaxQDataWithKeys()
 #' @export
-mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
+artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
   # Check if the number of RawFiles is the same.
   unique_data <- unique(data$RawFile)
   unique_keys <- unique(keys$RawFile)
@@ -183,9 +183,9 @@ mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
 #' @param output Text filepath of the output name
 #' @return A data.frame with SILAC data processed for MSstats
 #' @keywords 
-#' MQutil.SILACToLong()
+#' artms_SILACtoLong()
 #' @export
-MQutil.SILACToLong = function(filename, output){
+artms_SILACtoLong <- function(filename, output){
   file = Sys.glob(filename)
   cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
   tmp = fread(file, integer64 = 'double')
@@ -219,54 +219,6 @@ prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names){
 }
 
 # ------------------------------------------------------------------------------
-#' @title Read the Evidence File
-#' @description Read in a MaxQuant searched Evidence file using data.table. 
-#' This function properly classes each column and so fread doesn't have 
-#' to guess.
-#' @param evidence_file The filepath to the MaxQuant searched data (evidence) 
-#' file (txt tab delimited file).
-#' @return A data.frame with the evidence file with defining classes 
-#' @keywords MaxQuant, evidence
-#' read_evidence_file()
-#' @export
-read_evidence_file <- function(evidence_file){
-  cat("Reading the evidence file...\n")
-  # read in the first line to get the header names
-  cols <- readLines(evidence_file, 1)
-  cols <- data.frame( V1 = unlist(strsplit(cols, '\t')), stringsAsFactors = F)
-  cols$idx <- 1:dim(cols)[1]
-  
-  # get data frame of pre-recorded column names and their respective classes
-  col.classes <- as.data.frame( matrix(c("Sequence","character","Length","integer","Modifications","character","Modified sequence","character","Oxidation (M) Probabilities","character","Oxidation (M) Score Diffs","character","Acetyl (Protein N-term)","integer","Oxidation (M)","integer","Missed cleavages","integer","Proteins","character","Leading proteins","character","Leading razor protein","character","Gene names","character","Protein names","character","Type","character","Raw file","character","Experiment","character","MS/MS m/z","numeric","Charge","integer","m/z","numeric","Mass","numeric","Resolution","numeric","Uncalibrated - Calibrated m/z [ppm]","numeric","Uncalibrated - Calibrated m/z [Da]","numeric","Mass Error [ppm]","numeric","Mass Error [Da]","numeric","Uncalibrated Mass Error [ppm]","numeric","Uncalibrated Mass Error [Da]","numeric","Max intensity m/z 0","numeric","Retention time","numeric","Retention length","numeric","Calibrated retention time","numeric","Calibrated retention time start","numeric","Calibrated retention time finish","numeric","Retention time calibration","numeric","Match time difference","numeric","Match m/z difference","numeric","Match q-value","numeric","Match score","numeric","Number of data points","integer","Number of scans","integer","Number of isotopic peaks","integer","PIF","numeric","Fraction of total spectrum","numeric","Base peak fraction","numeric","PEP","numeric","MS/MS Count","integer","MS/MS Scan Number","integer","Score","numeric","Delta score","numeric","Combinatorics","integer","Intensity","numeric","Reverse","character","Potential contaminant","character","id","integer","Protein group IDs","character","Peptide ID","integer","Mod. peptide ID","integer","MS/MS IDs","character","Best MS/MS","integer","AIF MS/MS IDs","logical","Oxidation (M) site IDs","character", "Leading Proteins", "character", "Contaminant", "character"), ncol=2, byrow=T), stringsAsFactors = F)
-  # merge the classes to the columns
-  cols.matched = merge(cols, col.classes, by="V1", all.x=T)
-  # re-order things to match the initial order
-  cols.matched <- cols.matched[order(cols.matched$idx),]
-  
-  # Stop if there is an issue
-  if(length(which(is.na(cols.matched$V2)))>0){
-    stop(paste0("OH NO!! YOUR EVIDENCE FILE CONTAINS A COLUMN THAT I DON'T RECOGNIZE :( PLEASE TELL THE 'col.classes' IN THE read_evidence_file' FUNCTION AND ADD IN THIS NEW COLUMN(S) CALLED \n\t", paste(cols.matched$V1[which(is.na(cols.matched$V2))], collapse="\n\t"), "\n" ) )
-  }
-  
-  # read in the evidence file with their classes
-  x <- fread(evidence_file, integer64 = 'double', colClasses = cols.matched$V2)
-  return(x)
-}
-
-# ------------------------------------------------------------------------------
-#' @title Remove protein groups
-#' @description Remove the group of proteins ids separated by separated by `;`
-#' @param data Data.frame with a `Proteins` column.
-#' @return A data.frame with the protein groups removed
-#' @keywords maxquant, remove, proteingroups
-#' removeMaxQProteinGroups()
-#' @export
-removeMaxQProteinGroups <- function(data){
-  data_selected = data[grep(";",data$Proteins, invert=T),]
-  return(data_selected)
-}
-
-# ------------------------------------------------------------------------------
 #' @title Reshape the MSstats results file from long to wide format
 #' 
 #' @description Converts the normal MSStats output file into "wide" format 
@@ -297,11 +249,12 @@ artms_resultsWide <- function(input_file, output_file){
 #' @param data_w reshaped data.frame resulting from the `artms_castMaxQToWidePTM` 
 #' function
 #' @param keys keys data.frame
+#' @param config Configuration object (yaml loaded)
 #' @return A heatmap
 #' @keywords heatmap, intensity, comparisons
-#' sampleCorrelationHeatmap()
+#' artms_sampleCorrelationHeatmap()
 #' @export
-sampleCorrelationHeatmap <- function (data_w, keys, config) {
+artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
   mat = log2(data_w[,4:ncol(data_w),with=F])
   mat[is.na(mat)]=0
   mat_cor = cor(mat, method = 'pearson', use = 'everything')
@@ -324,9 +277,9 @@ sampleCorrelationHeatmap <- function (data_w, keys, config) {
 #' @param config Configuration object
 #' @return Barplot of peptide counts
 #' @keywords barplot, counts, peptides
-#' samplePeptideBarplot()
+#' artms_samplePeptideBarplot()
 #' @export
-samplePeptideBarplot <- function(data_f, config){
+artms_samplePeptideBarplot <- function(data_f, config){
   # set up data into ggplot compatible format
   data_f = data.table(data_f, labels=paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
   data_f = data_f[with(data_f, order(labels,decreasing = T)),]
@@ -356,9 +309,9 @@ samplePeptideBarplot <- function(data_f, config){
 #' @param FDR false discovery rate (adj.pvalue) threshold. Default: 0.05
 #' @return A data.frame only with significant hits
 #' @keywords significant, selections
-#' significantHits()
+#' artms_significantHits()
 #' @export
-significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
+artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
   ## get subset based on labels
   selected_results = mss_results[grep(labels,mss_results$Label), ]
   cat(sprintf('\tAVAILABLE LABELS FOR HEATMAP:\t%s\n',paste(unique(mss_results$Label), collapse=',')))
@@ -390,9 +343,9 @@ artms_spectralCounts <- function(input_file, keys_file, output_file){
   
   cat('\tVERIFYING DATA AND KEYS\n')
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data = mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
-  data_sel = data[,c('Proteins','Condition','BioReplicate','Run','MS/MS Count'),with=F]
-  setnames(data_sel,'MS/MS Count','spectral_counts')
+  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS/MS Count'), with=F]
+  setnames(data_sel, 'MS/MS Count', 'spectral_counts')
   data_sel = aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
   data_sel = data.frame(data_sel, bait_name=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
   write.table(data_sel[,c('bait_name','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
@@ -415,9 +368,9 @@ trim <- function (x){
 #' @description It simplifies the process of creating the contrast file
 #' @param contrast_file The text filepath of contrasts
 #' @keywords 
-#' writeContrast()
+#' artms_writeContrast()
 #' @export
-writeContrast <- function(contrast_file) {
+artms_writeContrast <- function(contrast_file) {
   input_contrasts <- readLines(contrast_file, warn=F)
   
   # check if contrast_file is old-format (i.e the contrast_file is a matrix)

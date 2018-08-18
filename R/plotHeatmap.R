@@ -19,23 +19,23 @@
 #' @export
 artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=F, display='log2FC', lfc_lower=-2, lfc_upper=2, FDR=0.05){
   ## read input
-  input = read.delim(input_file, stringsAsFactors = F)
+  input <- read.delim(input_file, stringsAsFactors = F)
   
   ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
-  sign_hits = significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
-  sign_labels = unique(sign_hits$Label)
+  sign_hits <- artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
+  sign_labels <- unique(sign_hits$Label)
   cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
   
   ## REPRESENTING RESULTS AS HEATMAP
   ## plot heat map for all contrasts
   if(any(grepl('uniprot_genename',colnames(sign_hits)))){
-    heat_labels = paste(sign_hits$Protein,sign_hits$uniprot_genename,sep=' ')  
+    heat_labels <- paste(sign_hits$Protein,sign_hits$uniprot_genename,sep=' ')  
   }else{
-    heat_labels = sign_hits$Protein
+    heat_labels <- sign_hits$Protein
   }
   
-  heat_labels = gsub('\\sNA$','',heat_labels)
-  heat_data_w = plotHeat(mss_F=sign_hits, out_file=output_file, names=heat_labels, cluster_cols=cluster_cols, display=display)  
+  heat_labels <- gsub('\\sNA$','',heat_labels)
+  heat_data_w <- plotHeat(mss_F=sign_hits, out_file=output_file, names=heat_labels, cluster_cols=cluster_cols, display=display)  
 }
 
 

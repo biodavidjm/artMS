@@ -37,19 +37,19 @@ artms_evidenceToSaintExpressFormat <- function(data_file, keys_file, ref_proteom
     stop('COLNAMES IN KEYS NOT CONFORM TO SCHEMA\n\tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n')
   } 
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data = mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
-  data_f = filterMaxqData(data)
-  data_f = removeMaxQProteinGroups(data_f) ## do we want this or not?
+  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data_f <- filterMaxqData(data)
+  data_f <- removeMaxQProteinGroups(data_f) ## do we want this or not?
   
   cat(">> AGGREGATING ON", quant_variable,"VALUES...\n")
   ## aggregate over technical replicates if necessary
-  if(quant_variable=='spectral_count'){
-    setnames(data_f,'MS/MS Count','spectral_counts')
-    data_f_agg = aggregate(spectral_counts ~ BioReplicate+Condition+Proteins+Sequence+Charge,data=data_f,FUN = max)
-    data_f_agg = aggregate(spectral_counts ~ BioReplicate+Condition+Proteins,data=data_f_agg,FUN = sum)
+  if(quant_variable == 'spectral_count'){
+    setnames(data_f, 'MS/MS Count', 'spectral_counts')
+    data_f_agg <- aggregate(spectral_counts ~ BioReplicate+Condition+Proteins+Sequence+Charge,data=data_f, FUN = max)
+    data_f_agg <- aggregate(spectral_counts ~ BioReplicate+Condition+Proteins,data=data_f_agg, FUN = sum)
   }else if(quant_variable=='ms1'){
-    data_f_agg = aggregate(Intensity ~ BioReplicate+Condition+Proteins+Sequence+Charge,data=data_f,FUN = max)
-    data_f_agg = aggregate(Intensity ~ BioReplicate+Condition+Proteins,data=data_f_agg,FUN = sum)
+    data_f_agg <- aggregate(Intensity ~ BioReplicate+Condition+Proteins+Sequence+Charge, data=data_f, FUN = max)
+    data_f_agg <- aggregate(Intensity ~ BioReplicate+Condition+Proteins, data=data_f_agg,FUN = sum)
   }else{
     stop("\nERROR!! Wrong value for variable to quantify. Please use 'spectral_count' or 'ms1'.")
   }
@@ -61,8 +61,12 @@ artms_evidenceToSaintExpressFormat <- function(data_file, keys_file, ref_proteom
   ## Q9NTG7  43573.5 Q9NTG7
   
   ref_proteome = read.fasta(file = ref_proteome_file, 
-                            seqtype = "AA", as.string = T,
-                            set.attributes = TRUE, legacy.mode = TRUE, seqonly = FALSE, strip.desc = FALSE)
+                            seqtype = "AA", 
+                            as.string = T,
+                            set.attributes = TRUE, 
+                            legacy.mode = TRUE, 
+                            seqonly = FALSE, 
+                            strip.desc = FALSE)
   p_lengths = c()
   p_names = c()
   for(e in ref_proteome){
@@ -96,5 +100,18 @@ artms_evidenceToSaintExpressFormat <- function(data_file, keys_file, ref_proteom
   cat("--- ", gsub('.txt','-saint-baits.txt', output_file), "\n")
   cat("--- ", gsub('.txt','-saint-preys.txt', output_file), "\n")
   cat("--- ", gsub('.txt','-saint-interactions.txt', output_file, "\n"))
+}
+
+# ------------------------------------------------------------------------------
+#' @title Remove protein groups
+#' @description Remove the group of proteins ids separated by separated by `;`
+#' @param data Data.frame with a `Proteins` column.
+#' @return A data.frame with the protein groups removed
+#' @keywords maxquant, remove, proteingroups
+#' removeMaxQProteinGroups()
+#' @export
+removeMaxQProteinGroups <- function(data){
+  data_selected = data[grep(";",data$Proteins, invert=T),]
+  return(data_selected)
 }
 

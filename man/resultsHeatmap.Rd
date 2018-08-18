@@ -10,6 +10,8 @@ resultsHeatmap(results_file, pval = 0.05, prot_file = FALSE,
 \arguments{
 \item{results_file}{The filepath to the MSstats results file in the original long format.}
 
+\item{pval}{pvalue threshold}
+
 \item{prot_file}{A file listing proteins to filter out and analyze with the volcano plot (Default = F).}
 
 \item{save_file}{A file path to where the heatmap pdf is to be saved.}

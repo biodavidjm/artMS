@@ -2,6 +2,7 @@
 #' @title Create Heatmap from MSStat Results
 #' @description This will read in the MSStats results file (original long form) and output a heatmap of the results. The plot, as a ggplot object, is returned.
 #' @param results_file The filepath to the MSstats results file in the original long format.
+#' @param pval pvalue threshold
 #' @param prot_file A file listing proteins to filter out and analyze with the volcano plot (Default = F).
 #' @param save_file A file path to where the heatmap pdf is to be saved.
 #' @keywords MSStats
@@ -68,36 +69,6 @@ resultsHeatmap <- function(results_file, pval = 0.05, prot_file = FALSE, save_fi
     
     return(p)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
