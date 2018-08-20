@@ -26,7 +26,7 @@ be plotted. Default: all labels}
 }
 \value{
 A heatmap in pdf format of the MSStats results using the
-log2 fold changes.
+log2 fold changes and the data used to generate the heatmap
 }
 \description{
 Outputs a heatmap of the MSStats results created using the

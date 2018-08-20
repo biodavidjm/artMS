@@ -13,7 +13,7 @@
 #' @param lfc_upper Upper limit for the log2fc. Default: +2
 #' @param FDR Upper limit false discovery rate. Default: 0.05
 #' @return A heatmap in pdf format of the MSStats results using the 
-#' log2 fold changes.
+#' log2 fold changes and the data used to generate the heatmap
 #' @keywords heatmap, log2fc
 #' artms_plotHeatmap()
 #' @export
@@ -24,7 +24,7 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
   ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
   sign_hits <- artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
   sign_labels <- unique(sign_hits$Label)
-  cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
+  cat(sprintf(">> SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
   
   ## REPRESENTING RESULTS AS HEATMAP
   ## plot heat map for all contrasts
@@ -35,30 +35,9 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
   }
   
   heat_labels <- gsub('\\sNA$','',heat_labels)
-  heat_data_w <- plotHeat(mss_F=sign_hits, out_file=output_file, names=heat_labels, cluster_cols=cluster_cols, display=display)  
-}
-
-
-# ------------------------------------------------------------------------------
-#' @title Heatmap of significant values
-#' 
-#' @description heatmap plot to represent proteins with significant changes
-#' @param mss_F data.frame with the significant values (log2fc, pvalues)
-#' @param out_file Name for the output
-#' @param labelOrder Vector with the particular order for the IDs (default, 
-#' `NULL` no order)
-#' @param names Type of ID used. Default is `Protein`` (uniprot entry id). 
-#' Soon will be possible to use 'Gene' name ids.
-#' @param cluster_cols Select whether to cluster the columns. Options: `T` 
-#' or `F`. Default `T`.
-#' @param display Value used to genarate the heatmaps. Options: `log2FC`, 
-#' `adj.pvalue`, `pvalue`. Default: `log2FC`
-#' @return A heatmap of significant values
-#' @keywords significant, heatmap
-#' plotHeat()
-#' @export
-plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_cols=F, display='log2FC'){
-  heat_data = data.frame(mss_F, names=names)
+  
+  # Old PlotHeat function:
+  heat_data = data.frame(sign_hits, heat_labels=heat_labels)
   
   ## create matrix from log2FC or p-value as user defined
   if(display=='log2FC'){
@@ -67,18 +46,18 @@ plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[ idx ] <- NA
     }
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='log2FC') 
+    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
   }else if(display=='adj.pvalue'){
     heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='adj.pvalue')  
+    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
   }else if(display=='pvalue'){
     heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
-    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='pvalue')  
+    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
   }
   
   ## try
   #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
-  rownames(heat_data_w) = heat_data_w$names
+  rownames(heat_data_w) = heat_data_w$heat_labels
   heat_data_w = heat_data_w[,-1]
   heat_data_w[is.na(heat_data_w)]=0
   max_val = ceiling(max(heat_data_w))
@@ -91,12 +70,9 @@ plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_
   colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
   colors_tot = c(colors_neg, colors_pos)
   
-  if(is.null(labelOrder)){
-    cat("\t Saving heatmap\n")
-    pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename =out_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")  
-  }else{
-    heat_data_w = heat_data_w[,labelOrder]
-    pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename=out_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")
-  }
+  cat("--- Saving heatmap\n")
+  pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename = output_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")
   return(heat_data_w)
 }
+
+
