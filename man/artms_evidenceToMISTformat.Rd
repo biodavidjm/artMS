@@ -5,11 +5,17 @@
 \title{Convert MaxQuant Evidence file into a Protein Prospector like format
 to run through the MIST pipeline using spectral counts.}
 \usage{
-artms_evidenceToMISTformat(input_file, keys_file, output_file, species,
+artms_evidenceToMISTformat(input_file, metric, keys_file, output_file, species,
   uniprot_dir)
 }
 \arguments{
 \item{input_file}{MaxQuant evidence file and location}
+
+\item{metric}{Select quantitative metric. Two options available:
+\itemize{
+\item \code{int}: MS Intensity
+\item \code{spc}: MS.MS.count (Spectral Counts)
+}}
 
 \item{keys_file}{Keys file with the experimental details}
 
@@ -21,7 +27,7 @@ artms_evidenceToMISTformat(input_file, keys_file, output_file, species,
 information. Default '~/Box Sync/db/mist/'}
 }
 \value{
-A MIST compatible input file
+MIST compatible input files (reformatted evidence and keys)
 }
 \description{
 Converts MaxQuant evidence file into a file format compatible
