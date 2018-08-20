@@ -6,7 +6,7 @@ Authors@R: c(
     role = c("aut", "cre", "cph")),
     person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", 
     role = c("aut")),
-    person("Alexandre", "Rosa Campos", email = "arosacampos@sbpdiscovery.org", 
+    person("Alexandre", "Rosa Campos", email = "alex.proteomics@gmail.com", 
     role = c("aut"))
     )
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
