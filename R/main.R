@@ -19,8 +19,10 @@
 #' @import stringr
 #' @import VennDiagram
 #' @import yaml
-#' @importFrom graphics pairs
+#' @importFrom graphics pairs plot
 #' @importFrom grDevices colorRampPalette dev.off pdf
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
+#' @importFrom utils combn read.delim write.table
 
 
 # ------------------------------------------------------------------------------

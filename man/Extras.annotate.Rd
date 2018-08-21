@@ -4,7 +4,7 @@
 \alias{Extras.annotate}
 \title{Annotate the files based on the Uniprot accession id}
 \usage{
-Extras.annotate(results, output_file = output, uniprot_ac_col = "Protein",
+Extras.annotate(results, output_file, uniprot_ac_col = "Protein",
   group_sep = ";", uniprot_dir = "~/github/kroganlab/source/db/",
   species = "HUMAN")
 }

@@ -1,25 +1,45 @@
+# ------------------------------------------------------------------------------
 #' @title Convert MaxQuant evidence file to MSStats compatible format
-#' @description This will take a MaxQuant searched evidence data and convert it to a format compatible with MSStats.
-#' @param evidence_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).
-#' @param keys_file The filepath to the keys file used with MSStats (txt tab delimited file).
+#' @description This will take a MaxQuant searched evidence data and convert 
+#' it to a format compatible with MSStats.
+#' @param evidence_file The filepath to the MaxQuant searched data (evidence) 
+#' file (txt tab delimited file).
+#' @param keys_file The filepath to the keys file used with MSStats (txt tab 
+#' delimited file).
 #' @param protein_groups How to handle protein groups. Default = 'ignore'
 #'   \itemize{
-#'     \item{'remove'}{: This will remove the protein groups entirely from the data set.}
-#'     \item{'explode'}{: This will create a new row for each protein in the group, copying the MS data for all proteins.}
-#'     \item{'ignore'}{: This will treate the protein group as if it were a normal protein unique identifier.}
+#'     \item{'remove'}{: This will remove the protein groups entirely from
+#'      the data set.}
+#'     \item{'explode'}{: This will create a new row for each protein in 
+#'     the group, copying the MS data for all proteins.}
+#'     \item{'ignore'}{: This will treate the protein group as if it were a 
+#'     normal protein unique identifier.}
 #' }
-#' @param contaminants Whether or not to filter out MaxQuant labeled contaminants. Default = TRUE
-#' @param modification What kind of modified sites are in the data. Options : PH, UB. Default = NULL
-#' @param plot.heatmap Whether or not to output a hierarchical clustered heatmap of the samples. Default = FALSE
-#' @param out_file The filepath to where you want the heatmap to be output to as a pdf.
-#' @param aggregate_intensities Whether or not to aggregate the intensities based on the unique ppairing of RawFile, Proteins, Sequence, Charge, and IsotopeLabelType. Default = FALSE
-#' @param aggregate_fun The aggregate to apply to the Intensities. Default is 'max'.
+#' @param contaminants Whether or not to filter out MaxQuant labeled 
+#' contaminants. Default = TRUE
+#' @param modification What kind of modified sites are in the data. 
+#' Options : PH, UB. Default = NULL
+#' @param plot.heatmap Whether or not to output a hierarchical clustered
+#'  heatmap of the samples. Default = FALSE
+#' @param output_file The filepath to where you want the heatmap to be output 
+#' to as a pdf.
+#' @param aggregate_intensities Whether or not to aggregate the intensities 
+#' based on the unique ppairing of RawFile, Proteins, Sequence, Charge, and 
+#' IsotopeLabelType. Default = FALSE
+#' @param aggregate_fun The aggregate to apply to the Intensities. 
+#' Default is 'max'.
 #' @keywords MaxQuant, evidence
 #' mq2mss()
 #' @export
-mq2mss <- function(evidence_file, keys_file, protein_groups = "ignore", contaminants = TRUE, modification = NULL, plot.heatmap = FALSE, 
-    output_file = NULL, aggregate_intensities = FALSE, aggregate_fun = NULL) {
-    
+mq2mss <- function(evidence_file, 
+                   keys_file, 
+                   protein_groups = "ignore", 
+                   contaminants = TRUE, 
+                   modification = NULL, 
+                   plot.heatmap = FALSE, 
+                   output_file = NULL, 
+                   aggregate_intensities = FALSE, 
+                   aggregate_fun = NULL){
     cat(">> LOADING DATA\n")
     # read in evidence file
     data <- checkIfFile(evidence_file, is.evidence = T)

@@ -1,16 +1,29 @@
 
+# ------------------------------------------------------------------------------
 #' @title Look for Overlap between Two Groups
-#' @description Will generate an overlap analysis on a pairwise basis of multiple datasets, checking for significance with Fischers Exact Test, as well as outputting plots to help visualize the overlaps.
-#' @param results The filepath to OR a dataframe containing the following columns:
+#' 
+#' @description Will generate an overlap analysis on a pairwise basis of 
+#' multiple datasets, checking for significance with Fischers Exact Test, 
+#' as well as outputting plots to help visualize the overlaps.
+#' @param results The filepath to OR a dataframe containing the 
+#' following columns:
 #' \itemize{
-#'  \item{Protein : }{a unique identifier for the protein, such as Uniprot Accession. The annotation feature only works with Uniprot Accession codes.}
-#'  \item{dataset : }{The name of the group/dataset/bait associated with this protein. (interaction)}
-#'  \item{thresh : }{Whether the protein is to be considered a confident interactor in this dataset.}
-#'  \item{plot.venn : }{Whether or not to plot and save the venn diagrams of the overlaps. May not want to if there are a ton of comparisons.}
+#'  \item{Protein : }{a unique identifier for the protein, such as Uniprot 
+#'  Accession. The annotation feature only works with Uniprot Accession codes.}
+#'  \item{dataset : }{The name of the group/dataset/bait associated with this 
+#'  protein. (interaction)}
+#'  \item{thresh : }{Whether the protein is to be considered a confident 
+#'  interactor in this dataset.}
+#'  \item{plot.venn : }{Whether or not to plot and save the venn diagrams of 
+#'  the overlaps. May not want to if there are a ton of comparisons.}
 #' }
 #' @param out_file A file path to where the files will be saved.
-#' @param annotate Whether to add in human annotations to the final results or not. (Default = TRUE)
-#' @param plot.venn Whether to plot the pairwise Venn Diagrams of each group (default = TRUE). This will result in many plots if there are a lot of comparisons. This is recommended for a smaller number of groups in the dataset.
+#' @param annotate Whether to add in human annotations to the final results 
+#' or not. (Default = TRUE)
+#' @param plot.venn Whether to plot the pairwise Venn Diagrams of each group 
+#' (default = TRUE). This will result in many plots if there are a lot of 
+#' comparisons. This is recommended for a smaller number of groups in the 
+#' dataset.
 #' @keywords overlap, overlap analysis
 #' interaction_overlap()
 #' @export
@@ -79,13 +92,10 @@ interaction_overlap <- function(results, out_file, annotate = T, plot.venn = T) 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             venn_out <- gsub(basename(out_file), paste0(x[i, 1], "_vs_", x[i, 2], ".pdf"), out_file)
             pdf(venn_out)
-            venn.plot = plotVenn2(m11, m12, m22, pval = NULL)
+            venn.plot = artms_plotVenn2(m11, m12, m22, pval = NULL)
             grid.draw(venn.plot)
             dev.off()
             grid.newpage()
-            
-            ## Deprecated tmp = results[which( (results$dataset %in% x[i,]) & (results$thresh==1) ),] venn_out <- gsub(basename(out_file),
-            ## paste0(x[i,1],'_vs_', x[i,2],'.pdf'), out_file) pdf(venn_out) plotVenn(tmp, pval=pval.dat1_v_dat2$p.value) dev.off()
         }
         
         
@@ -98,7 +108,7 @@ interaction_overlap <- function(results, out_file, annotate = T, plot.venn = T) 
     
     if (sum(overlap.table$overlap > 0) > 1) {
         # plot combined overlap plot with all the sets (with overlap) together
-        proportionPlot(overlap.table[overlap.table$overlap > 0, ], out_file)
+        artms_proportionPlot(overlap.table[overlap.table$overlap > 0, ], out_file)
         
         # annotate intersections
         if (annotate == 1) {
@@ -116,36 +126,20 @@ interaction_overlap <- function(results, out_file, annotate = T, plot.venn = T) 
     return(fishers.results)
 }
 
-
-# create a venn diagram of a group of datasets
+# ------------------------------------------------------------------------------
+#' @title Genererate Venn Diagram for two groups
+#' 
+#' @description This will create and save a venn digram that displays both 
+#' the number of members ber group, but also the percentage of the whole group
+#' @param m11 Length intersection group A and B
+#' @param m12 Length diff group A and B
+#' @param m22 Length diff uniques
+#' @param pval p-value (default: NULL)
+#' @return a plot of a venn diagram
+#' @keywords plot, venn, diagram
+#' artms_plotVenn2()
 #' @export
-plotVenn <- function(x, pval = NULL) {
-    x.wide = dcast(x, Protein ~ dataset)
-    idx <- (x.wide[-1] == 0) | is.na(x.wide[-1])
-    x.wide[, -1][idx] = 0
-    
-    # remove proteins that arent ever confident hits
-    if (length(which(apply(x.wide[, -1], 1, sum) == 0)) > 0) {
-        x.wide <- x.wide[-which(apply(x.wide[, -1], 1, sum) == 0), ]
-    }
-    
-    if (exists("pval") & !is.null(pval)) {
-        if (round(pval, 4) == 0) {
-            pval = format(pval, scientific = TRUE)
-            vennDiagram(x.wide[, -1], main = paste0("Fisher's Exact P-value : ", pval))
-        } else {
-            vennDiagram(x.wide[, -1], main = paste0("Fisher's Exact P-value : ", round(pval, 4)))
-        }
-    } else {
-        vennDiagram(x.wide[, -1])
-    }
-}
-
-
-# This will create and save a venn digram that displays both the number of members ber group, but also the percentage of the
-# whole group
-#' @export
-plotVenn2 <- function(m11, m12, m22, pval = NULL) {
+artms_plotVenn2 <- function(m11, m12, m22, pval = NULL) {
     # Format the title
     if (exists("pval") & !is.null(pval)) {
         if (round(pval, 4) == 0) {
@@ -159,15 +153,23 @@ plotVenn2 <- function(m11, m12, m22, pval = NULL) {
     }
     
     # Plot the pairwise venn diagram
-    venn.plot = draw.pairwise.venn(area1 = m12 + m11, area2 = m21 + m11, cross.area = m11, c(x[i, 1], x[i, 2]), print.mode = c("raw", 
+    venn.plot <- VennDiagram::draw.pairwise.venn(area1 = m12 + m11, area2 = m21 + m11, cross.area = m11, c(x[i, 1], x[i, 2]), print.mode = c("raw", 
         "percent"), cex = 2, cat.cex = 2, cat.pos = c(200, 160), main = main_title)
     return(venn.plot)
 }
 
 
-# Make a horizontal protein plot of the proportion
+# ------------------------------------------------------------------------------
+#' @title Make a horizontal protein plot of the proportion
+#' 
+#' @description Make a horizontal protein plot of the proportion
+#' @param x overlap table
+#' @param out_file out file name
+#' @return plots
+#' @keywords plot, proportion
+#' artms_proportionPlot()
 #' @export
-proportionPlot <- function(x, out_file) {
+artms_proportionPlot <- function(x, out_file) {
     # make long version of proportion matrix
     idx <- grep("p\\.", names(x))
     tmp1 <- melt(x[, c(1, idx)], id = "dataset")
@@ -215,52 +217,15 @@ proportionPlot <- function(x, out_file) {
 }
 
 
-# plotting a heatmap from the correlations of each dataset
-#' @export
-corrPlot <- function(dat, out_file, plot_title = "") {
-    # keep only things confident hits
-    dat <- dat[which(dat$thresh > 0), ]
-    dat$thresh <- NULL
-    
-    # put df into matrix format for the cor function
-    dat.wide <- suppressMessages(dcast(data = dat, Protein ~ dataset))
-    # add in rwo names
-    row.names(dat.wide) = paste(dat.wide$Gene, dat.wide$Protein, sep = "-")
-    dat.wide$Gene <- dat.wide$Protein <- NULL
-    dat.wide[is.na(dat.wide)] <- 0
-    dat.wide[dat.wide != 0] <- 1  #~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Should we care if the gene shows up multiple times for a dataset
-    
-    dat.mat = data.matrix(dat.wide)
-    dat.cor = cor(dat.mat, use = "pairwise.complete.obs", method = "pearson")
-    # calculate the size of the plot to be outputted so we can read the labels
-    sz <- max(floor(dim(dat.cor)[1]/4), 7)
-    
-    # order by hierarchical clustering
-    pdf(gsub(".txt", "_heatmap_hclust.pdf", out_file), width = sz, height = sz)
-    # pdf('~/Desktop/heatmap_hclust.pdf', width = sz, height = sz)
-    corrplot(dat.cor, method = "color", order = "hclust", bg = "grey", title = plot_title, mar = c(0, 0, 1, 0))
-    dev.off()
-}
-
-
-# function to create a directory if it doesn't exist
-#' @export
-checkDir <- function(output_dir) {
-    if (!dir.exists(dirname(output_dir))) 
-        dir.create(output_dir, recursive = T)
-    return(output_dir)
-}
-
-
-
-
-
-
-
-# INPUT: dataframe: Protein = unique identifier for the protein, such as Uniprot Accession dataset = The name of the
-# group/dataset/bait associated with this protein. (interaction) thresh = Whether the protein is to be considered a confident
-# interactor in this dataset.  plot.venn = Whether or not to plot and save the venn diagrams of the overlaps. May not want to
-# if there are a ton of comparisons.  head(results) out_file = '~/Desktop/overlap_test/overlap.txt' fishersBatch(results,
+# INPUT: dataframe: Protein = unique identifier for the protein, 
+# such as Uniprot Accession dataset = The name of the
+# group/dataset/bait associated with this protein. 
+# (interaction) thresh = Whether the protein is to be considered a confident
+# interactor in this dataset.  
+# plot.venn = Whether or not to plot and save the venn diagrams of the overlaps.
+#  May not want to
+# if there are a ton of comparisons.  
+# head(results) out_file = '~/Desktop/overlap_test/overlap.txt' fishersBatch(results,
 # out_file, annotate=T, plot.venn=T)
 
 

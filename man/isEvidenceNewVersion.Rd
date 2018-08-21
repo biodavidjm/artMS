@@ -8,7 +8,7 @@ MaxQuant.}
 isEvidenceNewVersion(evidence_file)
 }
 \arguments{
-\item{evidence.txt}{the evidence file name}
+\item{evidence_file}{the evidence file name}
 }
 \description{
 MaxQuant introduced changes in the column names and number

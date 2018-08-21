@@ -1,11 +1,14 @@
+# ------------------------------------------------------------------------------
 #' @title MaxQuant PTM to MSStats.
-#' @description Converts a MaxQuant PTM Sites file into a MSStats compatible file.
+#' 
+#' @description Converts a MaxQuant PTM Sites file into a MSStats compatible 
+#' file.
 #' @param ptmsites_file The filepath/object to the PTM Sites.
-#' @param is.evidence Whether or not the file to be read in is an evidence file. This will assign proper classes to the evidence file when being read in.
-#' @keywords file, evidence, input, sites, PTM, post translational modification, STY
+#' @keywords file, evidence, input, sites, PTM, post translational 
+#' modification, STY
 #' mq2mss_PTM()
 #' @export
-mq2mss_PTM = function(ptmsites_file) {
+mq2mss_PTM <- function(ptmsites_file) {
     
     cat("READING IN DATA...")
     if (file.exists(ptmsites_file)) {

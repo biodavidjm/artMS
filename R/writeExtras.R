@@ -74,7 +74,7 @@ artms_writeExtras <- function(results, config){
 #' @keywords extras, annotations
 #' Extras.annotate()
 #' @export
-Extras.annotate <- function(results, output_file=output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
+Extras.annotate <- function(results, output_file, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
   cat(">> ANNOTATING\n")
   
   # remove unnamed proteins that are listed as ""
@@ -115,7 +115,7 @@ Extras.annotate <- function(results, output_file=output, uniprot_ac_col='Protein
   
   # merge protein description
   preys$Gene.names <- gsub(" .*","", preys$Gene.names)
-  tmp <- aggregate(data = preys[,c('idx','Gene.names')], .~idx, kkpaste, collapse=";")
+  tmp <- aggregate(data = preys[,c('idx','Gene.names')], .~idx, paste, collapse=";")
   names(tmp) <- c('idx','Gene.names')
   preys.new <- merge(preys.new, tmp, by='idx',all.x=T)
   

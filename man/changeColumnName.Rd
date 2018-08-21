@@ -11,7 +11,7 @@ changeColumnName(dataset, oldname, newname)
 
 \item{oldname}{the old column name}
 
-\item{neename}{the new name for that column}
+\item{newname}{the new name for that column}
 }
 \value{
 A new data.frame with the new specified column name

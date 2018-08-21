@@ -17,7 +17,7 @@ Description: artMS provides a set of tools for the analysis of proteomics
     and integration. artMS also provides a set of functions to re-format 
     and make it compatible with other analytical tools, 
     including MIST, SAINT, and CompPASS.
-License: GPL-3
+License: GPL (>= 3) + file LICENSE
 URL: https://github.com/biodavidjm/artMS
 BugReports: https://github.com/biodavidjm/artMS/issues
 Depends: R (>= 3.5.0)

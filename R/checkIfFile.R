@@ -35,7 +35,7 @@ checkIfFile <- function(input_file, is.evidence = FALSE) {
 #' @description MaxQuant introduced changes in the column names and number
 #' of columns for the evidence file. This function check whether the evidence
 #' it comes from the latest version of the evidence file.
-#' @param evidence.txt the evidence file name
+#' @param evidence_file the evidence file name
 #' @keywords file, evidence, input, check version
 #' isEvidenceNewVersion()
 #' @export

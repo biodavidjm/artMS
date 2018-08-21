@@ -9,31 +9,44 @@ mq2mss(evidence_file, keys_file, protein_groups = "ignore",
   output_file = NULL, aggregate_intensities = FALSE, aggregate_fun = NULL)
 }
 \arguments{
-\item{evidence_file}{The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).}
+\item{evidence_file}{The filepath to the MaxQuant searched data (evidence)
+file (txt tab delimited file).}
 
-\item{keys_file}{The filepath to the keys file used with MSStats (txt tab delimited file).}
+\item{keys_file}{The filepath to the keys file used with MSStats (txt tab
+delimited file).}
 
 \item{protein_groups}{How to handle protein groups. Default = 'ignore'
 \itemize{
-\item{'remove'}{: This will remove the protein groups entirely from the data set.}
-\item{'explode'}{: This will create a new row for each protein in the group, copying the MS data for all proteins.}
-\item{'ignore'}{: This will treate the protein group as if it were a normal protein unique identifier.}
+\item{'remove'}{: This will remove the protein groups entirely from
+the data set.}
+\item{'explode'}{: This will create a new row for each protein in
+the group, copying the MS data for all proteins.}
+\item{'ignore'}{: This will treate the protein group as if it were a
+normal protein unique identifier.}
 }}
 
-\item{contaminants}{Whether or not to filter out MaxQuant labeled contaminants. Default = TRUE}
+\item{contaminants}{Whether or not to filter out MaxQuant labeled
+contaminants. Default = TRUE}
 
-\item{modification}{What kind of modified sites are in the data. Options : PH, UB. Default = NULL}
+\item{modification}{What kind of modified sites are in the data.
+Options : PH, UB. Default = NULL}
 
-\item{plot.heatmap}{Whether or not to output a hierarchical clustered heatmap of the samples. Default = FALSE}
+\item{plot.heatmap}{Whether or not to output a hierarchical clustered
+heatmap of the samples. Default = FALSE}
 
-\item{aggregate_intensities}{Whether or not to aggregate the intensities based on the unique ppairing of RawFile, Proteins, Sequence, Charge, and IsotopeLabelType. Default = FALSE}
+\item{output_file}{The filepath to where you want the heatmap to be output
+to as a pdf.}
 
-\item{aggregate_fun}{The aggregate to apply to the Intensities. Default is 'max'.}
+\item{aggregate_intensities}{Whether or not to aggregate the intensities
+based on the unique ppairing of RawFile, Proteins, Sequence, Charge, and
+IsotopeLabelType. Default = FALSE}
 
-\item{out_file}{The filepath to where you want the heatmap to be output to as a pdf.}
+\item{aggregate_fun}{The aggregate to apply to the Intensities.
+Default is 'max'.}
 }
 \description{
-This will take a MaxQuant searched evidence data and convert it to a format compatible with MSStats.
+This will take a MaxQuant searched evidence data and convert
+it to a format compatible with MSStats.
 }
 \keyword{MaxQuant,}
 \keyword{evidence}

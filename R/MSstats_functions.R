@@ -37,7 +37,7 @@ artms_castMaxQToWidePTM <- function(d_long){
 #' @description Making easier j
 #' @param dataset the data.frame with the column name you want to change
 #' @param oldname the old column name
-#' @param neename the new name for that column
+#' @param newname the new name for that column
 #' @return A new data.frame with the new specified column name
 #' @keywords rename, data.frame, columns
 #' changeColumnName()

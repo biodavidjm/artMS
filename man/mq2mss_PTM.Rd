@@ -8,11 +8,10 @@ mq2mss_PTM(ptmsites_file)
 }
 \arguments{
 \item{ptmsites_file}{The filepath/object to the PTM Sites.}
-
-\item{is.evidence}{Whether or not the file to be read in is an evidence file. This will assign proper classes to the evidence file when being read in.}
 }
 \description{
-Converts a MaxQuant PTM Sites file into a MSStats compatible file.
+Converts a MaxQuant PTM Sites file into a MSStats compatible
+file.
 }
 \keyword{PTM,}
 \keyword{STY}

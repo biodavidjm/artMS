@@ -1,3 +1,5 @@
+
+# ------------------------------------------------------------------------------
 #' @title Summarize the MSStats results and data quantification
 #' @description Converts the MSStats results file to wide format 
 #' (columns are the contrasts), as well as adds BioReplicate information about 
@@ -7,10 +9,17 @@
 #' pair. Any pairs without a value are assigned a value of NA.
 #' @param evidence_file The filepath to the MaxQuant searched data (evidence) 
 #' file (txt tab delimited file).
-#' @param prot_groups_file The filepath to the MaxQuant searched Protein Groups file (txt tab delimited file).
-#' @param keys_groups_file The filepath to the keys file used with MSStats (txt tab delimited file).
-#' @param results_groups_file The filepath to the MSStats results file in the default long format (txt tab delimited file).
-#' @param return.results Whether or not to return the results to the R environment upon completion. This is useful if this is being used in an R pipeline and you want to feed the results directly into the next stage of analysis via an R environment/terminal. Regardless, the results will be written to file. Default = FALSE
+#' @param prot_group_file The filepath to the MaxQuant searched Protein Groups
+#'  file (txt tab delimited file).
+#' @param keys_file The filepath to the keys file used with MSStats (txt tab 
+#' delimited file).
+#' @param results_file The filepath to the MSStats results file in the default 
+#' long format (txt tab delimited file).
+#' @param return.results Whether or not to return the results to the R 
+#' environment upon completion. This is useful if this is being used in an 
+#' R pipeline and you want to feed the results directly into the next stage 
+#' of analysis via an R environment/terminal. Regardless, the results will 
+#' be written to file. Default = FALSE
 #' @keywords MaxQuant, evidence, MSStats
 #' msstats_summary()
 msstats_summary <- function(evidence_file, prot_group_file, keys_file, results_file, return.results = FALSE) {

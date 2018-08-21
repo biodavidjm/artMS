@@ -7,22 +7,33 @@
 interaction_overlap(results, out_file, annotate = T, plot.venn = T)
 }
 \arguments{
-\item{results}{The filepath to OR a dataframe containing the following columns:
+\item{results}{The filepath to OR a dataframe containing the
+following columns:
 \itemize{
-\item{Protein : }{a unique identifier for the protein, such as Uniprot Accession. The annotation feature only works with Uniprot Accession codes.}
-\item{dataset : }{The name of the group/dataset/bait associated with this protein. (interaction)}
-\item{thresh : }{Whether the protein is to be considered a confident interactor in this dataset.}
-\item{plot.venn : }{Whether or not to plot and save the venn diagrams of the overlaps. May not want to if there are a ton of comparisons.}
+\item{Protein : }{a unique identifier for the protein, such as Uniprot
+Accession. The annotation feature only works with Uniprot Accession codes.}
+\item{dataset : }{The name of the group/dataset/bait associated with this
+protein. (interaction)}
+\item{thresh : }{Whether the protein is to be considered a confident
+interactor in this dataset.}
+\item{plot.venn : }{Whether or not to plot and save the venn diagrams of
+the overlaps. May not want to if there are a ton of comparisons.}
 }}
 
 \item{out_file}{A file path to where the files will be saved.}
 
-\item{annotate}{Whether to add in human annotations to the final results or not. (Default = TRUE)}
+\item{annotate}{Whether to add in human annotations to the final results
+or not. (Default = TRUE)}
 
-\item{plot.venn}{Whether to plot the pairwise Venn Diagrams of each group (default = TRUE). This will result in many plots if there are a lot of comparisons. This is recommended for a smaller number of groups in the dataset.}
+\item{plot.venn}{Whether to plot the pairwise Venn Diagrams of each group
+(default = TRUE). This will result in many plots if there are a lot of
+comparisons. This is recommended for a smaller number of groups in the
+dataset.}
 }
 \description{
-Will generate an overlap analysis on a pairwise basis of multiple datasets, checking for significance with Fischers Exact Test, as well as outputting plots to help visualize the overlaps.
+Will generate an overlap analysis on a pairwise basis of
+multiple datasets, checking for significance with Fischers Exact Test,
+as well as outputting plots to help visualize the overlaps.
 }
 \keyword{analysis}
 \keyword{interaction_overlap()}

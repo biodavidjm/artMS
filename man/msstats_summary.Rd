@@ -11,13 +11,20 @@ msstats_summary(evidence_file, prot_group_file, keys_file, results_file,
 \item{evidence_file}{The filepath to the MaxQuant searched data (evidence)
 file (txt tab delimited file).}
 
-\item{return.results}{Whether or not to return the results to the R environment upon completion. This is useful if this is being used in an R pipeline and you want to feed the results directly into the next stage of analysis via an R environment/terminal. Regardless, the results will be written to file. Default = FALSE}
+\item{prot_group_file}{The filepath to the MaxQuant searched Protein Groups
+file (txt tab delimited file).}
 
-\item{prot_groups_file}{The filepath to the MaxQuant searched Protein Groups file (txt tab delimited file).}
+\item{keys_file}{The filepath to the keys file used with MSStats (txt tab
+delimited file).}
 
-\item{keys_groups_file}{The filepath to the keys file used with MSStats (txt tab delimited file).}
+\item{results_file}{The filepath to the MSStats results file in the default
+long format (txt tab delimited file).}
 
-\item{results_groups_file}{The filepath to the MSStats results file in the default long format (txt tab delimited file).}
+\item{return.results}{Whether or not to return the results to the R
+environment upon completion. This is useful if this is being used in an
+R pipeline and you want to feed the results directly into the next stage
+of analysis via an R environment/terminal. Regardless, the results will
+be written to file. Default = FALSE}
 }
 \description{
 Converts the MSStats results file to wide format
