@@ -174,6 +174,59 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
 }
 
 # ------------------------------------------------------------------------------
+#' @title Merge evidence and keys by file name
+#' 
+#' @description Merge evidence and keys by file name
+#' @param evidence_file The Evidence file name
+#' @param keys_file The keys file name
+#' @return A data.frame with both evidence and keys files merged by raw.files
+#' @keywords merge, evidence, keys
+#' artms_mergeEvidenceKeysByFiles()
+#' @export
+artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
+  
+  data <- read.delim(evidence_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
+  keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
+  
+  if( !('RawFile' %in% colnames(data)) ) {
+    tryCatch(changeColumnName(data, 'Raw.file', 'RawFile'), error=function(e) stop('\nRaw.file not found in EVIDENCE FILE\n'))
+  }
+  
+  if( !('RawFile' %in% colnames(keys)) ) {
+    tryCatch(changeColumnName(keys, 'Raw.file', 'RawFile'), error=function(e) stop('\nRaw.file not found in EVIDENCE FILE\n'))
+  }
+  
+  # Check that the keys file is correct
+  if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
+    cat('\n-!-!-!-!- ERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. One of these is lost\n
+        \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
+    stop('Please, try again once revised\n\n')
+  }
+  
+  # MERGING THE DATA
+  # Checking that the keys make sense
+  unique_data <- unique(data$RawFile)
+  unique_keys <- unique(keys$RawFile)
+  
+  # Rawfiles on Keys not found on the data
+  keys_not_found <- setdiff(unique_keys, unique_data)
+  # Rawfiles on Data not found on the keys
+  data_not_found <- setdiff(unique_data, unique_keys)
+  
+  if ( (length(keys_not_found) != 0) & ( length(data_not_found) != 0) ) {
+    cat(sprintf("keys found: %s \t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
+    cat(sprintf("data found: %s \t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
+    stop('\nThis script is sorry, but it needs to stop this because something is going on between your keys and evidence files so you better check\n')
+  }
+  
+  ## select only required attributes from MQ format
+  datamerged <- merge(data, keys, by='RawFile')
+  
+  return(datamerged)
+}
+
+
+# ------------------------------------------------------------------------------
 #' @title Convert the SILAC evidence file to MSstats format
 #' 
 #' @description Converting the evidence file from a SILAC search to a format 
