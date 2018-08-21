@@ -55,7 +55,8 @@ install_github('biodavidjm/artMS', build_vignettes=TRUE)
 
 ## The `artMS` input files
 
-Three basic tab-delimited files are required to performed the full pack of operations:
+Three basic tab-delimited files are required to performed the full pack of 
+operations:
 
 ### `evidence.txt`
 

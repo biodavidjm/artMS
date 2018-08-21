@@ -1,4 +1,4 @@
-#' @import biomaRt
+#' @rawNamespace import(biomaRt, except = c(select, getSequence))
 #' @import bit64
 #' @import corrplot
 #' @import data.table
@@ -10,19 +10,17 @@
 #' @import MSstats
 #' @import org.Hs.eg.db
 #' @import pheatmap
-#' @import plotly
+#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise))
 #' @import plyr
 #' @import RColorBrewer
 #' @import reshape2
-#' @import seqinr
+#' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @import shiny
 #' @import stringr
 #' @import VennDiagram
 #' @import yaml
 #' @importFrom graphics pairs
 #' @importFrom grDevices colorRampPalette dev.off pdf
-#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
-#' @importFrom utils combn installed.packages read.delim read.delim2 write.table
 
 
 # ------------------------------------------------------------------------------
