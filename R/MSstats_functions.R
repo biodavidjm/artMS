@@ -51,44 +51,6 @@ changeColumnName <- function(dataset, oldname, newname){
 }
 
 # ------------------------------------------------------------------------------
-#' @title Protein abundance dot plots
-#' 
-#' @description Protein abundance dot plots for each unique uniprot id
-#' @param input_file The `-normalized.txt` output file from MSstats
-#' @param output_file Wished output file name (add the `.pdf` extension)
-#' @return A pdf file with each individual protein abundance plot for each
-#' conditions
-#' @keywords abundance, dotplots, plot
-#' artms_dataPlots()
-#' @export
-artms_dataPlots <- function(input_file, output_file){
-  
-  data_mss = fread(input_file, integer64 = 'double')
-  unique_subjects = unique(data_mss$PROTEIN)
-  condition_length = length(unique(data_mss$GROUP_ORIGINAL))
-  min_abu = min(data_mss$ABUNDANCE, na.rm = T)
-  max_abu = max(data_mss$ABUNDANCE, na.rm=T)
-  
-  pdf(output_file, width = condition_length*1.5, height = 3)
-  
-  cat('PRINTING CONDITION PLOTS\n')
-  for(subject in unique_subjects){
-    subject_data = data_mss[PROTEIN==subject,]
-    cat(sprintf('\t%s\n',subject))
-    p = ggplot(data = subject_data, aes(x=SUBJECT_ORIGINAL,y=ABUNDANCE, colour=FEATURE))
-    p = p + geom_point(size=2) + 
-      facet_wrap(facets = ~ GROUP_ORIGINAL, drop = T, scales = 'free_x', ncol = condition_length) + 
-      ylim(min_abu,max_abu) +
-      theme(axis.text.x=element_text(angle=-90,hjust=1)) +
-      guides(colour=FALSE) +
-      xlab(NULL) +
-      ggtitle(subject)
-    print(p)
-  }
-  dev.off()
-}
-
-# ------------------------------------------------------------------------------
 #' @title Filtering data
 #' @description Apply the filtering options, i.e., remove protein groups and/or
 #' contaminants, and/or, select posttranslational modification (if any)
