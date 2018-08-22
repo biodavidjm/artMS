@@ -156,11 +156,17 @@ artms_plotReproducibilityEvidence <- function(data) {
   data <- data[c('Feature', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
   condi <- unique(data$Condition)
   
-  for(eCondition in condi){
+  # Progress bar
+  pb <- txtProgressBar(min=0, max=length(condi), style=3)
+  
+  for(i in 1:length(condi)){
+    eCondition <- condi[i]
+    # Progress bar
+    setTxtProgressBar(pb, i)
     
-    cat("\n#####################################\nCONDITION: ",eCondition,"\n#####################################\n")
-    cat("TECHNICAL REPLICAS\n---------------------------\n")
-    cat("- ", eCondition,"\n")
+    # cat("\n\nCONDITION: ",eCondition,"\n##################\n")
+    # cat("TECHNICAL REPLICAS\n---------------------------\n")
+    # cat("- ", eCondition,"\n")
     
     conditionOne <- data[which(data$Condition == eCondition),]
     
@@ -169,13 +175,13 @@ artms_plotReproducibilityEvidence <- function(data) {
     
     for(eBioreplica in bioreplicasAll){
       
-      cat('\tChecking for technical replicas in ',eBioreplica, "\n")
+      # cat('\tChecking for technical replicas in ',eBioreplica, "\n")
       biorepli <- conditionOne[conditionOne$BioReplicate == eBioreplica,]
       here <- unique(biorepli$Run)
       
       if(length(here) > 1){ #Limit to 2 technical replicas: (length(here) > 1 & length(here) == 2)
         # We are expecting no more than 2 technical replicas. If there is more... it is worthy to double check
-        cat('\t\t>>Reproducibility for technical replicas of',eBioreplica,":")
+        # cat('\t\t>>Reproducibility for technical replicas of',eBioreplica,":")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$Run
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
@@ -186,45 +192,28 @@ artms_plotReproducibilityEvidence <- function(data) {
         biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
         bdc <- dcast(data=biorepliaggregated, Feature+Proteins~TR, value.var = 'Intensity')
         
-        # # Remove rows with 0 values to print out
-        # bdcc <- bdc[complete.cases(bdc),]
-        # write.table(bdcc, 'technicalreplicates.txt', col.names = T, row.names = F, quote = F, sep = "\t")
-        
-        # # WHEN USING INTENSITY RAW VALUES, YOU NEED TO REMOVE THE OUTLIERS. BUT NOT ANYMORE!!!
-        # # Remove outliers. For that let's do the following
-        # # 1. melt again
-        # bdcm <- melt(bdc, id.vars = c('Sequence','Proteins'))
-        # names(bdcm)[grep('variable', names(bdcm))] <- 'TR' 
-        # names(bdcm)[grep('value', names(bdcm))] <- 'Intensity' 
-        # # 2. Use quantile
-        # bdcm <- bdcm[bdcm$Intensity < quantile(bdcm$Intensity, 0.99), ]
-        # # 3. And now go back to the dcast form
-        # bdc <- dcast(data=bdcm, Sequence+Proteins~TR, value.var = 'Intensity')
-        # bdc <- bdc[complete.cases(bdc),]
-        
         # Get the number of proteins
         np <- dim(bdc)[1]
         corr_coef <- round(cor(bdc$tr1, bdc$tr2, use = "pairwise.complete.obs"), digits = 2)
-        cat("r:\t",corr_coef,"\n")
+        # cat("r:\t",corr_coef,"\n")
         p1 <- ggplot(bdc, aes(x=tr1, y = tr2))
         p1 <- p1 + geom_point() + geom_rug() + geom_density_2d(colour = 'lightgreen')
         p1 <- p1 + geom_smooth(colour = "green", fill = "lightblue", method = 'lm')
         p1 <- p1 + theme_light()
         p1 <- p1 + labs(title = paste("Reproducibility between Technical Replicas\nBioReplica:",eBioreplica, "  (n = ",np,", r = ",corr_coef,")"))
         print(p1)
-        # plot_tr[[eBioreplica]] <- p1
       }else if(length(here) == 1){
-        cat("\t\tOnly one technical replica\n")
+        # cat("\t\tOnly one technical replica\n")
       }else{
-        cat("\n>>MORE THAN TWO TECHNICAL REPLICAS IN THIS EXPERIMENTS? That is very weird\n\n")
-        stop("\nCheck the experiment\n\n")
+        cat("\n>>MORE THAN TWO TECHNICAL REPLICAS IN THIS EXPERIMENTS? That is very strange.\n\n")
+        stop("\nPlease, Check the keys files\n")
       }
     } # Checking the reproducibility between Technical Replicas
     
     
     # NOW BETWEEN BIOREPLICAS
     # Before comparing the different biological replicas, aggregate the technical replicas
-    cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
+    # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
     # 
     # First choose the maximum for the technical replicas as before, but first check whether there are more than one
     if(length(here) > 1){
@@ -249,23 +238,7 @@ artms_plotReproducibilityEvidence <- function(data) {
           br1 <- blist[i]
           br2 <- blist[k]
           
-          cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
-          
-          # Manual processing...
-          # bc <- dcast(data=b, Sequence+Proteins~BioReplicate, value.var = 'Intensity')
-          # bc <- bc[complete.cases(bc),]
-          # 
-          # # Remove outliers. For that let's do the following
-          # # 1. melt again
-          # bcm <- melt(bc, id.vars = c('Sequence','Proteins'))
-          # names(bcm)[grep('variable', names(bcm))] <- 'BioReplicate' 
-          # names(bcm)[grep('value', names(bcm))] <- 'Intensity' 
-          # # 2. Use quantile
-          # bcm <- bcm[bcm$Intensity < quantile(bcm$Intensity, 0.99), ]
-          # # 3. And now go back to the dcast form
-          # bcfinal <- dcast(data=bcm, Sequence+Proteins~BioReplicate, value.var = 'Intensity')
-          # bcfinal <- bcfinal[complete.cases(bcfinal),]
-          
+          # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
           bcfinal <- dcast(data=b, Feature+Proteins~BioReplicate, value.var = 'Intensity')
           
           # Let's check the total number of peptides here...
@@ -275,7 +248,7 @@ artms_plotReproducibilityEvidence <- function(data) {
           npt <- dim(checkTotalNumber)[1]
           
           corr_coef <- round(cor(bcfinal[[br1]], bcfinal[[br2]], use = "pairwise.complete.obs"), digits = 2)
-          cat("r:\t",corr_coef,"\n")
+          # cat("r:\t",corr_coef,"\n")
           p2 <- ggplot(bcfinal, aes(x=bcfinal[[br1]], y = bcfinal[[br2]]))
           p2 <- p2 + geom_point()  + geom_rug() + geom_density_2d(colour = 'red')
           p2 <- p2 + geom_smooth(colour = "red", fill = "lightgreen", method = 'lm')
@@ -286,11 +259,16 @@ artms_plotReproducibilityEvidence <- function(data) {
           print(p2)
         }
       }
-      cat("\n")
+      # cat("\n")
     }else{
       cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
     }
   } # all the conditions
+  # Close Progress bar
+  close(pb)
 }
+
+
+
 
 

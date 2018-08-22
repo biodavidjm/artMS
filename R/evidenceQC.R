@@ -9,7 +9,6 @@
 #' - `ab`: protein abundance
 #' - `ph`: protein phosphorylation
 #' - `ub`: protein ubiquitination (aka ubiquitylation)
-#' @param output_dir output directory to save results in
 #' @param fractions Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
@@ -17,30 +16,35 @@
 #' @keywords QC, quality, control, evidence
 #' artms_evidenceQC()
 #' @export
-artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, fractions){
-  cat("\n\n\t~~> Checking the Evidence file\n")
-  cat("\t(it should take some time due to the usual large size of evidence files)\n")
-  
-  # EVIDENCE:
-  evidencekeys <- artms_mergeEvidenceKeysByFiles(evidence_file, keys_file)
+artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
+
+  evidence_file <- Sys.glob(evidence_file)
+  keys_file <- Sys.glob(keys_file)
+
+  if(any(!prot_exp %in% c('ab','ph','ub','apms'))){
+    cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
+    cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- ab\n\t- ph\n\t- ub\n\t- apms\n")
+    stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT")
+  }
   
   if(fractions){
     # Check that the keys file is correct
     keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
-    if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run', 'FractionKey') %in% colnames(keys))){
-      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. One of these is lost\n
-          \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n\n\tFractionKey\n\n\tSAINT\n\n')
+    keys <- artms_checkRawFileColumnName(keys)
+    if(any(!'FractionKey' %in% colnames(keys))){
+      cat('\nERROR!!! fractions WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
       stop('Please, try again once revised\n\n')
     }
   }
   
+  cat(">> LOADING THE EVIDENCE FILE\n")
+  cat("(it should take some time due to the usual large size of evidence files)\n")
+
+  # EVIDENCE:
+  evidencekeys <- artms_mergeEvidenceKeysByFiles(evidence_file, keys_file)
+  
   ekselecta <- aggregate(Intensity~Proteins+Condition+BioReplicate+Run, data=evidencekeys, FUN = sum)
   ekselectaBioreplica <- aggregate(Intensity~Proteins+Condition+BioReplicate, data=ekselecta, FUN = sum) 
-  
-  # create output directory if it doesn't exist
-  if(!dir.exists(output_dir)){
-    dir.create(output_dir, recursive = T)
-  }
   
   # Checking the overall distribution of intensities before anything else
   # Based on Intensity
@@ -55,10 +59,8 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   k <- k + theme_minimal()
   k <- k + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
   
-  cat("\t~~> Printing out the intensity distribution plots\n")
-  intDistribution <- gsub("evidence.txt", "IntensityDistributions.pdf", evidence_file)
-  intDistribution <- paste0("plot.",prot_exp,".",intDistribution)
-  intDistribution <- paste0(output_dir,"/",intDistribution)
+  cat(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS\n")
+  intDistribution <- gsub("evidence.txt", "qcplot.IntensityDistributions.pdf", evidence_file)
   
   pdf(intDistribution)
     plot(j)
@@ -92,7 +94,6 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   
   # PRINT OUT STATS about contaminants
   numberContaminants <- aggregate(data = evigeneral, Leading.proteins~Contaminant, FUN = length)
-  print(numberContaminants)
   
   # AGGREGATE ALL THE INTENSITIES PER PROTEIN, summing everything up
   evigeneral$Intensity <- as.numeric(evigeneral$Intensity)
@@ -101,21 +102,16 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
   evidencekeysclean <- artms_filterMaxqData(evidencekeys)
-  cat("\t~~> Data loaded\n")
   
-  cat("\t~~> Printing out the reproducibility plots\n")
-  seqReproName <- gsub("evidence.txt", "basicReproducibility.pdf", evidence_file)
-  seqReproName <- paste0("plot.",prot_exp,".",seqReproName)
-  seqReproName <- paste0(output_dir,"/",seqReproName)
+  cat(">> GENERATING THE REPRODUCIBILITY PLOTS (warning: it will take some time)\n")
+  seqReproName <- gsub("evidence.txt", "qcplot.basicReproducibility.pdf", evidence_file)
   
   if (prot_exp == "ub") {
     evidencekeysclean <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     evidencekeysclean <- evidencekeysclean[grep("(gl)", evidencekeysclean$Modified.sequence),]  
-  }else if (prot_exp == "ph" | prot_exp == "ptmph") {
+  }else if (prot_exp == "ph") {
     evidencekeysclean <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     evidencekeysclean <- evidencekeysclean[grep("(ph)", evidencekeysclean$Modified.sequence),]
-  }else{
-    cat("Good to go!\n")
   }
   
   pdf(seqReproName)
@@ -133,7 +129,7 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   palette.breaks <- seq(1, 3, 0.1)
   color.palette  <- colorRampPalette(c("white","steelblue"))(length(palette.breaks))
   
-  
+  cat(">> GENERATING CORRELATION MATRICES\n")
   if(length(technicalReplicas) > 1){
     # First aggregate at the protein level by summing up everything
     biorepliaggregated <- aggregate(Intensity~Feature+Proteins+Condition+BioReplicate+Run, data = data2matrix, FUN = sum)
@@ -145,10 +141,8 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     theTechCorDis <- artms_plotCorrelationDistribution(Mtechnicalrep)
     
     # And now for clustering
-    cat("\t~~> Correlation matrix including Technical replicas\n")
-    matrixCorrelationBioreplicas <- gsub("evidence.txt", "correlationMatrixTR.pdf", evidence_file)
-    matrixCorrelationBioreplicas <- paste0("plot.",prot_exp,".",matrixCorrelationBioreplicas)
-    matrixCorrelationBioreplicas <- paste0(output_dir,"/",matrixCorrelationBioreplicas)
+    cat("--- By Technical replicates\n")
+    matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixTR.pdf", evidence_file)
     
     pdf(matrixCorrelationBioreplicas, width = 20, height = 20) #
     corrplot(Mtechnicalrep, 
@@ -176,7 +170,7 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     print(theTechCorDis)
     garbage <- dev.off()
   }else{
-    cat("---NO TECHNICAL REPLICATES DETECTED\n")
+    cat("--- NO Technical Replicates detected\n")
   }
 
   # biological replicates  
@@ -198,32 +192,30 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   
   theBiorCorDis <- artms_plotCorrelationDistribution(Mbioreplicas)
   
-  cat("\t~~> BioReplicate correlation matrix (based on Proteins)\n")
-  matrixCorrelationBioreplicas <- gsub("evidence.txt", "correlationMatrixBR.pdf", evidence_file)
-  matrixCorrelationBioreplicas <- paste0("plot.",prot_exp,".",matrixCorrelationBioreplicas)
-  matrixCorrelationBioreplicas <- paste0(output_dir,"/",matrixCorrelationBioreplicas)
+  cat("--- By Biological replicates\n")
+  matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixBR.pdf", evidence_file)
   pdf(matrixCorrelationBioreplicas, width = 20, height = 20) #, width = 20, height = 20
-  corrplot(Mbioreplicas, 
-           method="square", 
-           addCoef.col = "white",
-           number.cex=0.9,
-           tl.cex = 1.5, tl.col = "black", title = "Matrix Correlation based on Protein Intensities")
-  pheatmap(Mbioreplicas, 
-           cluster_rows = T,
-           cluster_cols = T,
-           cellheight = 10, 
-           cellwidth=25, 
-           main = "Clustering Biological Replicates",
-           fontsize=6, 
-           fontsize_row=8, 
-           fontsize_col=12, 
-           border_color='black',
-           fontfamily="Helvetica",
-           treeheight_row = F, 
-           treeheight_col = F,
-           color = color.palette
-  )
-  print(theBiorCorDis)
+    corrplot(Mbioreplicas, 
+             method="square", 
+             addCoef.col = "white",
+             number.cex=0.9,
+             tl.cex = 1.5, tl.col = "black", title = "Matrix Correlation based on Protein Intensities")
+    pheatmap(Mbioreplicas, 
+             cluster_rows = T,
+             cluster_cols = T,
+             cellheight = 10, 
+             cellwidth=25, 
+             main = "Clustering Biological Replicates",
+             fontsize=6, 
+             fontsize_row=8, 
+             fontsize_col=12, 
+             border_color='black',
+             fontfamily="Helvetica",
+             treeheight_row = F, 
+             treeheight_col = F,
+             color = color.palette
+    )
+    print(theBiorCorDis)
   garbage <- dev.off()
   
   # Create matrix of reproducibility CONDITIONS
@@ -246,66 +238,35 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
   
   theCondCorDis <- artms_plotCorrelationDistribution(Mcond)
   
-  cat("\t~~> Conditions correlation matrix\n")
-  matrixCorrelationCond <- gsub("evidence.txt", "correlationMatrixConditions.pdf", evidence_file)
-  matrixCorrelationCond <- paste0("plot.",prot_exp,".",matrixCorrelationCond)
-  matrixCorrelationCond <- paste0(output_dir,"/",matrixCorrelationCond)
+  cat("--- By Conditions\n")
+  matrixCorrelationCond <- gsub("evidence.txt", "qcplot.correlationMatrixConditions.pdf", evidence_file)
   pdf(matrixCorrelationCond)
-  corrplot(Mcond, 
-           method="square", 
-           addCoef.col = "white", 
-           number.cex=0.6, 
-           tl.col = "black", 
-           title = "Matrix Correlation based on protein Intensities")
-  pheatmap(Mcond, 
-           cluster_rows = T,
-           cluster_cols = T,
-           cellheight = 10, 
-           cellwidth=25, 
-           main = "Clustering Conditions",
-           fontsize=6, 
-           fontsize_row=8, 
-           fontsize_col=12, 
-           border_color='black',
-           fontfamily="Helvetica",
-           treeheight_row = F, 
-           treeheight_col = F,
-           color = color.palette
-  )
-  print(theCondCorDis)
+    corrplot(Mcond, 
+             method="square", 
+             addCoef.col = "white", 
+             number.cex=0.6, 
+             tl.col = "black", 
+             title = "Matrix Correlation based on protein Intensities")
+    pheatmap(Mcond, 
+             cluster_rows = T,
+             cluster_cols = T,
+             cellheight = 10, 
+             cellwidth=25, 
+             main = "Clustering Conditions",
+             fontsize=6, 
+             fontsize_row=8, 
+             fontsize_col=12, 
+             border_color='black',
+             fontfamily="Helvetica",
+             treeheight_row = F, 
+             treeheight_col = F,
+             color = color.palette
+    )
+    print(theCondCorDis)
   garbage <- dev.off()
   
-  # cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  # CONTRAST FILE REPRODUCIBILITY PLOTS
-  # If a contrast file is provided it means that we want to generate reproducibility plots
-  
-  normalizeEqualizeMedians <- function(sedata){
-    
-    sedata <- biorepliaggregated
-    # Get the list of Bioreplicates
-    nbiorep <- unique(sedata$BioReplicate)
-    
-    # Choose the median that you want to use to normalize the data...
-    # GLOBAL median
-    medianChosen <- median(sedata$Intensity)
-    
-    ## Normalized by equilizing the Medians
-    for (i in 1:length(nbiorep)) {
-      medianBiorep <- median(sedata[sedata$BioReplicate == nbiorep[i], "Intensity"])
-      # cat("\t\t\t",nbiorep[i], " -> ", medianBiorep,"\n")
-      sedata[sedata$BioReplicate == nbiorep[i], "Intensity"] <- sedata[sedata$BioReplicate == nbiorep[i], "Intensity"]- medianBiorep + medianChosen
-    }
-    
-    # Just check that truly happened...
-    if(median(sedata$Intensity) != medianChosen){
-      stop("\n\nOH NO. PROBLEMS WITH THE NORMALIZATION!!!\n\n\n")
-    }else{
-      cat("\tData Normalized on equilized medians\n\n")
-      return(sedata)
-    }
-  }
-
-  # DETAILS ABOUT THE SEARCH
+  # DETAILS
+  cat(">> GENERATING INTENSITY STATS PLOTS\n")
   if (prot_exp == "apms" | prot_exp == "ab") {
     ekselect <- evidencekeysclean[c('Feature', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     # Aggregate the technical replicas
@@ -360,22 +321,15 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     
     # Check the total number of modified and non-modified residues to plot
     evidencekeys$MODIFICATION <- ifelse(grepl("(ph)",evidencekeys$Modified.sequence),"ph","other")
-    
   }else {
-    stop("!-!-!-!- The proteomics experiment is not recognized (prot_exp should be apms, ab, ub, or ph)\n")
+    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED (prot_exp SHOULD BE apms, ab, ub, or ph)\n")
   }
   
-  cat("\t~~>",prot_exp,"processed\n")
-  
-  cat("\t~~> Printing out the plots\n")
-  reproName <- gsub("evidence.txt", "intensityStats.pdf", evidence_file)
-  reproName <- paste0("plot.",prot_exp,".",reproName)
-  reproName <- paste0(output_dir,"/",reproName)
-  
-  pdf(reproName)
-  
+  cat("--- ",prot_exp," PROCESSED\n")
+  reproName <- gsub("evidence.txt", "qcplot.intensityStats.pdf", evidence_file)
+
   #QC: SUM of intensities per biological replica (peptides vs contaminant)
-  ggplot(evisummary, aes(x=BioReplicate, y=Intensity, fill=Contaminant)) +
+  pisa <- ggplot(evisummary, aes(x=BioReplicate, y=Intensity, fill=Contaminant)) +
     geom_bar(stat="identity", position=position_dodge(width = 0.7), width=0.7) +
     theme_minimal() +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.title = element_blank()) +
@@ -383,7 +337,7 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     scale_fill_brewer(palette="Paired")
   
   #QC: SUM of intensities per condition (peptides vs contaminant)
-  ggplot(evisummary, aes(x=Condition, y=Intensity, fill=Contaminant)) +
+  pisb <- ggplot(evisummary, aes(x=Condition, y=Intensity, fill=Contaminant)) +
     geom_bar(stat="identity", position=position_dodge(width = 0.7), width=0.7) +
     theme_minimal() +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.title = element_blank()) +
@@ -391,25 +345,23 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     scale_fill_brewer(palette="Paired")
   
   #QC: TOTAL COUNT OF PEPTIDES IN EACH BIOLOGICAL REPLICA
-  ggplot(evigeneral, aes(x = BioReplicate, fill = Contaminant)) + 
+  pisc <- ggplot(evigeneral, aes(x = BioReplicate, fill = Contaminant)) + 
     geom_bar(stat = "count", position=position_dodge(width = 0.7), width=0.7) + 
     theme_minimal() +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.title = element_blank()) +
     ggtitle("QC: Total Peptide Counts in BioReplicates")
   
   #QC: TOTAL COUNT OF PEPTIDES IN EACH BIOLOGICAL REPLICA
-  ggplot(evigeneral, aes(x = Condition, fill = Contaminant)) + 
+  pisd <- ggplot(evigeneral, aes(x = Condition, fill = Contaminant)) + 
     geom_bar(stat = "count", position=position_dodge(width = 0.7), width=0.7) + 
     theme_minimal() +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.title = element_blank()) +
     ggtitle("QC: Peptide Counts in Conditions")
   
-  
-  
   #QC: MAX INTENSITY IN REDUNDANT PEPTIDES, AND AGGREGATE FOR EACH PROTEIN THE SUM OF INTENSITY
   ekselectaBioreplica2plot <- ekselectaBioreplica
   ekselectaBioreplica2plot$Intensity <- log2(ekselectaBioreplica2plot$Intensity)
-  ggplot(ekselectaBioreplica2plot, aes(x=as.factor(BioReplicate), y=Intensity, fill=Intensity))+
+  pise <- ggplot(ekselectaBioreplica2plot, aes(x=as.factor(BioReplicate), y=Intensity, fill=Intensity))+
     geom_boxplot(aes(fill = BioReplicate))+
     # scale_y_log10() + coord_trans(y = "log10") +
     theme_linedraw() +
@@ -417,7 +369,7 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     labs(x="BioReplicate", y="log2(Intensity)") + 
     ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. Max intensity of TR")
   
-  ggplot(ekselectaBioreplica2plot, aes(x=Condition, y=Intensity, fill=Intensity))+
+  pisf <- ggplot(ekselectaBioreplica2plot, aes(x=Condition, y=Intensity, fill=Intensity))+
     geom_boxplot(aes(fill = Condition))+
     # scale_y_log10() + coord_trans(y = "log10") +
     theme_linedraw() +
@@ -425,40 +377,51 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     labs(x="Condition", y="log2(Intensity)") + 
     ggtitle("Protein Intensity in Conditions\nExcluding contaminants. Max intensity of TR")
   
-  ggplot(ekselectaBioreplica) +
+  pisg <- ggplot(ekselectaBioreplica) +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
     geom_bar(aes(BioReplicate, Intensity), position = "dodge", stat = "summary", fun.y = "mean", fill="black", colour = "orange") +
     ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. Max intensity of TR")  
   
-  ggplot(ekselectaBioreplica) +
+  pish <- ggplot(ekselectaBioreplica) +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
     geom_bar(aes(Condition, Intensity), position = "dodge", stat = "summary", fun.y = "mean", fill="black", colour = "green") +
     ggtitle("Total Intensity in Conditions\nExcluding contaminants. Max intensity of TR")  
   
-  ggplot(cd, aes(x = TR, fill = Condition)) + 
+  pisi <- ggplot(cd, aes(x = TR, fill = Condition)) + 
     geom_bar(stat = "count") + 
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.9), legend.position = "none") +
     geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7) +
     ggtitle("Unique Features in Technical Replicas")    
   
-  ggplot(bb, aes(x = BioReplicate, fill = Condition)) + 
+  pisj <- ggplot(bb, aes(x = BioReplicate, fill = Condition)) + 
     geom_bar(stat = "count") + 
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.position = "none") +
     geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7) +
     ggtitle("Unique Features in Biological Replicas")
   
-  ggplot(b, aes(x = Condition, fill = Condition)) + 
+  pisk <- ggplot(b, aes(x = Condition, fill = Condition)) + 
     geom_bar(stat = "count") + 
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5), legend.position = "none") +
     geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7) +
-    ggtitle("Unique Features in Condition")    
+    ggtitle("Unique Features in Condition")
+  
+  pdf(reproName)
+    print(pisa)
+    print(pisb)
+    print(pisc)
+    print(pisd)
+    print(pise)
+    print(pisf)
+    print(pisg)
+    print(pish)
+    print(pisi)
+    print(pisj)
+    print(pisk)
   garbage <- dev.off()
   
-  if( prot_exp == "ph" | prot_exp == "ub" | prot_exp == "ptmph"){
-    cat("\t~~> Printing",prot_exp,"count\n")
-    modName <- gsub("evidence.txt", "ptmStats.pdf", evidence_file)
-    modName <- paste0("plot.",prot_exp,".",modName)
-    modName <- paste0(output_dir,"/",modName)
+  if( prot_exp == "ph" | prot_exp == "ub"){
+    cat(">> GENERATING PTM ",prot_exp," STATS\n")
+    modName <- gsub("evidence.txt", "qcplot.ptmStats.pdf", evidence_file)
     
     x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = MODIFICATION))
     x <- x + geom_bar(stat = "count", position=position_dodge(width = 0.7), width=0.7)
@@ -495,57 +458,11 @@ artms_evidenceQC.R <- function(evidence_file, keys_file, prot_exp, output_dir, f
     garbage <- dev.off()
   }
   
-  cat("\t~~> Done!\n\n")
+  cat(">> QUALITY CONTROL ANALYSIS OF evidence.txt COMPLETED\n")
 }
 
 
 
-## SITE
-
-# setwd('~/Box Sync/projects/krogan/judd/Roche/HBV/JFH102_virus/')
-# evidence_file <- 'roche-jfh102-papd57-yeshbv-evidence.txt'
-# keys_file <- 'roche-jfh102-papd57-yeshbv-keys.txt'
-# prot_exp <- 'apms'
-# output_dir <- 'testing123'
-# fractions <- 'nofra'
-# contrast <- 'roche-jfh102-papd57-yeshbv-contrast.txt'
-# specie <- 'human'
-
-# setwd('~/Box Sync/projects/sanfordBurnham/Deshpande/data/')
-# evidence_file <- 'deshpande-evidence.txt'
-# keys_file <- 'deshpande-keys.txt'
-# prot_exp <- 'ab'
-
-# setwd('~/Box Sync/20171020_CH1/')
-# evidence_file <- 'evidence.txt'
-# keys_file <- 'keys.txt'
-# prot_exp <- 'ph'
 
 
-# ZIKA
-# setwd('~/Box Sync/projects/krogan/zika/mist_analysis/data/')
-# evidence_file <- '20180313-zika-krystal-evidence.txt'
-# keys_file <- '20180313-zika-krystal-keys.txt'
-# prot_exp <- 'apms'
-# output_dir <- 'whatever'
-# fractions <- 'nofra'
-# contrast <- 'nocon'
 
-
-# # Siah2 Zeev
-# setwd('~/Box Sync/danielleSwaney/ZeevRonaiLab/DS1/ab/')
-# evidence_file <- 'ronai_siah2_ab-evidence.txt'
-# keys_file <- 'ronai_siah2_ab-keys.txt'
-# prot_exp <- 'ab'
-# output_dir <- 'whatever'
-# fractions <- 'nofra'
-# contrast <- 'nocon'
-# specie <- 'mouse'
-# 
-# setwd('~/Box Sync/danielleSwaney/ZeevRonaiLab/DS1/ub/')
-# evidence_file <- 'ronai_siah2_ub-evidence.txt'
-# keys_file <- 'ronai_siah2_ub-keys.txt'
-# prot_exp <- 'ub'
-# output_dir <- 'whatever'
-# fractions <- 'nofra'
-# contrast <- 'nocon'

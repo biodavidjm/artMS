@@ -22,7 +22,7 @@
 #' @importFrom graphics pairs plot
 #' @importFrom grDevices colorRampPalette dev.off pdf
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
-#' @importFrom utils combn read.delim write.table
+#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar
 
 
 # ------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ artms_main <- function(yaml_config_file){
     }
     
     ## fix for weird converted values from fread
-    data[Intensity<1,]$Intensity=NA 
+    data[Intensity<1,]$Intensity = NA 
     
     ## FILTERING : handles Protein Groups and Modifications
     if(config$filters$enabled) data_f = artms_filterData(data, config) else data_f=data

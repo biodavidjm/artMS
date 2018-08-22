@@ -33,7 +33,33 @@ artms_castMaxQToWidePTM <- function(d_long){
 }
 
 # ------------------------------------------------------------------------------
+#' @title Check the `Raw file` column name on the evidence or keys data.frame
+#' 
+#' @description Depending on how the data is loaded, the `Raw file` column
+#' might have different format. This function check to ensure consistency in 
+#' both the evidence and keys data.frames
+#' @param df keys or evidence data.frames
+#' @return a data.frame with the `RawFile` column name
+#' @keywords rawfile, columname
+#' artms_checkRawFileColumnName()
+#' @export
+artms_checkRawFileColumnName <- function(df){
+  if( !('RawFile' %in% colnames(df)) ) {
+    if("Raw.file" %in% colnames(df)){
+      df <- changeColumnName(df, 'Raw.file', 'RawFile')
+    }else if("Raw file" %in% colnames(df)){
+      df <- changeColumnName(df, 'Raw file', 'RawFile')
+    }else{
+      cat("\tERROR: CANNOT FIND THE Raw.file COLUMN\n")
+      stop("Please, revise it")
+    }
+  }
+  return(df)
+}
+
+# ------------------------------------------------------------------------------
 #' @title Change a specific column name in a given data.frame
+#' 
 #' @description Making easier j
 #' @param dataset the data.frame with the column name you want to change
 #' @param oldname the old column name
@@ -46,7 +72,7 @@ changeColumnName <- function(dataset, oldname, newname){
   if( !(oldname %in% colnames(dataset)) ){
     stop("The Column name provided <",oldname,"> was not found in the data.table provided")
   }
-  names(dataset)[grep(paste0('^',oldname,'$'), names(dataset))] <- newname
+  colnames(dataset)[grep(paste0('^',oldname,'$'), colnames(dataset))] <- newname
   return(dataset)
 }
 
@@ -135,6 +161,7 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
   return(data)
 }
 
+
 # ------------------------------------------------------------------------------
 #' @title Merge evidence and keys by file name
 #' 
@@ -150,19 +177,14 @@ artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
   data <- read.delim(evidence_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
   keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
   
-  if( !('RawFile' %in% colnames(data)) ) {
-    tryCatch(changeColumnName(data, 'Raw.file', 'RawFile'), error=function(e) stop('\nRaw.file not found in EVIDENCE FILE\n'))
-  }
-  
-  if( !('RawFile' %in% colnames(keys)) ) {
-    tryCatch(changeColumnName(keys, 'Raw.file', 'RawFile'), error=function(e) stop('\nRaw.file not found in EVIDENCE FILE\n'))
-  }
+  data <- artms_checkRawFileColumnName(data)
+  keys <- artms_checkRawFileColumnName(keys)
   
   # Check that the keys file is correct
   if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
-    cat('\n-!-!-!-!- ERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. One of these is lost\n
-        \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
-    stop('Please, try again once revised\n\n')
+    cat('\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. One of these columns is lost:\n\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
+    cat('Please, try again once revised\n\n')
+    stop()
   }
   
   # MERGING THE DATA
