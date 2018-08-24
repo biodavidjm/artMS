@@ -2,35 +2,49 @@
 # ------------------------------------------------------------------------------
 #' @title Converts the `Proteins` column of the evidence file to site-specific
 #' `Uniprot_PTM` notation
+#' 
 #' @description It enables the site-specific quantification of PTMs by
 #' converting the `Proteins` column of the evidence file to a `Uniprot_PTM`
 #' notation. In this way, each of the modified peptides can be quantified
 #' independently.
-#' @param maxq_file The evidence file name and location
-#' @param ref_proteome_file The reference proteome (to map the peptide
-#' to the protein sequence and find out the site location)
+#' @param evidence_file The evidence file name and location
+#' @param ref_proteome_file The reference proteome used as database 
+#' to search the `evidence.txt` file with MaxQuant. It will be used to map the 
+#' modified peptide to the protein sequence and find the site location)
 #' @param output_file Output file name (-sites-evidence.txt recommended)
 #' @param mod_type The posttranslational modification. Options: `ub`, `ph`, or 
 #' `ac`
 #' @return Return a new evidence file with the `Proteins` column modified by
 #' adding the sequence site location(s) + postranslational modification(s) 
 #' to the uniprot entry id. 
-#' Examples: `A34890_ph3`; `Q64890_ph24_ph456`;
-#' `Q64890_ub34_ub129_ub234`; `Q64890_ac35`.
+#' Examples: `A34890_ph3`; `Q64890_ph24_ph456`; `Q64890_ub34_ub129_ub234`; 
+#' `Q64890_ac35`.
 #' @keywords
 #' artms_proteinToSiteConversion()
 #' @export
-artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_file, mod_type='ub') {
+artms_proteinToSiteConversion <- function (evidence_file, ref_proteome_file, output_file, mod_type='PH') {
   
-  if(mod_type=='ub'){
+  if(is.null(output_file)){
+    stop("output_file MISSED!")
+  }
+  cat(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS\n")
+  mod_type <- toupper(mod_type)
+  
+  if(mod_type=='UB'){
+    cat('--- SELECTING << UB >> MODIFIED PEPTIDES\n')
     maxq_mod_residue='K\\(gl\\)'
     mod_residue = 'K'
-  }else if(mod_type=='ph'){
+  }else if(mod_type=='PH'){
+    cat('--- SELECTING << PH >> MODIFIED PEPTIDES\n')
     maxq_mod_residue='(S|T|Y)\\(ph\\)'  
     mod_residue = 'S|T|Y'
-  }else if(mod_type=='ac'){
+  }else if(mod_type=='AC'){
+    cat('--- SELECTING << AC >> MODIFIED PEPTIDES\n')
     maxq_mod_residue='K\\(ac\\)'  
     mod_residue = 'K'
+  }else{
+    cat("ERROR!!! THE MOD_TYPE <<",mod_type,">> IS NOT SUPPORTED\n")
+    stop("CHECK ?artms_proteinToSiteConversion TO GET THE LIST OF SUPPORTED POST-TRANSLATIONAL MODIFICATIONS\n")
   }
   
   cat(">> READING REFERENCE PROTEOME\n")
@@ -72,7 +86,7 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   ## map mod sites in data to index 
   cat(">> OPENING EVIDENCE FILE\n")
   ## read in maxq. data
-  maxq_data = fread(maxq_file, integer64 = 'double')
+  maxq_data = fread(evidence_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
   maxq_data = maxq_data[grep("CON__|REV__",maxq_data$Proteins, invert=T),]
   unique_peptides_in_data = unique(maxq_data[,c('Proteins','Modified sequence'),with=F])
@@ -149,8 +163,9 @@ artms_proteinToSiteConversion <- function (maxq_file, ref_proteome_file, output_
   mapping_table = merge(protein_seq_mapping, mod_site_mapping_agg, by='mod_seqs', all=T)
   write.table(mapping_table, file=gsub('.txt','-mapping.txt',output_file), eol='\n', sep='\t',quote=F, row.names=F, col.names=T)
   
-  cat(">>FILES OUT:\n",
+  cat(">> FILES OUT:\n",
       "\t---New evidence-site file: ", output_file, "\n",
       "\t---Details of the Mappings: ", gsub('.txt','-mapping.txt',output_file),"\n")
+  cat(">> CONVERSION COMPLETED\n\n")
 }
 

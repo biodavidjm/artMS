@@ -5,14 +5,15 @@
 \title{Converts the \code{Proteins} column of the evidence file to site-specific
 \code{Uniprot_PTM} notation}
 \usage{
-artms_proteinToSiteConversion(maxq_file, ref_proteome_file, output_file,
-  mod_type = "ub")
+artms_proteinToSiteConversion(evidence_file, ref_proteome_file, output_file,
+  mod_type = "PH")
 }
 \arguments{
-\item{maxq_file}{The evidence file name and location}
+\item{evidence_file}{The evidence file name and location}
 
-\item{ref_proteome_file}{The reference proteome (to map the peptide
-to the protein sequence and find out the site location)}
+\item{ref_proteome_file}{The reference proteome used as database
+to search the \code{evidence.txt} file with MaxQuant. It will be used to map the
+modified peptide to the protein sequence and find the site location)}
 
 \item{output_file}{Output file name (-sites-evidence.txt recommended)}
 
@@ -23,8 +24,8 @@ to the protein sequence and find out the site location)}
 Return a new evidence file with the \code{Proteins} column modified by
 adding the sequence site location(s) + postranslational modification(s)
 to the uniprot entry id.
-Examples: \code{A34890_ph3}; \code{Q64890_ph24_ph456};
-\code{Q64890_ub34_ub129_ub234}; \code{Q64890_ac35}.
+Examples: \code{A34890_ph3}; \code{Q64890_ph24_ph456}; \code{Q64890_ub34_ub129_ub234};
+\code{Q64890_ac35}.
 }
 \description{
 It enables the site-specific quantification of PTMs by

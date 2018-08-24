@@ -4,7 +4,7 @@
 \alias{artms_getMSstatsFormat}
 \title{Generate MSstats format object and file}
 \usage{
-artms_getMSstatsFormat(data_f, fraction, datafile, funfunc)
+artms_getMSstatsFormat(data_f, fraction, datafile, funfunc = "sum")
 }
 \arguments{
 \item{data_f}{Maxquant evidence data.frame filtered}
