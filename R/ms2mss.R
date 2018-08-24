@@ -69,15 +69,15 @@ mq2mss <- function(evidence_file,
     
     ## FILTERING : handles MQ contaminants, Protein Groups, and Modifications
     config = c()
-    config$filters$protein_groups = protein_groups
-    config$filters$contaminants = contaminants
-    config$filters$modification = modification
-    config$files$data = output_file
-    if (!is.null(config$filters$modification) | (config$filters$contaminants != F) | (config$filters$protein_groups != "ignore")) 
+    config$data$filters$protein_groups = protein_groups
+    config$data$filters$contaminants = contaminants
+    config$data$filters$modification = modification
+    config$files$evidence = output_file
+    if (!is.null(config$data$filters$modification) | (config$data$filters$contaminants != F) | (config$data$filters$protein_groups != "ignore")) 
         data_f = artms_filterData(data, config) else data_f = data  #!!!!!!!
     
     ## FORMATTING IN WIDE FORMAT FOR NORMALIZATION PURPOSES
-    if (!is.null(config$filters$modification)) 
+    if (!is.null(config$data$filters$modification)) 
         castFun = artms_castMaxQToWidePTM else castFun = artms_castMaxQToWide 
     data_w = castFun(data_f)
     

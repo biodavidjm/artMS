@@ -13,7 +13,7 @@
 #' artms_getMSstatsFormat()
 #' @export
 artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc){
-  cat(">> ADAPTING THE DATA TO MSSTATS FORMAT\n")
+  cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
   
   data_f <- changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
   data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
@@ -62,7 +62,7 @@ artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc){
   }
   
   dmss <- as.data.frame(dmss)
-  cat("------- + Write out the MSstats input file (-mss.txt)\n\n")
+  cat("------- + Write out the MSstats input file (-mss.txt)\n")
   write.table(dmss, file=gsub('.txt','-mss.txt',datafile), eol="\n", sep="\t", quote=F, row.names=F, col.names=T)
   return(dmss)  
 }

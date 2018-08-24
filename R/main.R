@@ -36,6 +36,20 @@
 artms_main <- function(yaml_config_file){
   cat(">> RUNNING artMS. LOADING CONFIGURATION FILE...\n")
   config <- yaml.load_file(yaml_config_file)
+  
+  # LET'S HELP THE DISTRACTED USER
+  if( !(is.null(config$data$filters$modification)) ){
+    config$data$filters$modification <- toupper(config$data$filters$modification)
+  }
+  
+  # Quality Control
+  if(config$qc$enabled){
+    artms_evidenceQC(evidence_file = config$files$evidence, 
+                     keys_file = config$files$keys, 
+                     prot_exp = toupper(config$data$filters$modifications),
+                     fractions = config$data$fractions$enabled)
+  }
+  
   # process MaxQuant data, link with keys, and convert for MSStats format
   if(config$data$enabled){
     cat(">> LOADING DATA\n")
@@ -46,15 +60,15 @@ artms_main <- function(yaml_config_file){
     ## reading in data
     
     # CHECKING FOR SILAC EXPERIMENT
-    if(!is.null(config$silac$enabled)){
-      if(config$silac$enabled){
-        output <- gsub(".txt","-silac.txt",config$files$data)
-        data <- artms_SILACtoLong(config$files$data, output)
+    if(!is.null(config$data$silac$enabled)){
+      if(config$data$silac$enabled){
+        output <- gsub(".txt","-silac.txt",config$files$evidence)
+        data <- artms_SILACtoLong(config$files$evidence, output)
       }else{
-        data <- read.delim(config$files$data, stringsAsFactors=F, sep='\t')
+        data <- read.delim(config$files$evidence, stringsAsFactors=F, sep='\t')
       }
     }else{
-      data <- read.delim(config$files$data, stringsAsFactors=F, sep='\t')
+      data <- read.delim(config$files$evidence, stringsAsFactors=F, sep='\t')
     }
     
     data <- data.table(data)
@@ -75,13 +89,13 @@ artms_main <- function(yaml_config_file){
     if(!'IsotopeLabelType' %in% colnames(data)){
       cat("------- + IsotopeLabelType not detected in evidence file! 
           It will be assumed that this is a label-free experiment 
-          (adding IsotopeLabelType column with L value\n")
+          (adding IsotopeLabelType column with L value)\n")
       data[,IsotopeLabelType:='L']
     }
     
     # HACK FOR SILAC DATA
-    if(!is.null(config$silac$enabled)){
-      if(config$silac$enabled){
+    if(!is.null(config$data$silac$enabled)){
+      if(config$data$silac$enabled){
         data$RawFile = paste(data$RawFile, data$IsotopeLabelType, sep='')
         keys$RawFile = paste(keys$RawFile, keys$IsotopeLabelType, sep='')
         keys$Run = paste(keys$IsotopeLabelType,keys$Run , sep='')
@@ -99,7 +113,7 @@ artms_main <- function(yaml_config_file){
     data[Intensity<1,]$Intensity = NA 
     
     ## FILTERING : handles Protein Groups and Modifications
-    if(config$filters$enabled) data_f = artms_filterData(data, config) else data_f=data
+    if(config$data$filters$enabled) data_f <- artms_filterData(data, config) else data_f=data
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if(!is.null(config$files$sequence_type)){
@@ -112,7 +126,7 @@ artms_main <- function(yaml_config_file){
     }
     
     ## HEATMAPS
-    if(!is.null(config$files$sample_plots) && config$files$sample_plots){
+    if(!is.null(config$data$sample_plots) && config$data$sample_plots){
       keys_in_data = keys[keys$RawFile %in% unique(data$RawFile),]
       artms_sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config) 
       artms_samplePeptideBarplot(data_f, config)
@@ -126,8 +140,8 @@ artms_main <- function(yaml_config_file){
       # Go through the old yaml version. 
       # Before "fractions" it was called "aggregation" in the config.yaml file
       if(!is.null(config$aggregation$enabled)){
-        config$fractions$enabled <- config$aggregation$enabled
-        config$fractions$aggregate_fun <- config$aggregation$aggregate_fun
+        config$data$fractions$enabled <- config$aggregation$enabled
+        config$data$fractions$aggregate_fun <- config$aggregation$aggregate_fun
       }
       
       # DEPRECATED OPTION: in older versions the type of sequence 
@@ -136,7 +150,7 @@ artms_main <- function(yaml_config_file){
         config$files$sequence_type <- 'modified'
       }
       
-      dmss <- artms_getMSstatsFormat(data_f, config$fractions$enabled, config$files$data, config$fractions$aggregate_fun)
+      dmss <- artms_getMSstatsFormat(data_f, config$data$fractions$enabled, config$files$evidence, config$data$fractions$aggregate_fun)
       
       ## DEPRECATED : Make sure there are no doubles !!
       ## doubles could arise when protein groups are being kept and the same 

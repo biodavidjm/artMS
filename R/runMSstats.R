@@ -53,7 +53,7 @@ artms_runMSstats <- function(dmss, contrasts, config){
                             MBimpute = config$msstats$MBimpute,
                             featureSubset=config$msstats$feature_subset)
   }else{
-    cat(sprintf('>> NORMALIZATION\t%s\n',config$msstats$normalization_method))
+    cat(sprintf('\n>> NORMALIZATION\t%s\n',config$msstats$normalization_method))
     #mssquant = dataProcess(dmss, normalization=config$msstats$normalization_method , fillIncompleteRows = F, betweenRunInterferenceScore = F)
     mssquant = dataProcess(raw = dmss, 
                            normalization=config$msstats$normalization_method,

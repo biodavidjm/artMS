@@ -86,29 +86,34 @@ changeColumnName <- function(dataset, oldname, newname){
 #' artms_filterData()
 #' @export
 artms_filterData <- function(data, config){
-  cat(">> FILTERING\n")
-  if(config$filters$protein_groups == 'remove'){
+  cat("\n>> FILTERING\n")
+  if(config$data$filters$protein_groups == 'remove'){
     cat("\tPROTEIN GROUPS\tREMOVE\n")
     data_f = removeMaxQProteinGroups(data)  
-  }else if(config$filters$protein_groups == 'keep'){
+  }else if(config$data$filters$protein_groups == 'keep'){
     cat("\tPROTEIN GROUPS\tIGNORE\n")
     data_f = data
   }else{
     stop("\n\nFILTERING OPTION FOR protein_groups NOT UNDERSTOOD (OPTIONS AVAILABLE: keep OR remove\n\n")
   }
   
-  if(config$filters$contaminants){
+  if(config$data$filters$contaminants){
     cat("\tCONTAMINANTS\tREMOVE\n")
     data_f = artms_filterMaxqData(data_f)  
   }
   
-  if(!is.null(config$filters$modification)){
-    cat(sprintf("\tMODIFICATIONS\t%s\n",config$filters$modification))
-    if(config$filters$modification == 'UB'){
-      data_f = data_f[Modifications %like% 'GlyGly']
-    }else if(config$filters$modification == 'PH'){
-      data_f = data_f[Modifications %like% 'Phospho']
-    }
+  # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification COULD BE EMPTY
+  if(is.null(config$data$filters$modification)){
+    cat("\tNO config$data$filters$modification provided. Using 'AB' as default\n")
+  }else if(config$data$filters$modification == 'AB' | config$data$filters$modification == 'APMS'){
+    cat(sprintf("\tPROCESSING\t%s\n",config$data$filters$modification))
+  }else if(config$data$filters$modification == 'UB'){
+    data_f = data_f[Modifications %like% 'GlyGly']
+  }else if(config$data$filters$modification == 'PH'){
+    data_f = data_f[Modifications %like% 'Phospho']
+  }else{
+    cat("\nERROR!!!! <<<",config$data$filters$modification,">>> IS NOT A VALID config$data$filters$modification OPTION\n")
+    stop("CHECK HELP FOR VALID OPTIONS")
   }
   return(data_f)
 }
@@ -153,7 +158,7 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
     cat(sprintf("\tkeys found: %s \n\t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
     cat(sprintf("\tdata found: %s \n\t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
   }else{
-    cat("\t>-----+ Check point: the number of RawFiles in both keys and evidences file is identical\n\n")
+    cat("+----- Check point: the number of RawFiles in both keys and evidences file is identical\n")
   }
   
   ## select only required attributes from MQ format

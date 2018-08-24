@@ -13,10 +13,10 @@ artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0)
 
 \item{prot_exp}{Proteomics experiment. 4 options available:
 \itemize{
-\item \code{apms}: affinity purification mass spectrometry
-\item \code{ab}: protein abundance
-\item \code{ph}: protein phosphorylation
-\item \code{ub}: protein ubiquitination (aka ubiquitylation)
+\item \code{APMS}: affinity purification mass spectrometry
+\item \code{AB}: protein abundance
+\item \code{PH}: protein phosphorylation
+\item \code{UB}: protein ubiquitination (aka ubiquitylation)
 }}
 
 \item{fractions}{Is a fractionated experiment?

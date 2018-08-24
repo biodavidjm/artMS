@@ -16,10 +16,10 @@ artms_writeExtras <- function(results, config){
   }
   
   # Annotation 
-  if(config$output_extras$annotate & is.null(config$filters$modifications) ){
+  if(config$output_extras$annotate & is.null(config$data$filters$modifications) ){
     results_ann <- Extras.annotate(results, output_file=config$files$output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = config$output_extras$annotation_dir, species=config$output_extras$species)
   }else{
-    if( !is.null(config$filters$modifications) ) cat("\tSITES NEED TO BE MAPPED BACK TO PROTEINS BEFORE ANNOTATING.\n")
+    if( !is.null(config$data$filters$modifications) ) cat("\tSITES NEED TO BE MAPPED BACK TO PROTEINS BEFORE ANNOTATING.\n")
     results_ann = results
     if( !is.null(config$output_extras$msstats_output)){
       config$files$output = config$output_extras$msstats_output

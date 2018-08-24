@@ -5,10 +5,10 @@
 #' @param evidence_file The evidence file
 #' @param keys_file The keys file with the experimental design
 #' @param prot_exp Proteomics experiment. 4 options available:
-#' - `apms`: affinity purification mass spectrometry
-#' - `ab`: protein abundance
-#' - `ph`: protein phosphorylation
-#' - `ub`: protein ubiquitination (aka ubiquitylation)
+#' - `APMS`: affinity purification mass spectrometry
+#' - `AB`: protein abundance
+#' - `PH`: protein phosphorylation
+#' - `UB`: protein ubiquitination (aka ubiquitylation)
 #' @param fractions Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
@@ -21,9 +21,9 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   evidence_file <- Sys.glob(evidence_file)
   keys_file <- Sys.glob(keys_file)
 
-  if(any(!prot_exp %in% c('ab','ph','ub','apms'))){
+  if(any(!prot_exp %in% c('AB','PH','UP','APMS'))){
     cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
-    cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- ab\n\t- ph\n\t- ub\n\t- apms\n")
+    cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- AB\n\t- PH\n\t- UB\n\t- APMS\n")
     stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT")
   }
   
@@ -37,6 +37,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     }
   }
   
+  cat("\nQUALITY CONTROL ------------\n")
   cat(">> LOADING THE EVIDENCE FILE\n")
   cat("(it should take some time due to the usual large size of evidence files)\n")
 
@@ -106,10 +107,10 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   cat(">> GENERATING THE REPRODUCIBILITY PLOTS (warning: it will take some time)\n")
   seqReproName <- gsub("evidence.txt", "qcplot.basicReproducibility.pdf", evidence_file)
   
-  if (prot_exp == "ub") {
+  if (prot_exp == "UB") {
     evidencekeysclean <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     evidencekeysclean <- evidencekeysclean[grep("(gl)", evidencekeysclean$Modified.sequence),]  
-  }else if (prot_exp == "ph") {
+  }else if (prot_exp == "PH") {
     evidencekeysclean <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     evidencekeysclean <- evidencekeysclean[grep("(ph)", evidencekeysclean$Modified.sequence),]
   }
@@ -267,7 +268,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   # DETAILS
   cat(">> GENERATING INTENSITY STATS PLOTS\n")
-  if (prot_exp == "apms" | prot_exp == "ab") {
+  if (prot_exp == "APMS" | prot_exp == "AB") {
     ekselect <- evidencekeysclean[c('Feature', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     # Aggregate the technical replicas
     ekselecta <- aggregate(Intensity~Proteins+Condition+BioReplicate+Run, data=ekselect, FUN = sum)
@@ -283,7 +284,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     cc$TR <- paste0(ekselecta$BioReplicate,"_",ekselecta$Run)
     ccc <- cc[c('Proteins','Condition','TR')]
     cd <- unique(ccc)
-  }else if (prot_exp == "ub") {
+  }else if (prot_exp == "UB") {
     ekselectall <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     ekselectgly <- ekselectall[grep("(gl)", ekselectall$Modified.sequence),]
     # Select the REDUNDANT peptides with the meanimum intensity
@@ -302,7 +303,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     
     # Check the total number of modified and non-modified residues to plot
     evidencekeys$MODIFICATION <- ifelse(grepl("(gl)",evidencekeys$Modified.sequence),"ub","other")
-  }else if (prot_exp == "ph") {
+  }else if (prot_exp == "PH") {
     ekselectall <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
     ekselectgly <- ekselectall[grep("(ph)", ekselectall$Modified.sequence),]
     # SUM UP all the peptide intensities for all the proteins: only one intensity value per protein and biological data
@@ -322,7 +323,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     # Check the total number of modified and non-modified residues to plot
     evidencekeys$MODIFICATION <- ifelse(grepl("(ph)",evidencekeys$Modified.sequence),"ph","other")
   }else {
-    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED (prot_exp SHOULD BE apms, ab, ub, or ph)\n")
+    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED (prot_exp SHOULD BE APMS, AB, UB, or PH)\n")
   }
   
   cat("--- ",prot_exp," PROCESSED\n")
@@ -419,7 +420,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     print(pisk)
   garbage <- dev.off()
   
-  if( prot_exp == "ph" | prot_exp == "ub"){
+  if( prot_exp == "PH" | prot_exp == "UB"){
     cat(">> GENERATING PTM ",prot_exp," STATS\n")
     modName <- gsub("evidence.txt", "qcplot.ptmStats.pdf", evidence_file)
     
@@ -458,7 +459,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     garbage <- dev.off()
   }
   
-  cat(">> QUALITY CONTROL ANALYSIS OF evidence.txt COMPLETED\n")
+  cat("------------ QUALITY CONTROL ANALYSIS COMPLETED\n\n")
 }
 
 
