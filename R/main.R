@@ -141,7 +141,6 @@ artms_main <- function(yaml_config_file){
       # Before "fractions" it was called "aggregation" in the config.yaml file
       if(!is.null(config$aggregation$enabled)){
         config$data$fractions$enabled <- config$aggregation$enabled
-        config$data$fractions$aggregate_fun <- config$aggregation$aggregate_fun
       }
       
       # DEPRECATED OPTION: in older versions the type of sequence 
@@ -150,7 +149,7 @@ artms_main <- function(yaml_config_file){
         config$files$sequence_type <- 'modified'
       }
       
-      dmss <- artms_getMSstatsFormat(data_f, config$data$fractions$enabled, config$files$evidence, config$data$fractions$aggregate_fun)
+      dmss <- artms_getMSstatsFormat(data_f, config$data$fractions$enabled, config$files$evidence, "sum")
       
       ## DEPRECATED : Make sure there are no doubles !!
       ## doubles could arise when protein groups are being kept and the same 

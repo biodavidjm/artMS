@@ -12,7 +12,7 @@
 #' @keywords MSstats, format, input, fractions
 #' artms_getMSstatsFormat()
 #' @export
-artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc){
+artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
   
   data_f <- changeColumnName(data_f, "Modified.sequence", "PeptideSequence")

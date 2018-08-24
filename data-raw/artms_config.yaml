@@ -8,8 +8,7 @@ qc:
 data:
   enabled : 1
   fractions: 
-    enabled : 0 # 1 for protein fractions
-    aggregate_fun : sum
+    enabled : 0 # 1 for protein fractionation
   silac: 
     enabled : 0 # 1 for SILAC experiments
   filters: 
