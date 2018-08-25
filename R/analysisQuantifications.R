@@ -3,16 +3,31 @@
 #' 
 #' @description Analysis of the Relative Quantifications obtained by MSstats.
 #' It includes:
+#' 
 #' - Annotations
-#' @param 
-#' @param 
-#' @return
-#' @keywords
+#' @param log2fc_file MSstats results file 
+#' @param modelqc_file MSstats modelqc file
+#' @param specie Specie (human, mouse)
+#' @param finofi Filter by mitochondria proteins
+#' @param rm_contaminant remove contaminants?
+#' @param enrich Performed enrichment analysis?
+#' @param output_dir results folder name
+#' @param isFluomics Is from the fluomics project?
+#' @param saintqfile saintq file provided?
+#' @param isPtm is a ptm quantification?
+#' @param isBackground background gene set
+#' @param mnbr minimal number of biological replicates for imputation
+#' @param threshold log2fc cutoff for enrichment analysis
+#' @param ipval pvalue cutoff for enrichment analysis
+#' @param pathogen is there a pathogen in the dataset as well?
+#' @return summary of quantifications, including annotations, enrichments, etc
+#' @keywords analysis, quantifications
 #' artms_analysisQuantifications()
 #' @export
 artms_analysisQuantifications <- function(log2fc_file, 
                                           modelqc_file, 
-                                          specie, finofi, 
+                                          specie, 
+                                          finofi, 
                                           rm_contaminant, 
                                           enrich, 
                                           output_dir, 
@@ -54,7 +69,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   debuglog <- 10
   # DEBUGGING log indentation level (psoitive int, global) for levellog function
   loglvl <- 0
-
+  
   levellog("Welcome to the post-processing of MS3 outputs")
   levellog("Processing the data now... (it should take just a few seconds)")
   loglvl <- 1
@@ -1501,7 +1516,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(enrich == "yesenrich"){
     cat("\tENRICHMENT files should also be out\n")
   }
-
+  
 }
 
 
