@@ -5,8 +5,9 @@
 \title{Outputs a heatmap of the MSStats results created using the log2fold
 changes}
 \usage{
-artms_plotHeatmap(input_file, output_file, labels = "*", cluster_cols = F,
-  display = "log2FC", lfc_lower = -2, lfc_upper = 2, FDR = 0.05)
+artms_plotHeatmap(input_file, output_file, labels = "*",
+  cluster_cols = F, display = "log2FC", lfc_lower = -2,
+  lfc_upper = 2, FDR = 0.05)
 }
 \arguments{
 \item{input_file}{MSstats \code{results.txt} file and location}

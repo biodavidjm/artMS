@@ -5,8 +5,8 @@
 \title{Converts the \code{Proteins} column of the evidence file to site-specific
 \code{Uniprot_PTM} notation}
 \usage{
-artms_proteinToSiteConversion(evidence_file, ref_proteome_file, output_file,
-  mod_type = "PH")
+artms_proteinToSiteConversion(evidence_file, ref_proteome_file,
+  output_file, mod_type = "PH")
 }
 \arguments{
 \item{evidence_file}{The evidence file name and location}

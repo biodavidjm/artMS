@@ -4,8 +4,8 @@
 \alias{artms_volcanoPlot}
 \title{Volcano plot (log2fc / pvalues)}
 \usage{
-artms_volcanoPlot(mss_results_sel, lfc_upper, lfc_lower, FDR, file_name = "",
-  PDF = T, decimal_threshold = 16)
+artms_volcanoPlot(mss_results_sel, lfc_upper, lfc_lower, FDR,
+  file_name = "", PDF = T, decimal_threshold = 16)
 }
 \arguments{
 \item{mss_results_sel}{Selected MSstats results}

@@ -5,8 +5,8 @@
 \title{Convert MaxQuant Evidence file into a Protein Prospector like format
 to run through the MIST pipeline using spectral counts.}
 \usage{
-artms_evidenceToMISTformat(input_file, metric, keys_file, output_file, species,
-  uniprot_dir)
+artms_evidenceToMISTformat(input_file, metric, keys_file, output_file,
+  species, uniprot_dir)
 }
 \arguments{
 \item{input_file}{MaxQuant evidence file and location}

@@ -6,7 +6,8 @@
 \usage{
 mq2mss(evidence_file, keys_file, protein_groups = "ignore",
   contaminants = TRUE, modification = NULL, plot.heatmap = FALSE,
-  output_file = NULL, aggregate_intensities = FALSE, aggregate_fun = NULL)
+  output_file = NULL, aggregate_intensities = FALSE,
+  aggregate_fun = NULL)
 }
 \arguments{
 \item{evidence_file}{The filepath to the MaxQuant searched data (evidence)
