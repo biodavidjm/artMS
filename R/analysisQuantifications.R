@@ -8,12 +8,10 @@
 #' @param log2fc_file MSstats results file 
 #' @param modelqc_file MSstats modelqc file
 #' @param specie Specie (human, mouse)
-#' @param finofi Filter by mitochondria proteins
 #' @param rm_contaminant remove contaminants?
 #' @param enrich Performed enrichment analysis?
 #' @param output_dir results folder name
 #' @param isFluomics Is from the fluomics project?
-#' @param saintqfile saintq file provided?
 #' @param isPtm is a ptm quantification?
 #' @param isBackground background gene set
 #' @param mnbr minimal number of biological replicates for imputation
@@ -27,12 +25,10 @@
 artms_analysisQuantifications <- function(log2fc_file, 
                                           modelqc_file, 
                                           specie, 
-                                          finofi, 
                                           rm_contaminant, 
                                           enrich, 
                                           output_dir, 
                                           isFluomics, 
-                                          saintqfile, 
                                           isPtm, 
                                           isBackground, 
                                           mnbr, 
@@ -92,19 +88,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   # create output directory if it doesn't exist
   if(!dir.exists(output_dir)){
     dir.create(output_dir, recursive = T)
-  }
-  
-  if(saintqfile == "nosaintq"){
-    levellog("No SAINTq file provided. So keep going!")
-  }else{
-    saintq <- read.delim(saintqfile, header = T, sep = "\t", stringsAsFactors = F)
-    names(saintq)[grep('X.Pep', names(saintq))] <- "NumPep"
-    names(saintq)[grep('AvgP', names(saintq))] <- "SAINT"
-    saintq <- subset(saintq, select=-X.Rep)
-    saintqdc <- dcast(data=saintq, Prey~Bait, value.var = 'SAINT', fill = "")
-    names(saintqdc)[grep('Prey', names(saintqdc))] <- 'Protein'
-    saintqdc <- proteinid2gene(saintqdc, specie, 'Protein')
-    levellog("SAINTq file loaded")
   }
   
   #####################################################################
@@ -218,27 +201,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   ##############################################################################
   ##############################################################################
-  
-  
-  ##############################################################################
-  ##############################################################################
-  # FILTER BY MITOCHONDRIA PROTEINS
-  if (finofi == 'fi'){
-    
-    mitoProteins <- read.delim('~/Box Sync/db/mitochondria/mitoGenes.txt', header = T, sep = "\t", quote = "", stringsAsFactors = F)
-    dflog2fcraw <- dflog2fcraw[dflog2fcraw$Protein %in% mitoProteins$Entry,]
-    dfmq <- dfmq[dfmq$PROTEIN %in% mitoProteins$Entry,]
-    levellog("Filtered by Mitochondrial proteins")
-    
-  }else if (finofi == 'nofi'){
-    levellog('NO filtering by only mitochondria, so keep going')
-  }else {
-    cat ("\nOh no! what is < ", finofi," > ??\n")
-    stop("The filter option must be 'fi' or 'nofi' argument\n\n")
-  }
-  ##############################################################################
-  ##############################################################################
-  
   
   # Let's get rid of outliers: log2fc larger than X (but we need to keep the "inf" values for imputation)
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC),]
@@ -912,13 +874,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   superunified <- annotationUniprot(superunified, 'Prey', specie)
   
-  if(saintqfile == "nosaintq"){
-    levellog("No saintq")
-  }else{
-    levellog("Merging saintq and superunified")
-    superunified <- merge(superunified, saintq, by.x = c('Bait','Protein'), by.y = c("Bait", "Prey"), all.x = T)
-  }
-  
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
   
@@ -990,28 +945,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   #################################################################################
   #################################################################################
-  
-  
-  ##############################################################################
-  ##############################################################################
-  # FILTER BY MITOCHONDRIA PROTEINS
-  if (finofi == 'fi'){
-    levellog('ADD info about Mitochondrial proteins')
-    mitoProteins <- read.delim('~/Box Sync/db/mitochondria/mitoGenes.txt', header = T, sep = "\t", quote = "", stringsAsFactors = F)
-    superunified$Mito <- ifelse(superunified$Protein %in% mitoProteins$Entry,"yes","no")
-    modelqc_file_splc$Mito <- ifelse(modelqc_file_splc$Protein %in% mitoProteins$Entry,"yes","no")
-    log2fc_file_splc$Mito <- ifelse(log2fc_file_splc$Protein %in% mitoProteins$Entry,"yes","no")
-    imputedDF$Mito <- ifelse(imputedDF$Protein %in% mitoProteins$Entry,"yes","no")
-    log2fc_long$Mito <- ifelse(log2fc_long$Protein %in% mitoProteins$Entry,"yes","no")
-  }else if (finofi == 'nofi'){
-    levellog('NO filtering by only mitochondria, so keep going')
-  }else {
-    cat("\nOh no! what is < ", finofi," > ??\n")
-    stop("The filter option must be 'fi' or 'nofi' argument\n\n")
-  }
-  ##############################################################################
-  ##############################################################################
-  
   
   # Wide version of imputed values
   levellog("Wide format for imputed values (log2fc only)")
@@ -1366,74 +1299,36 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(enrich == "yesenrich"){
     # But now check whether is a PTM case:
     if( grepl("yesptm",isPtm) ){
-      if(saintqfile == "nosaintq"){
-        list_of_datasets <- list(
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc,
-          # "log2fcLong" = log2fc_long,
-          "log2fcImputed" = imputedDF,
-          "log2fcImpExt" = imputedDFext,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue,
-          "enrichALL" = mac.allsig,
-          "enrichMACpos" = mac.pos,
-          "enrichMACneg" = mac.neg,
-          "enMACallCorum" = allsigComplexEnriched,
-          "enMACposCorum" = positiveComplexEnriched,
-          "enMACnegCorum" = negativesComplexEnriched)
-        
-      }else{
-        list_of_datasets <- list("SAINTq" = saintqdc,
-                                 # "AbundanceLong" = superunified,
-                                 # "AbundanceWide" = modelqc_file_splc,
-                                 # "log2fcWide" = log2fc_file_splc,
-                                 # "log2fcLong" = log2fc_long,
-                                 "log2fcImputed" = imputedDF,
-                                 "log2fcImpExt" = imputedDFext,
-                                 "wide_iLog2fc" = imputedDF_wide_log2fc,
-                                 "wide_iPvalue" = imputedDF_wide_pvalue,
-                                 "enrichALL" = mac.allsig,
-                                 "enrichMACpos" = mac.pos,
-                                 "enrichMACneg" = mac.neg,
-                                 "enMACallCorum" = allsigComplexEnriched,
-                                 "enMACposCorum" = positiveComplexEnriched,
-                                 "enMACnegCorum" = negativesComplexEnriched)
-      }
+      list_of_datasets <- list(
+        # "AbundanceLong" = superunified,
+        # "AbundanceWide" = modelqc_file_splc,
+        # "log2fcWide" = log2fc_file_splc,
+        # "log2fcLong" = log2fc_long,
+        "log2fcImputed" = imputedDF,
+        "log2fcImpExt" = imputedDFext,
+        "wide_iLog2fc" = imputedDF_wide_log2fc,
+        "wide_iPvalue" = imputedDF_wide_pvalue,
+        "enrichALL" = mac.allsig,
+        "enrichMACpos" = mac.pos,
+        "enrichMACneg" = mac.neg,
+        "enMACallCorum" = allsigComplexEnriched,
+        "enMACposCorum" = positiveComplexEnriched,
+        "enMACnegCorum" = negativesComplexEnriched)
     }else if(isPtm == "noptmsites"){
-      if(saintqfile == "nosaintq"){
-        list_of_datasets <- list(
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc, 
-          # "log2fcLong" = log2fc_long, 
-          "log2fcImputed" = imputedDF,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue,
-          "enrichALL" = mac.allsig,
-          "enrich-MACpos" = mac.pos,
-          "enrich-MACneg" = mac.neg,
-          "enMACallCorum" = allsigComplexEnriched,
-          "enMACposCorum" = positiveComplexEnriched,
-          "enMACnegCorum" = negativesComplexEnriched)
-        
-      }else{
-        list_of_datasets <- list(
-          "SAINTq" = saintqdc,
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc, 
-          # "log2fcLong" = log2fc_long, 
-          "log2fcImputed" = imputedDF,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue,
-          "enrichALL" = mac.allsig,
-          "enrich-MACpos" = mac.pos,
-          "enrich-MACneg" = mac.neg,
-          "enMACallCorum" = allsigComplexEnriched,
-          "enMACposCorum" = positiveComplexEnriched,
-          "enMACnegCorum" = negativesComplexEnriched)
-      }
+      list_of_datasets <- list(
+        # "AbundanceLong" = superunified,
+        # "AbundanceWide" = modelqc_file_splc,
+        # "log2fcWide" = log2fc_file_splc, 
+        # "log2fcLong" = log2fc_long, 
+        "log2fcImputed" = imputedDF,
+        "wide_iLog2fc" = imputedDF_wide_log2fc,
+        "wide_iPvalue" = imputedDF_wide_pvalue,
+        "enrichALL" = mac.allsig,
+        "enrich-MACpos" = mac.pos,
+        "enrich-MACneg" = mac.neg,
+        "enMACallCorum" = allsigComplexEnriched,
+        "enMACposCorum" = positiveComplexEnriched,
+        "enMACnegCorum" = negativesComplexEnriched)
       
     }else{
       stop("Oh no!! This will fail if you are using UB!!\n")
@@ -1441,57 +1336,28 @@ artms_analysisQuantifications <- function(log2fc_file,
   }else if(enrich == "noenrich"){
     cat("\t\t-----+ You chose not to enrich\n")
     if( grepl("yesptm",isPtm) ) {
-      if(saintqfile == "nosaintq"){
-        list_of_datasets <- list(
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc,
-          # "log2fcLong" = log2fc_long,
-          "log2fcImputed" = imputedDF,
-          "log2fcImpExt" = imputedDFext,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue
-        )
-      }else{
-        list_of_datasets <- list("SAINTq" = saintqdc,
-                                 # "AbundanceLong" = superunified,
-                                 # "AbundanceWide" = modelqc_file_splc,
-                                 # "log2fcWide" = log2fc_file_splc,
-                                 # "log2fcLong" = log2fc_long,
-                                 "log2fcImputed" = imputedDF,
-                                 "log2fcImpExt" = imputedDFext,
-                                 "wide_iLog2fc" = imputedDF_wide_log2fc,
-                                 "wide_iPvalue" = imputedDF_wide_pvalue
-        )
-      }
+      list_of_datasets <- list(
+        # "AbundanceLong" = superunified,
+        # "AbundanceWide" = modelqc_file_splc,
+        # "log2fcWide" = log2fc_file_splc,
+        # "log2fcLong" = log2fc_long,
+        "log2fcImputed" = imputedDF,
+        "log2fcImpExt" = imputedDFext,
+        "wide_iLog2fc" = imputedDF_wide_log2fc,
+        "wide_iPvalue" = imputedDF_wide_pvalue)
     }else if(isPtm == "noptmsites"){
-      if(saintqfile == "nosaintq"){
-        list_of_datasets <- list(
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc, 
-          # "log2fcLong" = log2fc_long, 
-          "log2fcImputed" = imputedDF,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue
-        )
-        
-      }else{
-        list_of_datasets <- list(
-          "SAINTq" = saintqdc,
-          # "AbundanceLong" = superunified,
-          # "AbundanceWide" = modelqc_file_splc,
-          # "log2fcWide" = log2fc_file_splc, 
-          # "log2fcLong" = log2fc_long, 
-          "log2fcImputed" = imputedDF,
-          "wide_iLog2fc" = imputedDF_wide_log2fc,
-          "wide_iPvalue" = imputedDF_wide_pvalue
-        )
-      }
+      list_of_datasets <- list(
+        # "AbundanceLong" = superunified,
+        # "AbundanceWide" = modelqc_file_splc,
+        # "log2fcWide" = log2fc_file_splc, 
+        # "log2fcLong" = log2fc_long, 
+        "log2fcImputed" = imputedDF,
+        "wide_iLog2fc" = imputedDF_wide_log2fc,
+        "wide_iPvalue" = imputedDF_wide_pvalue
+      )
     }else{
       stop("Oh no!! This will fail if you are using UB!!\n")
     }
-    
   }else{
     stop("\n\nYOU SHOULD NEVER SEE THIS MESSAGE. IF you do, dude, check the source code urgently\n\n")
     # The script should have crashed by this point. If it gets up to here... it would be very weird

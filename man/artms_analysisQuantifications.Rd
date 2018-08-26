@@ -4,9 +4,9 @@
 \alias{artms_analysisQuantifications}
 \title{Analysis of the Relative Quantification}
 \usage{
-artms_analysisQuantifications(log2fc_file, modelqc_file, specie, finofi,
-  rm_contaminant, enrich, output_dir, isFluomics, saintqfile, isPtm,
-  isBackground, mnbr, threshold, ipval, pathogen)
+artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
+  rm_contaminant, enrich, output_dir, isFluomics, isPtm, isBackground,
+  mnbr, threshold, ipval, pathogen)
 }
 \arguments{
 \item{log2fc_file}{MSstats results file}
@@ -15,8 +15,6 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, finofi,
 
 \item{specie}{Specie (human, mouse)}
 
-\item{finofi}{Filter by mitochondria proteins}
-
 \item{rm_contaminant}{remove contaminants?}
 
 \item{enrich}{Performed enrichment analysis?}
@@ -24,8 +22,6 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, finofi,
 \item{output_dir}{results folder name}
 
 \item{isFluomics}{Is from the fluomics project?}
-
-\item{saintqfile}{saintq file provided?}
 
 \item{isPtm}{is a ptm quantification?}
 
