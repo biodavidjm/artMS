@@ -63,21 +63,21 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # DEBUGGING log flag/level (0 translates to no debugging log at all)
   debuglog <- 10
-  # DEBUGGING log indentation level (psoitive int, global) for levellog function
-  loglvl <- 0
+  # DEBUGGING log indentation level (psoitive int, global) for cat functi\non
   
-  levellog("Welcome to the post-processing of MS3 outputs")
-  levellog("Processing the data now... (it should take just a few seconds)")
-  loglvl <- 1
+  
+  cat("Welcome to the post-processing of MS3 outputs\n")
+  cat("Processing the data now... (it should take just a few seconds)\n")
+  
   
   if(pathogen == "nopathogen"){
-    levellog("No Pathogen extra in these samples (choose this for Influenza)")
+    cat("No Pathogen extra in these samples (choose this for Influenza)\n")
   }else if(pathogen == "tb"){ # This should not work
-    levellog("PATHOGEN IN SAMPLES: TB")
+    cat("PATHOGEN IN SAMPLES: TB\n")
     pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = F, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "TB",
     names(pathogen.ids) <- c('Entry')
   }else if(pathogen == "lpn"){
-    levellog("PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA")
+    cat("PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
     pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = T, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "Lpn",
   }else{
     stop("\n\nThis pathogen is not supported yet\n\n")
@@ -98,14 +98,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN )
   # Select only POSITIVE values (they all should be positive values, but in one case we found negative ones)
   dfmq <- dfmq[which(dfmq$ABUNDANCE > 12 & dfmq$ABUNDANCE < 35),]
-  levellog("Abundance data loaded")
+  cat("Abundance data loaded\n")
   
   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   # And if fluomics, filter by condition
   # if(isFluomics == "yesflu"){
-  #   levellog("WARNING! selecting MOCK for humans and mice in Abundance")
+  #   cat("WARNING! selecting MOCK for humans and mice in Abundance\n")
   #   if(specie == "human"){
   #     dfmq <- dfmq[(grepl("H[[:digit:]]N[[:digit:]]", dfmq$GROUP_ORIGINAL) | grepl("MOCK_03H", dfmq$GROUP_ORIGINAL) ),]
   #   }else if (specie == "mouse"){
@@ -169,7 +169,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # # Filtering conditions:
   # if(isFluomics == "yesflu"){
-  #   levellog("WARNING! selecting MOCK for humans and mice in LOG2FC raw data")
+  #   cat("WARNING! selecting MOCK for humans and mice in LOG2FC raw data\n")
   # 
   #   # WHEN A REFERENCE MOCK IS WISHED
   #   # if(specie == "human"){
@@ -182,7 +182,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   #   flu_contrast <- c("H1N1_03H-MOCK_03H", "H1N1_06H-MOCK_06H", "H1N1_12H-MOCK_12H", "H1N1_18H-MOCK_18H", "H3N2_03H-MOCK_03H", "H3N2_06H-MOCK_06H", "H3N2_12H-MOCK_12H", "H3N2_18H-MOCK_18H", "H5N1_03H-MOCK_03H", "H5N1_06H-MOCK_06H", "H5N1_12H-MOCK_12H", "H5N1_18H-MOCK_18H")
   #   dflog2fcraw <- dflog2fcraw[which(dflog2fcraw$Label %in% flu_contrast),]
   # 
-  #   levellog("LOG2FC Data Filtered by specific FLU comparisons")
+  #   cat("LOG2FC Data Filtered by specific FLU comparisons\n")
   # }
   
   
@@ -190,11 +190,11 @@ artms_analysisQuantifications <- function(log2fc_file,
   ##############################################################################
   # REMOVE CONTAMINANTS
   if(rm_contaminant == "yesrmcont"){
-    levellog("Removing common contaminants")
+    cat("Removing common contaminants\n")
     dflog2fcraw <- removeContaminats(dflog2fcraw, 'Protein')
     dfmq <- removeContaminats(dfmq, 'PROTEIN')
   }else if (rm_contaminant == "normcont"){
-    levellog("No removing common contaminants")
+    cat("No removing common contaminants\n")
   }else {
     cat("\n\t--->What is ",rm_contaminant,"?? If you are trying to remove contaminants, then type 'yesrmcont'. If you don't want to remove anything, then type 'normcont'\n\n")
     stop("The last argument is wrong!\n\n")
@@ -210,7 +210,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("\n\t Removing log2fc values larger than +/-",cutofflog2fc," ... ", filtermorethan10, "\n\n")
     dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc),]
   }else{
-    levellog("No log2fc values larger than 12, so moving on!")
+    cat("No log2fc values larger than 12, so moving on!\n")
   }
   
   # IMPUTING MISSING VALUES
@@ -232,11 +232,11 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Control
   if( numberInfinites < 1){
-    levellog("Number of infinite values: ")
+    cat("Number of infinite values: \n")
     cat("\t\t Less than --> 1 infinite value\n")
     stop("\n\n\tQuality control stop: there are less than 1 missing values in this sample!\nCheck what's going on\n\n")
   } else {
-    levellog("Selecting infinitive values for imputation")
+    cat("Selecting infinitive values for imputation\n")
     cat("\t---> Number of infinite values",dim(dflog2fcinfinites)[1],"\n")
     # CONTROL CODE
     # The log2fc values are randomly calculated between two values at the bottom.
@@ -305,7 +305,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     dflog2fc <- rbind(dflog2fcfinites, theImputedL2FC)
   }
   
-  levellog("Plotting distributions")
+  cat("Plotting distributions\n")
   
   plotDFdistColor <- ggplot(dflog2fc, aes(x = log2FC, fill = Label)) + 
     geom_histogram(bins = 100, alpha = .4, col="black") +
@@ -369,19 +369,19 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PLOTS
   
   # boxplot of relative abundances
-  levellog("Printing out: RELATIVE ABUNDANCE PLOTS")
+  cat("Printing out: RELATIVE ABUNDANCE PLOTS\n")
   abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
   
-  levellog("Printing out: ABUNDANCE PLOTS")
+  cat("Printing out: ABUNDANCE PLOTS\n")
   pdf(abundancesName)
   plotAbundanceBoxplots(dfmq)
   plotNumberProteinsAbundance(dfmq)
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
-  levellog("Printing out: REPRODUCIBILITY PLOTS")
+  cat("Printing out: REPRODUCIBILITY PLOTS\n")
   reproName <- gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
   reproName <- paste0("plot.",reproName)
   reproName <- paste0(output_dir,"/",reproName)
@@ -390,7 +390,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   # Conditions
-  levellog("Printing out: relationship between CONDITIONS")
+  cat("Printing out: relationship between CONDITIONS\n")
   relaCond <- gsub(".txt", ".relationshipConditions.pdf", log2fc_file)
   relaCond <- paste0("plot.",relaCond)
   relaCond <- paste0(output_dir,"/",relaCond)
@@ -400,7 +400,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Relationship between log2fc comparisons
   if (length(unique(dflog2fc$Label)) > 1){
-    levellog("Printing out: log2fc relationships PLOTS")
+    cat("Printing out: log2fc relationships PLOTS\n")
     relaChanges <- gsub(".txt", ".relationshipChanges.pdf", log2fc_file)
     relaChanges <- paste0("plot.",relaChanges)
     relaChanges <- paste0(output_dir,"/",relaChanges)
@@ -408,7 +408,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     plotRatioLog2fc(dflog2fc)
     garbage <- dev.off()
   }else{
-    levellog("Only one Comparison is available")
+    cat("Only one Comparison is available\n")
   }
   
   ##############################################################################
@@ -503,11 +503,11 @@ artms_analysisQuantifications <- function(log2fc_file,
   # It requires a simplified version fo modelqc
   # Now let's add the annotation (although I only need the gene name)
   modelqcabundance <- loadModelQCstrict(dfmq, specie)
-  levellog("PRINCIPAL COMPONENT CHARTS....")
+  cat("PRINCIPAL COMPONENT CHARTS....\n")
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
   getPCAplots(modelqcabundance, out.pca, conditions)
-  levellog("PCA DONE!")
+  cat("PCA DONE!\n")
   ####################################################################################
   ####################################################################################
   
@@ -560,7 +560,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   # FILTERING BASED ON NUMBER OF BIOLOGICAL REPLICAS
   
-  levellog("FILTERING BY NUMBER OF BIOLOGICAL REPLICAS")
+  cat("FILTERING BY NUMBER OF BIOLOGICAL REPLICAS\n")
   
   # # This would be the old imputation method
   # imputingMaxMin <- imputingOnTheMaximum(dflog2fc)
@@ -569,20 +569,20 @@ artms_analysisQuantifications <- function(log2fc_file,
   imputedDF <- dflog2fc[c('Protein', 'Label', 'log2FC', 'pvalue', 'adj.pvalue','imputed','iLog2FC','iPvalue')]
   
   # Merge with bioReplicaInf
-  levellog("Merging with bioReplica Info")
+  cat("Merging with bioReplica Info\n")
   imputedDF <- merge(imputedDF, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
-  levellog("Removing NA")
+  cat("Removing NA\n")
   imputedDF <- imputedDF[!is.na(imputedDF$log2FC),]
   
   # Remove those entries without the minimal number of biological replicas
   # mnbr <- 2 # Minimal Number of Biological Replicas
-  levellog("Add info about condition more abundant")
+  cat("Add info about condition more abundant\n")
   imputedDF$CMA <- mapply(selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
   
   # this will be the loop for each condition
   theComparisons2check <- unique(imputedDF$Label)
   
-  levellog("Loop to remove based on number of biological replicas")
+  cat("Loop to remove based on number of biological replicas\n")
   for (onlyonecomp in (theComparisons2check)){
     
     ax <- gsub("(.*)(-)(.*)", "\\1", onlyonecomp )
@@ -600,7 +600,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     }
     
   }
-  levellog("Filtering is done!")
+  cat("Filtering is done!\n")
   
   distributionsFilteredOut <- gsub(".txt",".distributionsFil.pdf",log2fc_file)
   distributionsFilteredOut <- paste0(output_dir,"/",distributionsFilteredOut)
@@ -648,7 +648,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   ################################################################################
   ################################################################################
   # All the log2fc values
-  levellog("HEATMAPS with imputed log2fc values")
+  cat("HEATMAPS with imputed log2fc values\n")
   rownames(l2fcol) <- l2fcol$Protein
   l2fcol <- within(l2fcol, rm(Protein))
   l2fcol[is.na(l2fcol)] <- 0
@@ -686,7 +686,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fcSign.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
     pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
-    levellog("...and heatmaps are done")
+    cat("...and heatmaps are done\n")
   }
   ################################################################################
   
@@ -725,7 +725,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # ALL SIGNIFICANT CHANGES log2fc
     # GPROFILER
-    levellog("GPROFILER Enrichment (ALL significant Changes)")
+    cat("GPROFILER Enrichment (ALL significant Changes)\n")
     
     filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= threshold), ]
     
@@ -740,7 +740,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.allsig, out.mac.allsig, quote = F, sep = "\t", row.names = F, col.names = T)
       }
       
-      levellog("Corum Complexes Enrichment (allsignificants MACs)")
+      cat("Corum Complexes Enrichment (allsignificants MACs)\n")
       
       # CORUM
       allsigComplexEnriched <- enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
@@ -753,15 +753,15 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if(dim(allsigComplexEnriched)[1] > 2){
-        levellog("Plotting all significants corum complexes")
+        cat("Plotting all significants corum complexes\n")
         out.mac.allsig.corum.pdf <- gsub(".txt","-enrich-MAC-allsignificants-corum.pdf",log2fc_file)
         out.mac.allsig.corum.pdf <- paste0(output_dir,"/",out.mac.allsig.corum.pdf)
         # out.mac.allsig.corum.pdf <- 'whatever.corum.allsigitive.pdf'
         plot.corum(allsigComplexEnriched, out.mac.allsig.corum.pdf, "MAC ALL SIGNIFICANT Protein Complex Enrichment")
       }else{
-        loglvl <- 2
-        levellog("Not enough negative corum complexes to plot")
-        loglvl <- 1
+        
+        cat("Not enough negative corum complexes to plot\n")
+        
       }  
     }else{
       stop("\n\t---- NOTHING is significant! Check what's going on\n\n")
@@ -772,7 +772,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # POSITIVE log2fc
     # GPROFILER
-    levellog("GPROFILER Enrichment (Positive MACs)")
+    cat("GPROFILER Enrichment (Positive MACs)\n")
     
     filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= threshold), ]
     
@@ -786,7 +786,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.pos, out.mac.pos, quote = F, sep = "\t", row.names = F, col.names = T)  
       }
       
-      levellog("Corum Complexes Enrichment (Positives MACs)")
+      cat("Corum Complexes Enrichment (Positives MACs)\n")
       
       # CORUM
       positiveComplexEnriched <- enrichForComplexes(filpos_log2fc_long, backgroundNumber)
@@ -799,15 +799,15 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if(dim(positiveComplexEnriched)[1] > 2){
-        levellog("Plotting positive corum complexes")
+        cat("Plotting positive corum complexes\n")
         out.mac.pos.corum.pdf <- gsub(".txt","-enrich-MAC-positives-corum.pdf",log2fc_file)
         out.mac.pos.corum.pdf <- paste0(output_dir,"/",out.mac.pos.corum.pdf)
         # out.mac.pos.corum.pdf <- 'whatever.corum.positive.pdf'
         plot.corum(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
       }else{
-        loglvl <- 2
-        levellog("Not enough negative corum complexes to plot")
-        loglvl <- 1
+        
+        cat("Not enough negative corum complexes to plot\n")
+        
       }    
     }else{
       cat("\t\t ------ Nothing is significant in the Positive site of things")
@@ -817,7 +817,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     
     # NEGATIVE log2fc
-    levellog("GPROFILER Enrichment (Negative MACs)")
+    cat("GPROFILER Enrichment (Negative MACs)\n")
     
     filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -threshold), ]
     
@@ -831,7 +831,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.neg, out.mac.neg, quote = F, sep = "\t", row.names = F, col.names = T)
       }
       
-      levellog("Corum Complexes Enrichment (Negative MACs)")
+      cat("Corum Complexes Enrichment (Negative MACs)\n")
       
       negativesComplexEnriched <- enrichForComplexes(filneg_log2fc_long, backgroundNumber)
       
@@ -843,14 +843,14 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if(dim(negativesComplexEnriched)[1] > 2){
-        levellog("Plotting negative corum complexes")
+        cat("Plotting negative corum complexes\n")
         out.mac.neg.corum.pdf <- gsub(".txt","-enrich-MAC-negatives-corum.pdf",log2fc_file)
         out.mac.neg.corum.pdf <- paste0(output_dir,"/",out.mac.neg.corum.pdf)
         plot.corum(negativesComplexEnriched, out.mac.neg.corum.pdf, "MAC- Protein Complex Enrichment")
       }else{
-        loglvl <- 2
-        levellog("Not enough negative corum complexes to plot")
-        loglvl <- 1
+        
+        cat("Not enough negative corum complexes to plot\n")
+        
       }    
     }else{
       cat("\t\t ------ Nothing is significant in the Positive site of things")
@@ -858,7 +858,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       negativesComplexEnriched <- NULL
     }
   }else{
-    levellog("NO ENRICHMENT of log2fc values chosen")
+    cat("NO ENRICHMENT of log2fc values chosen\n")
   }
   # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   
@@ -878,7 +878,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
   
   # ANNOTATE SPECIE
-  levellog("Annotating the specie before jitter plot")
+  cat("Annotating the specie before jitter plot\n")
   
   annotateSpecie <- function(df, pathogen, specie){
     if(pathogen == "nopathogen"){
@@ -900,7 +900,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   #########################################################
   # THE JITTER PLOTS
   # TO DO: REMOVE PROTEINS NOT FOUND IN MORE THAN 1 BIOLOGICAL REPLICA
-  levellog("Time for the Jitter plot")
+  cat("Time for the Jitter plot\n")
   if(isFluomics == "yesflu"){
     # Filter by number of biological replicas > 1
     superunifiedfiltered <- superunified[which(superunified$BioRep > 1),]
@@ -947,7 +947,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   #################################################################################
   
   # Wide version of imputed values
-  levellog("Wide format for imputed values (log2fc only)")
+  cat("Wide format for imputed values (log2fc only)\n")
   dcImputed <- dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
   
   
@@ -1066,7 +1066,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   
   # boxplot of relative abundances
-  levellog("Printing final number in imputed Conditions")
+  cat("Printing final number in imputed Conditions\n")
   numimputedfinal <- gsub(".txt", ".FNIC.pdf", log2fc_file)
   numimputedfinal <- paste0("plot.",numimputedfinal)
   numimputedfinal <- paste0(output_dir,"/",numimputedfinal)
@@ -1084,7 +1084,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PCA AND CLUSTERING ANALYSIS
   if(isPtm == "noptmsites"){
     
-    levellog("The Clustering analysis begins... ")
+    cat("The Clustering analysis begins... \n")
     # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
     list_of_significants <- unique(imputedDF$Protein[which( abs(imputedDF$iLog2FC > 1) & imputedDF$iPvalue < 0.05 )])
     
@@ -1273,7 +1273,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Move Gene name to the left:
   # Merge with bioReplicaInf
-  levellog("Merging with bioReplica Info to long_log2fc")
+  cat("Merging with bioReplica Info to long_log2fc\n")
   # This depends on the type of dataset
   if( grepl("yesptm",isPtm) ){
     log2fc_long <- merge(log2fc_long, bioReplicaInfo, by.x = 'Uniprot_PTM', by.y = 'Prey', all.x = T) 
@@ -1281,7 +1281,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     log2fc_long <- merge(log2fc_long, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
   }
   
-  levellog("Removing NA")
+  cat("Removing NA\n")
   log2fc_long <- log2fc_long[!is.na(log2fc_long$log2FC),]
   
   # Merging lo
@@ -1369,8 +1369,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   openxlsx::write.xlsx(list_of_datasets, file = outexcel, asTable = TRUE, headerStyle = hs)
   
   cat('\n\n')
-  levellog("############ Job completed! ############")
-  levellog("OUTPUT FILES in folder:")
+  cat("############ Job completed! ############\n")
+  cat("OUTPUT FILES in folder:\n")
   cat("\tEXCEL: ", outexcel, "\n")
   cat("\tAbundanceLong: ",outmodeqcLong, "\n")
   cat("\tAbundanceWide: ",outmodelqc, "\n")
@@ -1383,37 +1383,6 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("\tENRICHMENT files should also be out\n")
   }
   
-}
-
-
-
-
-#  Print msg with specific indentation (loglvl*3)
-#  - change [int]: change previous indentation level by <change> amount
-#  - reset [bool]: reset indentation level to 0 (no indentation)
-#  - after [bool]: change indentation after printing msg
-
-levellog <- function (msg, change=0, reset=F, after=F, supression=debuglog){
-  prev_loglvl <- loglvl
-  if(reset){
-    loglvl <<- 0
-  }
-  else if(change < 0){
-    if(-change > loglvl){
-      loglvl <<- 0
-    }else{
-      loglvl <<- loglvl + change
-    }
-  }else if (change > 0){
-    loglvl <<- loglvl + change
-  }
-  if(nchar(msg)>0 && ifelse(after , prev_loglvl<supression , loglvl<supression)){
-    if(after){
-      cat(paste(paste(rep(" ",times=prev_loglvl*3),collapse="")," +-- ",msg," [",Sys.time(),"]\n"))
-    }else{
-      cat(paste(paste(rep(" ",times=loglvl*3),collapse="")," +-- ",msg," [",Sys.time(),"]\n"))
-    }
-  }
 }
 
 
