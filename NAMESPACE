@@ -3,6 +3,7 @@
 export(Extras.annotate)
 export(artms_SILACtoLong)
 export(artms_analysisQuantifications)
+export(artms_annotationUniprot)
 export(artms_castMaxQToWide)
 export(artms_castMaxQToWidePTM)
 export(artms_checkRawFileColumnName)

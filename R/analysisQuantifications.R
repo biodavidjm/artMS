@@ -61,14 +61,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # suppressMessages(library(tidyr))
   # suppressMessages(library(dplyr))
   
-  # DEBUGGING log flag/level (0 translates to no debugging log at all)
-  debuglog <- 10
-  # DEBUGGING log indentation level (psoitive int, global) for cat functi\non
-  
-  
-  cat("Welcome to the post-processing of MS3 outputs\n")
-  cat("Processing the data now... (it should take just a few seconds)\n")
-  
+  cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
   if(pathogen == "nopathogen"){
     cat("No Pathogen extra in these samples (choose this for Influenza)\n")
@@ -90,45 +83,28 @@ artms_analysisQuantifications <- function(log2fc_file,
     dir.create(output_dir, recursive = T)
   }
   
-  #####################################################################
-  # ABUNDANCE
+  # LOADING ABUNDANCE
+  cat("---READING IN modelqc FILE\n")
   dfmq <- read.delim(modelqc_file, header = T, sep = "\t", stringsAsFactors = F)
+  #Removing the empty protein names
   if(any(dfmq$PROTEIN == "")){ dfmq <- dfmq[-which(dfmq$PROTEIN == ""),]}
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN )
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN )
-  # Select only POSITIVE values (they all should be positive values, but in one case we found negative ones)
+  # Select only POSITIVE values (they all should be positive values, 
+  # but in one case we found negative ones)
   dfmq <- dfmq[which(dfmq$ABUNDANCE > 12 & dfmq$ABUNDANCE < 35),]
-  cat("Abundance data loaded\n")
-  
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # And if fluomics, filter by condition
-  # if(isFluomics == "yesflu"){
-  #   cat("WARNING! selecting MOCK for humans and mice in Abundance\n")
-  #   if(specie == "human"){
-  #     dfmq <- dfmq[(grepl("H[[:digit:]]N[[:digit:]]", dfmq$GROUP_ORIGINAL) | grepl("MOCK_03H", dfmq$GROUP_ORIGINAL) ),]
-  #   }else if (specie == "mouse"){
-  #     dfmq <- dfmq[(grepl("H[[:digit:]]N[[:digit:]]", dfmq$GROUP_ORIGINAL) | grepl("MOCK_D04", dfmq$GROUP_ORIGINAL) ),]
-  #   }
-  # }
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   # First, let's take the conditions, which will be used later in several places
   conditions <- unique(dfmq$GROUP_ORIGINAL)
   numberConditions <- length(conditions)
-  # Let's take the list of unique genes from here to do the enrichment
   
-  
-  ####################################################################
+
   # KEY STEP: GETTING THE BACKGROUND GENE LIST
-  
   if(isBackground == "nobackground"){
-    # If not list of background genes is provided, then extract them from the modelqc file
+    # If not list of background genes is provided, 
+    # then extract them from the modelqc file
     if (isPtm == "noptmsites"){
-      dfmq2Genes <- annotationUniprot(dfmq, 'PROTEIN', specie)
+      dfmq2Genes <- artms_annotationUniprot(dfmq, 'PROTEIN', specie)
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       cat("\n>>TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
       listOfGenes <- unique(dfmq2Genes$Gene)
@@ -518,9 +494,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
     modelqc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", modelqc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T)) 
-    modelqc_file_splc <- annotationUniprot(modelqc_file_splc, 'Protein', specie)
+    modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
   }else{
-    modelqc_file_splc <- annotationUniprot(modelqc_file_splc, 'Protein', specie)
+    modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
   }
   
   log2fc_file_splc <- loadL2FCWide(dflog2fc, abundance_dc_length, specie)
@@ -529,9 +505,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
     log2fc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T)) 
-    log2fc_file_splc <- annotationUniprot(log2fc_file_splc, 'Protein', specie)
+    log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
   }else{
-    log2fc_file_splc <- annotationUniprot(log2fc_file_splc, 'Protein', specie)
+    log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
   }
   
   log2fc_long <- loadL2FCLong(dflog2fc, specie)
@@ -541,9 +517,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(log2fc_long)[grep('^Protein$', names(log2fc_long))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
     log2fc_long$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_long$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_long$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", log2fc_long$Uniprot_PTM, perl = T)) 
-    log2fc_long <- annotationUniprot(log2fc_long, 'Protein', specie)
+    log2fc_long <- artms_annotationUniprot(log2fc_long, 'Protein', specie)
   }else{
-    log2fc_long <- annotationUniprot(log2fc_long, 'Protein', specie)
+    log2fc_long <- artms_annotationUniprot(log2fc_long, 'Protein', specie)
   }
   
   
@@ -702,7 +678,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # Let's melt now for enrichment analysis
     l2fcol4enrichment <- melt(data=l2fcolcopy, id.vars = c('Protein'))
     names(l2fcol4enrichment)[grep('variable', names(l2fcol4enrichment))] <- 'Comparisons'
-    l2fcol4enrichment <- annotationUniprot(l2fcol4enrichment, 'Protein', specie)
+    l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie)
     l2fcol4enrichment <- l2fcol4enrichment[!is.na(l2fcol4enrichment$value),]
   }
   
@@ -872,7 +848,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     superunified$Prey <- ifelse(grepl("_H1N1|_H3N2|_H5N1", superunified$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", superunified$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", superunified$Uniprot_PTM, perl = T)) 
   }
   
-  superunified <- annotationUniprot(superunified, 'Prey', specie)
+  superunified <- artms_annotationUniprot(superunified, 'Prey', specie)
   
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
@@ -991,7 +967,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
     # And create independent columns for each of them
     imputedDFext <- imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% unnest(PTMsite)
-    imputedDFext <- annotationUniprot(imputedDFext, 'Protein', specie)
+    imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
     names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
     
     # to delete
@@ -1019,7 +995,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                                    gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = T)) 
     imputedDFext$PTMsite <- gsub("(\\S+)(_[S,T,Y,K])(\\d+)","\\3",imputedDFext$PTMone)
     
-    imputedDFext <- annotationUniprot(imputedDFext, 'Protein', specie)
+    imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
     names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
     
     # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)  
@@ -1039,7 +1015,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
     # The virus labeling has to be taken into account when getting the uniprot id:
     imputedDF$UniprotID <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDF$UniprotID, perl = T) , gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = T)) 
-    imputedDF <- annotationUniprot(imputedDF, 'UniprotID', specie)
+    imputedDF <- artms_annotationUniprot(imputedDF, 'UniprotID', specie)
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     # to delete
@@ -1051,7 +1027,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF_wide_pvalue <- dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
     
   }else if(isPtm == "noptmsites"){
-    imputedDF <- annotationUniprot(imputedDF, 'Protein', specie)
+    imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie)
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, pathogen, specie)
@@ -1463,7 +1439,7 @@ loadModelQCstrict = function (df_input, specie) {
   
   names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
   
-  send_back <- annotationUniprot(datadc, 'Protein', specie)
+  send_back <- artms_annotationUniprot(datadc, 'Protein', specie)
   return(send_back)
 }
 

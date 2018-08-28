@@ -4,10 +4,10 @@
 \alias{artms_mapUniprot2entrezGeneName}
 \title{Map UniprotKB to Entrez and Gene Name}
 \usage{
-artms_mapUniprot2entrezGeneName(theUniprots, specie)
+artms_mapUniprot2entrezGeneName(uniprotkb, specie)
 }
 \arguments{
-\item{theUniprots}{List of UniprotKB IDs}
+\item{uniprotkb}{List of UniprotKB IDs}
 
 \item{specie}{The specie name. Currently supporting:
 \itemize{
