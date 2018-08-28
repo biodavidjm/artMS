@@ -15,8 +15,6 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{specie}{Specie (human, mouse)}
 
-\item{rm_contaminant}{remove contaminants?}
-
 \item{enrich}{Performed enrichment analysis?}
 
 \item{output_dir}{results folder name}

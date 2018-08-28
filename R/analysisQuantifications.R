@@ -8,7 +8,6 @@
 #' @param log2fc_file MSstats results file 
 #' @param modelqc_file MSstats modelqc file
 #' @param specie Specie (human, mouse)
-#' @param rm_contaminant remove contaminants?
 #' @param enrich Performed enrichment analysis?
 #' @param output_dir results folder name
 #' @param isFluomics Is from the fluomics project?
@@ -160,23 +159,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   # 
   #   cat("LOG2FC Data Filtered by specific FLU comparisons\n")
   # }
-  
-  
-  ##############################################################################
-  ##############################################################################
-  # REMOVE CONTAMINANTS
-  if(rm_contaminant == "yesrmcont"){
-    cat("Removing common contaminants\n")
-    dflog2fcraw <- removeContaminats(dflog2fcraw, 'Protein')
-    dfmq <- removeContaminats(dfmq, 'PROTEIN')
-  }else if (rm_contaminant == "normcont"){
-    cat("No removing common contaminants\n")
-  }else {
-    cat("\n\t--->What is ",rm_contaminant,"?? If you are trying to remove contaminants, then type 'yesrmcont'. If you don't want to remove anything, then type 'normcont'\n\n")
-    stop("The last argument is wrong!\n\n")
-  }
-  ##############################################################################
-  ##############################################################################
   
   # Let's get rid of outliers: log2fc larger than X (but we need to keep the "inf" values for imputation)
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC),]
