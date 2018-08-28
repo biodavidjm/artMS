@@ -24,12 +24,12 @@
 #' - XENOPUS
 #' @return A data.frame with EntrezID and GENENAMES mapped on UniprotKB ids
 #' @keywords annotation, ids
-#' mapUniprot2entrezGeneName()
+#' artms_mapUniprot2entrezGeneName()
 #' @export
-mapUniprot2entrezGeneName <- function(theUniprots, specie){
-  # theUniprots <- uniprots
-  # specie <- "human"
+artms_mapUniprot2entrezGeneName <- function(theUniprots, specie){
+  
   specie <- toupper(specie)
+  
   if(specie == "ANOPHELES"){
     mappings <- AnnotationDbi::select(org.Ag.eg.db, uniprots, c("UNIPROT", "SYMBOL","GENENAME"), keytype = "UNIPROT")
   }else if(specie == "ARABIDOPSIS"){
