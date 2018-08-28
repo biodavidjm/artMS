@@ -8,7 +8,24 @@
 #' @import grid
 #' @import limma
 #' @import MSstats
+#' @import org.Ag.eg.db
+#' @import org.At.tair.db
+#' @import org.Bt.eg.db
+#' @import org.Ce.eg.db
+#' @import org.Cf.eg.db
+#' @import org.Dm.eg.db
+#' @import org.Dr.eg.db
+#' @import org.EcK12.eg.db
+#' @import org.EcSakai.eg.db
+#' @import org.Gg.eg.db
 #' @import org.Hs.eg.db
+#' @import org.Mm.eg.db
+#' @import org.Mmu.eg.db
+#' @import org.Pf.plasmo.db
+#' @import org.Pt.eg.db
+#' @import org.Rn.eg.db
+#' @import org.Ss.eg.db
+#' @import org.Xl.eg.db
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise))
 #' @import plyr
