@@ -115,9 +115,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     # If not list of background genes is provided, 
     # then extract them from the modelqc file
     if (isPtm == "noptmsites"){
-      dfmq2Genes <- artms_annotationUniprot(dfmq, 'PROTEIN', specie)
+      suppressMessages(dfmq2Genes <- artms_annotationUniprot(dfmq, 'PROTEIN', specie))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      cat(">> TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n")
+      cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n")
       listOfGenes <- unique(dfmq2Genes$Gene)
     }else if( grepl("yesptm",isPtm) ){
       dfmq2Genes <- dfmq[c('PROTEIN','GROUP_ORIGINAL')] # If you want to apply some sort of filter, do it here
@@ -131,9 +131,9 @@ artms_analysisQuantifications <- function(log2fc_file,
         gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = T)
       )
       dfmq2Genes <- unique(dfmq2Genes)
-      dfmq2Genes <- artms_annotationUniprot(dfmq2Genes, 'Protein', specie)
+      suppressMessages(dfmq2Genes <- artms_annotationUniprot(dfmq2Genes, 'Protein', specie))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      cat(">> TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
+      cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
       if(numberTotalGenes == 0){
         stop("\nSOMETHING WRONG WITH THE IDs. Check the source code\n")
       }
@@ -149,6 +149,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   ##############################################################################
   # LOG2FC
+  cat(">> LOADING QUANTIFICATIONS (-results.txt from MSstats)\n")
   dflog2fcraw <- read.delim(log2fc_file, header = T, sep = "\t", stringsAsFactors = F)
   if(any(dflog2fcraw$Protein == "")){ dflog2fcraw <- dflog2fcraw[-which(dflog2fcraw$Protein == ""),]}
   dflog2fcraw$Protein <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dflog2fcraw$Protein )
@@ -177,10 +178,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   cutofflog2fc <- 12
   filtermorethan10 <- length(dflog2fcfinites$log2FC[abs(dflog2fcfinites$log2FC) > cutofflog2fc])
   if( filtermorethan10 > 0){
-    cat("\n\t Removing log2fc values larger than +/-",cutofflog2fc," ... ", filtermorethan10, "\n\n")
+    cat("--- Removing log2fc values larger than +/-",cutofflog2fc," ... ", filtermorethan10, "\n\n")
     dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc),]
   }else{
-    cat("No log2fc values larger than 12, so moving on!\n")
+    cat("--- NO LOG2FC VALUES >",cutofflog2fc,"so moving on!\n")
   }
   
   # IMPUTING MISSING VALUES
@@ -199,56 +200,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   # Select infinite values (i.e., log2fc missed for that)
   dflog2fcinfinites <- dflog2fcraw[is.infinite(dflog2fcraw$log2FC),]
   numberInfinites <- dim(dflog2fcinfinites)[1]
-  
+  cat(">> IMPUTING MISSING VALUES\n")
   # Control
   if( numberInfinites < 1){
-    cat("Number of infinite values: \n")
-    cat("\t\t Less than --> 1 infinite value\n")
-    stop("\n\n\tQuality control stop: there are less than 1 missing values in this sample!\nCheck what's going on\n\n")
+    cat("\nWARNING: O infinite values. This is not normal\n")
   }else {
-    cat("Selecting infinitive values for imputation\n")
-    cat("\t---> Number of infinite values",dim(dflog2fcinfinites)[1],"\n")
-    # CONTROL CODE
-    # The log2fc values are randomly calculated between two values at the bottom.
-    # But just in case, next a plot will be generated to show that the log2fc values
-    # for the imputed proteins/sites just slightly change if the whole thing is 
-    # recalculated
+    cat("--- Number of infinite values",dim(dflog2fcinfinites)[1],"\n")
     
-    # # Loop to impute the values 100 times:
-    # for(i in 1:100){
-    #   here <- imputeMissingValues(dflog2fcinfinites, dfmq, i)
-    #   names(here)[grep("log2FC", names(here))] <- paste0("log2fc",i)
-    #   if(i == 1){
-    #     tmp <- here
-    #   }else{
-    #     tmp <- merge(tmp,here, by = c('Protein','Label')) 
-    #   }
-    # }
-    # 
-    # # Select one of the comparisons:
-    # onlyab <- tmp[which(tmp$Label == "A-B"),]
-    # tmpsorted <- onlyab[order(onlyab$log2fc1),]
-    # # Select top and bottom 10 and bind them
-    # top10 <- head(tmpsorted, n = 10)
-    # bottom10 <- tail(tmpsorted, n = 10)
-    # tb10 <- rbind(top10, bottom10)
-    # 
-    # # Melt 2 PLOT:
-    # melttop10 <- reshape2::melt(tmpsorted, id.vars = c('Protein','Label'), variable.name = "serie", value.name = 'log2fc')
-    # library(directlabels)
-    # eicoEnzymes <- ggplot(melttop10, aes(serie, log2fc, group = Protein, colour = Protein)) +
-    #   geom_point() + geom_line(alpha = 0.8) +
-    #   scale_colour_discrete(guide = 'none') +
-    #   scale_x_discrete(expand=c(0, 1)) +
-    #   geom_dl(aes(label = Protein), method = list(dl.combine("first.points", "last.points"), cex = 0.9)) #library(directlabels)
-    # eicoEnzymes <- eicoEnzymes + ggtitle("Imputing log2fc 100 times")
-    # eicoEnzymes <- eicoEnzymes + ylim(16,-16)
-    # eicoEnzymes <- eicoEnzymes + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),legend.position = "none")
-    # pdf('testingtesting.pdf')
-    # print(eicoEnzymes)
-    # dev.off()
-    
-    imputedL2FCmelted <- imputeMissingValues(dflog2fcinfinites, dfmq)
+    imputedL2FCmelted <- artms_imputeMissingValues(dflog2fcinfinites, dfmq)
     
     # Merge with the original log2fc values to impute...
     theImputedL2FC <- merge(dflog2fcinfinites, imputedL2FCmelted, by = c("Protein","Label"), all.x = T)
@@ -425,16 +384,16 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   abundancelongsummean <- merge(abundancelongsum, abundancelongmean, by = c('Prey', 'Bait'))
   
-  # More REPRODUCIBILITY AND SPECIFICY PARATEMERS
+  # REPRODUCIBILITY AND SPECIFICY PARATEMERS
   
   # Now the number of bioreplicas based on abundance data
-  abundance_dc_length <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = length, fill = 0 )
-  abundancelong_len <- reshape2::melt(abundance_dc_length, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
-  abundancelong_len <- abundancelong_len[!(abundancelong_len$Abundance == 0),]
-  names(abundancelong_len)[grep('Abundance', names(abundancelong_len))] <- 'BioRep'
+  nbr_wide <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = length, fill = 0 )
+  nbr_long <- reshape2::melt(nbr_wide, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
+  nbr_long <- nbr_long[!(nbr_long$Abundance == 0),]
+  names(nbr_long)[grep('Abundance', names(nbr_long))] <- 'BioRep'
   
   # IT SHOULD BE A FUNCTION FROM HERE: CALCULATE THE SUM COUNTS From MSrepro
-  OUTreprod <- reshape2::dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
+  OUTreprod <- reshape2::dcast(data = nbr_long, Prey~Bait, value.var = 'BioRep')
   here <- dim(OUTreprod)[2]
   OUTreprod[is.na(OUTreprod)] <- 0
   # Make a copy to use later
@@ -443,7 +402,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   reprospec2merge <- subset(OUTreprod, select = c(Prey, ReproBioreplicaCount))
   
-  OUTreproCondition <- reshape2::dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
+  OUTreproCondition <- reshape2::dcast(data = nbr_long, Prey~Bait, value.var = 'BioRep')
   thedim <- dim(OUTreproCondition)[2]
   OUTreproCondition[is.na(OUTreproCondition)] <- 0
   thepreys <- subset(OUTreproCondition, select = c(Prey))
@@ -462,7 +421,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
   # Now let's add the annotation (although I only need the gene name)
-  cat(">> PRINCIPAL COMPONENT CHART\n")
+  cat(">> WORKING ON PRINCIPAL COMPONENT BASED ON ABUNDANCE\n")
   modelqcabundance <- artms_loadModelQCstrict(dfmq, specie)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
@@ -470,18 +429,20 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat("---+ PCA DONE!\n")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  modelqc_file_splc <- loadModelQC(dfmq, abundance_dc_length, specie)
+  # Prepare annotated abundance file to output
+  modelqc_file_splc <- artms_mergeAbNbr(dfmq, nbr_wide, specie)
+  
   # Now get ready for annotation
   if( grepl("yesptm",isPtm) ){
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
     modelqc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", modelqc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T)) 
-    modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
+    suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
   }else{
-    modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
+    suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
   }
   
-  log2fc_file_splc <- loadL2FCWide(dflog2fc, abundance_dc_length, specie)
+  log2fc_file_splc <- loadL2FCWide(dflog2fc, nbr_wide, specie)
   # Now get ready for annotation
   if( grepl("yesptm",isPtm) ){
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
@@ -820,7 +781,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   
-  superunified <- merge(abundancelongsummean, abundancelong_len, by = c('Bait', 'Prey'), all = T)
+  superunified <- merge(abundancelongsummean, nbr_long, by = c('Bait', 'Prey'), all = T)
   superunified <- merge(superunified, reprocondition2merge, by = 'Prey', all = T)
   superunified <- merge(superunified, reprospec2merge, by = 'Prey', all = T)
   
@@ -1369,7 +1330,17 @@ selectTheOneLog2fc <- function(a, b) {
   return(sb)
 }
 
-loadModelQC = function (df_input, repro, specie) {
+# ------------------------------------------------------------------------------
+#' @title Merge abundance and number of biological replicates per condition
+#' 
+#' @description
+#' @param 
+#' @param 
+#' @return
+#' @keywords
+#' FUNCTION_NAME()
+#' @export
+artms_mergeAbNbr <- function (df_input, repro, specie) {
   
   # Remove empty entries
   if(any(df_input$PROTEIN == "")){ df_input <- df_input[-which(df_input$PROTEIN == ""),]}
@@ -1627,22 +1598,35 @@ imputingOnTheMaximum <- function(idflog2fc){
 }
 
 # NEW IMPUTATION METHOD
-# When a value is completely missed in one of the conditions, 
-# the log2fc = Inf / -Inf. Here, we impute those values.
-# The imputation method works as follow. The assumption is that those
-# proteins are likely present as well in those conditions where are missed, 
-# but due to the small sampling (usually 2 or 3 biological replicas) 
-# and other proteomics related issue, those proteins didn't make it through 
-# the level of detection.
-# Therefore, a small intensity (sampled from the bottom 5%) will be assigned
-# to the protein/site in the missing condition, and the new log2fc is 
-# re-calculated out of the MSstats box. Two issues are addressed in this way
-# 1. If a protein has been consistently identified in one of the conditions, 
-# it will stay
-# 2. But if the intensity value in those conditions was too low, 
-# then the log2fc will be also low
 
-imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
+# ------------------------------------------------------------------------------
+#' @title Imputing missing values
+#' 
+#' @description When a value is completely missed in one of the conditions, 
+#' the `log2fc = Inf / -Inf`. This function imputes those values, i.e.,
+#' will assign 'artificial' values.
+#' The imputation method works as follow. The assumption is that those
+#' proteins are likely present as well in those conditions where are found 
+#' missed, but due to the small sampling (usually 2 or 3 biological replicas) 
+#' and other proteomics related issues, those proteins didn't make it through 
+#' the level of detection.
+#' Therefore, a small intensity (sampled from the bottom 10 intensity values) 
+#' will be assigned to the protein/site in the missing condition, 
+#' and the new log2fc is re-calculated out of the MSstats box. 
+#' Two issues are addressed as follows:
+#' 1. If a protein has been consistently identified in one of the conditions, 
+#' it will stay
+#' 2. But if the intensity value in those conditions was too low, 
+#' then the log2fc will be also low
+#' @param dflog2fcinfinites data.frame of proteins with only infinite 
+#' values from the msstats results file
+#' @param dfmq Abundance data, which will be used to know the details of 
+#' reproducibility
+#' @return Imputed missing values
+#' @keywords imputation, log2fc, quantifications, missing values
+#' artms_imputeMissingValues()
+#' @export
+artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   
   # The comparsions
   contrast <- unique(dflog2fcinfinites$Label)
@@ -1692,9 +1676,7 @@ imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   dfdc.final <- dfdc.final[which(dfdc.final$Protein %in% ids2impute),]
   
   for(c in contrast){
-    
-    cat("\t",c," --> ")
-    
+    # cat("\t",c," --> ")
     x <- gsub("(.*)(-)(.*)", "\\1", c)
     y <- gsub("(.*)(-)(.*)", "\\3", c)
     cat("log2fc(",x, " - ", y,")\n")

@@ -1,4 +1,4 @@
-#' @rawNamespace import(biomaRt, except = c(select, getSequence))
+#' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
 #' @import corrplot
 #' @import data.table
