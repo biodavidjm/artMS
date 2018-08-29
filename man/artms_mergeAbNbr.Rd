@@ -6,7 +6,19 @@
 \usage{
 artms_mergeAbNbr(df_input, repro, specie)
 }
-\description{
-Merge abundance and number of biological replicates per condition
+\arguments{
+\item{df_input}{Abundance input file}
+
+\item{repro}{Reproducibility data.frame}
 }
-\keyword{FUNCTION_NAME()}
+\value{
+specie Specie for annotation purposes
+}
+\description{
+Merge abundance and number of biological replicates
+per condition
+}
+\keyword{abundance,}
+\keyword{artms_mergeAbNbr()}
+\keyword{merging}
+\keyword{reproducibility,}

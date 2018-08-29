@@ -476,12 +476,12 @@ artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
       for(k in j:length(blist)){
         br1 <- blist[i]
         br2 <- blist[k]
-        cat("\t",br1,"-",br2,":")
+        # cat("\t",br1,"-",br2,":")
         
         npt <- length(unique(datadc$PROTEIN))
         
         corr_coef <- round(cor(datadc[[br1]], datadc[[br2]], use = "complete.obs"), digits = 2)
-        cat ("r:",corr_coef,"\n")
+        # cat ("r:",corr_coef,"\n")
         
         p2 <- ggplot2::ggplot(datadc, aes(x=datadc[[br1]], y = datadc[[br2]]))
         p2 <- p2 + geom_point()
@@ -493,7 +493,7 @@ artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
         print(p2)
       } # FOR loop
     } # For loop
-    cat("\n")
+    # cat("\n")
   }else{
     cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
   }

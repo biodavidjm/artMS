@@ -25,9 +25,10 @@ proteins are likely present as well in those conditions where are found
 missed, but due to the small sampling (usually 2 or 3 biological replicas)
 and other proteomics related issues, those proteins didn't make it through
 the level of detection.
-Therefore, a small intensity (sampled from the bottom 1%) will be assigned
-to the protein/site in the missing condition, and the new log2fc is
-re-calculated out of the MSstats box. Two issues are addressed as follows:
+Therefore, a small intensity (sampled from the bottom 10 intensity values)
+will be assigned to the protein/site in the missing condition,
+and the new log2fc is re-calculated out of the MSstats box.
+Two issues are addressed as follows:
 \enumerate{
 \item If a protein has been consistently identified in one of the conditions,
 it will stay

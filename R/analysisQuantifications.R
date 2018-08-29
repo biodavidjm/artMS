@@ -197,10 +197,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   # 1. If a protein has been consistently identified in one of the conditions, it will stay
   # 2. But if the intensity value in those conditions was too low, then the log2fc will be also low
   
+  cat(">> IMPUTING MISSING VALUES\n")
+  
   # Select infinite values (i.e., log2fc missed for that)
   dflog2fcinfinites <- dflog2fcraw[is.infinite(dflog2fcraw$log2FC),]
   numberInfinites <- dim(dflog2fcinfinites)[1]
-  cat(">> IMPUTING MISSING VALUES\n")
+  
   # Control
   if( numberInfinites < 1){
     cat("\nWARNING: O infinite values. This is not normal\n")
@@ -265,22 +267,23 @@ artms_analysisQuantifications <- function(log2fc_file,
   distributionsOut <- gsub(".txt",".distributions.pdf",log2fc_file)
   distributionsOut <- paste0(output_dir,"/",distributionsOut)
   pdf(distributionsOut)
-  plotDFdistColor
-  plotDFdistAll
-  plotDFdistiLog
-  plotPvalues
-  plotAdjustedPvalues
-  plotAdjustedIpvalues
-  
-  if( numberInfinites > 0){
-    hist(imputedL2FCmelted$iLog2FC, breaks = 100, main = paste0("Imputed Log2FC (all)\n  n = ",dim(imputedL2FCmelted)[1]), xlab = "log2fc")
-    hist(theImputedL2FC$iLog2FC, breaks = 100, main = paste0("Imputed Log2FC merged\n n = ", dim(theImputedL2FC)[1] ), xlab = "log2fc")
-  }
-  hist(dflog2fcfinites$pvalue, breaks = 100, main = paste0("p-value distribution\n n = ",dim(dflog2fcfinites)[1]), xlab = "adj.pvalues")
-  hist(dflog2fcfinites$adj.pvalue, breaks = 100, main = paste0("Adjusted p-values distribution\n n = ", dim(dflog2fcfinites)[1]), xlab = "adj.pvalues")
-  hist(dflog2fcfinites$iLog2FC, breaks = 1000, main = paste0("Non-imputed Log2FC distribution\n n = ", dim(dflog2fcfinites)[1]), xlab = "log2FC")
-  hist(dflog2fc$iPvalue, breaks = 100, main = paste0("(Imputed+NonImputed) adjusted pvalue distribution\n n = ",dim(dflog2fc)[1]), xlab = "adj.pvalues")
-  hist(dflog2fc$iLog2FC, breaks = 1000, main = paste0("(Imputed+NonImputed) log2fc distribution\n n = ", dim(dflog2fc)[1]), xlab = "log2FC")
+    plotDFdistColor
+    plotDFdistAll
+    plotDFdistiLog
+    plotPvalues
+    plotAdjustedPvalues
+    plotAdjustedIpvalues
+    
+    if( numberInfinites > 0){
+      hist(imputedL2FCmelted$iLog2FC, breaks = 100, main = paste0("Imputed Log2FC (all)\n  n = ",dim(imputedL2FCmelted)[1]), xlab = "log2fc")
+      hist(theImputedL2FC$iLog2FC, breaks = 100, main = paste0("Imputed Log2FC merged\n n = ", dim(theImputedL2FC)[1] ), xlab = "log2fc")
+    }
+    
+    hist(dflog2fcfinites$pvalue, breaks = 100, main = paste0("p-value distribution\n n = ",dim(dflog2fcfinites)[1]), xlab = "adj.pvalues")
+    hist(dflog2fcfinites$adj.pvalue, breaks = 100, main = paste0("Adjusted p-values distribution\n n = ", dim(dflog2fcfinites)[1]), xlab = "adj.pvalues")
+    hist(dflog2fcfinites$iLog2FC, breaks = 1000, main = paste0("Non-imputed Log2FC distribution\n n = ", dim(dflog2fcfinites)[1]), xlab = "log2FC")
+    hist(dflog2fc$iPvalue, breaks = 100, main = paste0("(Imputed+NonImputed) adjusted pvalue distribution\n n = ",dim(dflog2fc)[1]), xlab = "adj.pvalues")
+    hist(dflog2fc$iLog2FC, breaks = 1000, main = paste0("(Imputed+NonImputed) log2fc distribution\n n = ", dim(dflog2fc)[1]), xlab = "log2FC")
   garbage <- dev.off()
   
   
@@ -292,13 +295,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   theBiologicalReplicas <- unique(condFirst$SUBJECT_ORIGINAL)
   numberBioReplicas <- length(theBiologicalReplicas)
   
-  
   ##############################################################################
-  ##############################################################################
-  # PLOTS
+  # ABUNDANCE PLOTS
   
   # boxplot of relative abundances
-  cat("Printing out: RELATIVE ABUNDANCE PLOTS\n")
   abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
@@ -362,14 +362,13 @@ artms_analysisQuantifications <- function(log2fc_file,
   dfhm <- subset(dchm_input, select=-c(Prey))
   aqui <- data.matrix(dfhm)
   
+  cat(">> HEATMAPS OF PROTEIN ABUNDANCE\n")
   outHeatMapOverall <- gsub(".txt",".clustering.abundance.all-overview.pdf",log2fc_file)
   outHeatMapOverall <- paste0(output_dir,"/",outHeatMapOverall)
   pheatmap(aqui, filename=outHeatMapOverall, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = F, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
   outHeatMapZoom <- gsub(".txt",".clustering.abundance.all-zoom.pdf",log2fc_file)
   outHeatMapZoom <- paste0(output_dir,"/",outHeatMapZoom)
   pheatmap(aqui, filename=outHeatMapZoom, cellheight = 10, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
-  # HEATMAPs
-  #########################################################
   
   # Melt again the sum and mean
   abundancelongsum <- reshape2::melt(abundance_dcsum, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
@@ -421,12 +420,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
   # Now let's add the annotation (although I only need the gene name)
-  cat(">> WORKING ON PRINCIPAL COMPONENT BASED ON ABUNDANCE\n")
+  cat(">> WORKING ON PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
   modelqcabundance <- artms_loadModelQCstrict(dfmq, specie)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
   artms_getPCAplots(modelqcabundance, out.pca, conditions)
-  cat("---+ PCA DONE!\n")
+  cat("---+ PCA done!\n")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare annotated abundance file to output
@@ -442,15 +441,16 @@ artms_analysisQuantifications <- function(log2fc_file,
     suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
   }
   
-  log2fc_file_splc <- loadL2FCWide(dflog2fc, nbr_wide, specie)
+  # Prepare output of changes
+  log2fc_file_splc <- artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
   # Now get ready for annotation
   if( grepl("yesptm",isPtm) ){
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
     log2fc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T)) 
-    log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
+    suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }else{
-    log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
+    suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }
   
   log2fc_long <- loadL2FCLong(dflog2fc, specie)
@@ -1333,12 +1333,13 @@ selectTheOneLog2fc <- function(a, b) {
 # ------------------------------------------------------------------------------
 #' @title Merge abundance and number of biological replicates per condition
 #' 
-#' @description
-#' @param 
-#' @param 
-#' @return
-#' @keywords
-#' FUNCTION_NAME()
+#' @description Merge abundance and number of biological replicates 
+#' per condition
+#' @param df_input Abundance input file
+#' @param repro Reproducibility data.frame
+#' @return specie Specie for annotation purposes
+#' @keywords abundance, reproducibility, merging
+#' artms_mergeAbNbr()
 #' @export
 artms_mergeAbNbr <- function (df_input, repro, specie) {
   
@@ -1362,7 +1363,6 @@ artms_mergeAbNbr <- function (df_input, repro, specie) {
   return(dc_input)
 }
 
-# Required for PCA analysis
 # ------------------------------------------------------------------------------
 #' @title Load limited columns from abundance (modelqc) annotated
 #' 
@@ -1393,7 +1393,19 @@ artms_loadModelQCstrict <- function (df_input, specie) {
   return(send_back)
 }
 
-loadL2FCWide = function (df_input, repro, specie) {
+# ------------------------------------------------------------------------------
+#' @title Merge changes (log2fc) and number of biological replicates per 
+#' condition
+#' 
+#' @description Merge changes, i.e., MSstats results file of quantified changes,
+#' with the number of biological replicates per condition
+#' @param df_input Changes data.frame
+#' @param repro Reproducibility data.frame
+#' @return specie Specie for annotation purposes
+#' @keywords changes, log2fc, reproducibility, merging
+#' artms_mergeChangesNbr()
+#' @export
+artms_mergeChangesNbr <- function (df_input, repro, specie) {
   
   # # Remove the weird empty proteins
   # if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
@@ -1411,7 +1423,7 @@ loadL2FCWide = function (df_input, repro, specie) {
   return(input_dcast)
 }
 
-loadL2FCLong = function (df_input, specie) {
+loadL2FCLong <- function (df_input, specie) {
   
   # Remove the weird empty proteins
   if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
@@ -1679,7 +1691,7 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
     # cat("\t",c," --> ")
     x <- gsub("(.*)(-)(.*)", "\\1", c)
     y <- gsub("(.*)(-)(.*)", "\\3", c)
-    cat("log2fc(",x, " - ", y,")\n")
+    # cat("log2fc(",x, " - ", y,")\n")
     
     # Renaming the comparision name just for illustration purposes
     rnc <- paste0("l2fc_",c)
