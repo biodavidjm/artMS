@@ -556,5 +556,76 @@ artms_plotRatioLog2fc <- function(datai) {
   }
 }
 
+# ------------------------------------------------------------------------------
+#' @title Generate PCA plots based on abundance data
+#' 
+#' @description Generate PCA plots based on abundance data
+#' @param data Data.frame output from `artms_loadModelQCstrict`
+#' @param filename Prefix to generate output names (WITH NO EXTENSION)
+#' @return allConditions Conditions selected to generate the plots
+#' @keywords plot, pca
+#' artms_getPCAplots()
+#' @export
+artms_getPCAplots <- function(data, filename, allConditions){
+  
+  # PRINCIPAL COMPONENT ANALYSIS
+  # Using the following packages: 
+  # FactoMineR, factoextra, corrplot, PerformanceAnalytics
+  
+  # Remove NA
+  nogenename2 <- data[duplicated(data$Gene),]
+  if(dim(nogenename2)[1]>0){
+    # cat("\t---Removing proteins without a gene name:\n")
+    data <- data[complete.cases(data),]
+  }
+  
+  data <- data[!duplicated(data[, c("Gene")]), ]
+  rownames(data) <- data$Gene
+  df <- data[,allConditions]
+  
+  # Correlation matrix
+  df.cor.matrix <- round(cor(df, use = "complete.obs"), 2)
+  
+  # Correlation plots:
+  out.correlation <- paste0(filename,"-correlations.pdf")
+  pdf(out.correlation)
+    corrplot::corrplot(df.cor.matrix, type="upper", tl.col="black", tl.srt=45, diag = F, addCoef.col = T)
+    PerformanceAnalytics::chart.Correlation(df, histogram=TRUE, pch=19, main = "Correlation between Conditions")
+  garbage <- dev.off()
+  
+  res.pca <- FactoMineR::PCA(df, scale.unit = TRUE, ncp = 4, graph=FALSE)
+  eigenvalues <- res.pca$eig
+  
+  out.pca01 <- paste0(filename,"-pca01.pdf")
+  pdf(out.pca01)
+    par(mfrow=c(1,1))
+    plot(res.pca,choix="ind",new.plot=FALSE)
+    plot(res.pca,choix="var",new.plot=FALSE)  
+    # This is equivalent to 
+    # PCA(df, scale.unit = TRUE, ncp = 4, graph = TRUE)
+  garbage <- dev.off()
+  
+  out.pca02 <- paste0(filename,"-pca02.pdf")
+  pdf(out.pca02)
+    barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues),
+            main = "Variances",
+            xlab = "Principal Components",
+            ylab = "Percentage of variances",
+            col ="steelblue")
+    lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], type="b", pch=19, col = "red")
+  garbage <- dev.off()
 
+  h <- factoextra::fviz_pca_var(res.pca, col.var="contrib") + theme_minimal()
+  i <- factoextra::fviz_pca_biplot(res.pca,  labelsize = 3, pointsize = 0.8) + theme_minimal()
+  j <- factoextra::fviz_contrib(res.pca, choice = "var", axes = 1)
+  l <- factoextra::fviz_contrib(res.pca, choice = "var", axes = 2)
+  
+  out.pca03 <- paste0(filename,"-pca03.pdf")
+  pdf(out.pca03)
+    print(h)
+    print(i)
+    print(j)
+    print(l)
+  garbage <- dev.off()
+}
 

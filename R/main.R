@@ -2,6 +2,8 @@
 #' @import bit64
 #' @import corrplot
 #' @import data.table
+#' @importFrom factoextra fviz_pca_var fviz_contrib
+#' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
 #' @import ggplot2
@@ -26,6 +28,7 @@
 #' @import org.Rn.eg.db
 #' @import org.Ss.eg.db
 #' @import org.Xl.eg.db
+#' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise))
 #' @import plyr
