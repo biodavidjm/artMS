@@ -268,7 +268,62 @@ artms_plotReproducibilityEvidence <- function(data) {
   close(pb)
 }
 
+# ------------------------------------------------------------------------------
+#' @title Plot abundance boxplots
+#' 
+#' @description Plot abundance boxplots
+#' @param data modelqc processed data.frame
+#' @return Abundacen boxplot
+#' @keywords plot, abundance
+#' artms_plotAbundanceBoxplots()
+#' @export
+artms_plotAbundanceBoxplots <- function(data){
+  p1 <- ggplot2::ggplot(data, aes(x=SUBJECT_ORIGINAL, y=ABUNDANCE, fill=ABUNDANCE))
+  p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL))
+  p1 <- p1 + theme_linedraw()
+  p1 <- p1 + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),legend.position = "none")
+  p1 <- p1 + labs(x = "BIOREPLICATES")
+  p1 <- p1 + ggtitle("Relative Abundance BioReplicates")
+  print(p1)
+  
+  p2 <- ggplot2::ggplot(data, aes(x=as.factor(GROUP_ORIGINAL), y=ABUNDANCE, fill=ABUNDANCE))
+  p2 <- p2 + geom_boxplot(aes(fill = GROUP_ORIGINAL))
+  p2 <- p2 + theme_linedraw()
+  p2 <- p2 + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),legend.position = "none")
+  p2 <- p2 + labs(x = "CONDITIONS")
+  p2 <- p2 + ggtitle("Relative Abundance Conditions")
+  print(p2)
+}
 
 
-
-
+# ------------------------------------------------------------------------------
+#' @title Total Number of unique proteins based on abundance data
+#' 
+#' @description Total Number of unique proteins per biological replicate and
+#' conditions
+#' @param data modelqc data.frame
+#' @return Barplots with the number of proteins per br / condition
+#' @keywords plots, abundance, counts
+#' artms_plotNumberProteinsAbundance()
+#' @export
+artms_plotNumberProteinsAbundance <- function(data) {
+  x <- data[c('PROTEIN','SUBJECT_ORIGINAL')]
+  y <- unique(x)
+  names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicates'
+  z <- ggplot2::ggplot(y, aes(x = BioReplicates, fill = BioReplicates))
+  z <- z + geom_bar(stat = "count")
+  z <- z + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+  z <- z + geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7)
+  z <- z + ggtitle("Unique Proteins in BioReplicates")  
+  print(z)
+  
+  a <- data[c('PROTEIN','GROUP_ORIGINAL')]
+  b <- unique(a)
+  names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Conditions'
+  c <- ggplot2::ggplot(b, aes(x = Conditions, fill = Conditions))
+  c <- c + geom_bar(stat = "count")
+  c <- c + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+  c <- c + geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7)
+  c <- c + ggtitle("Unique Proteins in Conditions")  
+  print(c)
+}

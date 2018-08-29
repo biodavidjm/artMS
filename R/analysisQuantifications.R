@@ -35,6 +35,18 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           ipval, 
                                           pathogen){
   
+  log2fc_file = "ab-testing-new-results.txt"
+  modelqc_file = "ab-testing-new-results_ModelQC.txt"
+  specie = "human"
+  enrich = "yes"
+  output_dir = "resultsTesting"
+  isFluomics = "yes"
+  isPtm = "noptmsites"
+  isBackground = "nobackground"
+  mnbr = 2
+  threshold = 1
+  ipval = "pvalue"
+  pathogen = "nopathogen"
   
   # source('~/github/kroganlab/enrichment/enrichProfiler.R')
   # source('~/github/kroganlab/djmSource/myLibrary/generalFunctions.R')
@@ -105,7 +117,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     if (isPtm == "noptmsites"){
       dfmq2Genes <- artms_annotationUniprot(dfmq, 'PROTEIN', specie)
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      cat("\n>>TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
+      cat(">> TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n")
       listOfGenes <- unique(dfmq2Genes$Gene)
     }else if( grepl("yesptm",isPtm) ){
       dfmq2Genes <- dfmq[c('PROTEIN','GROUP_ORIGINAL')] # If you want to apply some sort of filter, do it here
@@ -113,17 +125,17 @@ artms_analysisQuantifications <- function(log2fc_file,
       # Removing party sites
       dfmq2Genes <- dfmq2Genes[grep(",",dfmq2Genes$Protein, invert=T),]
       # And now be very careful with the Fluomics labeling, since they have an extra _ that it is not follow by the site
-      cat("\n\nWarning! if you have protein_sites id with more than one '_' is going to be a problem\n\n")
+      cat("---Warning! if you have protein_sites id with more than one '_' is going to be a problem\n\n")
       dfmq2Genes$Protein <- ifelse(
         grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", dfmq2Genes$Protein, perl = T) , 
         gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = T)
       )
       dfmq2Genes <- unique(dfmq2Genes)
-      dfmq2Genes <- proteinid2gene(dfmq2Genes, specie, 'Protein')
+      dfmq2Genes <- artms_annotationUniprot(dfmq2Genes, 'Protein', specie)
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      cat("\n>>TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
+      cat(">> TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n\n")
       if(numberTotalGenes == 0){
-        stop("\n\n\nSOMETHING WRONG WITH THE IDs. Check the source code\n\n\n")
+        stop("\nSOMETHING WRONG WITH THE IDs. Check the source code\n")
       }
       listOfGenes <- unique(dfmq2Genes$Gene)
     }
@@ -193,7 +205,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("Number of infinite values: \n")
     cat("\t\t Less than --> 1 infinite value\n")
     stop("\n\n\tQuality control stop: there are less than 1 missing values in this sample!\nCheck what's going on\n\n")
-  } else {
+  }else {
     cat("Selecting infinitive values for imputation\n")
     cat("\t---> Number of infinite values",dim(dflog2fcinfinites)[1],"\n")
     # CONTROL CODE
@@ -332,10 +344,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
   
-  cat("Printing out: ABUNDANCE PLOTS\n")
+  cat(">> PLOTS: ABUNDANCE PLOTS\n")
   pdf(abundancesName)
-  plotAbundanceBoxplots(dfmq)
-  plotNumberProteinsAbundance(dfmq)
+    artms_plotAbundanceBoxplots(dfmq)
+    artms_plotNumberProteinsAbundance(dfmq)
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
@@ -377,7 +389,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   ##############################################################################
   ##############################################################################
   # ABUNDANCE DATA, to CREATE FILTERS
-  abundance <- loadModelqcBasic(dfmq)
+  abundance <- artms_loadModelqcBasic(dfmq)
   names(abundance)[grep('Protein', names(abundance))] <- 'Prey'
   names(abundance)[grep('Condition', names(abundance))] <- 'Bait'
   # TECHNICAL REPLICAS: if there are technical replicas, this means that we will find
@@ -1464,6 +1476,37 @@ loadL2FCLong = function (df_input, specie) {
   return(send_back)
 }
 
+# POTENTIAL FUNCTION TO LOAD the ModelQC data
+artms_loadModelqcBasic <- function(data){
+  if( length(grep(";",data$PROTEIN))>0 ) data <- data[-grep(";",data$PROTEIN),] # NOTE!!! We lose a lot of entries this way.
+  if("PROTEIN" %in% colnames(data)){
+    names(data)[grep("PROTEIN", names(data))] <- 'Protein'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("ABUNDANCE" %in% colnames(data)){
+    names(data)[grep("ABUNDANCE", names(data))] <- 'Abundance'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("GROUP_ORIGINAL" %in% colnames(data)){
+    names(data)[grep("GROUP_ORIGINAL", names(data))] <- 'Condition'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("SUBJECT_ORIGINAL" %in% colnames(data)){
+    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'Bioreplica'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  data <- subset(data, select = c(Protein, Abundance, Condition, Bioreplica))
+  return(data)
+}
+
 enrichImputedLog2fc <- function(data, filenames, specie, background){
   
   # DEBUG
@@ -1602,14 +1645,17 @@ imputingOnTheMaximum <- function(idflog2fc){
 # When a value is completely missed in one of the conditions, 
 # the log2fc = Inf / -Inf. Here, we impute those values.
 # The imputation method works as follow. The assumption is that those
-# proteins are likely present as well in those conditions where are missed, but due to the
-# small sampling (usually 2 or 3 biological replicas) and other proteomics
-# related issue, those proteins didn't make it through the level of detection.
+# proteins are likely present as well in those conditions where are missed, 
+# but due to the small sampling (usually 2 or 3 biological replicas) 
+# and other proteomics related issue, those proteins didn't make it through 
+# the level of detection.
 # Therefore, a small intensity (sampled from the bottom 5%) will be assigned
-# to the protein/site in the missing condition, and the new log2fc is re-calculated
-# out of the MSstats box. Two issues are addressed in this way
-# 1. If a protein has been consistently identified in one of the conditions, it will stay
-# 2. But if the intensity value in those conditions was too low, then the log2fc will be also low
+# to the protein/site in the missing condition, and the new log2fc is 
+# re-calculated out of the MSstats box. Two issues are addressed in this way
+# 1. If a protein has been consistently identified in one of the conditions, 
+# it will stay
+# 2. But if the intensity value in those conditions was too low, 
+# then the log2fc will be also low
 
 imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   
@@ -1620,7 +1666,7 @@ imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   ids2impute <- unique(dflog2fcinfinites$Protein)
   
   # Take the abundance values for all the proteins
-  abu2imp <- loadModelqcBasic(dfmq)
+  abu2imp <- artms_loadModelqcBasic(dfmq)
   # Aggregate the technical replica by choosing the maximum value
   abu2imp2 <- aggregate(Abundance~Protein+Condition+Bioreplica, data = abu2imp, FUN = mean)
   
