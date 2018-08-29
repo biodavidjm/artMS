@@ -499,8 +499,62 @@ artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
   }
 }
 
+# ------------------------------------------------------------------------------
+#' @title Plot correlation between quantifications different quantified 
+#' comparisons
+#' 
+#' @description Plot correlation between all quantifications, i.e., different 
+#' quantified comparisons
+#' @param datai Processed MSstats results
+#' @return Plot correlation between quantifications and r values
+#' @keywords plot, correlation, log2fc
+#' artms_plotRatioLog2fc()
+#' @export
+artms_plotRatioLog2fc <- function(datai) {
 
-
+  datadc <- dcast(data=datai, Protein~Label, value.var = 'log2FC')
+  before <- dim(datadc)[1]
+  l <- dim(datadc)[2]
+  datadc <- do.call(data.frame,lapply(datadc, function(x) replace(x, is.infinite(x),NA)))
+  datadc <- datadc[complete.cases(datadc),]
+  after <- dim(datadc)[1]
+  cat("---Total unique identifiers before: ", before, "\n---Total unique identifiers (only complete cases): ", after, "\n\n")
+  
+  blist <- unique(datai$Label)
+  blist <- gsub("-",".",blist)
+  
+  if(length(blist) > 1){ # We need at least TWO CONDITIONS
+    to <- length(blist)-1
+    # Progress bar
+    pb <- txtProgressBar(min=0, max=length(blist)-1, style=3)
+    for (i in 1:to) {
+      setTxtProgressBar(pb, i)
+      j <- i+1
+      for(k in j:length(blist)){
+        br1 <- blist[i]
+        br2 <- blist[k]
+        # cat("\tChecking relation between conditions ",br1, "and ",br2 ,":")
+        
+        npt <- length(unique(datadc$Protein))
+        
+        corr_coef <- round(cor(datadc[[br1]], datadc[[br2]]), digits = 2)
+        # cat ("r: ",corr_coef,"\n")
+        
+        p3 <- ggplot2::ggplot(datadc, aes(x=datadc[[br1]], y = datadc[[br2]]))
+        p3 <- p3 + geom_point() + geom_rug() + geom_density_2d()
+        p3 <- p3 + geom_smooth(colour = "red", fill = "lightblue", method = 'lm')
+        p3 <- p3 + theme_light()
+        p3 <- p3 + labs(title = paste0("log2fc(",br1,") vs log2fc(",br2,")\n(n =",npt," r = ",corr_coef,")"))
+        p3 <- p3 + labs(x = br1)
+        p3 <- p3 + labs(y = br2)
+        print(p3)
+      } # FOR loop
+    } # For loop
+    close(pb)
+  }else{
+    cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+  }
+}
 
 
 

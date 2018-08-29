@@ -370,12 +370,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Relationship between log2fc comparisons
   if (length(unique(dflog2fc$Label)) > 1){
-    cat("Printing out: log2fc relationships PLOTS\n")
-    relaChanges <- gsub(".txt", ".relationshipChanges.pdf", log2fc_file)
+    cat(">> PLOT: CORRELATION BETWEN QUANTIFICATIONS (based on log2fc values\n")
+    relaChanges <- gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
     relaChanges <- paste0("plot.",relaChanges)
     relaChanges <- paste0(output_dir,"/",relaChanges)
     pdf(relaChanges)
-    plotRatioLog2fc(dflog2fc)
+      artms_plotRatioLog2fc(dflog2fc)
     garbage <- dev.off()
   }else{
     cat("Only one Comparison is available\n")
