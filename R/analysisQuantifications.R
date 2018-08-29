@@ -452,33 +452,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   }else{
     suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }
-  
-  log2fc_long <- loadL2FCLong(dflog2fc, specie)
-  
-  # Now get ready for annotation
-  if( grepl("yesptm",isPtm) ){
-    names(log2fc_long)[grep('^Protein$', names(log2fc_long))] <- 'Uniprot_PTM'
-    # Take the Protein ID, but being very careful about the fluomics labeling
-    log2fc_long$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_long$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_long$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", log2fc_long$Uniprot_PTM, perl = T)) 
-    log2fc_long <- artms_annotationUniprot(log2fc_long, 'Protein', specie)
-  }else{
-    log2fc_long <- artms_annotationUniprot(log2fc_long, 'Protein', specie)
-  }
-  
-  
-  # # THE JITTER PLOTS for log2fc values
-  # log2fc_long$Specie <- ifelse(grepl("H1N1|H3N2|H5N1", log2fc_long$Protein), "Influenza", "Human")
-  # ggplot(log2fc_long[which(log2fc_long$log2FC > -10 & log2fc_long$log2FC < 10),] %>% arrange(Specie), aes(Comparison,log2FC)) +
-  #   geom_jitter(aes(colour = Specie), width = 0.5) +
-  #   theme_minimal()+
-  #   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
-  
-  
-  ################################################################################
-  ################################################################################
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # FILTERING BASED ON NUMBER OF BIOLOGICAL REPLICAS
-  
+
+
   cat("FILTERING BY NUMBER OF BIOLOGICAL REPLICAS\n")
   
   # # This would be the old imputation method
@@ -1186,32 +1161,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     write.table(dfclusters, file_clusterheatdata_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
   }
   
-  
-  
-  # iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-  
-  # Move Gene name to the left:
-  # Merge with bioReplicaInf
-  cat("Merging with bioReplica Info to long_log2fc\n")
-  # This depends on the type of dataset
-  if( grepl("yesptm",isPtm) ){
-    log2fc_long <- merge(log2fc_long, bioReplicaInfo, by.x = 'Uniprot_PTM', by.y = 'Prey', all.x = T) 
-  }else{
-    log2fc_long <- merge(log2fc_long, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
-  }
-  
-  cat("Removing NA\n")
-  log2fc_long <- log2fc_long[!is.na(log2fc_long$log2FC),]
-  
-  # Merging lo
-  outlog2fclong <- gsub(".txt","-longL2fc.txt", log2fc_file)
-  outlog2fclong <- paste0(output_dir,"/",outlog2fclong)
-  write.table(log2fc_long, outlog2fclong, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  # outUniqueProteinsCondition <- gsub(".txt","-uniquePerCondition.txt", log2fc_file)
-  # outUniqueProteinsCondition <- paste0(output_dir,"/",outUniqueProteinsCondition)
-  # write.table(aocabmerge, outUniqueProteinsCondition, quote = F, sep = "\t", row.names = F, col.names = T)
-  
+
   outexcel <- gsub(".txt","-summary.xlsx",log2fc_file)
   outexcel <- paste0(output_dir,"/",outexcel)
   
@@ -1222,7 +1172,6 @@ artms_analysisQuantifications <- function(log2fc_file,
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
         # "log2fcWide" = log2fc_file_splc,
-        # "log2fcLong" = log2fc_long,
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1238,7 +1187,6 @@ artms_analysisQuantifications <- function(log2fc_file,
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
         # "log2fcWide" = log2fc_file_splc, 
-        # "log2fcLong" = log2fc_long, 
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue,
@@ -1259,7 +1207,6 @@ artms_analysisQuantifications <- function(log2fc_file,
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
         # "log2fcWide" = log2fc_file_splc,
-        # "log2fcLong" = log2fc_long,
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1269,7 +1216,6 @@ artms_analysisQuantifications <- function(log2fc_file,
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
         # "log2fcWide" = log2fc_file_splc, 
-        # "log2fcLong" = log2fc_long, 
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue
@@ -1421,27 +1367,6 @@ artms_mergeChangesNbr <- function (df_input, repro, specie) {
   
   # Move Gene name to the left:
   return(input_dcast)
-}
-
-loadL2FCLong <- function (df_input, specie) {
-  
-  # Remove the weird empty proteins
-  if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
-  df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
-  df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
-  
-  df_input <- df_input[!is.na(df_input$log2FC),]
-  df_input <- df_input[!is.infinite(df_input$log2FC),]
-  df_input <- df_input[complete.cases(df_input$log2FC),]
-  
-  df_input$CMA <- mapply(selectTheOneLog2fc, df_input$log2FC, df_input$Label)
-  
-  names(df_input)[grep('Label', names(df_input))] <- 'Comparison'
-  df_input$Observation <- with(df_input, paste(CMA,Comparison, sep = "--"))
-  
-  send_back <- df_input[,c('Protein', 'Comparison','log2FC','adj.pvalue','CMA', 'Observation')]
-  
-  return(send_back)
 }
 
 # POTENTIAL FUNCTION TO LOAD the ModelQC data
