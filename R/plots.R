@@ -111,13 +111,13 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[ idx ] <- NA
     }
-    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
+    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
   }else if(display=='adj.pvalue'){
     heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
-    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
+    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
   }else if(display=='pvalue'){
     heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
-    heat_data_w = dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
+    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
   }
   
   ## try
@@ -192,7 +192,7 @@ artms_plotReproducibilityEvidence <- function(data) {
         # Let's select unique features per TECHNICAL REPLICAS, and sum them up (the same feature might have been many differnt times)
         biorepliaggregated <- aggregate(Intensity~Feature+Proteins+Condition+BioReplicate+Run+TR, data = biorepli, FUN = sum)
         biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-        bdc <- dcast(data=biorepliaggregated, Feature+Proteins~TR, value.var = 'Intensity')
+        bdc <- reshape2::dcast(data=biorepliaggregated, Feature+Proteins~TR, value.var = 'Intensity')
         
         # Get the number of proteins
         np <- dim(bdc)[1]
@@ -239,7 +239,7 @@ artms_plotReproducibilityEvidence <- function(data) {
           br2 <- blist[k]
           
           # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
-          bcfinal <- dcast(data=b, Feature+Proteins~BioReplicate, value.var = 'Intensity')
+          bcfinal <- reshape2::dcast(data=b, Feature+Proteins~BioReplicate, value.var = 'Intensity')
           
           # Let's check the total number of peptides here...
           checkTotalNumber <- subset(bcfinal,select = c(br1, br2))
@@ -435,5 +435,72 @@ artms_plotReproducibilityAbundance <- function(data) {
   
   close(pb)
 }
+
+# ------------------------------------------------------------------------------
+#' @title Plot correlation between conditions
+#' 
+#' @description Plot correlation between conditions
+#' @param data Protein Abundance (MSstats modelqc) data.frame
+#' @param numberBiologicalReplicas Number of biological replicates
+#' @return A correlation plot between conditions
+#' @keywords plot, correlation
+#' artms_plotCorrelationConditions()
+#' @export
+artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
+  
+  # Before jumping to merging biological replicas:
+  # Technical replicas: aggregate on the technical replicas
+  b <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = data, FUN = mean) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # Aggregate now the CONDITIONS on the biological replicas:
+  
+  # One way to do this would be to be very stringent, requiring to find data in all biological replicas:
+  # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == numberBiologicalReplicas, mean(x, na.rm = T), NA)}
+  # datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = allBiologicalReplicas, fill = 0)
+  
+  # Or a most relaxed way:
+  datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  # before <- dim(datadc)[1]
+  # l <- dim(datadc)[2]
+  # datadc <- datadc[apply(datadc[c(2:l)],1,function(z) !any(z==0)),] 
+  # evenafter <- dim(datadc)[1]
+  # datadc <- datadc[complete.cases(datadc),]
+  # after <- dim(datadc)[1]
+  # cat("Total proteins before: ", before, "\nRemoving the 0s: ",evenafter, "\nTotal proteins (only complete cases): ", after, "\n\n")
+  
+  blist <- unique(b$GROUP_ORIGINAL)
+  if(length(blist) > 1){ # We need at least TWO CONDITIONS
+    to <- length(blist)-1
+    for (i in 1:to) {
+      j <- i+1
+      for(k in j:length(blist)){
+        br1 <- blist[i]
+        br2 <- blist[k]
+        cat("\t",br1,"-",br2,":")
+        
+        npt <- length(unique(datadc$PROTEIN))
+        
+        corr_coef <- round(cor(datadc[[br1]], datadc[[br2]], use = "complete.obs"), digits = 2)
+        cat ("r:",corr_coef,"\n")
+        
+        p2 <- ggplot2::ggplot(datadc, aes(x=datadc[[br1]], y = datadc[[br2]]))
+        p2 <- p2 + geom_point()
+        p2 <- p2 + geom_smooth(colour = "blue", fill = "lightblue", method = 'lm')
+        p2 <- p2 + theme_light()
+        p2 <- p2 + labs(title = paste("CORRELATION between CONDITIONS:\n",br1,"and",br2,"\n(n =",npt," r = ",corr_coef,")"))
+        p2 <- p2 + labs(x = br1)
+        p2 <- p2 + labs(y = br2)
+        print(p2)
+      } # FOR loop
+    } # For loop
+    cat("\n")
+  }else{
+    cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+  }
+}
+
+
+
+
 
 

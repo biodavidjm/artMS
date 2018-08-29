@@ -119,7 +119,6 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     artms_plotReproducibilityEvidence(evidencekeysclean)
   garbage <- dev.off()
   
-  
   # Create matrix of reproducibility TECHNICAL REPLICAS
   data2matrix <- evidencekeysclean
   # Make sure that the Intensity is numeric
@@ -135,7 +134,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     # First aggregate at the protein level by summing up everything
     biorepliaggregated <- aggregate(Intensity~Feature+Proteins+Condition+BioReplicate+Run, data = data2matrix, FUN = sum)
     biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-    evidencekeyscleanDCASTbioreplicas <- dcast(data=biorepliaggregated, Proteins+Feature~BioReplicate+Run, value.var = "Intensity")
+    evidencekeyscleanDCASTbioreplicas <- reshape2::dcast(data=biorepliaggregated, Proteins+Feature~BioReplicate+Run, value.var = "Intensity")
     precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
     Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
@@ -187,7 +186,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   }
   
   biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-  evidencekeyscleanDCASTbioreplicas <- dcast(data=biorepliaggregated, Proteins+Feature~BioReplicate, value.var = "Intensity")
+  evidencekeyscleanDCASTbioreplicas <- reshape2::dcast(data=biorepliaggregated, Proteins+Feature~BioReplicate, value.var = "Intensity")
   precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
   Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
   
@@ -233,7 +232,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   # Now let's sum up based on conditions
   biorepliaggregated <- aggregate(Intensity~Feature+Proteins+Condition, data = biorepliaggregated, FUN = median)
   biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-  evidencekeyscleanDCASTconditions <- dcast(data=biorepliaggregated, Proteins+Feature~Condition, value.var = "Intensity")
+  evidencekeyscleanDCASTconditions <- reshape2::dcast(data=biorepliaggregated, Proteins+Feature~Condition, value.var = "Intensity")
   precordfConditions <- evidencekeyscleanDCASTconditions[,3:dim(evidencekeyscleanDCASTconditions)[2]]
   Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
   

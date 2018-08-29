@@ -360,12 +360,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   # Conditions
-  cat("Printing out: relationship between CONDITIONS\n")
-  relaCond <- gsub(".txt", ".relationshipConditions.pdf", log2fc_file)
+  cat(">> PLOT: CORRELATION BETWEEN ALL CONDITIONS\n")
+  relaCond <- gsub(".txt", ".correlationConditions.pdf", log2fc_file)
   relaCond <- paste0("plot.",relaCond)
   relaCond <- paste0(output_dir,"/",relaCond)
   pdf(relaCond)
-  plotRelationConditions(dfmq, numberBioReplicas)
+    artms_plotCorrelationConditions(dfmq, numberBioReplicas)
   garbage <- dev.off()
   
   # Relationship between log2fc comparisons
@@ -398,8 +398,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundance <- aggregate(Abundance~Prey+Bait+Bioreplica, data = abundance, FUN = mean)
   
   # Let's aggregate to get the sum of the abundance, we will use it later.
-  abundance_dcsum <- dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = sum, fill = 0 )
-  abundance_dcmean <- dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = mean, fill = 0 )
+  abundance_dcsum <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = sum, fill = 0 )
+  abundance_dcmean <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = mean, fill = 0 )
   
   
   #########################################################
@@ -435,14 +435,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   # More REPRODUCIBILITY AND SPECIFICY PARATEMERS
   
   # Now the number of bioreplicas based on abundance data
-  abundance_dc_length <- dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = length, fill = 0 )
+  abundance_dc_length <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = length, fill = 0 )
   abundancelong_len <- melt(abundance_dc_length, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
   abundancelong_len <- abundancelong_len[!(abundancelong_len$Abundance == 0),]
   names(abundancelong_len)[grep('Abundance', names(abundancelong_len))] <- 'BioRep'
   
   # IT SHOULD BE A FUNCTION FROM HERE: CALCULATE THE SUM COUNTS From MSrepro
   # Let's dcast and aggregate by condition
-  OUTreprod <- dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
+  OUTreprod <- reshape2::dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
   here <- dim(OUTreprod)[2]
   OUTreprod[is.na(OUTreprod)] <- 0
   # Make a copy to use later
@@ -451,7 +451,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   reprospec2merge <- subset(OUTreprod, select = c(Prey, ReproBioreplicaCount))
   
-  OUTreproCondition <- dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
+  OUTreproCondition <- reshape2::dcast(data = abundancelong_len, Prey~Bait, value.var = 'BioRep')
   thedim <- dim(OUTreproCondition)[2]
   OUTreproCondition[is.na(OUTreproCondition)] <- 0
   thepreys <- subset(OUTreproCondition, select = c(Prey))
@@ -613,7 +613,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   ################################################################################
   ################################################################################
   
-  l2fcol <- dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
+  l2fcol <- reshape2::dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
   
   ################################################################################
   ################################################################################
@@ -642,7 +642,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # Only significant pvalues
     
     imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05),]
-    l2fcolSignificants <- dcast(data=imputedDFsig, Protein~Label, value.var = 'iLog2FC')
+    l2fcolSignificants <- reshape2::dcast(data=imputedDFsig, Protein~Label, value.var = 'iLog2FC')
     rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
     l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
     l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
@@ -666,7 +666,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   
   # Let's select first significance based on pvalue, by using the iPvalue we are already including the imputed pvalues...
-  l2fcolcopy <- dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
+  l2fcolcopy <- reshape2::dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
   
   if(dim(l2fcolcopy)[1] > 0){
     # Let's melt now for enrichment analysis
@@ -918,7 +918,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Wide version of imputed values
   cat("Wide format for imputed values (log2fc only)\n")
-  dcImputed <- dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
+  dcImputed <- reshape2::dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
   
   
   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1017,8 +1017,8 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF <- annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <- dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iLog2FC', fill = 0)
-    imputedDF_wide_pvalue <- dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
+    imputedDF_wide_log2fc <- reshape2::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iLog2FC', fill = 0)
+    imputedDF_wide_pvalue <- reshape2::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
     
   }else if(isPtm == "noptmsites"){
     imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie)
@@ -1028,8 +1028,8 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF <- annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <- dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iLog2FC', fill = 0)
-    imputedDF_wide_pvalue <- dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iPvalue', fill = 0)
+    imputedDF_wide_log2fc <- reshape2::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iLog2FC', fill = 0)
+    imputedDF_wide_pvalue <- reshape2::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iPvalue', fill = 0)
   }else{
     stop("you should not see this message. Just go to the source code if you did\n")
   }
@@ -1064,10 +1064,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     # Two options....
     
     # GENE BASED -> heatmaps
-    hasdc <- dcast(data = data.select[which(data.select$imputed == "no"),], Gene+Protein~Comparison, value.var = "iLog2FC", fun.aggregate = median, fill = 0)
+    hasdc <- reshape2::dcast(data = data.select[which(data.select$imputed == "no"),], Gene+Protein~Comparison, value.var = "iLog2FC", fun.aggregate = median, fill = 0)
     
     # EXPERIMENT BASED -> PCA
-    hasdcexp <- dcast(data = data.select[which(data.select$imputed == "no"),], Comparison~Gene+Protein, value.var = "iLog2FC", fun.aggregate = median, fill = 0)
+    hasdcexp <- reshape2::dcast(data = data.select[which(data.select$imputed == "no"),], Comparison~Gene+Protein, value.var = "iLog2FC", fun.aggregate = median, fill = 0)
     
     # ----------------------------------------------------------------------
     # CLUSTERING ANALYSIS
@@ -1393,7 +1393,7 @@ loadModelQC = function (df_input, repro, specie) {
   # aggregate first just in case:
   df_input <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = df_input, FUN = mean)
   
-  dc_input <- dcast(data=df_input[,c('PROTEIN','ABUNDANCE', 'GROUP_ORIGINAL')], PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
+  dc_input <- reshape2::dcast(data=df_input[,c('PROTEIN','ABUNDANCE', 'GROUP_ORIGINAL')], PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
   names(dc_input)[grep('PROTEIN', names(dc_input))] <- 'Protein'
   
   colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
@@ -1420,7 +1420,7 @@ loadModelQCstrict = function (df_input, specie) {
   # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == 3, mean(x, na.rm = T), NA)}
   
   # Before
-  # datadc <- dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
+  # datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
   # before <- dim(datadc)[1]
   # l <- dim(datadc)[2]
   # datadc <- datadc[apply(datadc[c(2:l)],1,function(z) !any(z==0)),] 
@@ -1429,7 +1429,7 @@ loadModelQCstrict = function (df_input, specie) {
   # after <- dim(datadc)[1]
   # cat("\t\tTotal proteins before: ", before, "\n\t\tAfter removing the 0s: ",evenafter, "\n\t\tTotal proteins (only complete cases): ", after, "\n\n")
   
-  datadc <- dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean)  
+  datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean)  
   
   names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
   
@@ -1445,7 +1445,7 @@ loadL2FCWide = function (df_input, repro, specie) {
   # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
   
   input_melt = melt(data = df_input[,c('Protein', 'Label','log2FC','adj.pvalue'),],id.vars=c('Protein', 'Label'))
-  input_dcast = dcast( Protein ~ Label+variable, data=input_melt, value.var=c('value'))
+  input_dcast = reshape2::dcast( Protein ~ Label+variable, data=input_melt, value.var=c('value'))
   
   colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
   colnames(repro)[1]<- 'Protein'
@@ -1584,7 +1584,7 @@ plot.corum <- function(df, outfile, theTitle){
     
     df$p_value <- -log10(df$p_value)
     
-    toplot <- dcast(data=df, ComplexName~Comparisons, value.var = "p_value", fun.aggregate = sum, fill = 0)
+    toplot <- reshape2::dcast(data=df, ComplexName~Comparisons, value.var = "p_value", fun.aggregate = sum, fill = 0)
     rownames(toplot) <- toplot$ComplexName
     toplotmatrix <- subset(toplot, select=-c(ComplexName))
     x <- data.matrix(toplotmatrix)
@@ -1671,7 +1671,7 @@ imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   abu2imp2 <- aggregate(Abundance~Protein+Condition+Bioreplica, data = abu2imp, FUN = mean)
   
   # Check things that will be imputed
-  # dfdc.ni <- dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance")  
+  # dfdc.ni <- reshape2::dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance")  
   
   # Two possible options here. 
   # 1. Select based on the bottom x%
@@ -1694,7 +1694,7 @@ imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   numbers2sample <- seq(from=theMin, to=theMax, by=.00001)
   
   # dcast on abundance and fill with random numbers between the minimum and q05
-  suppressWarnings(dfdc.im <- dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance", fill = sample(numbers2sample, replace = F)  ) )
+  suppressWarnings(dfdc.im <- reshape2::dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance", fill = sample(numbers2sample, replace = F)  ) )
   
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
@@ -1702,7 +1702,7 @@ imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   # 2. Get the condition
   dfdc.melt$Condition <- gsub("(.*)(-)(.*)","\\1",dfdc.melt$Bioreplica)
   # 3. Dcast and Aggregate on the condition, taking the mean
-  dfdc.final <- dcast(data=dfdc.melt, Protein~Condition, value.var = 'Abundance', fun.aggregate = mean)
+  dfdc.final <- reshape2::dcast(data=dfdc.melt, Protein~Condition, value.var = 'Abundance', fun.aggregate = mean)
   # 4. Filter by proteins to impute
   dfdc.final <- dfdc.final[which(dfdc.final$Protein %in% ids2impute),]
   
