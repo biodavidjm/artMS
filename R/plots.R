@@ -143,11 +143,13 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
 
 
 # ------------------------------------------------------------------------------
-#' @title Plot reproducibility plots
+#' @title Generate reproducibility plots based on raw intentities 
+#' (from the evidence file)
 #' 
-#' @description Plot reproducibility plots
+#' @description Generate reproducibility plots based on raw intentities 
+#' (log tranformed) from the evidence file
 #' @param data evidence data.frame
-#' @return A reproducibility plot
+#' @return A reproducibility plot based on evidence values
 #' @keywords plot, qc, quality, control
 #' artms_plotReproducibilityEvidence()
 #' @export
@@ -230,9 +232,7 @@ artms_plotReproducibilityEvidence <- function(data) {
       to <- length(blist)-1
       
       for (i in 1:to) {
-        
         j <- i+1
-        
         for(k in j:length(blist)){
           
           br1 <- blist[i]
@@ -257,9 +257,8 @@ artms_plotReproducibilityEvidence <- function(data) {
           p2 <- p2 + labs(x = br1)
           p2 <- p2 + labs(y = br2)
           print(p2)
-        }
-      }
-      # cat("\n")
+        } #end for
+      } #end for
     }else{
       cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
     }
@@ -327,3 +326,114 @@ artms_plotNumberProteinsAbundance <- function(data) {
   c <- c + ggtitle("Unique Proteins in Conditions")  
   print(c)
 }
+
+# ------------------------------------------------------------------------------
+#' @title Generate reproducibility plots based on abundance data 
+#' (normalized intensities from MSstats modelqc)
+#' 
+#' @description Generate reproducibility plots based on abundance data 
+#' (normalized intensities from MSstats modelqc)
+#' @param data Protein abundance data.frame (modelqc)
+#' @return Reproducibility plots based on abundance data (normalized intensities)
+#' @keywords plot, reproducibility, abundance
+#' artms_plotReproducibilityAbundance()
+#' @export
+artms_plotReproducibilityAbundance <- function(data) {
+  
+  condi <- unique(data$GROUP_ORIGINAL)
+  
+  # Progress bar
+  pb <- txtProgressBar(min=0, max=length(condi), style=3)
+  
+  for(i in 1:length(condi)){
+    eCondition <- condi[i]
+    
+    # Progress bar
+    setTxtProgressBar(pb, i)
+    
+    # cat("\n#####################################\nCONDITION: ",eCondition,"\n#####################################\n")
+    # cat("TECHNICAL REPLICAS\n---------------------------\n")
+    # cat("- ", eCondition,"\n")
+    
+    conditionOne <- data[which(data$GROUP_ORIGINAL == eCondition),]
+    
+    # FIRST CHECK FOR TECHNICAL REPLICAS
+    bioreplicasAll <- unique(conditionOne$SUBJECT_ORIGINAL)
+    # plot_tr = list()
+    for(eBioreplica in bioreplicasAll){
+      
+      # cat('\tChecking for technical replicas in ',eBioreplica, "\n")
+      biorepli <- conditionOne[conditionOne$SUBJECT_ORIGINAL == eBioreplica,]
+      here <- unique(biorepli$RUN)
+      
+      if(length(here) > 1){
+        
+        # Check whether we have more than 2 technical replicas and let the user know:
+        if (length(here) > 2){
+          cat("\n\n(-)----- WARNING: More than 2 technical replicas! make sure that this is right\n\n")
+        }
+        # We are expecting no more than 2 technical replicas. If there is more... it is worthy to double check
+        # cat('\t\t>>Plotting Reproducibility between technical replicas ',eBioreplica,"\n")
+        #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
+        biorepli$TR <- biorepli$RUN
+        biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
+        biorepli$TR[biorepli$TR == here[2]] <- 'tr2'
+        bdc <- reshape2::dcast(data=biorepli, PROTEIN~TR, value.var = 'ABUNDANCE')
+        bdc <- bdc[complete.cases(bdc),]
+        # Get the number of proteins
+        np <- length(unique(bdc$PROTEIN))
+        corr_coef <- round(cor(bdc$tr1, bdc$tr2), digits = 2)
+        p1 <- ggplot2::ggplot(bdc, aes(x=tr1, y = tr2))
+        p1 <- p1 + geom_point()
+        p1 <- p1 + geom_smooth(colour = "green", fill = "lightblue", method = 'lm')
+        p1 <- p1 + theme_light()
+        p1 <- p1 + labs(title = paste("Reproducibility between Technical Replicas\nBioReplica:",eBioreplica, "  (n = ",np,", r = ",corr_coef,")"))
+        print(p1)
+        # plot_tr[[eBioreplica]] <- p1
+      }else if(length(here) < 1){
+        cat("\n\n\t(-) ERROR: something is wrong when checking for the number of technical replicas\n\n")
+        stop("\nCheck the experiment\n\n")
+      }
+    } # Checking the reproducibility between Technical Replicas
+    
+    
+    # NOW BETWEEN BIOREPLICAS
+    # Before comparing the different biological replicas, aggregate on the technical replicas
+    # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
+    b <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = conditionOne, FUN = mean) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    blist <- unique(b$SUBJECT_ORIGINAL)
+    if(length(blist) > 1){ # We need at least TWO BIOLOGICAL REPLICAS
+      to <- length(blist)-1
+      for (i in 1:to) {
+        j <- i+1
+        for(k in j:length(blist)){
+          br1 <- blist[i]
+          br2 <- blist[k]
+          # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\n")
+          
+          bc <- reshape2::dcast(data=b, PROTEIN~SUBJECT_ORIGINAL, value.var = 'ABUNDANCE')
+          bc <- bc[complete.cases(bc),]
+          
+          npt <- length(unique(bc$PROTEIN))
+          
+          corr_coef <- round(cor(bc[[br1]], bc[[br2]]), digits = 2)
+          p2 <- ggplot2::ggplot(bc, aes(x=bc[[br1]], y = bc[[br2]]))
+          p2 <- p2 + geom_point()
+          p2 <- p2 + geom_smooth(colour = "red", fill = "lightgreen", method = 'lm')
+          p2 <- p2 + theme_light()
+          p2 <- p2 + labs(title = paste("Reproducibility between Bioreplicas (condition:",eCondition,")\n",br1,"vs",br2,"(n =",npt," r = ",corr_coef,")"))
+          p2 <- p2 + labs(x = br1)
+          p2 <- p2 + labs(y = br2)
+          print(p2)
+        }
+      }
+      cat("\n")
+    }else{
+      cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+    }
+  } # all the conditions
+  
+  close(pb)
+}
+
+

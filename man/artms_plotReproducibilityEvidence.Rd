@@ -2,7 +2,8 @@
 % Please edit documentation in R/plots.R
 \name{artms_plotReproducibilityEvidence}
 \alias{artms_plotReproducibilityEvidence}
-\title{Plot reproducibility plots}
+\title{Generate reproducibility plots based on raw intentities
+(from the evidence file)}
 \usage{
 artms_plotReproducibilityEvidence(data)
 }
@@ -10,10 +11,11 @@ artms_plotReproducibilityEvidence(data)
 \item{data}{evidence data.frame}
 }
 \value{
-A reproducibility plot
+A reproducibility plot based on evidence values
 }
 \description{
-Plot reproducibility plots
+Generate reproducibility plots based on raw intentities
+(log tranformed) from the evidence file
 }
 \keyword{artms_plotReproducibilityEvidence()}
 \keyword{control}

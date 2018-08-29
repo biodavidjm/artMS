@@ -351,12 +351,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
-  cat("Printing out: REPRODUCIBILITY PLOTS\n")
+  cat(">> PLOTS: REPRODUCIBILITY PLOTS\n")
   reproName <- gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
   reproName <- paste0("plot.",reproName)
   reproName <- paste0(output_dir,"/",reproName)
   pdf(reproName)
-  plotReproducibility(dfmq)
+    artms_plotReproducibilityAbundance(dfmq)
   garbage <- dev.off()
   
   # Conditions
