@@ -453,11 +453,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }
 
-
-  cat("FILTERING BY NUMBER OF BIOLOGICAL REPLICAS\n")
-  
-  # # This would be the old imputation method
-  # imputingMaxMin <- imputingOnTheMaximum(dflog2fc)
+  cat(">> FILTERING BY NUMBER OF BIOLOGICAL REPLICATES\n")
   
   # FILTER BASED ON NUMBER OF BIOLOGICAL REPLICAS
   imputedDF <- dflog2fc[c('Protein', 'Label', 'log2FC', 'pvalue', 'adj.pvalue','imputed','iLog2FC','iPvalue')]
@@ -1506,35 +1502,6 @@ plot.corum <- function(df, outfile, theTitle){
   }
 } #plot.corum
 
-# IMPUTATION METHODS
-# Imputing log2fc values
-imputingOnTheMaximum <- function(idflog2fc){
-  idflog2fc$iLog2FC <- idflog2fc$log2FC
-  idflog2fc$iPvalue <- idflog2fc$adj.pvalue
-  
-  # this will be the loop for each condition
-  theComparisons2check <- unique(idflog2fc$Label)
-  
-  # Getting the maximun and minimum value for each comparision
-  theMaxPositive <- aggregate(data = idflog2fc[is.finite(idflog2fc$log2FC),], log2FC~Label, max)
-  theMinNegative <- aggregate(data = idflog2fc[is.finite(idflog2fc$log2FC),], log2FC~Label, min)
-  
-  for (oneComparison in (theComparisons2check)){
-    cat("\t\t Imputing", oneComparison, "\n")
-    # Imputing log2fc
-    idflog2fc$iLog2FC[which(idflog2fc$log2FC == "Inf" & idflog2fc$Label == oneComparison)] <- theMaxPositive$log2FC[which(theMaxPositive$Label == oneComparison)]
-    idflog2fc$iLog2FC[which(idflog2fc$log2FC == "-Inf" & idflog2fc$Label == oneComparison)] <- theMinNegative$log2FC[which(theMinNegative$Label == oneComparison)]
-    # Change label
-    idflog2fc$imputed[which(idflog2fc$log2FC == "Inf" & idflog2fc$Label == oneComparison)] <- 'imputed'
-    idflog2fc$imputed[which(idflog2fc$log2FC == "-Inf" & idflog2fc$Label == oneComparison)] <- 'imputed'
-    # Imputing pvalues: for now, let's assign this minimal p-value to all the imputed values
-    idflog2fc$iPvalue[which(idflog2fc$log2FC == "Inf" & idflog2fc$Label == oneComparison)] <- (0.05/numberBioReplicas)
-    idflog2fc$iPvalue[which(idflog2fc$log2FC == "-Inf" & idflog2fc$Label == oneComparison)] <- (0.05/numberBioReplicas)
-  }
-  return(idflog2fc)
-}
-
-# NEW IMPUTATION METHOD
 
 # ------------------------------------------------------------------------------
 #' @title Imputing missing values
