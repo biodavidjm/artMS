@@ -482,7 +482,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   cat("--- Proportion imputed values\n")
-  
   # Stats about imputed values
   yesimputed <- dim(imputedDF[which(imputedDF$imputed=='yes'),])[1]
   nonimputed <- dim(imputedDF[which(imputedDF$imputed=='no'),])[1]
@@ -513,40 +512,28 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat(">> HEATMAPS OF CHANGES (log2fc)\n")
   l2fcol <- reshape2::dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
   
-  ################################################################################
-  ################################################################################
-  # All the log2fc values
-  cat("HEATMAPS with imputed log2fc values\n")
   rownames(l2fcol) <- l2fcol$Protein
   l2fcol <- within(l2fcol, rm(Protein))
   l2fcol[is.na(l2fcol)] <- 0
   
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # HEATMAPS from log2fc values
-  # NA values can be changed to 0
-  # Inf values to the maximum value in that comparison
-  # -Inf values, changing it to the lowest value
-  # Of course, at least 2 comparisons are required to do the clustering
   if(numberConditions > 1){
     l2fcolmatrix <- data.matrix(l2fcol)
+    cat("--- All changes\n")
     outHeatMapOverallL2fc <- gsub(".txt",".clustering.log2fc.all-overview.pdf",log2fc_file)
     outHeatMapOverallL2fc <- paste0(output_dir,"/",outHeatMapOverallL2fc)
     pheatmap(l2fcolmatrix, filename=outHeatMapOverallL2fc, cellwidth=20, main = "Clustering Log2FC", cluster_cols = F, clustering_method = "average", fontfamily="Helvetica", show_colnames = F, fontsize=6, fontsize_row=3, fontsize_col=10, border_color=NA)
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fc.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
     pheatmap(l2fcolmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
-    
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     # Only significant pvalues
-    
+    cat("--- Only significant changes\n")
     imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05),]
     l2fcolSignificants <- reshape2::dcast(data=imputedDFsig, Protein~Label, value.var = 'iLog2FC')
     rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
     l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
     l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
     
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # HEATMAPS from log2fc values
     l2fcolSignificantsmatrix <- data.matrix(l2fcolSignificants)
     outHeatMapOverallL2fc <- gsub(".txt",".clustering.log2fcSign.all-overview.pdf",log2fc_file)
     outHeatMapOverallL2fc <- paste0(output_dir,"/",outHeatMapOverallL2fc)
@@ -554,16 +541,15 @@ artms_analysisQuantifications <- function(log2fc_file,
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fcSign.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
     pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
-    cat("...and heatmaps are done\n")
+    cat("--- Done\n")
   }
-  ################################################################################
-  
   
   # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)
   # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   
-  # Let's select first significance based on pvalue, by using the iPvalue we are already including the imputed pvalues...
+  # Let's select first significance based on pvalue, by using the iPvalue 
+  # we are already including the imputed pvalues...
   l2fcolcopy <- reshape2::dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
   
   if(dim(l2fcolcopy)[1] > 0){
