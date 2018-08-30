@@ -453,51 +453,35 @@ artms_analysisQuantifications <- function(log2fc_file,
     suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }
 
-  cat(">> FILTERING BY NUMBER OF BIOLOGICAL REPLICATES\n")
+  cat(">> FILTERING CHANGES BEFORE PRINTING OUT\n")
   
   # FILTER BASED ON NUMBER OF BIOLOGICAL REPLICAS
   imputedDF <- dflog2fc[c('Protein', 'Label', 'log2FC', 'pvalue', 'adj.pvalue','imputed','iLog2FC','iPvalue')]
-  
   # Merge with bioReplicaInf
-  cat("Merging with bioReplica Info\n")
+  cat("--- Merging Changes with bioReplica Info\n")
   imputedDF <- merge(imputedDF, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
-  cat("Removing NA\n")
+  
+  cat("--- Removing NA\n")
   imputedDF <- imputedDF[!is.na(imputedDF$log2FC),]
   
-  # Remove those entries without the minimal number of biological replicas
-  # mnbr <- 2 # Minimal Number of Biological Replicas
-  cat("Add info about condition more abundant\n")
-  imputedDF$CMA <- mapply(selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
+  cat("--- Add labeling about the condition more abundant in the quantification\n")
+  imputedDF$CMA <- mapply(artms_selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
   
-  # this will be the loop for each condition
-  theComparisons2check <- unique(imputedDF$Label)
+  cat("--- Removing proteins not found in a minimal number (",mnbr,") of biological replicates\n")
+  imputedDF <- artms_RemoveProtBelowThres(imputedDF, mnbr)
   
-  cat("Loop to remove based on number of biological replicas\n")
-  for (onlyonecomp in (theComparisons2check)){
-    
-    ax <- gsub("(.*)(-)(.*)", "\\1", onlyonecomp )
-    ay <- gsub("(.*)(-)(.*)", "\\3", onlyonecomp )
-    # Remove if does not meet the minimal number of biological replicas in at least one of the conditions, remove
-    # BUT CAUTION, it has to be in ONLY the condition
-    # Old stuff
-    # imputedDF <- imputedDF[-which(((imputedDF[[ax]] < mnbr) & (imputedDF[[ay]] < mnbr)) & (imputedDF$Label == onlyonecomp)),]
-    # imputedDF <- imputedDF[-which( (imputedDF[[ax]] < mnbr) & (imputedDF[[ay]] < mnbr) & (imputedDF$Label == onlyonecomp) ),]
-    
-    # New code: if the condition is not met, i.e., if all the proteins are found in at least X biological replicas, then
-    # it would remove the whole thing. 
-    if( dim( imputedDF[which( (imputedDF[[ax]] < mnbr) & (imputedDF[[ay]] < mnbr) ),] )[1] > 0){
-      imputedDF <- imputedDF[-which( ((imputedDF[[ax]] < mnbr) & (imputedDF[[ay]] < mnbr)) & (imputedDF$Label == onlyonecomp) ),]
-    }
-    
-  }
-  cat("Filtering is done!\n")
+  cat("--- Filtering is done!\n")
   
+  cat(">> GENERATING QC PLOTS ABOUT CHANGES (log2fc)\n")
+  cat("--- Distribution of log2fc and pvalues\n")
   distributionsFilteredOut <- gsub(".txt",".distributionsFil.pdf",log2fc_file)
   distributionsFilteredOut <- paste0(output_dir,"/",distributionsFilteredOut)
   pdf(distributionsFilteredOut)
-  hist(imputedDF$iLog2FC, breaks = 1000, main = paste0("Filtered Log2FC (>2BR)\n n = ",dim(imputedDF)[1]), xlab = "log2fc")
-  hist(imputedDF$iPvalue, breaks = 1000, main = paste0("Filtered p-values (>2BR)\n n = ",dim(imputedDF)[1]), xlab = "p-value")
+    hist(imputedDF$iLog2FC, breaks = 1000, main = paste0("Filtered Log2FC (>2BR)\n n = ",dim(imputedDF)[1]), xlab = "log2fc")
+    hist(imputedDF$iPvalue, breaks = 1000, main = paste0("Filtered p-values (>2BR)\n n = ",dim(imputedDF)[1]), xlab = "p-value")
   garbage <- dev.off()
+  
+  cat("--- Proportion imputed values\n")
   
   # Stats about imputed values
   yesimputed <- dim(imputedDF[which(imputedDF$imputed=='yes'),])[1]
@@ -510,7 +494,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   dat$ymax = cumsum(dat$fraction)
   dat$ymin = c(0, head(dat$ymax, n=-1))
   
-  # ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
   p1 <- ggplot(dat, aes(fill=category, ymax=ymax, ymin=ymin, xmax=4, xmin=3)) +
     geom_rect() +
     coord_polar(theta="y") +
@@ -523,16 +506,11 @@ artms_analysisQuantifications <- function(log2fc_file,
   outImputation <- gsub(".txt",".imputation.pdf",log2fc_file)
   outImputation <- paste0(output_dir,"/",outImputation)
   pdf(outImputation)
-  print(p1)
-  print(p2)
+    print(p1)
+    print(p2)
   garbage <- dev.off()
-  # ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
   
-  # End of Imputation
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ################################################################################
-  ################################################################################
-  
+  cat(">> HEATMAPS OF CHANGES (log2fc)\n")
   l2fcol <- reshape2::dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
   
   ################################################################################
@@ -1259,14 +1237,26 @@ selectTheOneInf <- function(a, b) {
   return(sb)
 }
 
-selectTheOneLog2fc <- function(a, b) {
+# ------------------------------------------------------------------------------
+#' @title Select and label the condition more abundant in a quantification
+#' 
+#' @description Select and label the condition more abundant in a quantification
+#' - If log2fc > 0 the condition on the left ('numerator') is the most abundant
+#' - If log2fc < 0 the condition on the right ('denominator') is the most abundant
+#' @param a log2fc column 
+#' @param b comparison column
+#' @return One of the conditions from the comparison
+#' @keywords internal, selection, labeling
+#' artms_selectTheOneLog2fc()
+#' @export
+artms_selectTheOneLog2fc <- function(a, b) {
   thrs <- 0
-  # a should be the log2fc  column
+  # a should be the log2fc column
   if(a > thrs){
     sb <- gsub("(.*)(-)(.*)", "\\1", b)
-  } else if (a < -thrs) {
+  }else if (a < -thrs) {
     sb <- gsub("(.*)(-)(.*)", "\\3", b)
-  } else {
+  }else {
     sb <- 'NA'
   }
   return(sb)
@@ -1619,7 +1609,34 @@ plotNumberProteinsImputedLog2fc <- function(data) {
   print(z)
 }
 
-
+# ------------------------------------------------------------------------------
+#' @title Filter: Remove proteins below some threshold of minimal reproducibility
+#' 
+#' @description If a protein is not found in a minimal number of 
+#' biological replicates in at least one of the conditions, it is removed
+#' @param dfi Data.frame with biological replicates information
+#' @param mnbr minimal number of biological replicates
+#' @return a filtered `dfi`
+#' @keywords filter, bioreplicates, reproducibility
+#' artms_RemoveProtBelowThres()
+#' @export
+artms_RemoveProtBelowThres <- function(dfi, mnbr){
+  dfi <- imputedDF
+  theComparisons2check <- unique(dfi$Label)
+  for (onlyonecomp in (theComparisons2check)){
+    
+    ax <- gsub("(.*)(-)(.*)", "\\1", onlyonecomp )
+    ay <- gsub("(.*)(-)(.*)", "\\3", onlyonecomp )
+    
+    # If the condition is not met, i.e., if all the proteins are 
+    # found in at least X biological replicas, then
+    # it would remove the whole thing. 
+    if( dim( dfi[which( (dfi[[ax]] < mnbr) & (dfi[[ay]] < mnbr) ),] )[1] > 0){
+      dfi <- dfi[-which( ((dfi[[ax]] < mnbr) & (dfi[[ay]] < mnbr)) & (dfi$Label == onlyonecomp) ),]
+    }
+  }
+  return(dfi)
+}
 
 
 
