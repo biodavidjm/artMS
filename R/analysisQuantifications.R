@@ -541,31 +541,28 @@ artms_analysisQuantifications <- function(log2fc_file,
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fcSign.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
     pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
-    cat("--- Done\n")
   }
   
-  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)
-  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  
   # Let's select first significance based on pvalue, by using the iPvalue 
   # we are already including the imputed pvalues...
   l2fcolcopy <- reshape2::dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
   
   if(dim(l2fcolcopy)[1] > 0){
     # Let's melt now for enrichment analysis
-    l2fcol4enrichment <- reshape2::melt(data=l2fcolcopy, id.vars = c('Protein'))
-    names(l2fcol4enrichment)[grep('variable', names(l2fcol4enrichment))] <- 'Comparisons'
+    l2fcol4enrichment <- reshape2::melt(data=l2fcolcopy, id.vars = c('Protein'), variable.name = "Comparisons")
+    l2fcol4enrichment <- l2fcol4enrichment[complete.cases(l2fcol4enrichment),]
     l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie)
-    l2fcol4enrichment <- l2fcol4enrichment[!is.na(l2fcol4enrichment$value),]
   }
   
-  if(enrich == "yesenrich" & dim(l2fcolcopy)[1] > 0 ){
-    
-    # Now it is chosen by the user
-    # threshold <- 1
+  if(enrich == "yesenrich" & dim(l2fcol4enrichment)[1] > 0 ){
+    cat(">> ENRICHMENT OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
     if( grepl("yesptm",isPtm) ){
+      !!!!!
+      # PTMs the proteins ids are UNIPROT_PTM and they cannot be used for
+      # enrichment.
       l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Entry.name,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <- l2fcol4enrichment[grep(",",l2fcol4enrichment$Protein, invert=T),]
@@ -579,7 +576,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # ALL SIGNIFICANT CHANGES log2fc
     # GPROFILER
-    cat("GPROFILER Enrichment (ALL significant Changes)\n")
+    cat("--- Gprofiler: ALL significant Changes\n")
     
     filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= threshold), ]
     
@@ -588,62 +585,55 @@ artms_analysisQuantifications <- function(log2fc_file,
       out.mac.allsig <- gsub(".txt","-enrich-MAC-allsignificants.txt",log2fc_file)
       out.mac.allsig <- paste0(output_dir,"/",out.mac.allsig)
       
-      mac.allsig <- enrichImputedLog2fc(filallsig_log2fc_long, out.mac.allsig, specie, listOfGenes)
+      mac.allsig <- artms_enrichLog2fc(filallsig_log2fc_long, out.mac.allsig, specie, listOfGenes)
       
       if( dim(mac.allsig)[1] > 0 ){
         write.table(mac.allsig, out.mac.allsig, quote = F, sep = "\t", row.names = F, col.names = T)
       }
       
-      cat("Corum Complexes Enrichment (allsignificants MACs)\n")
+      cat("--- Corum Complexes Enrichment (all significants changes)\n")
       
       # CORUM
-      allsigComplexEnriched <- enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
+      allsigComplexEnriched <- artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
       
       if(dim(allsigComplexEnriched)[1] > 0){
         out.mac.allsig.corum <- gsub(".txt","-enrich-MAC-allsignificants-corum.txt",log2fc_file)
         out.mac.allsig.corum <- paste0(output_dir,"/",out.mac.allsig.corum)
         write.table(allsigComplexEnriched, out.mac.allsig.corum, quote = F, sep = "\t", row.names = F, col.names = T)
       }
-      
       # And the heatmap
       if(dim(allsigComplexEnriched)[1] > 2){
-        cat("Plotting all significants corum complexes\n")
         out.mac.allsig.corum.pdf <- gsub(".txt","-enrich-MAC-allsignificants-corum.pdf",log2fc_file)
         out.mac.allsig.corum.pdf <- paste0(output_dir,"/",out.mac.allsig.corum.pdf)
-        # out.mac.allsig.corum.pdf <- 'whatever.corum.allsigitive.pdf'
-        plot.corum(allsigComplexEnriched, out.mac.allsig.corum.pdf, "MAC ALL SIGNIFICANT Protein Complex Enrichment")
+        artms_plotCorumEnrichment(allsigComplexEnriched, out.mac.allsig.corum.pdf, "MAC ALL SIGNIFICANT Protein Complex Enrichment")
       }else{
-        
-        cat("Not enough negative corum complexes to plot\n")
-        
-      }  
+        cat("--- (-) Not enough negative corum complexes to plot\n")
+      }
     }else{
-      stop("\n\t---- NOTHING is significant! Check what's going on\n\n")
+      stop("\n----(-) NOTHING is significant! Check what's going on\n\n")
       mac.allsig <- NULL
       allsigComplexEnriched <- NULL
     }
     
-    
     # POSITIVE log2fc
     # GPROFILER
-    cat("GPROFILER Enrichment (Positive MACs)\n")
+    cat("--- Gprofiler: enrichment of selected POSITIVE significant changes\n")
     
     filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= threshold), ]
     
     if(dim(filpos_log2fc_long)[1] > 0){
-      
       out.mac.pos <- gsub(".txt","-enrich-MAC-positives.txt",log2fc_file)
       out.mac.pos <- paste0(output_dir,"/",out.mac.pos)
-      mac.pos <- enrichImputedLog2fc(filpos_log2fc_long, out.mac.pos, specie, listOfGenes)
+      mac.pos <- artms_enrichLog2fc(filpos_log2fc_long, out.mac.pos, specie, listOfGenes)
       
       if(dim(mac.pos)[1] > 0){
         write.table(mac.pos, out.mac.pos, quote = F, sep = "\t", row.names = F, col.names = T)  
       }
       
-      cat("Corum Complexes Enrichment (Positives MACs)\n")
+      cat("--- Corum Complexes Enrichment (Positives MACs)\n")
       
       # CORUM
-      positiveComplexEnriched <- enrichForComplexes(filpos_log2fc_long, backgroundNumber)
+      positiveComplexEnriched <- artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
       
       if(dim(positiveComplexEnriched)[1] > 0){
         out.mac.pos.corum <- gsub(".txt","-enrich-MAC-positives-corum.txt",log2fc_file)
@@ -657,21 +647,21 @@ artms_analysisQuantifications <- function(log2fc_file,
         out.mac.pos.corum.pdf <- gsub(".txt","-enrich-MAC-positives-corum.pdf",log2fc_file)
         out.mac.pos.corum.pdf <- paste0(output_dir,"/",out.mac.pos.corum.pdf)
         # out.mac.pos.corum.pdf <- 'whatever.corum.positive.pdf'
-        plot.corum(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
+        artms_plotCorumEnrichment(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
       }else{
         
-        cat("Not enough negative corum complexes to plot\n")
+        cat("\t----- Not enough positive corum complexes to plot\n")
         
       }    
     }else{
-      cat("\t\t ------ Nothing is significant in the Positive site of things")
+      cat("\t ------ Nothing is significant in the Positive site of things")
       mac.pos <- NULL
       positiveComplexEnriched <- NULL
     }
     
     
     # NEGATIVE log2fc
-    cat("GPROFILER Enrichment (Negative MACs)\n")
+    cat("--- Gprofiler: enrichment of selected NEGATIVE significant changes\n")
     
     filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -threshold), ]
     
@@ -679,15 +669,15 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       out.mac.neg <- gsub(".txt","-enrich-MAC-negatives.txt",log2fc_file)
       out.mac.neg <- paste0(output_dir,"/",out.mac.neg)  
-      mac.neg <- enrichImputedLog2fc(filneg_log2fc_long, out.mac.neg, specie, listOfGenes)
+      mac.neg <- artms_enrichLog2fc(filneg_log2fc_long, out.mac.neg, specie, listOfGenes)
       
       if( dim(mac.neg)[1] > 0 ){
         write.table(mac.neg, out.mac.neg, quote = F, sep = "\t", row.names = F, col.names = T)
       }
-      
-      cat("Corum Complexes Enrichment (Negative MACs)\n")
-      
-      negativesComplexEnriched <- enrichForComplexes(filneg_log2fc_long, backgroundNumber)
+
+      cat("---- Corum Complexes Enrichment (Negative MACs)\n")
+
+      negativesComplexEnriched <- artms_enrichForComplexes(filneg_log2fc_long, backgroundNumber)
       
       if(dim(negativesComplexEnriched)[1] > 0){
         out.mac.neg.corum <- gsub(".txt","-enrich-MAC-negatives-corum.txt",log2fc_file)
@@ -697,25 +687,23 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if(dim(negativesComplexEnriched)[1] > 2){
-        cat("Plotting negative corum complexes\n")
         out.mac.neg.corum.pdf <- gsub(".txt","-enrich-MAC-negatives-corum.pdf",log2fc_file)
         out.mac.neg.corum.pdf <- paste0(output_dir,"/",out.mac.neg.corum.pdf)
-        plot.corum(negativesComplexEnriched, out.mac.neg.corum.pdf, "MAC- Protein Complex Enrichment")
+        artms_plotCorumEnrichment(negativesComplexEnriched, out.mac.neg.corum.pdf, "MAC- Protein Complex Enrichment")
       }else{
-        
-        cat("Not enough negative corum complexes to plot\n")
-        
+        cat("\t-----(-) Not enough negative corum complexes to plot\n")
       }    
     }else{
-      cat("\t\t ------ Nothing is significant in the Positive site of things")
+      cat("\t------ Nothing is significant in the NEGATIVE site of things\n")
       mac.neg <- NULL
       negativesComplexEnriched <- NULL
     }
   }else{
-    cat("NO ENRICHMENT of log2fc values chosen\n")
+    cat(">> NO ENRICHMENT of CHANGES (log2fc) SELECTED\n")
   }
-  # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  
+
+  # END enrichments
+
   superunified <- merge(abundancelongsummean, nbr_long, by = c('Bait', 'Prey'), all = T)
   superunified <- merge(superunified, reprocondition2merge, by = 'Prey', all = T)
   superunified <- merge(superunified, reprospec2merge, by = 'Prey', all = T)
@@ -917,7 +905,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   }else{
     stop("you should not see this message. Just go to the source code if you did\n")
   }
-  
   
   # boxplot of relative abundances
   cat("Printing final number in imputed Conditions\n")
@@ -1372,111 +1359,7 @@ artms_loadModelqcBasic <- function(data){
   return(data)
 }
 
-enrichImputedLog2fc <- function(data, filenames, specie, background){
-  
-  # DEBUG
-  # data <- filallsig_log2fc_long
-  # filenames <- out.mac.allsig
-  # background <- listOfGenes
-  # 
-  # Making sure we have unique genes in each comparison (the PTM might bring redundancy)
-  pretmp <- data[c('Gene', 'Comparisons')]
-  pretmp <- unique(pretmp)
-  
-  tmp = split(pretmp$Gene, pretmp$Comparisons, drop=T)
-  
-  if(specie == "human"){
-    enrichgenes <- enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', background) # 'HP'
-  }else if(specie == "mouse"){
-    enrichgenes <- enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'), specie = 'mmusculus', background)
-  }else{
-    stop("\n\n\ntOhhh no, this specie",specie," is not supported in the enrichment!!\n\n\n")
-  }
-  
-  enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500),]
-  # DEBUGGIN: write.table(enrichgenes2plot, 'takealookatthisshit.txt', col.names = T, row.names = F, sep = "\t", quote = F)
-  for( i in unique(enrichgenes2plot$domain) ){
-    cat("\t\tPlotting '", i, "' annotations...\n")
-    tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
-    outfile <- gsub(".txt",paste0("_",i, ".txt"), filenames )
-    Enrichment.plotHeatmaps(tmp, outfile)
-  }
-  # OUTenrich <- cleanGPROFILER(enrichgenes)
-  # return(OUTenrich)
-  return(enrichgenes)
-}
 
-enrichForComplexes <- function(df, backgroundNumber){
-  
-  listOfConditions <- unique(df$Comparisons)
-  
-  # fileCorum <- '~/Box Sync/db/proteinComplexes/corumKrogan20161209.txt'
-  # fileCorum <- '~/Box Sync/db/proteinComplexes/coreComplexes_20170118.txt'
-  fileCorum <- '~/Box Sync/db/proteinComplexes/20170801_corum_mitoT.txt'
-  corumKrogan <- read.delim(file = fileCorum, header = T, sep = "\t", quote = "", stringsAsFactors = F)
-  complexEnrichmentConditions <- NULL
-  
-  for (i in 1:length(listOfConditions)){
-    condi <- listOfConditions[i]
-    tmp <- unique(df$Protein[which(df$Comparisons == condi)])
-    tmpEnrich <- foldComplexEnrichment(tmp, corumKrogan, backgroundNumber)
-    # Check point
-    checkpc <- dim(tmpEnrich)[1]
-    if (checkpc > 0){
-      tmpEnrich$Comparisons <- condi
-      complexEnrichmentConditions <- rbind(complexEnrichmentConditions,tmpEnrich)
-    }
-  }
-  
-  return(complexEnrichmentConditions)
-}
-
-plot.corum <- function(df, outfile, theTitle){
-  checkPoint <- length(unique(df$Comparisons))
-  if(checkPoint >= 1){
-    
-    # Some of the p-values are going to be very small
-    # Transform them to the smallest p-value / 10 would keep them and move it to the top
-    dftemp <- df[-which(df$pvalue == 0),]
-    if(dim(dftemp)[1] > 0){
-      theMinimal <- min(dftemp$pvalue)/10
-      # Make the value replacement
-      df$p_value <- df$pvalue
-      df$p_value[df$p_value == 0] <- theMinimal
-    }else{
-      df$p_value <- df$pvalue
-    }
-    
-    df$p_value <- -log10(df$p_value)
-    
-    toplot <- reshape2::dcast(data=df, ComplexName~Comparisons, value.var = "p_value", fun.aggregate = sum, fill = 0)
-    rownames(toplot) <- toplot$ComplexName
-    toplotmatrix <- subset(toplot, select=-c(ComplexName))
-    x <- data.matrix(toplotmatrix)
-    # HEATMAP
-    palette.breaks <- seq(1, 3, 0.1)
-    color.palette  <- colorRampPalette(c("white","steelblue"))(length(palette.breaks))
-    pheatmap(x, 
-             filename = outfile,
-             cluster_rows = T,
-             cluster_cols = F,
-             cellheight = 10, 
-             cellwidth=25, 
-             main = theTitle,
-             fontsize=6, 
-             fontsize_row=8, 
-             fontsize_col=12, 
-             border_color='black',
-             fontfamily="Helvetica",
-             treeheight_row = F, 
-             treeheight_col = F,
-             color = color.palette
-    )
-    cat("\nComplex Enrichment Heatmap ready\n")
-  }else{
-    cat("\n!!!!!Not enough enriched comparisons to plot the heatmap\n")
-  }
-} #plot.corum
 
 
 # ------------------------------------------------------------------------------
@@ -1623,6 +1506,4 @@ artms_RemoveProtBelowThres <- function(dfi, mnbr){
   }
   return(dfi)
 }
-
-
 

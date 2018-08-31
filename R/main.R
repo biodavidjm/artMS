@@ -7,6 +7,7 @@
 #' @import getopt
 #' @import ggdendro
 #' @import ggplot2
+#' @import gProfileR
 #' @import grid
 #' @import limma
 #' @import MSstats
@@ -41,7 +42,7 @@
 #' @import yaml
 #' @importFrom graphics pairs plot
 #' @importFrom grDevices colorRampPalette dev.off pdf
-#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper
 #' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar
 
 

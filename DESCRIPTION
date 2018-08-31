@@ -32,6 +32,7 @@ Imports:
   ggdendro,
   getopt,
   ggplot2,
+  gProfileR,
   graphics,
   grDevices,
   grid,
