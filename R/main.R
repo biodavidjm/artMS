@@ -189,7 +189,7 @@ artms_main <- function(yaml_config_file){
     }
     
     # Read in contrast file
-    contrasts <- artms_writeContrast(config$files$contrasts)
+    contrasts <- artms_writeContrast(config$files$contrasts, unique(as.character(dmss$Condition)))
     results <- artms_runMSstats(dmss, contrasts, config)
   }
   

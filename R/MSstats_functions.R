@@ -412,7 +412,7 @@ trim <- function (x){
 #' @keywords 
 #' artms_writeContrast()
 #' @export
-artms_writeContrast <- function(contrast_file) {
+artms_writeContrast <- function(contrast_file, all_conditions = NULL){
   input_contrasts <- readLines(contrast_file, warn=F)
   
   # check if contrast_file is old-format (i.e the contrast_file is a matrix)
@@ -459,6 +459,15 @@ artms_writeContrast <- function(contrast_file) {
       cond2 <- mat[i,2]
       contrast_matrix[i, cond1] <- 1
       contrast_matrix[i, cond2] <- -1
+    }
+    
+    # check if conditions are all found in Evidence/Key
+    if (!is.null(all_conditions)) {
+      d <- setdiff(conds, all_conditions)
+      if (length(d) > 0) {
+        msg <- paste("These conditions are not found in the dataset:", paste(d, collapse=","))
+        stop(msg)
+      }
     }
     return (contrast_matrix)
   }
