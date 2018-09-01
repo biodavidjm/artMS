@@ -562,7 +562,8 @@ artms_plotRatioLog2fc <- function(datai) {
 #' @description Generate PCA plots based on abundance data
 #' @param data Data.frame output from `artms_loadModelQCstrict`
 #' @param filename Prefix to generate output names (WITH NO EXTENSION)
-#' @return allConditions Conditions selected to generate the plots
+#' @param allConditions Conditions selected to generate the plots
+#' @return PCA plots based on abundance data (pdf format)
 #' @keywords plot, pca
 #' artms_getPCAplots()
 #' @export

@@ -11,9 +11,11 @@ artms_mergeChangesNbr(df_input, repro, specie)
 \item{df_input}{Changes data.frame}
 
 \item{repro}{Reproducibility data.frame}
+
+\item{specie}{Specie for annotation purposes}
 }
 \value{
-specie Specie for annotation purposes
+Merged data.frame of changes and reproducibility information
 }
 \description{
 Merge changes, i.e., MSstats results file of quantified changes,

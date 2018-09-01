@@ -24,7 +24,6 @@
 artms_analysisQuantifications <- function(log2fc_file, 
                                           modelqc_file, 
                                           specie, 
-                                          rm_contaminant, 
                                           enrich, 
                                           output_dir, 
                                           isFluomics, 
@@ -34,19 +33,6 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           threshold, 
                                           ipval, 
                                           pathogen){
-  
-  log2fc_file = "ab-testing-new-results.txt"
-  modelqc_file = "ab-testing-new-results_ModelQC.txt"
-  specie = "human"
-  enrich = "yes"
-  output_dir = "resultsTesting"
-  isFluomics = "yes"
-  isPtm = "noptmsites"
-  isBackground = "nobackground"
-  mnbr = 2
-  threshold = 1
-  ipval = "pvalue"
-  pathogen = "nopathogen"
   
   # source('~/github/kroganlab/enrichment/enrichProfiler.R')
   # source('~/github/kroganlab/djmSource/myLibrary/generalFunctions.R')
@@ -1242,7 +1228,8 @@ artms_selectTheOneLog2fc <- function(a, b) {
 #' per condition
 #' @param df_input Abundance input file
 #' @param repro Reproducibility data.frame
-#' @return specie Specie for annotation purposes
+#' @param specie Specie for annotation purposes
+#' @return data.frame of abundance merged with reproducibility info
 #' @keywords abundance, reproducibility, merging
 #' artms_mergeAbNbr()
 #' @export
@@ -1306,7 +1293,8 @@ artms_loadModelQCstrict <- function (df_input, specie) {
 #' with the number of biological replicates per condition
 #' @param df_input Changes data.frame
 #' @param repro Reproducibility data.frame
-#' @return specie Specie for annotation purposes
+#' @param specie Specie for annotation purposes
+#' @return Merged data.frame of changes and reproducibility information
 #' @keywords changes, log2fc, reproducibility, merging
 #' artms_mergeChangesNbr()
 #' @export

@@ -10,9 +10,11 @@ artms_getPCAplots(data, filename, allConditions)
 \item{data}{Data.frame output from \code{artms_loadModelQCstrict}}
 
 \item{filename}{Prefix to generate output names (WITH NO EXTENSION)}
+
+\item{allConditions}{Conditions selected to generate the plots}
 }
 \value{
-allConditions Conditions selected to generate the plots
+PCA plots based on abundance data (pdf format)
 }
 \description{
 Generate PCA plots based on abundance data

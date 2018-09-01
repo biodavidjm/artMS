@@ -10,9 +10,11 @@ artms_mergeAbNbr(df_input, repro, specie)
 \item{df_input}{Abundance input file}
 
 \item{repro}{Reproducibility data.frame}
+
+\item{specie}{Specie for annotation purposes}
 }
 \value{
-specie Specie for annotation purposes
+data.frame of abundance merged with reproducibility info
 }
 \description{
 Merge abundance and number of biological replicates

@@ -4,9 +4,9 @@
 \alias{artms_analysisQuantifications}
 \title{Analysis of the Relative Quantification}
 \usage{
-artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
-  rm_contaminant, enrich, output_dir, isFluomics, isPtm, isBackground,
-  mnbr, threshold, ipval, pathogen)
+artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
+  output_dir, isFluomics, isPtm, isBackground, mnbr, threshold, ipval,
+  pathogen)
 }
 \arguments{
 \item{log2fc_file}{MSstats results file}

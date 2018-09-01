@@ -55,7 +55,9 @@
 #' artms_main()
 #' @export
 artms_main <- function(yaml_config_file){
-  cat(">> RUNNING artMS. LOADING CONFIGURATION FILE...\n")
+  cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
+  cat("============================================================\n\n")
+  cat(">> LOADING CONFIGURATION FILE...\n")
   config <- yaml.load_file(yaml_config_file)
   
   # LET'S HELP THE DISTRACTED USER
@@ -186,12 +188,9 @@ artms_main <- function(yaml_config_file){
       dmss <- data.table(dmss)
     }
     
-    # Read in contrasts file
-    # contrasts = read.delim(config$files$contrasts, stringsAsFactors=F)
+    # Read in contrast file
     contrasts <- artms_writeContrast(config$files$contrasts)
-    # make sure the column names are in alphabetical order before continuing
-    contrasts = as.matrix( contrasts[,order(dimnames(contrasts)[[2]], decreasing=F)] )
-    results = artms_runMSstats(dmss, contrasts, config)
+    results <- artms_runMSstats(dmss, contrasts, config)
   }
   
   ## ANNOTATING RESULT FILE
