@@ -11,7 +11,7 @@
 #' @param enrich Performed enrichment analysis?
 #' @param output_dir results folder name
 #' @param isFluomics Is from the fluomics project?
-#' @param isPtm is a ptm quantification?
+#' @param isPtm is a ptm quantification? yesptmph, yesptmsites, noptmsites
 #' @param isBackground background gene set
 #' @param mnbr minimal number of biological replicates for imputation
 #' @param threshold log2fc cutoff for enrichment analysis
@@ -32,7 +32,8 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           mnbr, 
                                           threshold, 
                                           ipval, 
-                                          pathogen){
+                                          pathogen)
+{
   
   # source('~/github/kroganlab/enrichment/enrichProfiler.R')
   # source('~/github/kroganlab/djmSource/myLibrary/generalFunctions.R')
@@ -111,7 +112,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       # Removing party sites
       dfmq2Genes <- dfmq2Genes[grep(",",dfmq2Genes$Protein, invert=T),]
       # And now be very careful with the Fluomics labeling, since they have an extra _ that it is not follow by the site
-      cat("---Warning! if you have protein_sites id with more than one '_' is going to be a problem\n\n")
+      cat("--- Warning! if you have UNIPROT_PTM id with more than one underscore '_' is going to be a problem\n")
       dfmq2Genes$Protein <- ifelse(
         grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", dfmq2Genes$Protein, perl = T) , 
         gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = T)
@@ -222,7 +223,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     dflog2fc <- rbind(dflog2fcfinites, theImputedL2FC)
   }
   
-  cat("Plotting distributions\n")
+  cat("--- Plotting distributions\n")
   
   plotDFdistColor <- ggplot(dflog2fc, aes(x = log2FC, fill = Label)) + 
     geom_histogram(bins = 100, alpha = .4, col="black") +
@@ -323,7 +324,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       artms_plotRatioLog2fc(dflog2fc)
     garbage <- dev.off()
   }else{
-    cat("Only one Comparison is available\n")
+    cat("--- Only one Comparison is available\n")
   }
 
   ##############################################################################
@@ -407,7 +408,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # It requires a simplified version for modelqc
   # Now let's add the annotation (although I only need the gene name)
   cat(">> WORKING ON PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
-  modelqcabundance <- artms_loadModelQCstrict(dfmq, specie)
+  modelqcabundance <- artms_loadModelQCstrict(dfmq, specie, isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
   artms_getPCAplots(modelqcabundance, out.pca, conditions)
@@ -1180,7 +1181,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(enrich == "yesenrich"){
     cat("\tENRICHMENT files should also be out\n")
   }
-  
 }
 
 
@@ -1261,12 +1261,13 @@ artms_mergeAbNbr <- function (df_input, repro, specie) {
 #' @description Load limited columns from abundance (modelqc) annotated
 #' @param df_input data.frame with the raw abundance data (modelqc)
 #' @param specie Specie name for annotation purposes
+#' @param isPTM Specify whether is a PTM dataset: noptmsites, yesptmsites, yesptmph
 #' @return annotated data.frame of abundance data
 #' @keywords abundance, annotated
 #' artms_loadModelQCstrict()
 #' @export
-artms_loadModelQCstrict <- function (df_input, specie) {
-  
+artms_loadModelQCstrict <- function (df_input, specie, isPTM) {
+
   cat("---Loading abundance values for proteins found in all biological replicas\n")  
   
   # Remove empty entries
@@ -1280,8 +1281,14 @@ artms_loadModelQCstrict <- function (df_input, specie) {
   datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean)  
   
   names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
-  
-  suppressMessages(send_back <- artms_annotationUniprot(datadc, 'Protein', specie))
+  if( grepl("yesptm",isPtm) ){
+    # if is a PTM dataset we don't need the real gene names for now, 
+    # we need to use the Uniprot_ptm notation
+    datadc$Gene <- datadc$Protein
+    send_back <- datadc
+  }else{
+    suppressMessages(send_back <- artms_annotationUniprot(datadc, 'Protein', specie))
+  }
   return(send_back)
 }
 

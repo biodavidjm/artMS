@@ -21,7 +21,7 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
 
 \item{isFluomics}{Is from the fluomics project?}
 
-\item{isPtm}{is a ptm quantification?}
+\item{isPtm}{is a ptm quantification? yesptmph, yesptmsites, noptmsites}
 
 \item{isBackground}{background gene set}
 

@@ -4,12 +4,14 @@
 \alias{artms_loadModelQCstrict}
 \title{Load limited columns from abundance (modelqc) annotated}
 \usage{
-artms_loadModelQCstrict(df_input, specie)
+artms_loadModelQCstrict(df_input, specie, isPTM)
 }
 \arguments{
 \item{df_input}{data.frame with the raw abundance data (modelqc)}
 
 \item{specie}{Specie name for annotation purposes}
+
+\item{isPTM}{Specify whether is a PTM dataset: noptmsites, yesptmsites, yesptmph}
 }
 \value{
 annotated data.frame of abundance data
