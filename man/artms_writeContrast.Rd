@@ -4,7 +4,7 @@
 \alias{artms_writeContrast}
 \title{Generate the contrast matrix required by MSstats from a txt file}
 \usage{
-artms_writeContrast(contrast_file)
+artms_writeContrast(contrast_file, all_conditions = NULL)
 }
 \arguments{
 \item{contrast_file}{The text filepath of contrasts}
