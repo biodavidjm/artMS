@@ -72,6 +72,7 @@ artms_mapUniprot2entrezGeneName <- function(uniprotkb, specie){
     cat("ERROR: Specie not supported.")
     stop("PLEASE, CHECK HELP TO FIND OUT MORE ABOUT SUPPORTED SPECIES")
   }
+  mappings <- unique(mappings)
   return(mappings)
 }
 
@@ -88,6 +89,10 @@ artms_mapUniprot2entrezGeneName <- function(uniprotkb, specie){
 #' artms_annotationUniprot()
 #' @export
 artms_annotationUniprot <- function(data, columnid, sps) {
+  
+  # data <- l2fcol4enrichment
+  # columnid <- "Protein"
+  # sps <- "human"
   
   theUniprots <- data[[columnid]]
   preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, specie = sps)

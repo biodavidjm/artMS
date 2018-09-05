@@ -415,10 +415,13 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat("---+ PCA done!\n")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # ANNOTATIONS
   # Prepare annotated abundance file to output
   modelqc_file_splc <- artms_mergeAbNbr(dfmq, nbr_wide, specie)
   
+  cat(">>> ANNOTATIONS\n")
   # Now get ready for annotation
+  cat("--- Abundance data\n")
   if( grepl("yesptm",isPtm) ){
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
@@ -428,6 +431,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
   }
   
+  cat("--- Relative Quantifications (Log2fc)\n")
   # Prepare output of changes
   log2fc_file_splc <- artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
   # Now get ready for annotation
@@ -442,9 +446,7 @@ artms_analysisQuantifications <- function(log2fc_file,
 
   cat(">> FILTERING CHANGES BEFORE PRINTING OUT\n")
   
-  # FILTER BASED ON NUMBER OF BIOLOGICAL REPLICAS
   imputedDF <- dflog2fc[c('Protein', 'Label', 'log2FC', 'pvalue', 'adj.pvalue','imputed','iLog2FC','iPvalue')]
-  # Merge with bioReplicaInf
   cat("--- Merging Changes with bioReplica Info\n")
   imputedDF <- merge(imputedDF, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
   
@@ -476,9 +478,9 @@ artms_analysisQuantifications <- function(log2fc_file,
   dat <- data.frame(count=c(yesimputed, nonimputed), category = c("Imputed", "Non-Imputed"))
   # Add addition columns, needed for drawing with geom_rect.
   dat$fraction = dat$count / sum(dat$count)
-  dat = dat[order(dat$fraction), ]
-  dat$ymax = cumsum(dat$fraction)
-  dat$ymin = c(0, head(dat$ymax, n=-1))
+  dat <- dat[order(dat$fraction), ]
+  dat$ymax <- cumsum(dat$fraction)
+  dat$ymin <- c(0, head(dat$ymax, n=-1))
   
   p1 <- ggplot(dat, aes(fill=category, ymax=ymax, ymin=ymin, xmax=4, xmin=3)) +
     geom_rect() +
@@ -498,7 +500,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   cat(">> HEATMAPS OF CHANGES (log2fc)\n")
   l2fcol <- reshape2::dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
-  
   rownames(l2fcol) <- l2fcol$Protein
   l2fcol <- within(l2fcol, rm(Protein))
   l2fcol[is.na(l2fcol)] <- 0
@@ -534,23 +535,28 @@ artms_analysisQuantifications <- function(log2fc_file,
   # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)
   # Let's select first significance based on pvalue, by using the iPvalue 
   # we are already including the imputed pvalues...
-  l2fcolcopy <- reshape2::dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
+  l2fcol4enrichment <- reshape2::dcast(data=imputedDF[which(imputedDF$iPvalue < 0.05),], Protein~Label, value.var = 'iLog2FC')
   
-  if(dim(l2fcolcopy)[1] > 0){
+  if(dim(l2fcol4enrichment)[1] > 0){
     # Let's melt now for enrichment analysis
-    l2fcol4enrichment <- reshape2::melt(data=l2fcolcopy, id.vars = c('Protein'), variable.name = "Comparisons")
+    l2fcol4enrichment <- reshape2::melt(data=l2fcol4enrichment, id.vars = c('Protein'), variable.name = "Comparisons")
     l2fcol4enrichment <- l2fcol4enrichment[complete.cases(l2fcol4enrichment),]
-    l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie)
+    # Now get ready for annotation
+    if( grepl("yesptm",isPtm) ){
+      names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <- 'Uniprot_PTM'
+      # Take the Protein ID, but being very careful about the fluomics labeling
+      l2fcol4enrichment$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", l2fcol4enrichment$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = T)) 
+      suppressMessages(l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie))
+    }else{
+      suppressMessages(l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie))
+    }
   }
   
   if(enrich == "yesenrich" & dim(l2fcol4enrichment)[1] > 0 ){
-    cat(">> ENRICHMENT OF SELECTED CHANGES (define by user) USING GPROFILER\n")
+    cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
     if( grepl("yesptm",isPtm) ){
-      !!!!!
-      # PTMs the proteins ids are UNIPROT_PTM and they cannot be used for
-      # enrichment.
-      l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Entry.name,Protein.names))
+      l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <- l2fcol4enrichment[grep(",",l2fcol4enrichment$Protein, invert=T),]
       # Select the Uniprot ID, but keep in mind that some of them might have many _ph54_ph446
