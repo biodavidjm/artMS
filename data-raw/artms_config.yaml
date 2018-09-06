@@ -1,12 +1,12 @@
 files :
-  evidence : '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt'
-  keys : '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt'
-  contrasts : '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-contrasts-final.txt'
-  output : '~/experiments/artms/technical_replicas/testing/FLU-HTBE-H5N1-contrasts-results.txt'
+  evidence : '/path/to/the/evidence.txt'
+  keys : '/path/to/the/keys.txt'
+  contrasts : '/path/to/the/contrast.txt'
+  output : '/path/to/the/output/results/results.txt'
 qc:
-  enabled: 1 # 1 = yes; 2
+  enabled: 1 # 1 = yes; 0 = no
 data:
-  enabled : 1
+  enabled : 1 # 1 = yes; 0 = no
   fractions: 
     enabled : 0 # 1 for protein fractionation
   silac: 
@@ -15,12 +15,11 @@ data:
     enabled : 1
     contaminants : 1
     protein_groups : remove #remove, keep
-    modifications : ab # PH, UB, AB, APMS
+    modifications : AB # PH, UB, AB, APMS
   sample_plots : 1 # correlation plots
 msstats :
   enabled : 1
   msstats_input : 
-  version :  # blank = R library version, MSstats.daily = a location where to find it
   profilePlots : none # before, after, before-after, none
   normalization_method : equalizeMedians # globalStandards (include a reference protein(s) ), equalizeMedians, quantile, 0
   normalization_reference :  #should be a value in the Protein column

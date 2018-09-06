@@ -8,8 +8,12 @@ artms_writeContrast(contrast_file, all_conditions = NULL)
 }
 \arguments{
 \item{contrast_file}{The text filepath of contrasts}
+
+\item{all_conditions}{a vector with all the conditions in the keys file}
 }
 \description{
 It simplifies the process of creating the contrast file
 }
 \keyword{artms_writeContrast()}
+\keyword{check,}
+\keyword{contrast}

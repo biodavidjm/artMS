@@ -409,7 +409,8 @@ trim <- function (x){
 #' @title Generate the contrast matrix required by MSstats from a txt file
 #' @description It simplifies the process of creating the contrast file
 #' @param contrast_file The text filepath of contrasts
-#' @keywords 
+#' @param all_conditions a vector with all the conditions in the keys file
+#' @keywords check, contrast
 #' artms_writeContrast()
 #' @export
 artms_writeContrast <- function(contrast_file, all_conditions = NULL){

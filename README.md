@@ -118,94 +118,93 @@ H1N1_18H-MOCK_18H
 ```
 
 
-### The configuration file (`.yaml`)
+## The configuration file (`.yaml`)
 
 The configuration file in `yaml` format contains the details of most of analyses 
-performed by `artMS`. Check the folder `test` for a sample configuration file 
-depending on the experiment. It currently covers the quantification of 
-protein abundance, phosphorylation (ph), ubiquitination (ub), 
-and acetylation (ac).
+performed by `artMS`. Check the folder [`data-raw`](./data-raw/artms_config.yaml) for a sample configuration file depending on the experiment. It currently covers the quantification of protein abundance, phosphorylation (ph), ubiquitination (ub), and acetylation (ac).
 
-The configuration file contains the following sections:
+*Although it seems complex, the default options work very well*. Anyway, a detailed explanation of every section is explained next:
 
+The configuration (`yaml`) file contains the following sections:
 
-#### `files`
+### `files`
 
 ```
 files :
-  keys : /path/to/project/data/keys.txt
-  data : /path/to/project/data/data/evidence.txt
-  contrasts : /path/to/project/data/contrast.txt
-  output : /path/to/project/results/20160621-results.txt
-  sample_plots : 1
+  evidence : /path/to/the/evidence.txt
+  keys : /path/to/the/keys.txt
+  contrasts : /path/to/the/contrast.txt
+  output : /path/to/the/output/results/results.txt
 ```
 
 The file `path/name` of the required files. 
 
-The option **sample_plots** (1/0) creates quality
-control plots, including heatmaps of the peptide features based on intensity
-values, and peptide counts.
+---
 
-
-#### `data`
+### `qc`
 
 ```
-data:
-  enabled : 1
+qc:
+  enabled: 1 # 1 = yes; 0 = no
+```
+- `1` to run QC analysis
+- `0` otherwise
+
+---
+
+### `data`
+
+```
+  enabled : 1 # 1 = yes; 0 = no
+  fractions: 
+    enabled : 0 # 1 for protein fractionation
+  silac: 
+    enabled : 0 # 1 for SILAC experiments
+  filters: 
+    enabled : 1
+    contaminants : 1
+    protein_groups : remove #remove, keep
+    modifications : ab # PH, UB, AB, APMS
+  sample_plots : 1 # correlation plots
 ```
 
-- 1 to pre-process the data provided in the *files* section.
-- 0 won't process the data (and a pre-generated MSstats file will be expected)
+Let's break it down `data`:
 
-#### `fractions`
+- `enabled`:
 
-```
-fractions: 
-  enabled : 0 # 1 for protein fractions, 0 otherwise
-  aggregate_fun : sum
-```
+    - `1`: to pre-process the data provided in the *files* section.
+    - `0`: won't process the data (and a pre-generated MSstats file will be expected)
 
+- `fractions`:
 Multiple fractionation or separation methods are often combined in proteomics 
 to improve signal-to-noise and proteome coverage and to reduce interference
 between peptides in quantitative proteomics.
-Use 1 to specify that is a fractionation dataset. See the
-*Special case: Protein fractionation* section below for details.
+    - `enabled : 1` is a fractionation dataset
+    - `enabled : 0` no fractions
 
-#### `silac`
+- `silac`:
+    - `enabled : 1`: if the files belong to a SILAC experiment. See **Special case: SILAC** below for details
+    - `enabled : 0`: it does not
 
-```
-silac: 
-  enabled : 0 # 1 for SILAC experiments, 0 otherwise
-```
+- `filters`: the following filtering options are available
+    -  `enabled : 1` Enables filtering
+    -  `contaminants : 1` Removes contaminants (`CON__` and `REV__` labeled by MaxQuant)
+    - `protein_groups : ` choose whether `remove` or `keep` protein groups
+    -  `modifications : ` any of the proteomics experiments, `PH`, `UB`, or `AC` for posttranslational modifications, `AB` or `APMS` otherwise.
 
-Mark 1 if the files belong to a SILAC experiment. See *Special case: SILAC*
-below for details
+- `sample_plots` 
+    - `1` Generate correlation plots
+    - `0` otherwise
 
-#### `filters`
+---
 
-```
-filters: 
-  enabled : 1 # Enables filtering
-  contaminants : 1 # Removes contaminants (CON__ and REV__)
-  protein_groups : remove # remove or keep protein groups
-  modifications :  # empty for all, PH, UB, or AC
-```
-
-Filtering the datasets:
-
-- `contaminants` : 1 to remove contaminants (`CON__` and `REV__`)
-- `protein_groups` : choose whether `remove` or `keep` protein groups
-- `modifications` :  `empty` for all (protein abundance), 
-`ph` to select phospho-peptides, `ub` ubiquitinated peptides, or `ac` to 
-select acetylated peptides.
-
+### `msstats`
 
 ```
 msstats :
   enabled : 1
   msstats_input : 
-  version :  # blank = R library version, MSstats.daily = a location where to find it
-  profilePlots : before-after # before, after, before-after, none
+  profilePlots : none # before, after, before-after, none
   normalization_method : equalizeMedians # globalStandards (include a reference protein(s) ), equalizeMedians, quantile, 0
   normalization_reference :  #should be a value in the Protein column
   summaryMethod : TMP # "TMP"(default) means Tukey's median polish, which is robust estimation method. "linear" uses linear mixed model. "logOfSum" conducts log2 (sum of intensities) per run.
@@ -215,9 +214,40 @@ msstats :
   feature_subset: all # all|highQuality  : highQuality seems to be buggy right now
 ```
 
-If enabled (1), it will run MSstats with all the specified options.
-To find out more about the meaning of all the options, please, check the 
-MSstats documentation
+Let's break it down:
+
+- `enabled : ` Choose `1` to run MSstats, `0` otherwise. To find out more about the meaning of all the options, please, check the MSstats documentation (`?MSstats`)
+- `msstats_input :` blank if MSstats is going to be run. Provide the path to the previously generated `evidence-mss.txt` if already available.
+- `profilePlots :` Several profile plots available. 
+    * `before` plots only before normalization
+    * `after` plots only after normalization
+    * `before-after`: recommended, although computational expensive (time consuming)
+    * `none` no normalization plots (convenient if time limitations)
+
+- `normalization_method :` available options:
+    - `equalizeMedians`
+    - `globalStandards` if selected, specified the reference protein in `normalization_reference` (next)
+    - `quantile`
+    - `0`: no normalization (not recommended)
+- `normalization_reference :` an UniProt id if `globalStandards` is chosen as the `normalization_method` (above)
+- `summaryMethod :` TMP # "TMP"(default) means Tukey's median polish, which is robust estimation method. "linear" uses linear mixed model. "logOfSum" conducts log2 (sum of intensities) per run.
+- `censoredInt :` 
+    - `NA`  Missing values are censored or at random. 'NA' (default) assumes that all 'NA's in 'Intensity' column are censored. 
+    - `0` uses zero intensities as censored intensity. In this case, NA intensities are missing at random. The output from Skyline should use `0`. Null assumes that all `NA` intensities are randomly missing.
+- `cutoffCensored :` 
+    - `minFeature` Cutoff value for censoring. Only with `censoredInt='NA'` or `0`. Default is 'minFeature', which uses minimum value for each feature.
+    - `minFeatureNRun` uses the smallest between minimum value of corresponding feature and minimum value of corresponding run. 
+    - `minRun` uses minimum value for each run.
+- `MBimpute :` 
+    - `TRUE` only for `summaryMethod="TMP"` and `censoredInt='NA'` or `0`. TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by Accelerated failure model. 
+    - `FALSE` uses the values assigned by cutoffCensored.
+- `feature_subset :` 
+    - `all` : default
+    - `highQuality`  : this option seems to be buggy right now
+
+---
+
+### output
 
 ```
 output_extras :
@@ -285,13 +315,12 @@ Internally, the function `getMSstatsFormat` handles the key step
 ```
 fractions: 
   enabled : 1 # 1 for protein fractions, 0 otherwise
-  aggregate_fun : sum
 ```
 
 #### Special case: SILAC
 
 One of the most widely used techniques that enable relative protein 
-quantitation is stable isotope labeling by amino acids in cell culture (SILAC). 
+quantification is stable isotope labeling by amino acids in cell culture (SILAC). 
 The keys file will capture the typical SILAC experiment. 
 For example, let's show a SILAC experiment with two conditions, 
 two biological replicates and two technical replicates:
@@ -316,3 +345,6 @@ silac:
 ```
 
 
+## Tips
+
+Do you need to remember the basics of markdown? [Check out this fantastic link](https://commonmark.org/help/tutorial/index.html).

@@ -18,8 +18,10 @@
 #' @export
 artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
 
-  evidence_file <- Sys.glob(evidence_file)
-  keys_file <- Sys.glob(keys_file)
+  # evidence_file <- Sys.glob(evidence_file)
+  # keys_file <- Sys.glob(keys_file)
+  
+  prot_exp <- toupper(prot_exp)
 
   if(any(!prot_exp %in% c('AB','PH','UP','APMS'))){
     cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
