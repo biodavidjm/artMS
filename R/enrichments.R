@@ -14,6 +14,11 @@
 #' @export
 artms_enrichLog2fc <- function(data, fileout, specie, background){
   
+  # data <- filallsig_log2fc_long
+  # fileout <- out.mac.allsig
+  # background <- listOfGenes
+  
+  
   # Selecting unique genes in each comparison
   pretmp <- data[c('Gene', 'Comparisons')]
   pretmp <- unique(pretmp)
@@ -34,7 +39,7 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
     cat("\t--- Plotting '", i, "' annotations...")
     tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
     outfile <- gsub(".txt", paste0("_",i, ".txt"), fileout )
-    Enrichment.plotHeatmaps(tmp, outfile)
+    artms_EnrichmentPlotHeatmaps(tmp, outfile)
     cat("done!\n")
   }
   # DECIDE: add the cleaning?
@@ -134,27 +139,27 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' with the IDs. Is not cool?
 #' @param categorySource Resources providing the terms on which the enrichment 
 #' will be performed. The supported resources by gprofiler are:
-#' - `GO (GO:BP, GO:MF, GO:CC)`: Gene Ontology (see more below)
-#' - `KEGG`: Biological pathways
-#' - `REAC`: Biological pathways (Reactome)
-#' - `TF`: Regulatory motifs in DNA (TRANSFAC TFBS)
-#' - `MI`: Regulatory motifs in DNA (miRBase microRNAs)
-#' - `CORUM`: protein complexes database
-#' - `HP`: Human Phenotype Ontology
-#' - `HPA`: Protein databases (Human Protein Atlas)
-#' - `OMIM`: Online Mendelian Inheritance in Man annotations: 
-#' - `BIOGRID`: BioGRID protein-protein interactions
+#' - *GO (GO:BP, GO:MF, GO:CC)*: Gene Ontology (see more below)
+#' - *KEGG*: Biological pathways
+#' - *REAC*: Biological pathways (Reactome)
+#' - *TF*: Regulatory motifs in DNA (TRANSFAC TFBS)
+#' - *MI*: Regulatory motifs in DNA (miRBase microRNAs)
+#' - *CORUM*: protein complexes database
+#' - *HP*: Human Phenotype Ontology
+#' - *HPA*: Protein databases (Human Protein Atlas)
+#' - *OMIM*: Online Mendelian Inheritance in Man annotations: 
+#' - *BIOGRID*: BioGRID protein-protein interactions
 #' The type of annotations for Gene Ontology:
-#' - Inferred from experiment [`IDA, IPI, IMP, IGI, IEP`]
-#' - Direct assay [`IDA`] / Mutant phenotype [`IMP`]
-#' - Genetic interaction [`IGI`] / Physical interaction [`IPI`]
-#' - Traceable author [`TAS`] / Non-traceable author [`NAS`] / 
-#' Inferred by curator [`IC`]
-#' - Expression pattern [`IEP`] / Sequence or structural similarity [`ISS`] 
-#' / Genomic context [`IGC`]
-#' - Biological aspect of ancestor [`IBA`] / Rapid divergence [`IRD`]
-#' - Reviewed computational analysis [`RCA`] / Electronic annotation [`IEA`]
-#' - No biological data [`ND`] / Not annotated or not in background [`NA`]
+#' - Inferred from experiment [*IDA, IPI, IMP, IGI, IEP*]
+#' - Direct assay [*IDA*] / Mutant phenotype [*IMP*]
+#' - Genetic interaction [*IGI*] / Physical interaction [*IPI*]
+#' - Traceable author [*TAS*] / Non-traceable author [*NAS*] / 
+#' Inferred by curator [*IC*]
+#' - Expression pattern [*IEP*] / Sequence or structural similarity [*ISS*] 
+#' / Genomic context [*IGC*]
+#' - Biological aspect of ancestor [*IBA*] / Rapid divergence [*IRD*]
+#' - Reviewed computational analysis [*RCA*] / Electronic annotation [*IEA*]
+#' - No biological data [*ND*] / Not annotated or not in background [*NA*]
 #' @param specie Specie code: Organism names are constructed by concatenating 
 #' the first letter of the name and the family name.
 #' Example: human - ’hsapiens’, mouse - ’mmusculus’.
@@ -214,11 +219,18 @@ artms_cleanGPROFILER <- function(gp){
   return(sendBack)
 }
 
-# plot and save heatmaps of the significant enrichment results
-Enrichment.plotHeatmaps <- function(dat, out_file){
-  ## Heatmap requirements
-  suppressMessages(library(RColorBrewer))
-  suppressMessages(library(pheatmap))
+# 
+# ------------------------------------------------------------------------------
+#' @title plot and save heatmaps of the significant enrichment results
+#' 
+#' @description plot and save heatmaps of the significant enrichment results
+#' @param dat The data.frame output from 
+#' @param out_file output file name (must have `.txt` extension)
+#' @return A heatmap in PDF format with the most significant enrichments
+#' @keywords plot, heatmap, enrichments
+#' artms_EnrichmentPlotHeatmaps()
+#' @export
+artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
   # formatting data to heatmap compatible format
   x <- dcast(dat, term.name~query.number, value.var='p.value', max, fill=1)
   # Let's stop this thing if there is not enough terms (we need at least 2)
@@ -228,7 +240,7 @@ Enrichment.plotHeatmaps <- function(dat, out_file){
     row.names(x) = x$term.name
     x$term.name = c()
     # keep only terms that are significant
-    if(dim(x)[2]>1){
+    if(dim(x)[2]>0){
       idx <- apply(x, 1, function(y){ return(min(y)<=.05)})
       x <- x[which(idx),]
       # x[x == 1] <- 0
@@ -246,15 +258,15 @@ Enrichment.plotHeatmaps <- function(dat, out_file){
       LOWER_T = BREAKS[length(BREAKS)]
       term_groups_selected_w_display = x
       term_groups_selected_w_display[term_groups_selected_w_display>LOWER_T]=LOWER_T
-      if(dim(x)[2]>1){
+      if(length(x)>1){
         #Do you need a main title: main=paste( gsub(".txt","",basename(out_file)) , "(color: -log10 p-value )"),
         pheatmap(term_groups_selected_w_display, cluster_cols = F, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, breaks=BREAKS, legend_breaks=BREAKS,legend_labels=LABELS, fontfamily="Helvetica")
       }else{
-        cat(" SORRY!! We currently don't support heatmaps of a single set. Please check back later.\n")
+        cat(" [SORRY!! We currently don't support heatmaps of a single set] ")
         #pheatmap(term_groups_selected_w_display, cluster_cols=F,cluster_rows=F, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, fontfamily="Helvetica")
       }
     } else{
-      cat("SORRY, NOT ENOUGH SIGNIFICANT TERMS FOR THIS DOMAIN\n")
+      cat(" [SORRY, NOT ENOUGH SIGNIFICANT TERMS FOR THIS DOMAIN] ")
     }
   }
   

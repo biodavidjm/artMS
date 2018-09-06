@@ -15,27 +15,27 @@ with the IDs. Is not cool?}
 \item{categorySource}{Resources providing the terms on which the enrichment
 will be performed. The supported resources by gprofiler are:
 \itemize{
-\item \code{GO (GO:BP, GO:MF, GO:CC)}: Gene Ontology (see more below)
-\item \code{KEGG}: Biological pathways
-\item \code{REAC}: Biological pathways (Reactome)
-\item \code{TF}: Regulatory motifs in DNA (TRANSFAC TFBS)
-\item \code{MI}: Regulatory motifs in DNA (miRBase microRNAs)
-\item \code{CORUM}: protein complexes database
-\item \code{HP}: Human Phenotype Ontology
-\item \code{HPA}: Protein databases (Human Protein Atlas)
-\item \code{OMIM}: Online Mendelian Inheritance in Man annotations:
-\item \code{BIOGRID}: BioGRID protein-protein interactions
+\item \emph{GO (GO:BP, GO:MF, GO:CC)}: Gene Ontology (see more below)
+\item \emph{KEGG}: Biological pathways
+\item \emph{REAC}: Biological pathways (Reactome)
+\item \emph{TF}: Regulatory motifs in DNA (TRANSFAC TFBS)
+\item \emph{MI}: Regulatory motifs in DNA (miRBase microRNAs)
+\item \emph{CORUM}: protein complexes database
+\item \emph{HP}: Human Phenotype Ontology
+\item \emph{HPA}: Protein databases (Human Protein Atlas)
+\item \emph{OMIM}: Online Mendelian Inheritance in Man annotations:
+\item \emph{BIOGRID}: BioGRID protein-protein interactions
 The type of annotations for Gene Ontology:
-\item Inferred from experiment \code{\link{IDA, IPI, IMP, IGI, IEP}}
-\item Direct assay \code{\link{IDA}} / Mutant phenotype \code{\link{IMP}}
-\item Genetic interaction \code{\link{IGI}} / Physical interaction \code{\link{IPI}}
-\item Traceable author \code{\link{TAS}} / Non-traceable author \code{\link{NAS}} /
-Inferred by curator \code{\link{IC}}
-\item Expression pattern \code{\link{IEP}} / Sequence or structural similarity \code{\link{ISS}}
-/ Genomic context \code{\link{IGC}}
-\item Biological aspect of ancestor \code{\link{IBA}} / Rapid divergence \code{\link{IRD}}
-\item Reviewed computational analysis \code{\link{RCA}} / Electronic annotation \code{\link{IEA}}
-\item No biological data \code{\link{ND}} / Not annotated or not in background \code{\link{NA}}
+\item Inferred from experiment \link[=*IDA, IPI, IMP, IGI, IEP*]{IDA, IPI, IMP, IGI, IEP}
+\item Direct assay \link[=*IDA*]{IDA} / Mutant phenotype \link[=*IMP*]{IMP}
+\item Genetic interaction \link[=*IGI*]{IGI} / Physical interaction \link[=*IPI*]{IPI}
+\item Traceable author \link[=*TAS*]{TAS} / Non-traceable author \link[=*NAS*]{NAS} /
+Inferred by curator \link[=*IC*]{IC}
+\item Expression pattern \link[=*IEP*]{IEP} / Sequence or structural similarity \link[=*ISS*]{ISS}
+/ Genomic context \link[=*IGC*]{IGC}
+\item Biological aspect of ancestor \link[=*IBA*]{IBA} / Rapid divergence \link[=*IRD*]{IRD}
+\item Reviewed computational analysis \link[=*RCA*]{RCA} / Electronic annotation \link[=*IEA*]{IEA}
+\item No biological data \link[=*ND*]{ND} / Not annotated or not in background \link[=*NA*]{NA}
 }}
 
 \item{specie}{Specie code: Organism names are constructed by concatenating

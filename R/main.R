@@ -1,3 +1,4 @@
+#' @rawNamespace import(AnnotationDbi, except = c(head))
 #' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
 #' @import corrplot
@@ -31,7 +32,7 @@
 #' @import org.Xl.eg.db
 #' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
-#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise))
+#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select))
 #' @import plyr
 #' @import RColorBrewer
 #' @import reshape2
@@ -40,10 +41,10 @@
 #' @import stringr
 #' @import VennDiagram
 #' @import yaml
-#' @importFrom graphics pairs plot
+#' @importFrom graphics pairs plot barplot hist lines par
 #' @importFrom grDevices colorRampPalette dev.off pdf
-#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper
-#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
+#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head
 
 
 # ------------------------------------------------------------------------------

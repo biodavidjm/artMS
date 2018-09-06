@@ -553,18 +553,17 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   if(enrich == "yesenrich" & dim(l2fcol4enrichment)[1] > 0 ){
+    
     cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
     if( grepl("yesptm",isPtm) ){
-      l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
+      # l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <- l2fcol4enrichment[grep(",",l2fcol4enrichment$Protein, invert=T),]
-      # Select the Uniprot ID, but keep in mind that some of them might have many _ph54_ph446
-      # before
-      # l2fcol4enrichment$Protein <- gsub("(.*)(_.*)", "\\1", l2fcol4enrichment$Protein)
-      l2fcol4enrichment$Protein <- gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = T)
-      l2fcol4enrichment <- unique(l2fcol4enrichment)
-      l2fcol4enrichment <- proteinid2gene(l2fcol4enrichment, specie, 'Protein')
+      # Select the Uniprot ID, but keep in mind that some of them might 
+      # have many _ph54_ph446 before
+      # l2fcol4enrichment$Protein <- gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = T)
+      l2fcol4enrichment <- unique(l2fcol4enrichment[c("Protein", "Gene", "Comparisons", "value")])
     }
     
     # ALL SIGNIFICANT CHANGES log2fc
