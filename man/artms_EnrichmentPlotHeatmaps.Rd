@@ -7,7 +7,7 @@
 artms_EnrichmentPlotHeatmaps(dat, out_file)
 }
 \arguments{
-\item{dat}{The data.frame output from}
+\item{dat}{The data.frame output from gprofiler}
 
 \item{out_file}{output file name (must have \code{.txt} extension)}
 }

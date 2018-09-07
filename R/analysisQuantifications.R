@@ -62,13 +62,13 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
   if(pathogen == "nopathogen"){
-    cat("No Pathogen extra in these samples (choose this for Influenza)\n")
+    cat("--- No Pathogen extra in these samples (only Influenza)\n")
   }else if(pathogen == "tb"){ # This should not work
-    cat("PATHOGEN IN SAMPLES: TB\n")
+    cat("--- PATHOGEN IN SAMPLES: TB\n")
     pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = F, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "TB",
     names(pathogen.ids) <- c('Entry')
   }else if(pathogen == "lpn"){
-    cat("PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
+    cat("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
     pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = T, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "Lpn",
   }else{
     stop("\n\nThis pathogen is not supported yet\n\n")
@@ -82,15 +82,15 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   # LOADING ABUNDANCE
-  cat("---READING IN modelqc FILE\n")
+  cat(">> LOADING modelqc FILE (ABUNDANCE)\n")
   dfmq <- read.delim(modelqc_file, header = T, sep = "\t", stringsAsFactors = F)
   #Removing the empty protein names
   if(any(dfmq$PROTEIN == "")){ dfmq <- dfmq[-which(dfmq$PROTEIN == ""),]}
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN )
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN )
-  # Select only POSITIVE values (they all should be positive values, 
-  # but in one case we found negative ones)
-  dfmq <- dfmq[which(dfmq$ABUNDANCE > 12 & dfmq$ABUNDANCE < 35),]
+  # Remove outliers
+  cat("--- Removing outliers (10 < abundance < 40)\n")
+  dfmq <- dfmq[which(dfmq$ABUNDANCE > 10 & dfmq$ABUNDANCE < 40),]
   
   # First, let's take the conditions, which will be used later in several places
   conditions <- unique(dfmq$GROUP_ORIGINAL)
@@ -162,13 +162,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # Let's get rid of outliers: log2fc larger than X (but we need to keep the "inf" values for imputation)
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC),]
-  cutofflog2fc <- 12
+  cutofflog2fc <- 14
+  cat("--- Removing outliers (",paste0("-",cutofflog2fc," < log2fc < +",cutofflog2fc),")\n")
   filtermorethan10 <- length(dflog2fcfinites$log2FC[abs(dflog2fcfinites$log2FC) > cutofflog2fc])
   if( filtermorethan10 > 0){
-    cat("--- Removing log2fc values larger than +/-",cutofflog2fc," ... ", filtermorethan10, "\n\n")
+    cat("------ (-) Removing [",filtermorethan10,"] protein ids with a abs(log2fc) >",cutofflog2fc,"\n")
     dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc),]
   }else{
-    cat("--- NO LOG2FC VALUES >",cutofflog2fc,"so moving on!\n")
+    cat("------ (+) No log2fc values >",cutofflog2fc,"so moving on!\n")
   }
   
   # IMPUTING MISSING VALUES
@@ -194,7 +195,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if( numberInfinites < 1){
     cat("\nWARNING: O infinite values. This is not normal\n")
   }else {
-    cat("--- Number of infinite values",dim(dflog2fcinfinites)[1],"\n")
+    cat("--- Number of +/- INF values",dim(dflog2fcinfinites)[1],"\n")
     
     imputedL2FCmelted <- artms_imputeMissingValues(dflog2fcinfinites, dfmq)
     
@@ -315,8 +316,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   # Relationship between log2fc comparisons
+  cat(">> PLOT: CORRELATION BETWEEN ALL THE QUANTIFICATIONS (based on log2fc values\n")
   if (length(unique(dflog2fc$Label)) > 1){
-    cat(">> PLOT: CORRELATION BETWEN QUANTIFICATIONS (based on log2fc values\n")
     relaChanges <- gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
     relaChanges <- paste0("plot.",relaChanges)
     relaChanges <- paste0(output_dir,"/",relaChanges)
@@ -324,7 +325,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       artms_plotRatioLog2fc(dflog2fc)
     garbage <- dev.off()
   }else{
-    cat("--- Only one Comparison is available\n")
+    cat("--- Only one Comparison is available (correlation is not possible)\n")
   }
 
   ##############################################################################
@@ -342,14 +343,13 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundance_dcmean <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = mean, fill = 0 )
   
   #########################################################
-  # HEATMAPs
-  # Use the sum for the heatmap
-  dchm_input <- abundance_dcsum
+  # HEATMAPs: Use the mean for the heatmap
+  cat(">> HEATMAPS OF PROTEIN ABUNDANCE\n")
+  dchm_input <- abundance_dcmean
   rownames(dchm_input) <- dchm_input$Prey
   dfhm <- subset(dchm_input, select=-c(Prey))
   aqui <- data.matrix(dfhm)
   
-  cat(">> HEATMAPS OF PROTEIN ABUNDANCE\n")
   outHeatMapOverall <- gsub(".txt",".clustering.abundance.all-overview.pdf",log2fc_file)
   outHeatMapOverall <- paste0(output_dir,"/",outHeatMapOverall)
   pheatmap(aqui, filename=outHeatMapOverall, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = F, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
@@ -372,20 +372,22 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # REPRODUCIBILITY AND SPECIFICY PARATEMERS
   
-  # Now the number of bioreplicas based on abundance data
+  # Get the number of bioreplicates based on abundance data
   nbr_wide <- reshape2::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = length, fill = 0 )
   nbr_long <- reshape2::melt(nbr_wide, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
   nbr_long <- nbr_long[!(nbr_long$Abundance == 0),]
   names(nbr_long)[grep('Abundance', names(nbr_long))] <- 'BioRep'
   
-  # IT SHOULD BE A FUNCTION FROM HERE: CALCULATE THE SUM COUNTS From MSrepro
+  # Get
   OUTreprod <- reshape2::dcast(data = nbr_long, Prey~Bait, value.var = 'BioRep')
   here <- dim(OUTreprod)[2]
   OUTreprod[is.na(OUTreprod)] <- 0
   # Make a copy to use later
   bioReplicaInfo <- OUTreprod 
+  # And geht the total number of biological replicates
   OUTreprod$ReproBioreplicaCount <- rowSums(OUTreprod[,2:here])
   
+  # Get whether a protein is found in all conditions
   reprospec2merge <- subset(OUTreprod, select = c(Prey, ReproBioreplicaCount))
   
   OUTreproCondition <- reshape2::dcast(data = nbr_long, Prey~Bait, value.var = 'BioRep')
@@ -568,7 +570,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # ALL SIGNIFICANT CHANGES log2fc
     # GPROFILER
-    cat("--- Gprofiler: ALL significant Changes\n")
+    cat("1) Enrichment of ALL significant Changes\n")
     
     filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= threshold), ]
     
@@ -583,7 +585,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.allsig, out.mac.allsig, quote = F, sep = "\t", row.names = F, col.names = T)
       }
       
-      cat("--- Corum Complexes Enrichment (all significants changes)\n")
+      cat("---+ Corum Protein Complex Enrichment Analysis\n")
       
       # CORUM
       allsigComplexEnriched <- artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
@@ -609,7 +611,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # POSITIVE log2fc
     # GPROFILER
-    cat("--- Gprofiler: enrichment of selected POSITIVE significant changes\n")
+    cat("2) Enrichment of selected POSITIVE significant changes\n")
     
     filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= threshold), ]
     
@@ -622,7 +624,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.pos, out.mac.pos, quote = F, sep = "\t", row.names = F, col.names = T)  
       }
       
-      cat("--- Corum Complexes Enrichment (Positives MACs)\n")
+      cat("---+ Corum Protein Complex Enrichment Analysis\n")
       
       # CORUM
       positiveComplexEnriched <- artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
@@ -635,14 +637,13 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if(dim(positiveComplexEnriched)[1] > 2){
-        cat("Plotting positive corum complexes\n")
         out.mac.pos.corum.pdf <- gsub(".txt","-enrich-MAC-positives-corum.pdf",log2fc_file)
         out.mac.pos.corum.pdf <- paste0(output_dir,"/",out.mac.pos.corum.pdf)
         # out.mac.pos.corum.pdf <- 'whatever.corum.positive.pdf'
         artms_plotCorumEnrichment(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
       }else{
         
-        cat("\t----- Not enough positive corum complexes to plot\n")
+        cat("\t----(-) Not enough positive corum complexes to plot\n")
         
       }    
     }else{
@@ -653,7 +654,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     
     # NEGATIVE log2fc
-    cat("--- Gprofiler: enrichment of selected NEGATIVE significant changes\n")
+    cat("3) Enrichment of selected NEGATIVE significant changes\n")
     
     filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -threshold), ]
     
@@ -667,7 +668,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         write.table(mac.neg, out.mac.neg, quote = F, sep = "\t", row.names = F, col.names = T)
       }
 
-      cat("---- Corum Complexes Enrichment (Negative MACs)\n")
+      cat("---+ Corum Protein Complex Enrichment Analysis\n")
 
       negativesComplexEnriched <- artms_enrichForComplexes(filneg_log2fc_long, backgroundNumber)
       
@@ -695,7 +696,9 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
 
   # END enrichments
-
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  cat(">> PRINT OUT FILES\n")
   superunified <- merge(abundancelongsummean, nbr_long, by = c('Bait', 'Prey'), all = T)
   superunified <- merge(superunified, reprocondition2merge, by = 'Prey', all = T)
   superunified <- merge(superunified, reprospec2merge, by = 'Prey', all = T)
@@ -707,7 +710,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   superunified <- artms_annotationUniprot(superunified, 'Prey', specie)
-  
+
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
   

@@ -18,7 +18,6 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
   # fileout <- out.mac.allsig
   # background <- listOfGenes
   
-  
   # Selecting unique genes in each comparison
   pretmp <- data[c('Gene', 'Comparisons')]
   pretmp <- unique(pretmp)
@@ -36,7 +35,7 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
   enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500),]
   
   for( i in unique(enrichgenes2plot$domain) ){
-    cat("\t--- Plotting '", i, "' annotations...")
+    cat("\t--- Plotting '", i, "' annotations... ")
     tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
     outfile <- gsub(".txt", paste0("_",i, ".txt"), fileout )
     artms_EnrichmentPlotHeatmaps(tmp, outfile)
@@ -123,9 +122,8 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
              treeheight_col = F,
              color = color.palette
     )
-    cat("---+ Complex Enrichment Heatmap ready\n")
   }else{
-    cat("\nNot enough enriched comparisons to plot the heatmap\n")
+    cat("---(-) Not enough enriched comparisons to plot the heatmap\n")
   }
 }
 
@@ -224,13 +222,16 @@ artms_cleanGPROFILER <- function(gp){
 #' @title plot and save heatmaps of the significant enrichment results
 #' 
 #' @description plot and save heatmaps of the significant enrichment results
-#' @param dat The data.frame output from 
+#' @param dat The data.frame output from gprofiler
 #' @param out_file output file name (must have `.txt` extension)
 #' @return A heatmap in PDF format with the most significant enrichments
 #' @keywords plot, heatmap, enrichments
 #' artms_EnrichmentPlotHeatmaps()
 #' @export
 artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
+  # dat <- tmp
+  # out_file <- outfile
+  
   # formatting data to heatmap compatible format
   x <- dcast(dat, term.name~query.number, value.var='p.value', max, fill=1)
   # Let's stop this thing if there is not enough terms (we need at least 2)
@@ -239,11 +240,10 @@ artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
   }else{
     row.names(x) = x$term.name
     x$term.name = c()
-    # keep only terms that are significant
+    # At least one comparison ready
     if(dim(x)[2]>0){
       idx <- apply(x, 1, function(y){ return(min(y)<=.05)})
       x <- x[which(idx),]
-      # x[x == 1] <- 0
       x <- -log10(x)
       
       # setting up breaks for colors of -log10 p-values
@@ -254,7 +254,6 @@ artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
       
       ## format stuff for heatmap
       colors = c(colorRampPalette(brewer.pal(n = 7, name = "Purples"))(length(BREAKS)-1))
-      # colors = colors[length(colors):1]
       LOWER_T = BREAKS[length(BREAKS)]
       term_groups_selected_w_display = x
       term_groups_selected_w_display[term_groups_selected_w_display>LOWER_T]=LOWER_T
