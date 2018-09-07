@@ -73,6 +73,9 @@ artms_mapUniprot2entrezGeneName <- function(uniprotkb, specie){
     stop("PLEASE, CHECK HELP TO FIND OUT MORE ABOUT SUPPORTED SPECIES")
   }
   mappings <- unique(mappings)
+  # It migth come with 1 uniprot to many gene names: take the first one, 
+  # which should be the main gene name
+  mappings <- mappings[!duplicated(mappings$UNIPROT),]
   return(mappings)
 }
 
@@ -94,7 +97,7 @@ artms_annotationUniprot <- function(data, columnid, sps) {
   # columnid <- "Protein"
   # sps <- "human"
   
-  theUniprots <- data[[columnid]]
+  theUniprots <- unique(data[[columnid]])
   preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, specie = sps)
   
   dc_merged <- merge(data, preload, by.x = columnid, by.y = 'UNIPROT', all.x = T)
