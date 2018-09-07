@@ -11,7 +11,7 @@ artms_loadModelQCstrict(df_input, specie, isPTM)
 
 \item{specie}{Specie name for annotation purposes}
 
-\item{isPTM}{Specify whether is a PTM dataset: noptmsites, yesptmsites, yesptmph}
+\item{isPTM}{Specify whether is a PTM dataset: noptm, yesptmsites, yesptmph}
 }
 \value{
 annotated data.frame of abundance data

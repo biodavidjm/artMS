@@ -10,8 +10,8 @@ date: 2018-09-05
 output: 
   BiocStyle::html_document:
     toc_float: true
-#  pdf_document:
-#    toc: true   
+ # pdf_document:
+ #   toc: true
 vignette: >
     %\VignetteIndexEntry{Learn to use artMS ~30 min}
     %\VignetteEngine{knitr::rmarkdown}
@@ -31,10 +31,10 @@ label-free datasets.
 
 The functions available at `artMS` can be grouped in 4 major categories:
 
-1. Quality Control
-1. Relative quantification with MSstats
-1. Downstream analysis (relies on the output from 2)
-1. Miscellaneous: a series of functions to do a little bit of everything.
+* Quality Control
+* Relative quantification with MSstats
+* Downstream analysis (relies on the output from 2)
+* Miscellaneous: a series of functions to do a little bit of everything.
 
 The quality control can be run simultaneously as part of the **Relative Quantification** through the section `qc` of the configuration (`yaml`) file required to run it (see details below)
 

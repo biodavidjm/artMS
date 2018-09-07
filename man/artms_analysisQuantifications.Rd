@@ -5,8 +5,8 @@
 \title{Analysis of the Relative Quantification}
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
-  output_dir, isFluomics, isPtm, isBackground, mnbr, threshold, ipval,
-  pathogen)
+  output_dir, isFluomics, isPtm = "noptm", isBackground, mnbr, threshold,
+  ipval, pathogen = "nopathogen")
 }
 \arguments{
 \item{log2fc_file}{MSstats results file}
@@ -21,7 +21,7 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
 
 \item{isFluomics}{Is from the fluomics project?}
 
-\item{isPtm}{is a ptm quantification? yesptmph, yesptmsites, noptmsites}
+\item{isPtm}{is a ptm quantification? noptm (default), yesptmph, yesptmsites}
 
 \item{isBackground}{background gene set}
 
@@ -31,7 +31,9 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
 
 \item{ipval}{pvalue cutoff for enrichment analysis}
 
-\item{pathogen}{is there a pathogen in the dataset as well?}
+\item{pathogen}{is there a pathogen in the dataset as well? if it does not,
+then use \code{pathogen = nopathogen} (default), \code{tb} (Tuberculosis),
+\code{lpn} (Legionella)}
 }
 \value{
 summary of quantifications, including annotations, enrichments, etc

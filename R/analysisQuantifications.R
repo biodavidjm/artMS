@@ -11,12 +11,14 @@
 #' @param enrich Performed enrichment analysis?
 #' @param output_dir results folder name
 #' @param isFluomics Is from the fluomics project?
-#' @param isPtm is a ptm quantification? yesptmph, yesptmsites, noptmsites
+#' @param isPtm is a ptm quantification? noptm (default), yesptmph, yesptmsites 
 #' @param isBackground background gene set
 #' @param mnbr minimal number of biological replicates for imputation
 #' @param threshold log2fc cutoff for enrichment analysis
 #' @param ipval pvalue cutoff for enrichment analysis
-#' @param pathogen is there a pathogen in the dataset as well?
+#' @param pathogen is there a pathogen in the dataset as well? if it does not,
+#' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
+#' `lpn` (Legionella)
 #' @return summary of quantifications, including annotations, enrichments, etc
 #' @keywords analysis, quantifications
 #' artms_analysisQuantifications()
@@ -27,12 +29,12 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           enrich, 
                                           output_dir, 
                                           isFluomics, 
-                                          isPtm, 
+                                          isPtm = "noptm", 
                                           isBackground, 
                                           mnbr, 
                                           threshold, 
                                           ipval, 
-                                          pathogen)
+                                          pathogen = "nopathogen")
 {
   
   # source('~/github/kroganlab/enrichment/enrichProfiler.R')
@@ -101,7 +103,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(isBackground == "nobackground"){
     # If not list of background genes is provided, 
     # then extract them from the modelqc file
-    if (isPtm == "noptmsites"){
+    if (isPtm == "noptm"){
       suppressMessages(dfmq2Genes <- artms_annotationUniprot(dfmq, 'PROTEIN', specie))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",numberTotalGenes,"\n")
@@ -283,7 +285,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   theBiologicalReplicas <- unique(condFirst$SUBJECT_ORIGINAL)
   numberBioReplicas <- length(theBiologicalReplicas)
   
-  ##############################################################################
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ABUNDANCE PLOTS
   
   # boxplot of relative abundances
@@ -328,7 +330,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- Only one Comparison is available (correlation is not possible)\n")
   }
 
-  ##############################################################################
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ABUNDANCE DATA, CREATE FILTERS
   abundance <- artms_loadModelqcBasic(dfmq)
   names(abundance)[grep('Protein', names(abundance))] <- 'Prey'
@@ -408,17 +410,15 @@ artms_analysisQuantifications <- function(log2fc_file,
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
-  # Now let's add the annotation (although I only need the gene name)
   cat(">> WORKING ON PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
   modelqcabundance <- artms_loadModelQCstrict(dfmq, specie, isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
-  artms_getPCAplots(modelqcabundance, out.pca, conditions)
+  suppressWarnings(artms_getPCAplots(modelqcabundance, out.pca, conditions))
   cat("---+ PCA done!\n")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ANNOTATIONS
-  # Prepare annotated abundance file to output
   modelqc_file_splc <- artms_mergeAbNbr(dfmq, nbr_wide, specie)
   
   cat(">>> ANNOTATIONS\n")
@@ -709,35 +709,19 @@ artms_analysisQuantifications <- function(log2fc_file,
     superunified$Prey <- ifelse(grepl("_H1N1|_H3N2|_H5N1", superunified$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", superunified$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", superunified$Uniprot_PTM, perl = T)) 
   }
   
-  superunified <- artms_annotationUniprot(superunified, 'Prey', specie)
+  suppressMessages(superunified <- artms_annotationUniprot(superunified, 'Prey', specie))
 
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
   
   # ANNOTATE SPECIE
-  cat("Annotating the specie before jitter plot\n")
-  
-  annotateSpecie <- function(df, pathogen, specie){
-    if(pathogen == "nopathogen"){
-      # Influenza is treated differently
-      df$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", df$Protein), "Influenza", specie)  
-    }else{
-      # Pathogens
-      df$Specie <- ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
-    }
-    return(df)
-  }
-  
-  superunified <- annotateSpecie(superunified, pathogen, specie)
-  imputedDF <- annotateSpecie(imputedDF, pathogen, specie)
-  
-  
-  
-  #########################################################
-  #########################################################
+  cat("--- Annotating specie(s) in files\n")
+  superunified <- artms_annotateSpecie(superunified, pathogen, specie)
+  imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # THE JITTER PLOTS
-  # TO DO: REMOVE PROTEINS NOT FOUND IN MORE THAN 1 BIOLOGICAL REPLICA
-  cat("Time for the Jitter plot\n")
+  cat(">> JITTERED PLOT\n")
   if(isFluomics == "yesflu"){
     # Filter by number of biological replicas > 1
     superunifiedfiltered <- superunified[which(superunified$BioRep > 1),]
@@ -746,11 +730,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     # Removing carry overs
     superunifiedfiltered <- superunifiedfiltered[!(grepl("H1N1|H3N2|H5N1", superunifiedfiltered$Protein) & grepl("MOCK",superunifiedfiltered$Condition)),]
     
-    cat("\n\t>>> Printing out: Jittered PLOTS")
     abuJittered <- gsub(".txt", ".abundanceGrouped.pdf", log2fc_file)
     abuJittered <- paste0("plot.",abuJittered)
     abuJittered <- paste0(output_dir,"/",abuJittered)
-    suppressMessages(library(dplyr))
     # j <- ggplot(superunifiedfiltered %>% arrange(Specie), aes(Condition,AbMean))
     # j <- j + geom_jitter(aes(colour = Specie), width = 0.3)
     if(specie == "human"){
@@ -765,52 +747,13 @@ artms_analysisQuantifications <- function(log2fc_file,
     j <- j + theme_minimal()
     j <- j + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
     
-    # Do you want to add labels?
-    # if( grepl("yesptm", isPtm) ){
-    #    j <- j + geom_text(aes(label=ifelse(Specie=="Influenza",as.character(Uniprot_PTM),'')),hjust=0,vjust=0,size=2)
-    #    j <- j + geom_text(aes(label=ifelse(Specie=="TB",as.character(Uniprot_PTM),'')),hjust=0,vjust=0,size=2)
-    # }else{
-    #    j <- j + geom_text(aes(label=ifelse(Specie=="Influenza",as.character(Protein),'')),hjust=0,vjust=0,size=2)
-    #    j <- j + geom_text(aes(label=ifelse(Specie=="TB",as.character(Protein),'')),hjust=0,vjust=0,size=2)
-    # }
-    # j <- j + geom_text_repel(aes(label=ifelse(Specie=="Influenza",as.character(Protein),'')), size=2)
-    
     pdf(abuJittered)
     print(j)
     garbage <- dev.off()
-    cat("\t--->done\n\n")
+    cat("--- done\n")
   }
-  #################################################################################
-  #################################################################################
-  
-  # Wide version of imputed values
-  cat("Wide format for imputed values (log2fc only)\n")
-  dcImputed <- reshape2::dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
-  
-  
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # OUTPUT FILES, txt and xlsx, using the "results" file from MSstats as the template name
-  outmodeqcLong <- gsub(".txt","-longAbundance.txt", log2fc_file)
-  outmodeqcLong <- paste0(output_dir,"/",outmodeqcLong)
-  write.table(superunified, outmodeqcLong, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  outmodelqc <- gsub(".txt","-wideAbundance.txt", log2fc_file)
-  outmodelqc <- paste0(output_dir,"/",outmodelqc)
-  write.table(modelqc_file_splc, outmodelqc, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  outlog2fc <- gsub(".txt","-wideL2fc.txt", log2fc_file)
-  outlog2fc <- paste0(output_dir,"/",outlog2fc)
-  write.table(log2fc_file_splc, outlog2fc, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  outwideimputed <- gsub(".txt","-wideImputedL2fc.txt", log2fc_file)
-  outwideimputed <- paste0(output_dir,"/",outwideimputed)
-  write.table(dcImputed, outwideimputed, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  # iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-  # IMPUTED extended: spliting the site information for other purposes
-  # Testing to generate the input file for pedro beltrao
-  # library(tidyr)
-  # library(dplyr)
+
+  # iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
   
   if( isPtm == "yesptmph" ){
     imputedDFext <- imputedDF
@@ -831,10 +774,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
     names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
     
-    # to delete
-    # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)  
-    # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)
-    imputedDFext <- annotateSpecie(imputedDFext, pathogen, specie)
+    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
     
     outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
     outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
@@ -861,7 +801,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)  
     # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)  
-    imputedDFext <- annotateSpecie(imputedDFext, pathogen, specie)
+    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
     
     outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
     outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
@@ -879,20 +819,18 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF <- artms_annotationUniprot(imputedDF, 'UniprotID', specie)
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
-    # to delete
-    # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, pathogen, specie)
-    imputedDF <- annotateSpecie(imputedDF, pathogen, specie)
+    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <- reshape2::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iLog2FC', fill = 0)
     imputedDF_wide_pvalue <- reshape2::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
     
-  }else if(isPtm == "noptmsites"){
+  }else if(isPtm == "noptm"){
     imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie)
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, pathogen, specie)
-    imputedDF <- annotateSpecie(imputedDF, pathogen, specie)
+    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <- reshape2::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iLog2FC', fill = 0)
@@ -918,7 +856,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   write.table(imputedDF, outlog2fcImpute, quote = F, sep = "\t", row.names = F, col.names = T)
   
   # PCA AND CLUSTERING ANALYSIS
-  if(isPtm == "noptmsites"){
+  if(isPtm == "noptm"){
     
     cat("The Clustering analysis begins... \n")
     # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
@@ -1103,6 +1041,26 @@ artms_analysisQuantifications <- function(log2fc_file,
     write.table(dfclusters, file_clusterheatdata_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cat(">> WRITTING ALL THE OUTPUT FILES\n")
+  dcImputed <- reshape2::dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
+  
+  outmodeqcLong <- gsub(".txt","-longAbundance.txt", log2fc_file)
+  outmodeqcLong <- paste0(output_dir,"/",outmodeqcLong)
+  write.table(superunified, outmodeqcLong, quote = F, sep = "\t", row.names = F, col.names = T)
+  
+  outmodelqc <- gsub(".txt","-wideAbundance.txt", log2fc_file)
+  outmodelqc <- paste0(output_dir,"/",outmodelqc)
+  write.table(modelqc_file_splc, outmodelqc, quote = F, sep = "\t", row.names = F, col.names = T)
+  
+  outlog2fc <- gsub(".txt","-wideL2fc.txt", log2fc_file)
+  outlog2fc <- paste0(output_dir,"/",outlog2fc)
+  write.table(log2fc_file_splc, outlog2fc, quote = F, sep = "\t", row.names = F, col.names = T)
+  
+  outwideimputed <- gsub(".txt","-wideImputedL2fc.txt", log2fc_file)
+  outwideimputed <- paste0(output_dir,"/",outwideimputed)
+  write.table(dcImputed, outwideimputed, quote = F, sep = "\t", row.names = F, col.names = T)
+  
 
   outexcel <- gsub(".txt","-summary.xlsx",log2fc_file)
   outexcel <- paste0(output_dir,"/",outexcel)
@@ -1124,7 +1082,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         "enMACallCorum" = allsigComplexEnriched,
         "enMACposCorum" = positiveComplexEnriched,
         "enMACnegCorum" = negativesComplexEnriched)
-    }else if(isPtm == "noptmsites"){
+    }else if(isPtm == "noptm"){
       list_of_datasets <- list(
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
@@ -1153,7 +1111,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue)
-    }else if(isPtm == "noptmsites"){
+    }else if(isPtm == "noptm"){
       list_of_datasets <- list(
         # "AbundanceLong" = superunified,
         # "AbundanceWide" = modelqc_file_splc,
@@ -1189,6 +1147,36 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(enrich == "yesenrich"){
     cat("\tENRICHMENT files should also be out\n")
   }
+}
+
+
+# ------------------------------------------------------------------------------
+#' @title Adding a column with the specie name
+#' 
+#' @description Adding the specie name to every protein. 
+#' This makes more sense if there are more than one specie in the dataset, 
+#' which must be specified in the `pathogen` option. Influenza is a special 
+#' case that it does not need to be specified, as far as the proteins were
+#' originally annotated as `INFLUENZAGENE_STRAIN` 
+#' (strains covered `H1N1`, `H3N2`, `H5N1`), as for example, `NS1_H1N1`
+#' @param df data.frame with a `Protein` column (of uniprot ids)
+#' @param pathogen is there a pathogen in the dataset as well? if it does not,
+#' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
+#' `lpn` (Legionella)
+#' @param Main organism (supported for now: `human` or `mouse`)
+#' @return The same data.frame but with an extra column specifying the specie
+#' @keywords annotation, specie
+#' artms_annotateSpecie()
+#' @export
+artms_annotateSpecie <- function(df, pathogen, specie){
+  if(pathogen == "nopathogen"){
+    # Influenza is treated differently
+    df$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", df$Protein), "Influenza", specie)  
+  }else{
+    # Pathogens
+    df$Specie <- ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
+  }
+  return(df)
 }
 
 
@@ -1269,7 +1257,7 @@ artms_mergeAbNbr <- function (df_input, repro, specie) {
 #' @description Load limited columns from abundance (modelqc) annotated
 #' @param df_input data.frame with the raw abundance data (modelqc)
 #' @param specie Specie name for annotation purposes
-#' @param isPTM Specify whether is a PTM dataset: noptmsites, yesptmsites, yesptmph
+#' @param isPTM Specify whether is a PTM dataset: noptm, yesptmsites, yesptmph
 #' @return annotated data.frame of abundance data
 #' @keywords abundance, annotated
 #' artms_loadModelQCstrict()
