@@ -753,63 +753,11 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- done\n")
   }
 
-  # iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-  
-  if( isPtm == "yesptmph" ){
-    imputedDFext <- imputedDF
-    names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
-    # Take the Protein ID, but being very careful about the fluomics labeling
-    imputedDFext$Protein <- ifelse(
-      grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Uniprot_PTM), 
-      gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T) , 
-      gsub("^(\\S+?)_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T)
-    ) 
-    
-    # Extract sites from Uniprot_PTM
-    imputedDFext$PTMsite <- gsub("^(\\S+?)(_ph.*)", "\\2", imputedDFext$Uniprot_PTM, perl = T)
-    imputedDFext$PTMsite <- gsub("^(_ph)","", imputedDFext$PTMsite)
-    imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
-    # And create independent columns for each of them
-    imputedDFext <- imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% unnest(PTMsite)
-    imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
-    names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
-    
-    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
-    
-    outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
-    outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
-    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
-  } else if(isPtm == "yesptmsites") {
-    imputedDFext <- imputedDF
-    #1. Change the Protein name
-    names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
-    
-    # 2. Make a copy of Uniprot_PTM to operate on it
-    imputedDFext$PTMone <- imputedDFext$Uniprot_PTM
-    
-    # 3. Create independent columns for each of them
-    imputedDFext <- imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% unnest(PTMone)
-    
-    # 4. And take the labels:
-    imputedDFext$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$PTMone), 
-                                   gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$PTMone, perl = T) , 
-                                   gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = T)) 
-    imputedDFext$PTMsite <- gsub("(\\S+)(_[S,T,Y,K])(\\d+)","\\3",imputedDFext$PTMone)
-    
-    imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
-    names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
-    
-    # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)  
-    # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)  
-    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
-    
-    outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
-    outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
-    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  if( grepl("yesptm",isPtm) ){
+    cat(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE\n")
+    artms_generatePhSiteExtended(df = imputedDF, pathogen = pathogen, specie = specie)
   }
-  
-  # IMPUTED non extended version
-  # Let's annotate Imputed table
   
   if( grepl("yesptm",isPtm) ){
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
@@ -1147,6 +1095,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(enrich == "yesenrich"){
     cat("\tENRICHMENT files should also be out\n")
   }
+  
+  cat(">> SUPER ANALYSIS IS DONE\n\n")
 }
 
 
@@ -1160,10 +1110,10 @@ artms_analysisQuantifications <- function(log2fc_file,
 #' originally annotated as `INFLUENZAGENE_STRAIN` 
 #' (strains covered `H1N1`, `H3N2`, `H5N1`), as for example, `NS1_H1N1`
 #' @param df data.frame with a `Protein` column (of uniprot ids)
-#' @param pathogen is there a pathogen in the dataset as well? if it does not,
+#' @param pathogen Is there a pathogen in the dataset as well? if it does not,
 #' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
 #' `lpn` (Legionella)
-#' @param Main organism (supported for now: `human` or `mouse`)
+#' @param specie Main organism (supported for now: `human` or `mouse`)
 #' @return The same data.frame but with an extra column specifying the specie
 #' @keywords annotation, specie
 #' artms_annotateSpecie()
@@ -1177,6 +1127,81 @@ artms_annotateSpecie <- function(df, pathogen, specie){
     df$Specie <- ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
   }
   return(df)
+}
+
+# ------------------------------------------------------------------------------
+#' @title Generate ph-site specific detailed file
+#' 
+#' @description Generate extended detailed ph-site file, where every line is a
+#' ph site instead of a peptide. Therefore, if one peptide has multiple ph sites
+#' it will be breaking down in each of the sites. This file will help generate
+#' input files for tools as [Phosfate](http://phosfate.com/) or 
+#' [PHOTON](https://github.com/jdrudolph/photon)
+#' @param df data.frame of log2fc and imputed values
+#' @param pathogen Is there a pathogen in the dataset as well? Available 
+#' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not, 
+#' then use `nopathogen` (default).
+#' @param specie Main organism (supported for now: `human` or `mouse`)
+#' @return extended version of the ph-site
+#' @keywords external, tools, phosfate
+#' artms_generatePhSiteExtended()
+#' @export
+artms_generatePhSiteExtended <- function(df, pathogen, specie){
+  if( isPtm == "yesptmph" ){
+    imputedDFext <- df
+    names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
+    # Take the Protein ID, but being very careful about the fluomics labeling
+    imputedDFext$Protein <- ifelse(
+      grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Uniprot_PTM), 
+      gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T) , 
+      gsub("^(\\S+?)_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T)
+    ) 
+    
+    # Extract sites from Uniprot_PTM
+    imputedDFext$PTMsite <- gsub("^(\\S+?)(_ph.*)", "\\2", imputedDFext$Uniprot_PTM, perl = T)
+    imputedDFext$PTMsite <- gsub("^(_ph)","", imputedDFext$PTMsite)
+    imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
+    # And create independent columns for each of them
+    imputedDFext <- imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
+    suppressMessages(imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie))
+    names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
+    
+    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
+    
+    outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
+    outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
+    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
+  }else if(isPtm == "yesptmsites"){
+    imputedDFext <- df
+    #1. Change the Protein name
+    names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
+    
+    # 2. Make a copy of Uniprot_PTM to operate on it
+    imputedDFext$PTMone <- imputedDFext$Uniprot_PTM
+    
+    # 3. Create independent columns for each of them
+    imputedDFext <- imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% unnest(PTMone)
+    
+    # 4. And take the labels:
+    imputedDFext$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$PTMone), 
+                                   gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$PTMone, perl = T) , 
+                                   gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = T)) 
+    imputedDFext$PTMsite <- gsub("(\\S+)(_[S,T,Y,K])(\\d+)","\\3",imputedDFext$PTMone)
+    
+    imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
+    names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
+    
+    # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)  
+    # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)  
+    imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
+    
+    outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
+    outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
+    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
+  }else{
+    stop("--- YOU SHOULD NOT SEE THIS MESSAGE. PLEASE, LET THE DEVELOPER KNOW ABOUT THIS MESSAGE\n. THANKS\n")
+  }
+  cat("--- ph-site extended version ready\n")
 }
 
 

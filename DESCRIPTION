@@ -67,6 +67,7 @@ Imports:
   stats,
   shiny,
   stringr,
+  tidyr,
   utils,
   VennDiagram,
   yaml

@@ -39,6 +39,7 @@
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @import shiny
 #' @import stringr
+#' @importFrom tidyr unnest
 #' @import VennDiagram
 #' @import yaml
 #' @importFrom graphics pairs plot barplot hist lines par
