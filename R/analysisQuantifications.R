@@ -759,12 +759,13 @@ artms_analysisQuantifications <- function(log2fc_file,
     artms_generatePhSiteExtended(df = imputedDF, pathogen = pathogen, specie = specie)
   }
   
+  cat(">> GENERATING FINAL OUTPUT FILES\n")
   if( grepl("yesptm",isPtm) ){
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
     # The virus labeling has to be taken into account when getting the uniprot id:
     imputedDF$UniprotID <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDF$UniprotID, perl = T) , gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = T)) 
-    imputedDF <- artms_annotationUniprot(imputedDF, 'UniprotID', specie)
+    suppressMessages(imputedDF <- artms_annotationUniprot(imputedDF, 'UniprotID', specie))
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
@@ -774,7 +775,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF_wide_pvalue <- reshape2::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
     
   }else if(isPtm == "noptm"){
-    imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie)
+    suppressMessages(imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie))
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, pathogen, specie)
@@ -784,24 +785,18 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF_wide_log2fc <- reshape2::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iLog2FC', fill = 0)
     imputedDF_wide_pvalue <- reshape2::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iPvalue', fill = 0)
   }else{
-    stop("you should not see this message. Just go to the source code if you did\n")
+    stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: noptm, yesptmph, yesphsite\n")
   }
   
   # boxplot of relative abundances
-  cat("Printing final number in imputed Conditions\n")
-  numimputedfinal <- gsub(".txt", ".FNIC.pdf", log2fc_file)
+  cat(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED\n")
+  numimputedfinal <- gsub(".txt", ".TotalNumberQuantifications.pdf", log2fc_file)
   numimputedfinal <- paste0("plot.",numimputedfinal)
   numimputedfinal <- paste0(output_dir,"/",numimputedfinal)
-  
   pdf(numimputedfinal)
-  plotNumberProteinsImputedLog2fc(imputedDF)
+    plotNumberProteinsImputedLog2fc(imputedDF)
   garbage <- dev.off()
   
-  
-  # And print it out
-  outlog2fcImpute <- gsub(".txt","-imputedL2fc.txt", log2fc_file)
-  outlog2fcImpute <- paste0(output_dir,"/",outlog2fcImpute)
-  write.table(imputedDF, outlog2fcImpute, quote = F, sep = "\t", row.names = F, col.names = T)
   
   # PCA AND CLUSTERING ANALYSIS
   if(isPtm == "noptm"){
@@ -991,6 +986,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat(">> WRITTING ALL THE OUTPUT FILES\n")
+  
+  # PRINT OUT IMPUTED
+  outlog2fcImpute <- gsub(".txt","-imputedL2fc.txt", log2fc_file)
+  outlog2fcImpute <- paste0(output_dir,"/",outlog2fcImpute)
+  write.table(imputedDF, outlog2fcImpute, quote = F, sep = "\t", row.names = F, col.names = T)
+  
   dcImputed <- reshape2::dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
   
   outmodeqcLong <- gsub(".txt","-longAbundance.txt", log2fc_file)
