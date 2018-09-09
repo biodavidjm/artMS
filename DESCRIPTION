@@ -25,6 +25,8 @@ Imports:
   AnnotationDbi,
   biomaRt,
   bit64,
+  circlize,
+  cluster,
   ComplexHeatmap,
   corrplot,
   data.table,

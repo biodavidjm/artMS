@@ -185,7 +185,7 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' artms_enrichProfiler()
 #' @export
 artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background = NA){
-  set_base_url("http://biit.cs.ut.ee/gprofiler")
+  gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
   cat("---+ Enrichment analysis using gProfiler...")
   enrichData <- gprofiler(x, 
                           organism = specie, # "scerevisiae","hsapiens", "mmusculus"

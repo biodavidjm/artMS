@@ -8,10 +8,10 @@
 #' @param log2fc_file MSstats results file 
 #' @param modelqc_file MSstats modelqc file
 #' @param specie Specie (human, mouse)
-#' @param enrich Performed enrichment analysis?
+#' @param enrich Performed enrichment analysis? `TRUE` (default) or `FALSE`
 #' @param output_dir results folder name
-#' @param isFluomics Is from the fluomics project?
-#' @param isPtm is a ptm quantification? noptm (default), yesptmph, yesptmsites 
+#' @param isFluomics Is from the fluomics project? `TRUE` or `FALSE` (default)
+#' @param isPtm Is a ptm quantification? noptm (default), yesptmph, yesptmsites 
 #' @param isBackground background gene set
 #' @param mnbr minimal number of biological replicates for imputation
 #' @param threshold log2fc cutoff for enrichment analysis
@@ -26,16 +26,15 @@
 artms_analysisQuantifications <- function(log2fc_file, 
                                           modelqc_file, 
                                           specie, 
-                                          enrich, 
+                                          enrich = TRUE, 
                                           output_dir, 
-                                          isFluomics, 
+                                          isFluomics = FALSE, 
                                           isPtm = "noptm", 
                                           isBackground, 
                                           mnbr, 
                                           threshold, 
                                           ipval, 
-                                          pathogen = "nopathogen")
-{
+                                          pathogen = "nopathogen"){
   
   # source('~/github/kroganlab/enrichment/enrichProfiler.R')
   # source('~/github/kroganlab/djmSource/myLibrary/generalFunctions.R')
@@ -145,7 +144,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   dflog2fcraw$Protein <- gsub("(.*)(\\|.*)", "\\1", dflog2fcraw$Protein )
   
   # # Filtering conditions:
-  # if(isFluomics == "yesflu"){
+  # if(isFluomics == TRUE){
   #   cat("WARNING! selecting MOCK for humans and mice in LOG2FC raw data\n")
   # 
   #   # WHEN A REFERENCE MOCK IS WISHED
@@ -171,7 +170,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("------ (-) Removing [",filtermorethan10,"] protein ids with a abs(log2fc) >",cutofflog2fc,"\n")
     dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc),]
   }else{
-    cat("------ (+) No log2fc values >",cutofflog2fc,"so moving on!\n")
+    cat("------ (+) No abs(log2fc) >",cutofflog2fc,"so moving on!\n")
   }
   
   # IMPUTING MISSING VALUES
@@ -188,7 +187,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   # 2. But if the intensity value in those conditions was too low, then the log2fc will be also low
   
   cat(">> IMPUTING MISSING VALUES\n")
-  
   # Select infinite values (i.e., log2fc missed for that)
   dflog2fcinfinites <- dflog2fcraw[is.infinite(dflog2fcraw$log2FC),]
   numberInfinites <- dim(dflog2fcinfinites)[1]
@@ -288,12 +286,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ABUNDANCE PLOTS
   
-  # boxplot of relative abundances
+  cat(">> PLOTS: ABUNDANCE PLOTS\n")
   abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
-  
-  cat(">> PLOTS: ABUNDANCE PLOTS\n")
   pdf(abundancesName)
     artms_plotAbundanceBoxplots(dfmq)
     artms_plotNumberProteinsAbundance(dfmq)
@@ -335,7 +331,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundance <- artms_loadModelqcBasic(dfmq)
   names(abundance)[grep('Protein', names(abundance))] <- 'Prey'
   names(abundance)[grep('Condition', names(abundance))] <- 'Bait'
-  # TECHNICAL REPLICAS: if there are technical replicas, this means that we will find
+  # TECHNICAL REPLICAS: if there are technical replicas means that we will find
   # two values for the same protein in the same bioreplica, therefore we need to 
   # aggregate first just in case:
   abundance <- aggregate(Abundance~Prey+Bait+Bioreplica, data = abundance, FUN = mean)
@@ -554,7 +550,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     }
   }
   
-  if(enrich == "yesenrich" & dim(l2fcol4enrichment)[1] > 0 ){
+  if(enrich == TRUE & dim(l2fcol4enrichment)[1] > 0 ){
     
     cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
@@ -721,8 +717,9 @@ artms_analysisQuantifications <- function(log2fc_file,
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # THE JITTER PLOTS
-  cat(">> JITTERED PLOT\n")
-  if(isFluomics == "yesflu"){
+  
+  if(isFluomics == TRUE){
+    cat(">> JITTERED PLOT\n")
     # Filter by number of biological replicas > 1
     superunifiedfiltered <- superunified[which(superunified$BioRep > 1),]
     # Filter less than 
@@ -798,10 +795,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   
-  # PCA AND CLUSTERING ANALYSIS
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if(isPtm == "noptm"){
+    cat(">> CLUSTERING ANALYSIS OF QUANTIFICATIONS\n")
     
-    cat("The Clustering analysis begins... \n")
     # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
     list_of_significants <- unique(imputedDF$Protein[which( abs(imputedDF$iLog2FC > 1) & imputedDF$iPvalue < 0.05 )])
     
@@ -831,72 +828,59 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     
     # PCA AND CORRELATION ANALYSIS
-    suppressMessages(library("FactoMineR"))
-    suppressMessages(library("devtools"))
-    suppressMessages(library("factoextra"))
-    suppressMessages(library("corrplot"))
-    suppressMessages(library("PerformanceAnalytics"))
-    
-    
     # Correlation matrix
     df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
     
     file_corr_l2fc <- gsub(".txt",".log2fc-corr.pdf",log2fc_file)
     file_corr_l2fc <- paste0(output_dir,"/",file_corr_l2fc)
     pdf(file_corr_l2fc, width = 12, height = 9)
-    corrplot(df.cor.matrix,
-             type = "upper",
-             tl.pos = "td",
-             method = "circle",
-             tl.cex = 0.9,
-             tl.col = 'black',
-             tl.srt=45,
-             # order = "hclust",
-             diag = T)
-    chart.Correlation(venga, histogram=TRUE, pch=25, main = "Correlation between Comparisons")
+      corrplot::corrplot(df.cor.matrix,
+               type = "upper",
+               tl.pos = "td",
+               method = "circle",
+               tl.cex = 0.9,
+               tl.col = 'black',
+               tl.srt=45,
+               # order = "hclust",
+               diag = T)
+      PerformanceAnalytics::chart.Correlation(venga, histogram=TRUE, pch=25, main = "Correlation between Comparisons")
     garbage <- dev.off()
     
     # BASED ON GROUPS
-    pca.hasdcexp <- PCA(hasdcexp[,-c(1)], scale.unit = FALSE, ncp = 4, graph=FALSE)
+    pca.hasdcexp <- FactoMineR::PCA(hasdcexp[,-c(1)], scale.unit = FALSE, ncp = 4, graph=FALSE)
     
-    pca_all <- fviz_pca_ind(pca.hasdcexp,
-                            labelsize = 3,
-                            repel = TRUE,
-                            habillage = as.factor(hasdcexp$Comparison),
-                            addEllipses=F,
-                            ellipse.level=0.95)
+    pca_all <- factoextra::fviz_pca_ind(pca.hasdcexp,
+                                        labelsize = 3,
+                                        repel = TRUE,
+                                        habillage = as.factor(hasdcexp$Comparison),
+                                        addEllipses=F,
+                                        ellipse.level=0.95)
     
     file_pca_l2fc <- gsub(".txt",".log2fc-pca.pdf",log2fc_file)
     file_pca_l2fc <- paste0(output_dir,"/",file_pca_l2fc)
-    
     pdf(file_pca_l2fc, width = 9, height = 7)
-    print(pca_all)
+      print(pca_all)
     garbage <- dev.off()
     
     # Determine the OPTIMAL NUMBER OF CLUSTERS:
-    suppressMessages(library("NbClust"))
-    suppressMessages(library("cluster"))
-    suppressMessages(library("ComplexHeatmap"))
-    suppressMessages(library("circlize"))
     
     # Elbow method
-    e1 <- fviz_nbclust(venga, kmeans, method = "wss") +
+    e1 <- factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
       geom_vline(xintercept = 4, linetype = 2)+
       labs(subtitle = "kmeans Elbow method")
-    e2 <- fviz_nbclust(venga, cluster::pam, method = "wss") +
+    e2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
       geom_vline(xintercept = 4, linetype = 2)+
       labs(subtitle = "PAM Elbow method")
     
     # Silhouette method
-    k1 <- fviz_nbclust(venga, kmeans, method = "silhouette")+
+    k1 <- factoextra::fviz_nbclust(venga, kmeans, method = "silhouette")+
       labs(subtitle = "kmeans Silhouette method")
-    k2 <- fviz_nbclust(venga, cluster::pam, method = "silhouette")+
+    k2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "silhouette")+
       labs(subtitle = "pam Silhouette method")
     
     
     # Create a dendrogram
-    # library(factoextra)
-    res.dist <- get_dist(vamosexp, stand = TRUE, method = "minkowski")
+    res.dist <- factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
     hc <- hclust(res.dist)
     file_dendro_l2fc <- gsub(".txt",".log2fc-dendro.pdf",log2fc_file)
     file_dendro_l2fc <- paste0(output_dir,"/",file_dendro_l2fc)
@@ -908,21 +892,21 @@ artms_analysisQuantifications <- function(log2fc_file,
     n = 10
     pam.res <- pam(vamos, k=n)
     
-    cp1 <- fviz_cluster(pam.res)
-    cp2 <- fviz_silhouette(silhouette(pam.res))
+    cp1 <- factoextra::fviz_cluster(pam.res)
+    cp2 <- factoextra::fviz_silhouette(silhouette(pam.res))
     
     file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
     file_clusterplots_l2fc <- paste0(output_dir,"/",file_clusterplots_l2fc)
     pdf(file_clusterplots_l2fc, width = 9, height = 7)
-    print(e1)
-    print(e2)
-    print(k1)
-    print(k2)
-    print(cp1)
-    print(cp2)
+      print(e1)
+      print(e2)
+      print(k1)
+      print(k2)
+      print(cp1)
+      print(cp2)
     garbage <- dev.off()
     
-    hmap <- Heatmap(vamos,
+    hmap <- ComplexHeatmap::Heatmap(vamos,
                     name=paste0("Clusters ","(n = ",n,")"),
                     col = circlize::colorRamp2(c(-3, 0, 3), c("firebrick1", "black", "olivedrab1")),
                     heatmap_legend_param=list(color_bar="continuous", legend_direction="horizontal", legend_width=unit(5,"cm"), title_position="topcenter", title_gp=gpar(fontsize=15, fontface="bold")),
@@ -952,7 +936,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     file_clusterheat_l2fc <- gsub(".txt",".log2fc-clusterheatmap.pdf",log2fc_file)
     file_clusterheat_l2fc <- paste0(output_dir,"/",file_clusterheat_l2fc)
     pdf(file_clusterheat_l2fc, width = 12, height = 10)
-    draw(hmap, heatmap_legend_side="top", annotation_legend_side="right")
+      ComplexHeatmap::draw(hmap, heatmap_legend_side="top", annotation_legend_side="right")
     garbage <- dev.off()
     
     cl_number <- pam.res$clustering
@@ -968,9 +952,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     tmp = split(pretmp$Gene, pretmp$cl_number, drop=T)
     
     if(specie == "human"){
-      enrichgenes <- enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', listOfGenes) # 'HP'
+      enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', listOfGenes) # 'HP'
     }else if(specie == "mouse"){
-      enrichgenes <- enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'), specie = 'mmusculus', listOfGenes)
+      enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'), specie = 'mmusculus', listOfGenes)
     }else{
       stop("\n\n\ntOhhh no, this specie",specie," is not supported in the enrichment!!\n\n\n")
     }
@@ -1014,7 +998,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   outexcel <- gsub(".txt","-summary.xlsx",log2fc_file)
   outexcel <- paste0(output_dir,"/",outexcel)
   
-  if(enrich == "yesenrich"){
+  if(enrich){
     # But now check whether is a PTM case:
     if( grepl("yesptm",isPtm) ){
       list_of_datasets <- list(
@@ -1093,7 +1077,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat("\tLog2fc Long: ", outlog2fclong, "\n")
   # cat("\tUnique per Condition: ", outUniqueProteinsCondition, "\n\n")
   
-  if(enrich == "yesenrich"){
+  if(enrich == TRUE){
     cat("\tENRICHMENT files should also be out\n")
   }
   

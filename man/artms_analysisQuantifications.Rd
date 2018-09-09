@@ -4,9 +4,9 @@
 \alias{artms_analysisQuantifications}
 \title{Analysis of the Relative Quantification}
 \usage{
-artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
-  output_dir, isFluomics, isPtm = "noptm", isBackground, mnbr, threshold,
-  ipval, pathogen = "nopathogen")
+artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
+  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm = "noptm",
+  isBackground, mnbr, threshold, ipval, pathogen = "nopathogen")
 }
 \arguments{
 \item{log2fc_file}{MSstats results file}
@@ -15,13 +15,13 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie, enrich,
 
 \item{specie}{Specie (human, mouse)}
 
-\item{enrich}{Performed enrichment analysis?}
+\item{enrich}{Performed enrichment analysis? \code{TRUE} (default) or \code{FALSE}}
 
 \item{output_dir}{results folder name}
 
-\item{isFluomics}{Is from the fluomics project?}
+\item{isFluomics}{Is from the fluomics project? \code{TRUE} or \code{FALSE} (default)}
 
-\item{isPtm}{is a ptm quantification? noptm (default), yesptmph, yesptmsites}
+\item{isPtm}{Is a ptm quantification? noptm (default), yesptmph, yesptmsites}
 
 \item{isBackground}{background gene set}
 

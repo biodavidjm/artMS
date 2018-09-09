@@ -1,9 +1,12 @@
 #' @rawNamespace import(AnnotationDbi, except = c(head))
 #' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
-#' @import corrplot
+#' @import circlize
+#' @importFrom cluster pam
+#' @import ComplexHeatmap
+#' @importFrom corrplot corrplot
 #' @import data.table
-#' @importFrom factoextra fviz_pca_var fviz_contrib
+#' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
