@@ -16,7 +16,7 @@ then use \code{nopathogen} (default).}
 \item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 }
 \value{
-extended version of the ph-site
+(data.frame) extended version of the ph-site
 }
 \description{
 Generate extended detailed ph-site file, where every line is a

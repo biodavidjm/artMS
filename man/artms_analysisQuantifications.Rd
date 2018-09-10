@@ -5,38 +5,42 @@
 \title{Analysis of the Relative Quantification}
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
-  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm, isBackground,
-  mnbr, l2fc_thres, ipval = "adjpvalue", pathogen = "nopathogen")
+  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm,
+  isBackground = "nobackground", mnbr, l2fc_thres, ipval = "adjpvalue",
+  pathogen = "nopathogen")
 }
 \arguments{
-\item{log2fc_file}{MSstats results file}
+\item{log2fc_file}{(char) MSstats results file location}
 
-\item{modelqc_file}{MSstats modelqc file}
+\item{modelqc_file}{(char) MSstats modelqc file location}
 
-\item{specie}{Specie (human, mouse)}
+\item{specie}{(char) Specie (human, mouse)}
 
-\item{enrich}{Performed enrichment analysis? \code{TRUE} (default) or \code{FALSE}}
+\item{enrich}{(logical) Performed enrichment analysis? \code{TRUE} (default) or \code{FALSE}}
 
-\item{output_dir}{results folder name}
+\item{output_dir}{(char) Name for the folder to output the results from the function}
 
-\item{isFluomics}{Is from the fluomics project? \code{TRUE} or \code{FALSE} (default)}
+\item{isFluomics}{(logical) Is from the fluomics project? \code{TRUE} or \code{FALSE} (default)}
 
-\item{isPtm}{Is a ptm quantification? noptm (default), yesptmph, yesptmsites}
+\item{isPtm}{(Is a ptm quantification? \code{noptm} (default), \code{yesptmsites}
+(for site specific analysis), \code{yesptmph} (Jeff's script output evidence file)}
 
-\item{isBackground}{background gene set}
+\item{isBackground}{(char) background of gene names for enrichment analysis.
+\code{nobackground} (default) will use the total number of genes detected.
+Alternatively provided the file path name to the background gene list}
 
-\item{mnbr}{minimal number of biological replicates for imputation and filtering}
+\item{mnbr}{(int) minimal number of biological replicates for imputation and filtering}
 
-\item{l2fc_thres}{log2fc cutoff for enrichment analysis}
+\item{l2fc_thres}{(int) log2fc cutoff for enrichment analysis}
 
-\item{ipval}{pvalue cutoff for enrichment analysis}
+\item{ipval}{(int) pvalue cutoff for enrichment analysis}
 
-\item{pathogen}{is there a pathogen in the dataset as well? if it does not,
+\item{pathogen}{(char) Is there a pathogen in the dataset as well? if it does not,
 then use \code{pathogen = nopathogen} (default), \code{tb} (Tuberculosis),
 \code{lpn} (Legionella)}
 }
 \value{
-summary of quantifications, including annotations, enrichments, etc
+(data.frame) summary of quantifications, including annotations, enrichments, etc
 }
 \description{
 Analysis of the Relative Quantifications obtained by MSstats.

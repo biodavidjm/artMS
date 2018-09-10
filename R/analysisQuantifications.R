@@ -12,21 +12,24 @@
 #' - PCA of quantifications
 #' - Clustering analysis
 #' 
-#' @param log2fc_file MSstats results file 
-#' @param modelqc_file MSstats modelqc file
-#' @param specie Specie (human, mouse)
-#' @param enrich Performed enrichment analysis? `TRUE` (default) or `FALSE`
-#' @param output_dir results folder name
-#' @param isFluomics Is from the fluomics project? `TRUE` or `FALSE` (default)
-#' @param isPtm Is a ptm quantification? noptm (default), yesptmph, yesptmsites 
-#' @param isBackground background gene set
-#' @param mnbr minimal number of biological replicates for imputation and filtering
-#' @param l2fc_thres log2fc cutoff for enrichment analysis
-#' @param ipval pvalue cutoff for enrichment analysis
-#' @param pathogen is there a pathogen in the dataset as well? if it does not,
+#' @param log2fc_file (char) MSstats results file location
+#' @param modelqc_file (char) MSstats modelqc file location
+#' @param specie (char) Specie (human, mouse)
+#' @param enrich (logical) Performed enrichment analysis? `TRUE` (default) or `FALSE`
+#' @param output_dir (char) Name for the folder to output the results from the function
+#' @param isFluomics (logical) Is from the fluomics project? `TRUE` or `FALSE` (default)
+#' @param isPtm (Is a ptm quantification? `noptm` (default), `yesptmsites` 
+#' (for site specific analysis), `yesptmph` (Jeff's script output evidence file)
+#' @param isBackground (char) background of gene names for enrichment analysis. 
+#' `nobackground` (default) will use the total number of genes detected. 
+#' Alternatively provided the file path name to the background gene list
+#' @param mnbr (int) minimal number of biological replicates for imputation and filtering
+#' @param l2fc_thres (int) log2fc cutoff for enrichment analysis
+#' @param ipval (int) pvalue cutoff for enrichment analysis
+#' @param pathogen (char) Is there a pathogen in the dataset as well? if it does not,
 #' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
 #' `lpn` (Legionella)
-#' @return summary of quantifications, including annotations, enrichments, etc
+#' @return (data.frame) summary of quantifications, including annotations, enrichments, etc
 #' @keywords analysis, quantifications
 #' artms_analysisQuantifications()
 #' @export
@@ -37,7 +40,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           output_dir, 
                                           isFluomics = FALSE, 
                                           isPtm, 
-                                          isBackground, 
+                                          isBackground = "nobackground", 
                                           mnbr, 
                                           l2fc_thres, 
                                           ipval = "adjpvalue", 
@@ -179,7 +182,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }else {
     cat("--- Number of +/- INF values",dim(dflog2fcinfinites)[1],"\n")
     
-    imputedL2FCmelted <- artms_imputeMissingValues(dflog2fcinfinites, dfmq)
+    imputedL2FCmelted <- .artms_imputeMissingValues(dflog2fcinfinites, dfmq)
     
     # Merge with the original log2fc values to impute...
     theImputedL2FC <- merge(dflog2fcinfinites, imputedL2FCmelted, by = c("Protein","Label"), all.x = T)
@@ -310,7 +313,7 @@ artms_analysisQuantifications <- function(log2fc_file,
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ABUNDANCE DATA, CREATE FILTERS
-  abundance <- artms_loadModelqcBasic(dfmq)
+  abundance <- .artms_loadModelqcBasic(dfmq)
   names(abundance)[grep('Protein', names(abundance))] <- 'Prey'
   names(abundance)[grep('Condition', names(abundance))] <- 'Bait'
   # TECHNICAL REPLICAS: if there are technical replicas means that we will find
@@ -389,7 +392,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
   cat(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
-  modelqcabundance <- artms_loadModelQCstrict(dfmq, specie, isPtm)
+  modelqcabundance <- .artms_loadModelQCstrict(dfmq, specie, isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
   suppressWarnings(artms_getPCAplots(modelqcabundance, out.pca, conditions))
@@ -397,7 +400,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ANNOTATIONS
-  modelqc_file_splc <- artms_mergeAbNbr(dfmq, nbr_wide, specie)
+  modelqc_file_splc <- .artms_mergeAbNbr(dfmq, nbr_wide, specie)
   
   cat(">>> ANNOTATIONS\n")
   # Now get ready for annotation
@@ -413,7 +416,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   cat("--- Relative Quantifications (Log2fc)\n")
   # Prepare output of changes
-  log2fc_file_splc <- artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
+  log2fc_file_splc <- .artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
   # Now get ready for annotation
   if( grepl("yesptm",isPtm) ){
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
@@ -437,7 +440,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   imputedDF$CMA <- mapply(artms_selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
   
   cat("--- Removing proteins not found in a minimal number (",mnbr,") of biological replicates\n")
-  imputedDF <- artms_RemoveProtBelowThres(imputedDF, mnbr)
+  imputedDF <- .artms_RemoveProtBelowThres(imputedDF, mnbr)
   
   cat("--- Filtering is done!\n")
   
@@ -1089,7 +1092,7 @@ artms_annotateSpecie <- function(df, pathogen, specie){
 #' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not, 
 #' then use `nopathogen` (default).
 #' @param specie (char) Main organism (supported for now: `human` or `mouse`)
-#' @return extended version of the ph-site
+#' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
 #' artms_generatePhSiteExtended()
 #' @export
@@ -1152,207 +1155,32 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie){
 }
 
 
-selectTheOneInf <- function(a, b) {
-  # a should be the log2fc  column
-  if(a == "Inf"){
-    sb <- gsub("(.*)(-)(.*)", "\\1", b)
-  } else if (a == "-Inf") {
-    sb <- gsub("(.*)(-)(.*)", "\\3", b)
-  } else {
-    sb <- 'both'
-  }
-  return(sb)
-}
-
 # ------------------------------------------------------------------------------
-#' @title Select and label the condition more abundant in a quantification
-#' 
-#' @description Select and label the condition more abundant in a quantification
-#' - If log2fc > 0 the condition on the left ('numerator') is the most abundant
-#' - If log2fc < 0 the condition on the right ('denominator') is the most abundant
-#' @param a log2fc column 
-#' @param b comparison column
-#' @return One of the conditions from the comparison
-#' @keywords internal, selection, labeling
-#' artms_selectTheOneLog2fc()
-#' @export
-artms_selectTheOneLog2fc <- function(a, b) {
-  thrs <- 0
-  # a should be the log2fc column
-  if(a > thrs){
-    sb <- gsub("(.*)(-)(.*)", "\\1", b)
-  }else if (a < -thrs) {
-    sb <- gsub("(.*)(-)(.*)", "\\3", b)
-  }else {
-    sb <- 'NA'
-  }
-  return(sb)
-}
-
-# ------------------------------------------------------------------------------
-#' @title Merge abundance and number of biological replicates per condition
-#' 
-#' @description Merge abundance and number of biological replicates 
-#' per condition
-#' @param df_input Abundance input file
-#' @param repro Reproducibility data.frame
-#' @param specie Specie for annotation purposes
-#' @return data.frame of abundance merged with reproducibility info
-#' @keywords abundance, reproducibility, merging
-#' artms_mergeAbNbr()
-#' @export
-artms_mergeAbNbr <- function (df_input, repro, specie) {
-  
-  # Remove empty entries
-  if(any(df_input$PROTEIN == "")){ df_input <- df_input[-which(df_input$PROTEIN == ""),]}
-  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN )
-  df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN )
-  
-  # TECHNICAL REPLICAS: if there are technical replicas, this means that we will find
-  # two values for the same protein in the same bioreplica, therefore we need to 
-  # aggregate first just in case:
-  df_input <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = df_input, FUN = mean)
-  
-  dc_input <- reshape2::dcast(data=df_input[,c('PROTEIN','ABUNDANCE', 'GROUP_ORIGINAL')], PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
-  names(dc_input)[grep('PROTEIN', names(dc_input))] <- 'Protein'
-  
-  colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
-  colnames(repro)[1]<- 'Protein'
-  dc_input <- merge(dc_input, repro, by = c('Protein'))
-  
-  return(dc_input)
-}
-
-# ------------------------------------------------------------------------------
-#' @title Load limited columns from abundance (modelqc) annotated
-#' 
-#' @description Load limited columns from abundance (modelqc) annotated
-#' @param df_input data.frame with the raw abundance data (modelqc)
-#' @param specie Specie name for annotation purposes
-#' @param isPTM Specify whether is a PTM dataset: noptm, yesptmsites, yesptmph
-#' @return annotated data.frame of abundance data
-#' @keywords abundance, annotated
-#' artms_loadModelQCstrict()
-#' @export
-artms_loadModelQCstrict <- function (df_input, specie, isPTM) {
-
-  cat("---Loading abundance values for proteins found in all biological replicas\n")  
-  
-  # Remove empty entries
-  if(any(df_input$PROTEIN == "")){ df_input <- df_input[-which(df_input$PROTEIN == ""),]}
-  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN )
-  df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN )
-  
-  # Technical replicas: aggregate on the mean the technical replicas
-  b <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = df_input, FUN = mean)
-
-  datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean)  
-  
-  names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
-  if( grepl("yesptm",isPtm) ){
-    # if is a PTM dataset we don't need the real gene names for now, 
-    # we need to use the Uniprot_ptm notation
-    datadc$Gene <- datadc$Protein
-    send_back <- datadc
-  }else{
-    suppressMessages(send_back <- artms_annotationUniprot(datadc, 'Protein', specie))
-  }
-  return(send_back)
-}
-
-# ------------------------------------------------------------------------------
-#' @title Merge changes (log2fc) and number of biological replicates per 
-#' condition
-#' 
-#' @description Merge changes, i.e., MSstats results file of quantified changes,
-#' with the number of biological replicates per condition
-#' @param df_input Changes data.frame
-#' @param repro Reproducibility data.frame
-#' @param specie Specie for annotation purposes
-#' @return Merged data.frame of changes and reproducibility information
-#' @keywords changes, log2fc, reproducibility, merging
-#' artms_mergeChangesNbr()
-#' @export
-artms_mergeChangesNbr <- function (df_input, repro, specie) {
-  
-  # # Remove the weird empty proteins
-  # if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
-  # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
-  # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
-  
-  input_melt = reshape2::melt(data = df_input[,c('Protein', 'Label','log2FC','adj.pvalue'),],id.vars=c('Protein', 'Label'))
-  input_dcast = reshape2::dcast( Protein ~ Label+variable, data=input_melt, value.var=c('value'))
-  
-  colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
-  colnames(repro)[1]<- 'Protein'
-  input_dcast <- merge(input_dcast, repro, by = c('Protein'))
-  
-  # Move Gene name to the left:
-  return(input_dcast)
-}
-
-# POTENTIAL FUNCTION TO LOAD the ModelQC data
-artms_loadModelqcBasic <- function(data){
-  if( length(grep(";",data$PROTEIN))>0 ) data <- data[-grep(";",data$PROTEIN),] # NOTE!!! We lose a lot of entries this way.
-  if("PROTEIN" %in% colnames(data)){
-    names(data)[grep("PROTEIN", names(data))] <- 'Protein'
-  }else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
-    stop("Abort mission\n!")
-  }
-  if("ABUNDANCE" %in% colnames(data)){
-    names(data)[grep("ABUNDANCE", names(data))] <- 'Abundance'
-  }else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
-    stop("Abort mission\n!")
-  }
-  if("GROUP_ORIGINAL" %in% colnames(data)){
-    names(data)[grep("GROUP_ORIGINAL", names(data))] <- 'Condition'
-  }else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
-    stop("Abort mission\n!")
-  }
-  if("SUBJECT_ORIGINAL" %in% colnames(data)){
-    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'Bioreplica'
-  }else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
-    stop("Abort mission\n!")
-  }
-  data <- subset(data, select = c(Protein, Abundance, Condition, Bioreplica))
-  return(data)
-}
-
-
-
-
-# ------------------------------------------------------------------------------
-#' @title Imputing missing values
-#' 
-#' @description When a value is completely missed in one of the conditions, 
-#' the `log2fc = Inf / -Inf`. This function imputes those values, i.e.,
-#' will assign 'artificial' values.
-#' The imputation method works as follow. The assumption is that those
-#' proteins are likely present as well in those conditions where are found 
-#' missed, but due to the small sampling (usually 2 or 3 biological replicas) 
-#' and other proteomics related issues, those proteins didn't make it through 
-#' the level of detection.
-#' Therefore, a small intensity (sampled from the bottom 10 intensity values) 
-#' will be assigned to the protein/site in the missing condition, 
-#' and the new log2fc is re-calculated out of the MSstats box. 
-#' Two issues are addressed as follows:
-#' 1. If a protein has been consistently identified in one of the conditions, 
-#' it will stay
-#' 2. But if the intensity value in those conditions was too low, 
-#' then the log2fc will be also low
-#' @param dflog2fcinfinites data.frame of proteins with only infinite 
-#' values from the msstats results file
-#' @param dfmq Abundance data, which will be used to know the details of 
-#' reproducibility
-#' @return Imputed missing values
-#' @keywords imputation, log2fc, quantifications, missing values
-#' artms_imputeMissingValues()
-#' @export
-artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
+# @title Imputing missing values
+# 
+# @description When a value is completely missed in one of the conditions, 
+# the `log2fc = Inf / -Inf`. This function imputes those values, i.e.,
+# will assign 'artificial' values.
+# The imputation method works as follow. The assumption is that those
+# proteins are likely present as well in those conditions where are found 
+# missed, but due to the small sampling (usually 2 or 3 biological replicas) 
+# and other proteomics related issues, those proteins didn't make it through 
+# the level of detection.
+# Therefore, a small intensity (sampled from the bottom 10 intensity values) 
+# will be assigned to the protein/site in the missing condition, 
+# and the new log2fc is re-calculated out of the MSstats box. 
+# Two issues are addressed as follows:
+# 1. If a protein has been consistently identified in one of the conditions, 
+# it will stay
+# 2. But if the intensity value in those conditions was too low, 
+# then the log2fc will be also low
+# @param dflog2fcinfinites data.frame of proteins with only infinite 
+# values from the msstats results file
+# @param dfmq Abundance data, which will be used to know the details of 
+# reproducibility
+# @return Imputed missing values
+# @keywords internal, imputation, log2fc, quantifications, missing values
+.artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   
   # The comparsions
   contrast <- unique(dflog2fcinfinites$Label)
@@ -1361,7 +1189,7 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   ids2impute <- unique(dflog2fcinfinites$Protein)
   
   # Take the abundance values for all the proteins
-  abu2imp <- artms_loadModelqcBasic(dfmq)
+  abu2imp <- .artms_loadModelqcBasic(dfmq)
   # Aggregate the technical replica by choosing the maximum value
   abu2imp2 <- aggregate(Abundance~Protein+Condition+Bioreplica, data = abu2imp, FUN = mean)
   
@@ -1430,6 +1258,142 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
 }
 
 # ------------------------------------------------------------------------------
+# @title Load limited columns from abundance (modelqc) annotated
+# 
+# @description Load limited columns from abundance (modelqc) annotated
+# @param df_input (data.frame) with the raw abundance data (modelqc)
+# @param specie (char) Specie name for annotation purposes
+# @param isPTM (char) Specify whether is a PTM dataset: `noptm`, `yesptmsites`, 
+# `yesptmph`
+# @return annotated data.frame of abundance data
+# @keywords abundance, annotated
+.artms_loadModelQCstrict <- function (df_input, specie, isPTM) {
+  
+  cat("---Loading abundance values for proteins found in all biological replicas\n")  
+  
+  # Remove empty entries
+  if(any(df_input$PROTEIN == "")){ df_input <- df_input[-which(df_input$PROTEIN == ""),]}
+  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN )
+  df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN )
+  
+  # Technical replicas: aggregate on the mean the technical replicas
+  b <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = df_input, FUN = mean)
+  
+  datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean)  
+  
+  names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
+  if( grepl("yesptm",isPtm) ){
+    # if is a PTM dataset we don't need the real gene names for now, 
+    # we need to use the Uniprot_ptm notation
+    datadc$Gene <- datadc$Protein
+    send_back <- datadc
+  }else{
+    suppressMessages(send_back <- artms_annotationUniprot(datadc, 'Protein', specie))
+  }
+  return(send_back)
+}
+
+
+#------------------------------------------------------------------------------
+# @title Load the basic ModelQC file
+# @param data (data.frame) of the ModelQC file
+# @return (data.frame) of the modelqc file with the columns Protein, Abundance, 
+# Condition, Bioreplica
+# @keywords internal, loading
+.artms_loadModelqcBasic <- function(data){
+  if( length(grep(";",data$PROTEIN))>0 ) data <- data[-grep(";",data$PROTEIN),] # NOTE!!! We lose a lot of entries this way.
+  if("PROTEIN" %in% colnames(data)){
+    names(data)[grep("PROTEIN", names(data))] <- 'Protein'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("ABUNDANCE" %in% colnames(data)){
+    names(data)[grep("ABUNDANCE", names(data))] <- 'Abundance'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("GROUP_ORIGINAL" %in% colnames(data)){
+    names(data)[grep("GROUP_ORIGINAL", names(data))] <- 'Condition'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  if("SUBJECT_ORIGINAL" %in% colnames(data)){
+    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'Bioreplica'
+  }else{
+    cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
+    stop("Abort mission\n!")
+  }
+  data <- subset(data, select = c(Protein, Abundance, Condition, Bioreplica))
+  return(data)
+}
+
+# ------------------------------------------------------------------------------
+# @title Merge abundance and number of biological replicates per condition
+# 
+# @description Merge abundance and number of biological replicates 
+# per condition
+# @param df_input (data.frame) Abundance input file
+# @param repro (data.frame) Reproducibility data.frame
+# @param specie (char) Specie for annotation purposes
+# @return (data.frame) of abundance merged with reproducibility info
+# @keywords abundance, reproducibility, merging
+.artms_mergeAbNbr <- function (df_input, repro, specie) {
+  
+  # Remove empty entries
+  if(any(df_input$PROTEIN == "")){ df_input <- df_input[-which(df_input$PROTEIN == ""),]}
+  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN )
+  df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN )
+  
+  # TECHNICAL REPLICAS: if there are technical replicas, this means that we will find
+  # two values for the same protein in the same bioreplica, therefore we need to 
+  # aggregate first just in case:
+  df_input <- aggregate(ABUNDANCE~PROTEIN+GROUP_ORIGINAL+SUBJECT_ORIGINAL, data = df_input, FUN = mean)
+  
+  dc_input <- reshape2::dcast(data=df_input[,c('PROTEIN','ABUNDANCE', 'GROUP_ORIGINAL')], PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean, fill = 0)
+  names(dc_input)[grep('PROTEIN', names(dc_input))] <- 'Protein'
+  
+  colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
+  colnames(repro)[1]<- 'Protein'
+  dc_input <- merge(dc_input, repro, by = c('Protein'))
+  
+  return(dc_input)
+}
+
+# ------------------------------------------------------------------------------
+# @title Merge changes (log2fc) and number of biological replicates per 
+# condition
+# 
+# @description Merge changes, i.e., MSstats results file of quantified changes,
+# with the number of biological replicates per condition
+# @param df_input Changes data.frame
+# @param repro Reproducibility data.frame
+# @param specie Specie for annotation purposes
+# @return Merged data.frame of changes and reproducibility information
+# @keywords changes, log2fc, reproducibility, merging
+.artms_mergeChangesNbr <- function (df_input, repro, specie) {
+  
+  # # Remove the weird empty proteins
+  # if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
+  # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
+  # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
+  
+  input_melt = reshape2::melt(data = df_input[,c('Protein', 'Label','log2FC','adj.pvalue'),],id.vars=c('Protein', 'Label'))
+  input_dcast = reshape2::dcast( Protein ~ Label+variable, data=input_melt, value.var=c('value'))
+  
+  colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
+  colnames(repro)[1]<- 'Protein'
+  input_dcast <- merge(input_dcast, repro, by = c('Protein'))
+  
+  # Move Gene name to the left:
+  return(input_dcast)
+}
+
+
+
+# ------------------------------------------------------------------------------
 # @title Plot the total number of quantified proteins in each condition
 # 
 # @description
@@ -1447,17 +1411,15 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Filter: Remove proteins below some threshold of minimal reproducibility
-#' 
-#' @description If a protein is not found in a minimal number of 
-#' biological replicates in at least one of the conditions, it is removed
-#' @param dfi (data.frame) Data.frame with biological replicates information
-#' @param mnbr (int) minimal number of biological replicates
-#' @return (data.frame) a filtered `dfi`
-#' @keywords filter, bioreplicates, reproducibility
-#' artms_RemoveProtBelowThres()
-#' @export
-artms_RemoveProtBelowThres <- function(dfi, mnbr){
+# @title Filter: Remove proteins below some threshold of minimal reproducibility
+# 
+# @description If a protein is not found in a minimal number of 
+# biological replicates in at least one of the conditions, it is removed
+# @param dfi (data.frame) Data.frame with biological replicates information
+# @param mnbr (int) minimal number of biological replicates
+# @return (data.frame) a filtered `dfi`
+# @keywords internal, filter, bioreplicates, reproducibility
+.artms_RemoveProtBelowThres <- function(dfi, mnbr){
   theComparisons2check <- unique(dfi$Label)
   for (onlyonecomp in (theComparisons2check)){
     
@@ -1473,4 +1435,30 @@ artms_RemoveProtBelowThres <- function(dfi, mnbr){
   }
   return(dfi)
 }
+
+# ------------------------------------------------------------------------------
+# @title Select and label the condition more abundant in a quantification
+# 
+# @description Select and label the condition more abundant in a quantification
+# - If log2fc > 0 the condition on the left ('numerator') is the most abundant
+# - If log2fc < 0 the condition on the right ('denominator') is the most abundant
+# @param a (char) log2fc column 
+# @param b (char) comparison column
+# @return (char) One of the conditions from the comparison
+# @keywords internal, selection, labeling
+artms_selectTheOneLog2fc <- function(a, b) {
+  thrs <- 0
+  # a should be the log2fc column
+  if(a > thrs){
+    sb <- gsub("(.*)(-)(.*)", "\\1", b)
+  }else if (a < -thrs) {
+    sb <- gsub("(.*)(-)(.*)", "\\3", b)
+  }else {
+    sb <- 'NA'
+  }
+  return(sb)
+}
+
+
+
 
