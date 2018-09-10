@@ -41,6 +41,7 @@ Imports:
   grid,
   limma,
   MSstats,
+  openxlsx,
   org.Ag.eg.db,
   org.At.tair.db,
   org.Bt.eg.db,

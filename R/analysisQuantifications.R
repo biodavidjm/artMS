@@ -29,36 +29,12 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           enrich = TRUE, 
                                           output_dir, 
                                           isFluomics = FALSE, 
-                                          isPtm = "noptm", 
+                                          isPtm, 
                                           isBackground, 
                                           mnbr, 
                                           threshold, 
                                           ipval, 
                                           pathogen = "nopathogen"){
-  
-  # source('~/github/kroganlab/enrichment/enrichProfiler.R')
-  # source('~/github/kroganlab/djmSource/myLibrary/generalFunctions.R')
-  
-  # It required all these installations:
-  # source("https://bioconductor.org/biocLite.R")
-  # biocLite("MSstats")
-  # install.packages('openxlsx')
-  # install.packages('pheatmap')
-  # install.packages('tidyr')
-  # biocLite("msa")
-  # install.packages('FactoMineR')
-  # install.packages('devtools')
-  # install.packages('factoextra')
-  # install.packages('corrplot')
-  # install.packages('PerformanceAnalytics')
-  
-  # suppressMessages(library(reshape2))
-  # suppressMessages(library(openxlsx))
-  # suppressMessages(library(pheatmap))
-  # suppressMessages(library(ggplot2))
-  # suppressMessages(library(ggrepel))
-  # suppressMessages(library(tidyr))
-  # suppressMessages(library(dplyr))
   
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
@@ -85,7 +61,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # LOADING ABUNDANCE
   cat(">> LOADING modelqc FILE (ABUNDANCE)\n")
   dfmq <- read.delim(modelqc_file, header = T, sep = "\t", stringsAsFactors = F)
-  #Removing the empty protein names
+  # Removing the empty protein names
   if(any(dfmq$PROTEIN == "")){ dfmq <- dfmq[-which(dfmq$PROTEIN == ""),]}
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN )
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN )
@@ -97,7 +73,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   conditions <- unique(dfmq$GROUP_ORIGINAL)
   numberConditions <- length(conditions)
   
-
   # KEY STEP: GETTING THE BACKGROUND GENE LIST
   if(isBackground == "nobackground"){
     # If not list of background genes is provided, 
@@ -224,7 +199,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     dflog2fc <- rbind(dflog2fcfinites, theImputedL2FC)
   }
   
-  cat("--- Plotting distributions\n")
+  cat("--- Plotting distributions of log2fc and pvalues\n")
   
   plotDFdistColor <- ggplot(dflog2fc, aes(x = log2FC, fill = Label)) + 
     geom_histogram(bins = 100, alpha = .4, col="black") +
@@ -406,7 +381,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
-  cat(">> WORKING ON PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
+  cat(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
   modelqcabundance <- artms_loadModelQCstrict(dfmq, specie, isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
@@ -497,7 +472,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   cat(">> HEATMAPS OF CHANGES (log2fc)\n")
-  l2fcol <- reshape2::dcast(data=imputedDF, Protein~Label, value.var = 'iLog2FC')
+  l2fcol <- reshape2::dcast(data=imputedDF, Protein~Comparison, value.var = 'iLog2FC')
   rownames(l2fcol) <- l2fcol$Protein
   l2fcol <- within(l2fcol, rm(Protein))
   l2fcol[is.na(l2fcol)] <- 0
@@ -756,6 +731,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     artms_generatePhSiteExtended(df = imputedDF, pathogen = pathogen, specie = specie)
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat(">> GENERATING FINAL OUTPUT FILES\n")
   if( grepl("yesptm",isPtm) ){
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
@@ -785,6 +761,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: noptm, yesptmph, yesphsite\n")
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # boxplot of relative abundances
   cat(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED\n")
   numimputedfinal <- gsub(".txt", ".TotalNumberQuantifications.pdf", log2fc_file)
@@ -793,7 +770,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   pdf(numimputedfinal)
     plotNumberProteinsImputedLog2fc(imputedDF)
   garbage <- dev.off()
-  
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if(isPtm == "noptm"){
@@ -804,8 +780,6 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # AND APPLY THE FILTER
     data.select <- imputedDF[which(imputedDF$Protein %in% list_of_significants),]
-    
-    # Two options....
     
     # GENE BASED -> heatmaps
     hasdc <- reshape2::dcast(data = data.select[which(data.select$imputed == "no"),], Gene+Protein~Comparison, value.var = "iLog2FC", fun.aggregate = median, fill = 0)
@@ -826,11 +800,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     vamosexp <- within(hasdcexp, rm(Comparison))
     vengaexp <- as.matrix(vamosexp)
     
-    
     # PCA AND CORRELATION ANALYSIS
-    # Correlation matrix
+    cat("--- Correlation plots\n")
     df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
-    
     file_corr_l2fc <- gsub(".txt",".log2fc-corr.pdf",log2fc_file)
     file_corr_l2fc <- paste0(output_dir,"/",file_corr_l2fc)
     pdf(file_corr_l2fc, width = 12, height = 9)
@@ -856,7 +828,8 @@ artms_analysisQuantifications <- function(log2fc_file,
                                         addEllipses=F,
                                         ellipse.level=0.95)
     
-    file_pca_l2fc <- gsub(".txt",".log2fc-pca.pdf",log2fc_file)
+    cat("--- PCA, individuals plot\n")
+    file_pca_l2fc <- gsub(".txt",".log2fc-individuals-pca.pdf",log2fc_file)
     file_pca_l2fc <- paste0(output_dir,"/",file_pca_l2fc)
     pdf(file_pca_l2fc, width = 9, height = 7)
       print(pca_all)
@@ -866,7 +839,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     # Elbow method
     e1 <- factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
-      geom_vline(xintercept = 4, linetype = 2)+
+      geom_vline(xintercept = 4, linetype = 2) +
       labs(subtitle = "kmeans Elbow method")
     e2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
       geom_vline(xintercept = 4, linetype = 2)+
@@ -880,12 +853,13 @@ artms_analysisQuantifications <- function(log2fc_file,
     
     
     # Create a dendrogram
+    cat("--- Dendrogram\n")
     res.dist <- factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
     hc <- hclust(res.dist)
     file_dendro_l2fc <- gsub(".txt",".log2fc-dendro.pdf",log2fc_file)
     file_dendro_l2fc <- paste0(output_dir,"/",file_dendro_l2fc)
     pdf(file_dendro_l2fc, width = 9, height = 7)
-    plot(hc)
+      plot(hc)
     garbage <- dev.off()
     
     # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
@@ -895,6 +869,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     cp1 <- factoextra::fviz_cluster(pam.res)
     cp2 <- factoextra::fviz_silhouette(silhouette(pam.res))
     
+    cat("--- Plots to determine optimal number of clusters\n")
     file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
     file_clusterplots_l2fc <- paste0(output_dir,"/",file_clusterplots_l2fc)
     pdf(file_clusterplots_l2fc, width = 9, height = 7)
@@ -906,6 +881,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       print(cp2)
     garbage <- dev.off()
     
+    cat("--- Cluster heatmaps (10 clusters)\n")
     hmap <- ComplexHeatmap::Heatmap(vamos,
                     name=paste0("Clusters ","(n = ",n,")"),
                     col = circlize::colorRamp2(c(-3, 0, 3), c("firebrick1", "black", "olivedrab1")),
@@ -932,13 +908,13 @@ artms_analysisQuantifications <- function(log2fc_file,
                     # bottom_annotation=sampleBoxplot,
                     bottom_annotation_height=unit(4, "cm"),
                     column_names_gp = gpar(fontsize = 10))
-    
     file_clusterheat_l2fc <- gsub(".txt",".log2fc-clusterheatmap.pdf",log2fc_file)
     file_clusterheat_l2fc <- paste0(output_dir,"/",file_clusterheat_l2fc)
     pdf(file_clusterheat_l2fc, width = 12, height = 10)
       ComplexHeatmap::draw(hmap, heatmap_legend_side="top", annotation_legend_side="right")
     garbage <- dev.off()
     
+    cat("--- Enrichment analysis of the clusters\n")
     cl_number <- pam.res$clustering
     dfclusters <- as.data.frame(cl_number)
     dfclusters$ids <- row.names(dfclusters)
@@ -972,28 +948,21 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat(">> WRITTING ALL THE OUTPUT FILES\n")
   
   # PRINT OUT IMPUTED
-  outlog2fcImpute <- gsub(".txt","-imputedL2fc.txt", log2fc_file)
+  outlog2fcImpute <- gsub(".txt","-log2fc-long.txt", log2fc_file)
   outlog2fcImpute <- paste0(output_dir,"/",outlog2fcImpute)
   write.table(imputedDF, outlog2fcImpute, quote = F, sep = "\t", row.names = F, col.names = T)
   
-  dcImputed <- reshape2::dcast(data = imputedDF, Protein~Label, value.var = "iLog2FC")
-  
-  outmodeqcLong <- gsub(".txt","-longAbundance.txt", log2fc_file)
-  outmodeqcLong <- paste0(output_dir,"/",outmodeqcLong)
-  write.table(superunified, outmodeqcLong, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  outmodelqc <- gsub(".txt","-wideAbundance.txt", log2fc_file)
-  outmodelqc <- paste0(output_dir,"/",outmodelqc)
-  write.table(modelqc_file_splc, outmodelqc, quote = F, sep = "\t", row.names = F, col.names = T)
-  
-  outlog2fc <- gsub(".txt","-wideL2fc.txt", log2fc_file)
+  outlog2fc <- gsub(".txt","-log2fc-wide.txt", log2fc_file)
   outlog2fc <- paste0(output_dir,"/",outlog2fc)
   write.table(log2fc_file_splc, outlog2fc, quote = F, sep = "\t", row.names = F, col.names = T)
   
-  outwideimputed <- gsub(".txt","-wideImputedL2fc.txt", log2fc_file)
-  outwideimputed <- paste0(output_dir,"/",outwideimputed)
-  write.table(dcImputed, outwideimputed, quote = F, sep = "\t", row.names = F, col.names = T)
+  outmodeqcLong <- gsub(".txt","-abundance-long.txt", log2fc_file)
+  outmodeqcLong <- paste0(output_dir,"/",outmodeqcLong)
+  write.table(superunified, outmodeqcLong, quote = F, sep = "\t", row.names = F, col.names = T)
   
+  outmodelqc <- gsub(".txt","-abundance-wide.txt", log2fc_file)
+  outmodelqc <- paste0(output_dir,"/",outmodelqc)
+  write.table(modelqc_file_splc, outmodelqc, quote = F, sep = "\t", row.names = F, col.names = T)
 
   outexcel <- gsub(".txt","-summary.xlsx",log2fc_file)
   outexcel <- paste0(output_dir,"/",outexcel)
@@ -1002,9 +971,6 @@ artms_analysisQuantifications <- function(log2fc_file,
     # But now check whether is a PTM case:
     if( grepl("yesptm",isPtm) ){
       list_of_datasets <- list(
-        # "AbundanceLong" = superunified,
-        # "AbundanceWide" = modelqc_file_splc,
-        # "log2fcWide" = log2fc_file_splc,
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1017,9 +983,6 @@ artms_analysisQuantifications <- function(log2fc_file,
         "enMACnegCorum" = negativesComplexEnriched)
     }else if(isPtm == "noptm"){
       list_of_datasets <- list(
-        # "AbundanceLong" = superunified,
-        # "AbundanceWide" = modelqc_file_splc,
-        # "log2fcWide" = log2fc_file_splc, 
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue,
@@ -1037,18 +1000,12 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("\t\t-----+ You chose not to enrich\n")
     if( grepl("yesptm",isPtm) ) {
       list_of_datasets <- list(
-        # "AbundanceLong" = superunified,
-        # "AbundanceWide" = modelqc_file_splc,
-        # "log2fcWide" = log2fc_file_splc,
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue)
     }else if(isPtm == "noptm"){
       list_of_datasets <- list(
-        # "AbundanceLong" = superunified,
-        # "AbundanceWide" = modelqc_file_splc,
-        # "log2fcWide" = log2fc_file_splc, 
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue
@@ -1062,7 +1019,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   # Defining style for the header
-  hs <- createStyle(fontName = "Arial", fontColour = "white", fgFill = "#000000",
+  hs <- openxlsx::createStyle(fontName = "Arial", fontColour = "white", fgFill = "#000000",
                     textDecoration = "Bold", border = "Bottom")
   openxlsx::write.xlsx(list_of_datasets, file = outexcel, asTable = TRUE, headerStyle = hs)
   
@@ -1074,8 +1031,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat("\tAbundanceWide: ",outmodelqc, "\n")
   cat("\tLog2fc Wide: ", outlog2fc, "\n")
   cat("\tLog2fc Impute: ", outlog2fc, "\n")
-  cat("\tLog2fc Long: ", outlog2fclong, "\n")
-  # cat("\tUnique per Condition: ", outUniqueProteinsCondition, "\n\n")
   
   if(enrich == TRUE){
     cat("\tENRICHMENT files should also be out\n")
@@ -1468,7 +1423,6 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
 }
 
 plotNumberProteinsImputedLog2fc <- function(data) {
-  library(ggplot2)
   x <- data[c('Protein','Comparison')]
   y <- unique(x)
   z <- ggplot(y, aes(x = Comparison, fill = Comparison))

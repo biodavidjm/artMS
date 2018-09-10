@@ -15,6 +15,7 @@
 #' @import grid
 #' @import limma
 #' @import MSstats
+#' @import openxlsx
 #' @import org.Ag.eg.db
 #' @import org.At.tair.db
 #' @import org.Bt.eg.db
@@ -35,7 +36,7 @@
 #' @import org.Xl.eg.db
 #' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
-#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select))
+#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select, add_heatmap))
 #' @import plyr
 #' @import RColorBrewer
 #' @import reshape2
