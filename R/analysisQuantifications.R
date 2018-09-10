@@ -5,6 +5,13 @@
 #' It includes:
 #' 
 #' - Annotations
+#' - Summary files in different format (xls, txt) and shapes (long, wide)
+#' - Numerous summary plots
+#' - Enrichment analysis using Gprofiler
+#' - PCA of protein abundance
+#' - PCA of quantifications
+#' - Clustering analysis
+#' 
 #' @param log2fc_file MSstats results file 
 #' @param modelqc_file MSstats modelqc file
 #' @param specie Specie (human, mouse)
@@ -13,8 +20,8 @@
 #' @param isFluomics Is from the fluomics project? `TRUE` or `FALSE` (default)
 #' @param isPtm Is a ptm quantification? noptm (default), yesptmph, yesptmsites 
 #' @param isBackground background gene set
-#' @param mnbr minimal number of biological replicates for imputation
-#' @param threshold log2fc cutoff for enrichment analysis
+#' @param mnbr minimal number of biological replicates for imputation and filtering
+#' @param l2fc_thres log2fc cutoff for enrichment analysis
 #' @param ipval pvalue cutoff for enrichment analysis
 #' @param pathogen is there a pathogen in the dataset as well? if it does not,
 #' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
@@ -32,8 +39,8 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           isPtm, 
                                           isBackground, 
                                           mnbr, 
-                                          threshold, 
-                                          ipval, 
+                                          l2fc_thres, 
+                                          ipval = "adjpvalue", 
                                           pathogen = "nopathogen"){
   
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
@@ -543,7 +550,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # GPROFILER
     cat("1) Enrichment of ALL significant Changes\n")
     
-    filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= threshold), ]
+    filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= l2fc_thres), ]
     
     if(dim(filallsig_log2fc_long)[1] > 0){
       
@@ -584,7 +591,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # GPROFILER
     cat("2) Enrichment of selected POSITIVE significant changes\n")
     
-    filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= threshold), ]
+    filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= l2fc_thres), ]
     
     if(dim(filpos_log2fc_long)[1] > 0){
       out.mac.pos <- gsub(".txt","-enrich-MAC-positives.txt",log2fc_file)
@@ -627,7 +634,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # NEGATIVE log2fc
     cat("3) Enrichment of selected NEGATIVE significant changes\n")
     
-    filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -threshold), ]
+    filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -l2fc_thres), ]
     
     if(dim(filneg_log2fc_long)[1] > 0){
       

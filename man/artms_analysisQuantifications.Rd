@@ -5,8 +5,8 @@
 \title{Analysis of the Relative Quantification}
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
-  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm = "noptm",
-  isBackground, mnbr, threshold, ipval, pathogen = "nopathogen")
+  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm, isBackground,
+  mnbr, l2fc_thres, ipval = "adjpvalue", pathogen = "nopathogen")
 }
 \arguments{
 \item{log2fc_file}{MSstats results file}
@@ -25,9 +25,9 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{isBackground}{background gene set}
 
-\item{mnbr}{minimal number of biological replicates for imputation}
+\item{mnbr}{minimal number of biological replicates for imputation and filtering}
 
-\item{threshold}{log2fc cutoff for enrichment analysis}
+\item{l2fc_thres}{log2fc cutoff for enrichment analysis}
 
 \item{ipval}{pvalue cutoff for enrichment analysis}
 
@@ -43,6 +43,12 @@ Analysis of the Relative Quantifications obtained by MSstats.
 It includes:
 \itemize{
 \item Annotations
+\item Summary files in different format (xls, txt) and shapes (long, wide)
+\item Numerous summary plots
+\item Enrichment analysis using Gprofiler
+\item PCA of protein abundance
+\item PCA of quantifications
+\item Clustering analysis
 }
 }
 \keyword{analysis,}

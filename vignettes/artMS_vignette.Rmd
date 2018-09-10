@@ -27,13 +27,15 @@ knitr::opts_chunk$set(
 artMS provides a set of tools for the analysis of proteomics 
 label-free datasets. 
 
+Send your questions to <artms.help@gmail.com>
+
 # Overview
 
 The functions available at `artMS` can be grouped in 4 major categories:
 
 * Quality Control
 * Relative quantification with MSstats
-* Downstream analysis (relies on the output from 2)
+* Downstream analysis of quantification (relies on the output from 2)
 * Miscellaneous: a series of functions to do a little bit of everything.
 
 The quality control can be run simultaneously as part of the **Relative Quantification** through the section `qc` of the configuration (`yaml`) file required to run it (see details below)
@@ -77,27 +79,25 @@ Check `artms_evidenceQC()` to find out more about this function.
 
 The relative quantification is the core of this package. All the information required to run a relative quantification analysis using `MSstats` is provided as a configuration file (`.yaml` format). Check the [README.md](../README.md) to find out more about the different sections of the configuration file. A template of the configuration file is available [here](../data-raw/artms_config.yaml).
 
-4 main options must be specified by the user:
+4 different files must be provided by the user:
 
 - `evidence.txt` file location
 - `keys.txt` file location
 - `contrast.txt` file location, specifying the comparisons to be performed
 - `results/results.txt` specified the file location and root name for the results files.
 
-Different types of proteomics experiments can be analyzed, including protein abundance, affinity purification mass spectrometry (APMS), and different type of posttranslational modifications, including phosphorylation (ph), ubiquitination (ub), and acetylation (ac)
+Different types of proteomics experiments can be analyzed, including protein abundance (ab), affinity purification mass spectrometry (APMS), and different type of posttranslational modifications, including phosphorylation (ph), ubiquitination (ub), and acetylation (ac)
 
-## Quantification of Changes in Global Phosphorylation
+## Quantification of Changes in Protein Abundance
 
-The **global phosphorylation** quantification analysis calculates changes in phosphorylation at the *protein level*. This means that all the **modified** peptides are used to quantify changes in protein phosphorylation. The **site-specific** quantification (explained next) quantifies changes at the *peptide level*, i.e., each modified peptide independently. 
-
-Only two sections need to be modified on the **default** configuration (`yaml`) file:
+It quantifies changes in protein abundance between two different conditions. The template yaml file available [here](../data-raw/artms_config.yaml) is set up for protein abundance. These are the sections to be filled up by the user:
 
 ```{yaml}
 files:
   evidence : /path/to/the/evidence.txt
   keys : /path/to/the/keys.txt
   contrasts : /path/to/the/contrast.txt
-  output : /path/to/the/output/results/results.txt
+  output : /path/to/the/output/results_ptmGlobal/results.txt
   .
   .
   .
@@ -106,7 +106,39 @@ data:
   .
   .
   filters:
-    modifications : PH
+    modifications : AB 
+```
+
+Make sure that the filter `modifications` is labeled as `AB`.
+
+Finally, run the following artms function:
+
+```{r}
+artms_main(yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
+```
+
+
+## Quantification of Changes in Global Phosphorylation / Ubiquitination
+
+The **global phosphorylation** quantification analysis calculates changes in phosphorylation at the *protein level*. This means that all the **modified** peptides are used to quantify changes in protein phosphorylation. The **site-specific** quantification (explained next) quantifies changes at the *peptide level*, i.e., each modified peptide independently. The same applies to **global ubiquitination** analysis
+
+Only two sections need to be modified on the **default** configuration (`yaml`) file:
+
+```{yaml}
+files:
+  evidence : /path/to/the/evidence.txt
+  keys : /path/to/the/keys.txt
+  contrasts : /path/to/the/contrast.txt
+  output : /path/to/the/output/results_ptmGlobal/results.txt
+  .
+  .
+  .
+data:
+  .
+  .
+  .
+  filters:
+    modifications : PH # Use UB for ubiquination
 ```
 
 The remaining options can be left unmodified. 
@@ -117,19 +149,28 @@ Once the configuration `yaml` file is ready, run the following command:
 artms_main(yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
 ```
 
-## Quantification of Changes in Site-Specific Phosphorylation
+## Quantification of Changes in Site-Specific Phosphorylation / Ubiquitination
 
-The `site-specific` analysis quantifies changes at the modified peptide level. This means that changes in every modified (ph) peptide of a given protein will be quantified individually. The caveat is that the proportion of missing values should increase relative to the **global** analysis. Both **site** and **global** ph analysis are highly correlated due to the fact that only one or two peptides drive the overall changes in phosphorylation for every protein.
+The `site-specific` analysis quantifies changes at the modified peptide level. This means that changes in every modified (ph) peptide of a given protein will be quantified individually. The caveat is that the proportion of missing values should increase relative to the **global** analysis. Both **site** and **global** ph analysis are highly correlated due to the fact that only one or two peptides drive the overall changes in phosphorylation for every protein. The same principle applies to **protein ubiquitination**
 
-To run the 
+To run a site specific analysis follow these steps:
 
 1. A pre-processing step is required to be run on the evidence file to enable the site-specific ph analysis. 
+
+For phosphorylation
 
 ```{r}
 artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ph-sites-evidence.txt", mod_type = "PH")
 ```
 
-2. Generate a new configuration file (`phsites_config.yaml`) as explained above, but use the "new" `/path/to/the/output/ph-sites-evidence.txt` file instead of the original `evidence.txt` file.
+For ubiquitination
+
+```{r}
+artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ub-sites-evidence.txt", mod_type = "UB")
+```
+
+
+2. Generate a new configuration file (`phsites_config.yaml` or `ubsites_config.yaml`) as explained above, but use the "new" `/path/to/the/output/ph-sites-evidence.txt` (or `ub-sites-evidence.txt`) file instead of the original `evidence.txt` file.
 
 Once the new `yaml` file has been created, execute:
 
@@ -137,6 +178,55 @@ Once the new `yaml` file has been created, execute:
 artms_main(yaml_config_file = '/path/to/config/file/phsites_config.yaml')
 ```
 
+# Analysis of Quantifications
 
+Comprehensive analysis of the quantification obtained running `artms_main()`. It includes:
 
+- Annotations
+- Summary files in different format (xls, txt) and shapes (long, wide)
+- Numerous summary plots
+- Enrichment analysis using Gprofiler
+- PCA of protein abundance
+- PCA of quantification
+- Clustering analysis
 
+It takes as input two files generated from the previous step (`artms_main()`)
+
+- `-results.txt` 
+- `-results_ModelQC.txt`
+
+To run this analysis
+
+1. Set as the working directory the folder with the results obtained from `artms_main()`.
+
+```
+setwd('~/path/to/the/results/')
+```
+
+And then run the following function:
+
+```
+artms_analysisQuantifications(log2fc_file = "ab-results.txt",
+                              modelqc_file = "ab-results_ModelQC.txt",
+                              specie = "human",
+                              isPtm = "noptm",
+                              enrich = TRUE,
+                              l2fc_thres = 1,
+                              ipval = "adjpvalue",
+                              isBackground = "nobackground",
+                              output_dir = "AnalysisQuantifications",
+                              isFluomics = TRUE,
+                              mnbr = 2,
+                              pathogen = "nopathogen")
+```
+
+A few comments:
+
+- `isPTM`. For both protein abundance (`ab`) and Affinity Purification-Mass Spectrometry (`apms`), in addition to global analysis of posttranslational modifications (PH and UB), analysis use the option `"noptm"`. For a site specific PTM analysis use `"yesptmsites"`.
+- `specie`. The host-species supported so far are `"human"` and `"mouse"`
+- `isBackground`. If `enrich = TRUE`, the user can provide a background gene file of gene names. Indicate the path to the file in this argument.
+- `mnbr`: Minimal Number of Biological Replicates for imputation. Missing values will be imputed and this argument is set to specified the minimal number of biological replicates that are required in at least one of the conditions, but for all the comparisons. For example, `mnbr = 2` would mean that only proteins found in *at least* two biological replicates will be imputed. In addition, for any protein, in at least one of the conditions the protein should be identified at least in two biological replicates or it will be removed. 
+- `l2fc_thres` is the log2fc cutoff for enrichment analysis, absolute value, i.e., if it is set to 1, it will consider significant log2fc> +1 and log2fc < -1. 
+- `ipval`: specify whether `pvalue` or `adjpvalue` should use for the analysis. The default option is `adjpvalue` (multiple testing correction). But if the number of biological replicates for a given experiment is too low (for example n = 2), then `pvalue` is recommended. 
+
+Please, don't hesitate to send us your questions at <artms.help@gmail.com>
