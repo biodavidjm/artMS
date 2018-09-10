@@ -7,13 +7,13 @@
 artms_generatePhSiteExtended(df, pathogen, specie)
 }
 \arguments{
-\item{df}{data.frame of log2fc and imputed values}
+\item{df}{(data.frame) of log2fc and imputed values}
 
-\item{pathogen}{Is there a pathogen in the dataset as well? Available
+\item{pathogen}{(char) Is there a pathogen in the dataset as well? Available
 pathogens are \code{tb} (Tuberculosis), \code{lpn} (Legionella). If it is not,
 then use \code{nopathogen} (default).}
 
-\item{specie}{Main organism (supported for now: \code{human} or \code{mouse})}
+\item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 }
 \value{
 extended version of the ph-site

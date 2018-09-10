@@ -10,24 +10,6 @@
 #' }
 "randomDF"
 
-#' MaxQuant Phosphorylation evidence file
-#' 
-#' Comparison of the phosphoproteome of two head and neck cancer cell lines, 
-#' Cal33 and HSC6.
-#' 
-#' 4 replicates per cell line
-#' 
-#' The information about the experimental design of the evidence file can 
-#' be found the data object called `ph_keys` also available in `artMS`
-#' 
-#' @format tab delimited file
-#' \describe{
-#' \item{ph_evidence}{The MaxQuant evidence file. Check this link to find out 
-#' more about it:
-#' \url{http://www.coxdocs.org/doku.php?id=maxquant:start}}
-#' }
-"ph_evidence"
-
 #' Keys file: Experimental design describing the `ph_evidence` data object
 #' 
 #' Data frame with the information about the experimental design.

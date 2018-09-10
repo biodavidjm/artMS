@@ -1,5 +1,6 @@
-#' @import data.table
+# ------------------------------------------------------------------------------
 #' @title Check if an input is a file or a data object
+#' 
 #' @description This function is used in order to make it so a user can submit
 #'  either a path to a data file or a data object in data.frame or data.table 
 #'  form.

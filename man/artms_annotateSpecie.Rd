@@ -7,16 +7,16 @@
 artms_annotateSpecie(df, pathogen, specie)
 }
 \arguments{
-\item{df}{data.frame with a \code{Protein} column (of uniprot ids)}
+\item{df}{(data.frame) with a \code{Protein} column (of uniprot ids)}
 
-\item{pathogen}{Is there a pathogen in the dataset as well? if it does not,
+\item{pathogen}{(char) Is there a pathogen in the dataset as well? if it does not,
 then use \code{pathogen = nopathogen} (default), \code{tb} (Tuberculosis),
 \code{lpn} (Legionella)}
 
-\item{specie}{Main organism (supported for now: \code{human} or \code{mouse})}
+\item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 }
 \value{
-The same data.frame but with an extra column specifying the specie
+(data.frame) The same data.frame but with an extra column specifying the specie
 }
 \description{
 Adding the specie name to every protein.

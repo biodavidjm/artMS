@@ -7,12 +7,12 @@
 artms_RemoveProtBelowThres(dfi, mnbr)
 }
 \arguments{
-\item{dfi}{Data.frame with biological replicates information}
+\item{dfi}{(data.frame) Data.frame with biological replicates information}
 
-\item{mnbr}{minimal number of biological replicates}
+\item{mnbr}{(int) minimal number of biological replicates}
 }
 \value{
-a filtered \code{dfi}
+(data.frame) a filtered \code{dfi}
 }
 \description{
 If a protein is not found in a minimal number of

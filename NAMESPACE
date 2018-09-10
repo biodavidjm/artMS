@@ -75,7 +75,7 @@ import(VennDiagram)
 import(biomaRt, except = c(select, getSequence)) #delete?
 import(bit64)
 import(circlize)
-import(data.table)
+import(data.table, except = c(melt))
 import(gProfileR)
 import(getopt)
 import(ggdendro)

@@ -775,7 +775,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   numimputedfinal <- paste0("plot.",numimputedfinal)
   numimputedfinal <- paste0(output_dir,"/",numimputedfinal)
   pdf(numimputedfinal)
-    plotNumberProteinsImputedLog2fc(imputedDF)
+    .artms_plotNumberProteinsImputedLog2fc(imputedDF)
   garbage <- dev.off()
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1056,12 +1056,12 @@ artms_analysisQuantifications <- function(log2fc_file,
 #' case that it does not need to be specified, as far as the proteins were
 #' originally annotated as `INFLUENZAGENE_STRAIN` 
 #' (strains covered `H1N1`, `H3N2`, `H5N1`), as for example, `NS1_H1N1`
-#' @param df data.frame with a `Protein` column (of uniprot ids)
-#' @param pathogen Is there a pathogen in the dataset as well? if it does not,
+#' @param df (data.frame) with a `Protein` column (of uniprot ids)
+#' @param pathogen (char) Is there a pathogen in the dataset as well? if it does not,
 #' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
 #' `lpn` (Legionella)
-#' @param specie Main organism (supported for now: `human` or `mouse`)
-#' @return The same data.frame but with an extra column specifying the specie
+#' @param specie (char) Main organism (supported for now: `human` or `mouse`)
+#' @return (data.frame) The same data.frame but with an extra column specifying the specie
 #' @keywords annotation, specie
 #' artms_annotateSpecie()
 #' @export
@@ -1084,11 +1084,11 @@ artms_annotateSpecie <- function(df, pathogen, specie){
 #' it will be breaking down in each of the sites. This file will help generate
 #' input files for tools as [Phosfate](http://phosfate.com/) or 
 #' [PHOTON](https://github.com/jdrudolph/photon)
-#' @param df data.frame of log2fc and imputed values
-#' @param pathogen Is there a pathogen in the dataset as well? Available 
+#' @param df (data.frame) of log2fc and imputed values
+#' @param pathogen (char) Is there a pathogen in the dataset as well? Available 
 #' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not, 
 #' then use `nopathogen` (default).
-#' @param specie Main organism (supported for now: `human` or `mouse`)
+#' @param specie (char) Main organism (supported for now: `human` or `mouse`)
 #' @return extended version of the ph-site
 #' @keywords external, tools, phosfate
 #' artms_generatePhSiteExtended()
@@ -1429,7 +1429,13 @@ artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
   return (imputedL2FCmelted)
 }
 
-plotNumberProteinsImputedLog2fc <- function(data) {
+# ------------------------------------------------------------------------------
+# @title Plot the total number of quantified proteins in each condition
+# 
+# @description
+# @keys internal, plot, counts
+# @param (data.frame) Data frame of imputed log2fc
+.artms_plotNumberProteinsImputedLog2fc <- function(data) {
   x <- data[c('Protein','Comparison')]
   y <- unique(x)
   z <- ggplot(y, aes(x = Comparison, fill = Comparison))
@@ -1445,14 +1451,13 @@ plotNumberProteinsImputedLog2fc <- function(data) {
 #' 
 #' @description If a protein is not found in a minimal number of 
 #' biological replicates in at least one of the conditions, it is removed
-#' @param dfi Data.frame with biological replicates information
-#' @param mnbr minimal number of biological replicates
-#' @return a filtered `dfi`
+#' @param dfi (data.frame) Data.frame with biological replicates information
+#' @param mnbr (int) minimal number of biological replicates
+#' @return (data.frame) a filtered `dfi`
 #' @keywords filter, bioreplicates, reproducibility
 #' artms_RemoveProtBelowThres()
 #' @export
 artms_RemoveProtBelowThres <- function(dfi, mnbr){
-  dfi <- imputedDF
   theComparisons2check <- unique(dfi$Label)
   for (onlyonecomp in (theComparisons2check)){
     

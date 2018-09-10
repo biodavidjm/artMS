@@ -137,27 +137,27 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' with the IDs. Is not cool?
 #' @param categorySource Resources providing the terms on which the enrichment 
 #' will be performed. The supported resources by gprofiler are:
-#' - *GO (GO:BP, GO:MF, GO:CC)*: Gene Ontology (see more below)
-#' - *KEGG*: Biological pathways
-#' - *REAC*: Biological pathways (Reactome)
-#' - *TF*: Regulatory motifs in DNA (TRANSFAC TFBS)
-#' - *MI*: Regulatory motifs in DNA (miRBase microRNAs)
-#' - *CORUM*: protein complexes database
-#' - *HP*: Human Phenotype Ontology
-#' - *HPA*: Protein databases (Human Protein Atlas)
-#' - *OMIM*: Online Mendelian Inheritance in Man annotations: 
-#' - *BIOGRID*: BioGRID protein-protein interactions
+#' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
+#' - KEGG: Biological pathways
+#' - REAC: Biological pathways (Reactome)
+#' - TF: Regulatory motifs in DNA (TRANSFAC TFBS)
+#' - MI: Regulatory motifs in DNA (miRBase microRNAs)
+#' - CORUM: protein complexes database
+#' - HP: Human Phenotype Ontology
+#' - HPA: Protein databases (Human Protein Atlas)
+#' - OMIM: Online Mendelian Inheritance in Man annotations: 
+#' - BIOGRID: BioGRID protein-protein interactions
 #' The type of annotations for Gene Ontology:
-#' - Inferred from experiment [*IDA, IPI, IMP, IGI, IEP*]
-#' - Direct assay [*IDA*] / Mutant phenotype [*IMP*]
-#' - Genetic interaction [*IGI*] / Physical interaction [*IPI*]
-#' - Traceable author [*TAS*] / Non-traceable author [*NAS*] / 
-#' Inferred by curator [*IC*]
-#' - Expression pattern [*IEP*] / Sequence or structural similarity [*ISS*] 
-#' / Genomic context [*IGC*]
-#' - Biological aspect of ancestor [*IBA*] / Rapid divergence [*IRD*]
-#' - Reviewed computational analysis [*RCA*] / Electronic annotation [*IEA*]
-#' - No biological data [*ND*] / Not annotated or not in background [*NA*]
+#' - Inferred from experiment (IDA, IPI, IMP, IGI, IEP)
+#' - Direct assay (IDA) / Mutant phenotype (IMP]
+#' - Genetic interaction (IGI) / Physical interaction (IPI)
+#' - Traceable author (TAS) / Non-traceable author (NAS) / 
+#' Inferred by curator (IC)
+#' - Expression pattern (IEP) / Sequence or structural similarity (ISS) 
+#' / Genomic context (IGC)
+#' - Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
+#' - Reviewed computational analysis (RCA) / Electronic annotation (IEA)
+#' - No biological data (ND) / Not annotated or not in background (NA)
 #' @param specie Specie code: Organism names are constructed by concatenating 
 #' the first letter of the name and the family name.
 #' Example: human - ’hsapiens’, mouse - ’mmusculus’.

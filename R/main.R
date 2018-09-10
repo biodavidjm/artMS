@@ -5,7 +5,7 @@
 #' @importFrom cluster pam
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
-#' @import data.table
+#' @rawNamespace import(data.table, except = c(melt))
 #' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
 #' @import getopt
@@ -54,6 +54,7 @@
 
 # ------------------------------------------------------------------------------
 #' @title Main Function
+#' 
 #' @description Main function running all the selected options
 #' @param yaml_config_file The yaml file name and location
 #' @return All the selected options
