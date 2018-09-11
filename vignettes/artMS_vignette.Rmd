@@ -114,7 +114,7 @@ Make sure that the filter `modifications` is labeled as `AB`.
 Finally, run the following artms function:
 
 ```{r}
-artms_main(yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
+artms_quantification(yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
 ```
 
 
@@ -146,7 +146,7 @@ The remaining options can be left unmodified.
 Once the configuration `yaml` file is ready, run the following command:
 
 ```{r}
-artms_main(yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
+artms_quantification(yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
 ```
 
 ## Quantification of Changes in Site-Specific Phosphorylation / Ubiquitination
@@ -175,12 +175,12 @@ artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_p
 Once the new `yaml` file has been created, execute:
 
 ```{r}
-artms_main(yaml_config_file = '/path/to/config/file/phsites_config.yaml')
+artms_quantification(yaml_config_file = '/path/to/config/file/phsites_config.yaml')
 ```
 
 # Analysis of Quantifications
 
-Comprehensive analysis of the quantification obtained running `artms_main()`. It includes:
+Comprehensive analysis of the quantification obtained running `artms_quantification()`. It includes:
 
 - Annotations
 - Summary files in different format (xls, txt) and shapes (long, wide)
@@ -190,14 +190,14 @@ Comprehensive analysis of the quantification obtained running `artms_main()`. It
 - PCA of quantification
 - Clustering analysis
 
-It takes as input two files generated from the previous step (`artms_main()`)
+It takes as input two files generated from the previous step (`artms_quantification()`)
 
 - `-results.txt` 
 - `-results_ModelQC.txt`
 
 To run this analysis
 
-1. Set as the working directory the folder with the results obtained from `artms_main()`.
+1. Set as the working directory the folder with the results obtained from `artms_quantification()`.
 
 ```
 setwd('~/path/to/the/results/')

@@ -53,15 +53,15 @@
 
 
 # ------------------------------------------------------------------------------
-#' @title Main Function
+#' @title Relative quantification using MSstats
 #' 
-#' @description Main function running all the selected options
-#' @param yaml_config_file The yaml file name and location
+#' @description Relative quantification using MSstats
+#' @param yaml_config_file (char) The yaml file name and location
 #' @return All the selected options
 #' @keywords main, driver, function
-#' artms_main()
+#' artms_quantification()
 #' @export
-artms_main <- function(yaml_config_file){
+artms_quantification <- function(yaml_config_file){
   cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
   cat("============================================================\n\n")
   cat(">> LOADING CONFIGURATION FILE...\n")
