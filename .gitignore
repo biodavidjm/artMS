@@ -1,14 +1,15 @@
 # History files
-.Rhistory
-.Rapp.history
-.Rprofile
+**.Rhistory
+**.Rapp.history
+**.Rprofile
+
 
 # MSstats files
 msstats.log*
 sessionInfo.txt
 
 # Session Data files
-.RData
+**.RData
 # Example code in package build process
 *-Ex.R
 # Output files from R CMD build
