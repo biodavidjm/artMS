@@ -5,9 +5,9 @@
 \title{Analysis of the Relative Quantification}
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
-  enrich = TRUE, output_dir, isFluomics = FALSE, isPtm,
-  isBackground = "nobackground", mnbr, l2fc_thres, ipval = "adjpvalue",
-  pathogen = "nopathogen")
+  output_dir, enrich = TRUE, l2fc_thres, ipval = "adjpvalue",
+  isBackground = "nobackground", isPtm = "noptm", mnbr = 2,
+  isFluomics = FALSE, pathogen = "nopathogen")
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}
@@ -16,28 +16,36 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{specie}{(char) Specie (human, mouse)}
 
-\item{enrich}{(logical) Performed enrichment analysis? \code{TRUE} (default) or \code{FALSE}}
-
 \item{output_dir}{(char) Name for the folder to output the results from the function}
 
-\item{isFluomics}{(logical) Is from the fluomics project? \code{TRUE} or \code{FALSE} (default)}
-
-\item{isPtm}{(Is a ptm quantification? \code{noptm} (default), \code{yesptmsites}
-(for site specific analysis), \code{yesptmph} (Jeff's script output evidence file)}
-
-\item{isBackground}{(char) background of gene names for enrichment analysis.
-\code{nobackground} (default) will use the total number of genes detected.
-Alternatively provided the file path name to the background gene list}
-
-\item{mnbr}{(int) minimal number of biological replicates for imputation and filtering}
+\item{enrich}{(logical) Performed enrichment analysis using GprofileR?
+\code{TRUE} (default) or \code{FALSE}}
 
 \item{l2fc_thres}{(int) log2fc cutoff for enrichment analysis}
 
-\item{ipval}{(int) pvalue cutoff for enrichment analysis}
+\item{ipval}{(char) specify whether \code{pvalue} or \code{adjpvalue} should use for
+the analysis. The default option is \code{adjpvalue}
+(multiple testing correction).
+But if the number of biological replicates for a given experiment is
+too low (for example n = 2), then \code{ipval = pvalue} is recommended.}
 
-\item{pathogen}{(char) Is there a pathogen in the dataset as well? if it does not,
-then use \code{pathogen = nopathogen} (default), \code{tb} (Tuberculosis),
-\code{lpn} (Legionella)}
+\item{isBackground}{(char) background of gene names for enrichment analysis.
+\code{nobackground} (default) will use the total number of genes detected.
+Alternatively provided the file path name to the background gene list.}
+
+\item{isPtm}{(char) Is a ptm-site quantification? \code{noptm} (default), \code{yesptmsites}
+(for site specific analysis), \code{yesptmph} (Jeff's script output evidence file)}
+
+\item{mnbr}{(int) minimal number of biological replicates for imputation
+and filtering. Default: \code{mnbr = 2} (Proteins must be found in one of the
+conditions in at least 2 of the biological replicates)}
+
+\item{isFluomics}{(logical) Does this data belong to the FluOMICs project?
+\code{TRUE} or \code{FALSE} (default)}
+
+\item{pathogen}{(char) Is there a pathogen in the dataset as well?
+if it does not, then use \code{pathogen = nopathogen} (default).
+Pathogens available: \code{tb} (Tuberculosis), \code{lpn} (Legionella)}
 }
 \value{
 (data.frame) summary of quantifications, including annotations, enrichments, etc
