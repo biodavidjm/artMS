@@ -2,23 +2,26 @@
 % Please edit documentation in R/annotations.R
 \name{artms_annotationUniprot}
 \alias{artms_annotationUniprot}
-\title{Uniprot annotations}
+\title{Annotate table with Gene Symbol and Name based on Uniprot ID(s)}
 \usage{
 artms_annotationUniprot(data, columnid, sps)
 }
 \arguments{
-\item{data}{The data.frame to be annotated}
+\item{data}{(data.frame) to be annotated}
 
-\item{columnid}{The column with the uniprotkb ids}
+\item{columnid}{(char) The column with the uniprotkb ids}
 
-\item{sps}{The specie name. Check \code{?artms_mapUniprot2entrezGeneName} to
-find out more about supported species.}
+\item{sps}{(char) The specie name. Check \code{?artms_mapUniprot2entrezGeneName}
+to find out more about supported species.}
 }
 \value{
-a data.frame with two new columns: \code{Gene} and \code{Protein.name}
+(data.frame) with two new columns: \code{Gene} and \code{Protein.name}
 }
 \description{
-Annotate gene name and symbol based on uniprot ids
+Annotate gene name and symbol based on uniprot ids. It will take
+the column from your data.frame specified by the \code{columnid} argument,
+search for the gene symbol, name, and entrez based on the specie (\code{sps}
+argument) and merge the information back to the input data.frame
 }
 \keyword{annotation,}
 \keyword{artms_annotationUniprot()}

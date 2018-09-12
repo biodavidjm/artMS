@@ -7,9 +7,9 @@
 artms_mapUniprot2entrezGeneName(uniprotkb, specie)
 }
 \arguments{
-\item{uniprotkb}{List of UniprotKB IDs}
+\item{uniprotkb}{(vector) Vector of UniprotKB IDs}
 
-\item{specie}{The specie name. Currently supporting:
+\item{specie}{(char) The specie name. Currently supporting:
 \itemize{
 \item ANOPHELES
 \item ARABIDOPSIS
@@ -32,7 +32,7 @@ artms_mapUniprot2entrezGeneName(uniprotkb, specie)
 }}
 }
 \value{
-A data.frame with EntrezID and GENENAMES mapped on UniprotKB ids
+(data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
 }
 \description{
 Map UniprotKB to Entrez and Gene Name

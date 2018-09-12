@@ -761,8 +761,8 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <- data.table::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iLog2FC', fill = 0)
-    imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF, Gene+Protein+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
+    imputedDF_wide_log2fc <- data.table::dcast(data = imputedDF, Gene+Protein+ENTREZID+Uniprot_PTM~Comparison, value.var = 'iLog2FC', fill = 0)
+    imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF, Gene+Protein+ENTREZID+Uniprot_PTM~Comparison, value.var = 'iPvalue', fill = 0)
     
   }else if(isPtm == "noptm"){
     suppressMessages(imputedDF <- artms_annotationUniprot(imputedDF, 'Protein', specie))
@@ -772,8 +772,8 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <- data.table::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iLog2FC', fill = 0)
-    imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF, Gene+Protein~Comparison, value.var = 'iPvalue', fill = 0)
+    imputedDF_wide_log2fc <- data.table::dcast(data = imputedDF, Gene+Protein+ENTREZID~Comparison, value.var = 'iLog2FC', fill = 0)
+    imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF, Gene+Protein+ENTREZID~Comparison, value.var = 'iPvalue', fill = 0)
   }else{
     stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: noptm, yesptmph, yesphsite\n")
   }
@@ -884,7 +884,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     pam.res <- pam(vamos, k=n)
     
     cp1 <- factoextra::fviz_cluster(pam.res)
-    cp2 <- factoextra::fviz_silhouette(silhouette(pam.res), print.summary = F)
+    cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = F)
     
     cat("--- Plots to determine optimal number of clusters\n")
     file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
@@ -1395,8 +1395,6 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie){
   # Move Gene name to the left:
   return(input_dcast)
 }
-
-
 
 # ------------------------------------------------------------------------------
 # @title Plot the total number of quantified proteins in each condition
