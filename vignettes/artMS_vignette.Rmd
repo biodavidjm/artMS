@@ -1,12 +1,7 @@
 ---
 title: "artMS:Analytical R Tools for Mass Spectrometry"
 author: "David Jimenez-Morales"
-date: 2018-09-05
-# output: rmarkdown::html_vignette
-# vignette: >
-#   %\VignetteIndexEntry{Vignette Title}
-#   %\VignetteEngine{knitr::rmarkdown}
-#   %\VignetteEncoding{UTF-8}
+date: "`r Sys.Date()`"
 output: 
   BiocStyle::html_document:
     toc_float: true
@@ -15,7 +10,7 @@ output:
 vignette: >
     %\VignetteIndexEntry{Learn to use artMS ~30 min}
     %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteEncoding{UTF-8}
+    %\usepackage[utf8]{inputenc}
 ---
 
 ```{r, echo = FALSE}
@@ -51,7 +46,7 @@ Running a quality control of the evidence file requires two files:
 
 As an example, we will use a phosphorylation dataset available to download from the [kroganlab website](http://kroganlab.ucsf.edu/)
 
-```{r}
+```{r, eval = FALSE}
 # Evidence file
 url_evidence <- '~/experiments/artms/ph/evidence.txt'
 # url_evidence <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
@@ -66,7 +61,7 @@ url_keys <- "~/experiments/artms/ph/keys.txt"
 
 Then run `artms_evidenceQC()` and specify the type of phosphoproteomics experiment (argument `prot_exp = ph`) like this:
 
-```{r}
+```{r, eval = FALSE}
 artms_evidenceQC(evidence_file = url_evidence, keys_file = url_keys, prot_exp = 'ph')
 ```
 Other proteomics experiments available are `ab` (protein abundance), `ub` (protein ubiquitination), and `apms` (Affinity Purification Mass Spectrometry)
@@ -92,7 +87,7 @@ Different types of proteomics experiments can be analyzed, including protein abu
 
 It quantifies changes in protein abundance between two different conditions. The template yaml file available [here](../data-raw/artms_config.yaml) is set up for protein abundance. These are the sections to be filled up by the user:
 
-```{yaml}
+```
 files:
   evidence : /path/to/the/evidence.txt
   keys : /path/to/the/keys.txt
@@ -113,7 +108,7 @@ Make sure that the filter `modifications` is labeled as `AB`.
 
 Finally, run the following artms function:
 
-```{r}
+```{r, eval = FALSE}
 artms_quantification(yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
 ```
 
@@ -124,7 +119,7 @@ The **global phosphorylation** quantification analysis calculates changes in pho
 
 Only two sections need to be modified on the **default** configuration (`yaml`) file:
 
-```{yaml}
+```
 files:
   evidence : /path/to/the/evidence.txt
   keys : /path/to/the/keys.txt
@@ -145,7 +140,7 @@ The remaining options can be left unmodified.
 
 Once the configuration `yaml` file is ready, run the following command:
 
-```{r}
+```{r, eval = FALSE}
 artms_quantification(yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
 ```
 
@@ -159,13 +154,13 @@ To run a site specific analysis follow these steps:
 
 For phosphorylation
 
-```{r}
+```{r, eval = FALSE}
 artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ph-sites-evidence.txt", mod_type = "PH")
 ```
 
 For ubiquitination
 
-```{r}
+```{r, eval = FALSE}
 artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ub-sites-evidence.txt", mod_type = "UB")
 ```
 
@@ -174,7 +169,7 @@ artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_p
 
 Once the new `yaml` file has been created, execute:
 
-```{r}
+```{r, eval = FALSE}
 artms_quantification(yaml_config_file = '/path/to/config/file/phsites_config.yaml')
 ```
 
