@@ -1,4 +1,5 @@
 #' @rawNamespace import(AnnotationDbi, except = c(head))
+#' @rawNamespace import(BiocGenerics, except = c(match, rank, order, Position, plotMA))
 #' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
 #' @import circlize

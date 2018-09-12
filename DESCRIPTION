@@ -23,6 +23,7 @@ BugReports: https://github.com/biodavidjm/artMS/issues
 Depends: R (>= 3.5.0)
 Imports:
   AnnotationDbi,
+  BiocGenerics,
   biomaRt,
   bit64,
   circlize,
@@ -79,8 +80,6 @@ LazyData: true
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
-    RUnit, 
-    BiocGenerics,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
