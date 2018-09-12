@@ -3,10 +3,10 @@ title: "artMS:Analytical R Tools for Mass Spectrometry"
 author: "David Jimenez-Morales"
 date: "`r Sys.Date()`"
 output: 
-  # BiocStyle::html_document:
-  #   toc_float: true
-  pdf_document:
-    toc: true
+  BiocStyle::html_document:
+    toc_float: true
+  # pdf_document:
+  #   toc: true
 vignette: >
     %\VignetteIndexEntry{Learn to use artMS ~30 min}
     %\VignetteEngine{knitr::rmarkdown}
