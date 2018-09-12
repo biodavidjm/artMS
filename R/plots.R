@@ -111,13 +111,13 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[ idx ] <- NA
     }
-    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
+    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
   }else if(display=='adj.pvalue'){
     heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
-    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
+    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
   }else if(display=='pvalue'){
     heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
-    heat_data_w = reshape2::dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
+    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
   }
   
   ## try
@@ -192,7 +192,7 @@ artms_plotReproducibilityEvidence <- function(data) {
         # Let's select unique features per TECHNICAL REPLICAS, and sum them up (the same feature might have been many differnt times)
         biorepliaggregated <- aggregate(Intensity~Feature+Proteins+Condition+BioReplicate+Run+TR, data = biorepli, FUN = sum)
         biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-        bdc <- reshape2::dcast(data=biorepliaggregated, Feature+Proteins~TR, value.var = 'Intensity')
+        bdc <- data.table::dcast(data=biorepliaggregated, Feature+Proteins~TR, value.var = 'Intensity')
         
         # Get the number of proteins
         np <- dim(bdc)[1]
@@ -239,7 +239,7 @@ artms_plotReproducibilityEvidence <- function(data) {
           br2 <- blist[k]
           
           # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
-          bcfinal <- reshape2::dcast(data=b, Feature+Proteins~BioReplicate, value.var = 'Intensity')
+          bcfinal <- data.table::dcast(data=b, Feature+Proteins~BioReplicate, value.var = 'Intensity')
           
           # Let's check the total number of peptides here...
           checkTotalNumber <- subset(bcfinal,select = c(br1, br2))
@@ -378,7 +378,7 @@ artms_plotReproducibilityAbundance <- function(data) {
         biorepli$TR <- biorepli$RUN
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
         biorepli$TR[biorepli$TR == here[2]] <- 'tr2'
-        bdc <- reshape2::dcast(data=biorepli, PROTEIN~TR, value.var = 'ABUNDANCE')
+        bdc <- data.table::dcast(data=biorepli, PROTEIN~TR, value.var = 'ABUNDANCE')
         bdc <- bdc[complete.cases(bdc),]
         # Get the number of proteins
         np <- length(unique(bdc$PROTEIN))
@@ -411,7 +411,7 @@ artms_plotReproducibilityAbundance <- function(data) {
           br2 <- blist[k]
           # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\n")
           
-          bc <- reshape2::dcast(data=b, PROTEIN~SUBJECT_ORIGINAL, value.var = 'ABUNDANCE')
+          bc <- data.table::dcast(data=b, PROTEIN~SUBJECT_ORIGINAL, value.var = 'ABUNDANCE')
           bc <- bc[complete.cases(bc),]
           
           npt <- length(unique(bc$PROTEIN))
@@ -455,10 +455,10 @@ artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
   
   # One way to do this would be to be very stringent, requiring to find data in all biological replicas:
   # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == numberBiologicalReplicas, mean(x, na.rm = T), NA)}
-  # datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = allBiologicalReplicas, fill = 0)
+  # datadc <- data.table::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = allBiologicalReplicas, fill = 0)
   
   # Or a most relaxed way:
-  datadc <- reshape2::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  datadc <- data.table::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = mean) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   # before <- dim(datadc)[1]
   # l <- dim(datadc)[2]

@@ -11,8 +11,10 @@
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c(dcast))
 #' @import gProfileR
+#' @importFrom graphics pairs plot barplot hist lines par
+#' @importFrom grDevices colorRampPalette dev.off pdf
 #' @import grid
 #' @import limma
 #' @import MSstats
@@ -40,18 +42,14 @@
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select, add_heatmap))
 #' @import plyr
 #' @import RColorBrewer
-#' @import reshape2
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @import shiny
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
 #' @import stringr
 #' @importFrom tidyr unnest
+#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head
 #' @import VennDiagram
 #' @import yaml
-#' @importFrom graphics pairs plot barplot hist lines par
-#' @importFrom grDevices colorRampPalette dev.off pdf
-#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
-#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head
-
 
 # ------------------------------------------------------------------------------
 #' @title Relative quantification using MSstats

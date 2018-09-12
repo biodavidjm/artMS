@@ -23,7 +23,7 @@ select_ref <- function(keys_file, dat_file) {
     
     # Counting how often a protein is found
     length(unique(x$Raw.file))
-    tmp <- reshape2::dcast(x, Proteins ~ 1)
+    tmp <- data.table::dcast(x, Proteins ~ 1)
     
     tmp <- tmp[order(tmp$`1`, decreasing = T), ]
     tmp <- tmp[tmp$`1` == length(unique(x$Raw.file)), "Proteins"]
