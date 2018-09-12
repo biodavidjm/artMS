@@ -79,6 +79,8 @@ LazyData: true
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
+    RUnit, 
+    BiocGenerics,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
