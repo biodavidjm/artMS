@@ -67,7 +67,7 @@ save(ph_evidence, file = 'data/ph_evidence.RData', compress = 'xz')
 
 # CORUM dataset
 corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = F)
-save(corum_mito_database, file = 'data/corum_mito_database.rdata', compress = 'xz')
+save(corum_mito_database, file = 'data/corum_mito_database.RData', compress = 'xz')
 
 # CONFIGURATION FILE
 artms_config <- yaml.load_file("inst/extdata/artms_config.yaml")

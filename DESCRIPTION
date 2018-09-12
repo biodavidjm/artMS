@@ -23,7 +23,7 @@ BugReports: https://github.com/biodavidjm/artMS/issues
 Depends: R (>= 3.5.0)
 Imports:
   AnnotationDbi,
-  BiocGenerics,
+  BiocStyle,
   biomaRt,
   bit64,
   circlize,

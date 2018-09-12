@@ -9,7 +9,7 @@ bioc_packages:
 - biomaRt
 - limma
 - org.Hs.eg.db
-- BiocGenerics
+- BiocStyle
 
 r_check_args: --no-build-vignettes --no-vignettes
 
