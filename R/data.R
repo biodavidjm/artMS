@@ -59,7 +59,7 @@
 "artms_config"
 
 #' CORUM Protein Complexes database use for complex enrichment analysis
-
+#' 
 #' @description The list of protein complexes has been enriched with
 #' mitochondria proteins from mouse, as described in this paper:
 #' 
@@ -77,7 +77,16 @@
 #' }
 "corum_mito_database"
 
-#' Keys file: Experimental design describing the `ph_evidence` data object
+#' The artMS Keys File
+#' 
+#' @description the artMS Keys file provides the details of the experimental 
+#' design  for any given proteomics experiment. 
+#' 
+#' To illustrate how the keys file works, the `ph_keys` data object
+#' contains the information about a time series experiment from the 
+#' [FluOMICS project](http://www.fluomics.org/). THP1 cells
+#' were infected with Influenza and data collected at different time
+#' points. in addition to the 
 #' 
 #' Data frame with the information about the experimental design.
 #' It provides the metadata of the `ph_evidence` data object also available in 
@@ -91,7 +100,7 @@
 #' @format Tab delimited file with the following columns:
 #' \describe{
 #' \item{Raw.file}{Raw file processed. Each one should be either a
-#' biological replicate or a technical replicate}
+#' biological (or technical) replicate}
 #' 
 #' \item{IsotopeLabelType}{Type of labeling. `L` is used for label free 
 #' experiments}
@@ -103,8 +112,10 @@
 #' to use the same label as the Condition, but adding a `dash (-)` corresponding
 #' to the number of biological replicate. For example, `Cal-1`, `Cal-2`, 
 #' `Cal-3`}
+#' 
+#' \item{Run}{The MS run number}
 #' }
-"ph_keys"
+"artms_keys_example"
 
 #' Random data set
 #'
@@ -116,7 +127,7 @@
 #' 
 #' `data.frame(replicate(10,sample(0:1,100,rep=TRUE)))`
 #' }
-"randomDF"
+"artms_data_randomDF"
 
 
 
