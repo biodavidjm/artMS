@@ -1,5 +1,4 @@
 #' @rawNamespace import(AnnotationDbi, except = c(head))
-#' @import BiocStyle
 #' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
 #' @import circlize
@@ -42,6 +41,7 @@
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select, add_heatmap))
 #' @import plyr
 #' @import RColorBrewer
+#' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @import shiny
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
