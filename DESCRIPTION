@@ -1,6 +1,6 @@
 Package: artMS
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.0.1.2018
+Version: 0.1.0
 Authors@R: c(
     person("David", "Jimenez-Morales", email = "biodavidjm@gmail.com", 
     role = c("aut", "cre", "cph")),
