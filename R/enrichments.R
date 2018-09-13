@@ -1,6 +1,39 @@
 # Everything about enrichments (including plots)
 
 # ------------------------------------------------------------------------------
+#' @title Enrich for Protein Complexes using CORUM
+#' 
+#' @description Enrich for Protein Complexes using CORUM
+#' @param df (data.frame) Data.frame with columns: `Protein` and `Conditions`
+#' @param backgroundNumber (int) Background number of genes
+#' @return (data.frame) A text delimited data.frame with protein complex enrichment results
+#' @keywords enrichment, protein, complexes
+#' artms_enrichForComplexes()
+#' @export
+artms_enrichForComplexes <- function(df, backgroundNumber){
+  
+  listOfConditions <- unique(df$Comparisons)
+  
+  fileCorum <- '~/Box Sync/db/proteinComplexes/20170801_corum_mitoT.txt'
+  corumKrogan <- read.delim(file = fileCorum, header = T, sep = "\t", quote = "", stringsAsFactors = F)
+  complexEnrichmentConditions <- NULL
+  
+  for (i in 1:length(listOfConditions)){
+    condi <- listOfConditions[i]
+    tmp <- unique(df$Protein[which(df$Comparisons == condi)])
+    tmpEnrich <- artms_foldComplexEnrichment(tmp, corumKrogan, backgroundNumber)
+    # Check point
+    checkpc <- dim(tmpEnrich)[1]
+    if (checkpc > 0){
+      tmpEnrich$Comparisons <- condi
+      complexEnrichmentConditions <- rbind(complexEnrichmentConditions,tmpEnrich)
+    }
+  }
+  return(complexEnrichmentConditions)
+}
+
+
+# ------------------------------------------------------------------------------
 #' @title Enrichment of changes in protein abundance or PTMs
 #' 
 #' @description Enrichment analysis of the selected proteins 
@@ -47,39 +80,6 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
   return(enrichgenes)
 }
 
-# ------------------------------------------------------------------------------
-#' @title Enrich for Protein Complexes using CORUM
-#' 
-#' @description Enrich for Protein Complexes using CORUM
-#' @param df Data.frame with columns: `Protein` and `Conditions`
-#' @param backgroundNumber Background number of genes
-#' @return A text delimited data.frame with protein complex enrichment results
-#' @keywords enrichment, protein, complexes
-#' artms_enrichForComplexes()
-#' @export
-artms_enrichForComplexes <- function(df, backgroundNumber){
-  
-  listOfConditions <- unique(df$Comparisons)
-
-  fileCorum <- '~/Box Sync/db/proteinComplexes/20170801_corum_mitoT.txt'
-  corumKrogan <- read.delim(file = fileCorum, header = T, sep = "\t", quote = "", stringsAsFactors = F)
-  complexEnrichmentConditions <- NULL
-  
-  for (i in 1:length(listOfConditions)){
-    condi <- listOfConditions[i]
-    tmp <- unique(df$Protein[which(df$Comparisons == condi)])
-    tmpEnrich <- artms_foldComplexEnrichment(tmp, corumKrogan, backgroundNumber)
-    # Check point
-    checkpc <- dim(tmpEnrich)[1]
-    if (checkpc > 0){
-      tmpEnrich$Comparisons <- condi
-      complexEnrichmentConditions <- rbind(complexEnrichmentConditions,tmpEnrich)
-    }
-  }
-  return(complexEnrichmentConditions)
-}
-
-
 artms_plotCorumEnrichment <- function(df, outfile, theTitle){
   checkPoint <- length(unique(df$Comparisons))
   if(checkPoint >= 1){
@@ -99,7 +99,7 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
     
     df$p_value <- -log10(df$p_value)
     
-    toplot <- reshape2::dcast(data=df, ComplexName~Comparisons, value.var = "p_value", fun.aggregate = sum, fill = 0)
+    toplot <- data.table::dcast(data=df, ComplexName~Comparisons, value.var = "p_value", fun.aggregate = sum, fill = 0)
     rownames(toplot) <- toplot$ComplexName
     toplotmatrix <- subset(toplot, select=-c(ComplexName))
     x <- data.matrix(toplotmatrix)

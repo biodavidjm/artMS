@@ -7,12 +7,12 @@
 artms_enrichForComplexes(df, backgroundNumber)
 }
 \arguments{
-\item{df}{Data.frame with columns: \code{Protein} and \code{Conditions}}
+\item{df}{(data.frame) Data.frame with columns: \code{Protein} and \code{Conditions}}
 
-\item{backgroundNumber}{Background number of genes}
+\item{backgroundNumber}{(int) Background number of genes}
 }
 \value{
-A text delimited data.frame with protein complex enrichment results
+(data.frame) A text delimited data.frame with protein complex enrichment results
 }
 \description{
 Enrich for Protein Complexes using CORUM
