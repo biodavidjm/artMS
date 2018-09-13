@@ -13,11 +13,11 @@
 filterNumUniqPep <- function(evidence_file, keys_file, prot_groups_file, min_pep, verbose = TRUE, return.results = FALSE) {
     
     # Check if passing in data or if passing in files
-    x <- checkIfFile(evidence_file, is.evidence = T)
+    x <- .artms_checkIfFile(evidence_file, is.evidence = T)
     x.order <- names(x)
     
-    pg <- checkIfFile(prot_groups_file)
-    keys <- checkIfFile(keys_file)
+    pg <- .artms_checkIfFile(prot_groups_file)
+    keys <- .artms_checkIfFile(keys_file)
     
     
     # Get Unique Peptides ~~~~~~~~~~~~~~~~~~~~~~

@@ -42,9 +42,9 @@ mq2mss <- function(evidence_file,
                    aggregate_fun = NULL){
     cat(">> LOADING DATA\n")
     # read in evidence file
-    data <- checkIfFile(evidence_file, is.evidence = T)
+    data <- .artms_checkIfFile(evidence_file, is.evidence = T)
     data.table::setnames(data, colnames(data), gsub("\\s", ".", colnames(data)))
-    keys = checkIfFile(keys_file)
+    keys = .artms_checkIfFile(keys_file)
     
     ## the following lines were added to integrate the Label with the Filename when using multiple labels (e.g. H/L) currently we
     ## leave this in because the MSstats discinction on labeltype doesn't work see ISSUES

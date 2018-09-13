@@ -224,4 +224,15 @@ A few comments:
 - `l2fc_thres` is the log2fc cutoff for enrichment analysis, absolute value, i.e., if it is set to 1, it will consider significant log2fc> +1 and log2fc < -1. 
 - `ipval`: specify whether `pvalue` or `adjpvalue` should use for the analysis. The default option is `adjpvalue` (multiple testing correction). But if the number of biological replicates for a given experiment is too low (for example n = 2), then `pvalue` is recommended. 
 
+# Miscellaneous: a little bit of everything
+
+`artMS` also provides a number of very handy functions.
+
+**`artms_avg_intensity_RT(evidence_file = '/path/to/the/evidence.txt)`**
+
+Taking as input the evidence file location, it will summarize and report back the average intensity, average retention time, and the average caliberated retention time for each protein. If a list of proteins is provided, then only those proteins will be summarized and returned. Check `?artms_avg_intensity_RT()` to find out more options.
+
+
+
+
 Please, don't hesitate to send us your questions at <artms.help@gmail.com>

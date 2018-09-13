@@ -1,4 +1,3 @@
-
 # ------------------------------------------------------------------------------
 #' @title Summarize the MSStats results and data quantification
 #' @description Converts the MSStats results file to wide format 
@@ -26,10 +25,10 @@ msstats_summary <- function(evidence_file, prot_group_file, keys_file, results_f
     
     # Check if passing in data or if passing in files
     cat(">> Getting data ...\n")
-    evidence <- checkIfFile(evidence_file, is.evidence = T)
-    pg <- checkIfFile(prot_group_file)
-    keys <- checkIfFile(keys_file)
-    results <- checkIfFile(results_file)
+    evidence <- .artms_checkIfFile(evidence_file, is.evidence = T)
+    pg <- .artms_checkIfFile(prot_group_file)
+    keys <- .artms_checkIfFile(keys_file)
+    results <- .artms_checkIfFile(results_file)
     
     # add CONDITIONS to the evidence file
     dat <- merge(evidence, keys, by.x = "Raw file", by.y = "Raw.file")

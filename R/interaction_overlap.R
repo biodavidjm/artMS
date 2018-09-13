@@ -30,7 +30,7 @@
 interaction_overlap <- function(results, out_file, annotate = T, plot.venn = T) {
     
     cat("READING IN DATA...")
-    results = as.data.frame(checkIfFile(results, is.evidence = FALSE), stringsAsFactors = F)
+    results = as.data.frame(.artms_checkIfFile(results, is.evidence = FALSE), stringsAsFactors = F)
     cat("DONE\n")
     
     # create directory if it doesn't exists

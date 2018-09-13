@@ -9,7 +9,7 @@ select_ref <- function(keys_file, dat_file) {
     cat("Reading in files...\n")
     keys <- read.delim(keys_file, stringsAsFactors = F)
     dat <- x <- read.delim(dat_file, stringsAsFactors = F)
-    # dat <- x <- checkIfFile(dat_file, is.evidence=T)
+    # dat <- x <- .artms_checkIfFile(dat_file, is.evidence=T)
     cat("Removing MaxQuant described contaminants...\n")
     x <- x[-grep("__|;", x$Proteins), ]
     if (length(which(x$Proteins == "")) > 0) 

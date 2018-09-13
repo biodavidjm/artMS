@@ -9,11 +9,11 @@
 #' resultsHeatmap()
 #' @export
 resultsHeatmap <- function(results_file, pval = 0.05, prot_file = FALSE, save_file = FALSE) {
-    results <- checkIfFile(results_file, is.evidence = FALSE)
+    results <- .artms_checkIfFile(results_file, is.evidence = FALSE)
     
     if (prot_file) {
         cat("PROTEIN FILE DETECTED. FILTERING PROTEINS WITH THIS LIST.")
-        prots <- c(unique(unlist(checkIfFile(prot_file)[, 1])))
+        prots <- c(unique(unlist(.artms_checkIfFile(prot_file)[, 1])))
         
     } else {
         # remove non significant cases
