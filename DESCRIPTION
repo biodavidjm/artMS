@@ -1,19 +1,14 @@
 Package: artMS
+Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.1
-Authors@R: c(
-    person("David", "Jimenez-Morales", email = "biodavidjm@gmail.com", 
-    role = c("aut", "cre", "cph")),
-    person("John", "Von Dollen", email = "john.vondollen@ucsf.edu", 
-    role = c("aut")),
-    person("Alexandre", "Rosa Campos", email = "alex.proteomics@gmail.com", 
-    role = c("aut"))
-    )
+Version: 0.99.2
+Date: 2018-09-13
+Author: David Jimenez-Morales, John Von Dollen, Alexandre Rosa Campos
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
     label-free datasets. It takes as input the MaxQuant search result 
     output (evidence.txt file) and performs quality control, 
-    relative quantification using MSstats, and downstream analysis 
+    relative quantification using MSstats, downstream analysis 
     and integration. artMS also provides a set of functions to re-format 
     and make it compatible with other analytical tools, 
     including MIST, SAINT, and CompPASS.
@@ -23,7 +18,6 @@ BugReports: https://github.com/biodavidjm/artMS/issues
 Depends: R (>= 3.5.0)
 Imports:
   AnnotationDbi,
-  BiocStyle,
   biomaRt,
   bit64,
   circlize,
@@ -75,11 +69,12 @@ Imports:
   utils,
   VennDiagram,
   yaml
+Suggests: BiocStyle, knitr, rmarkdown, testthat
 Encoding: UTF-8
-LazyData: true
+LazyLoad: yes
+biocViews: mass-spectrometry, proteomics, bioinformatics, ap-ms, 
+  phosphoproteomics, quantitative-analysis, posttranslational, modifications
+NeedsCompilation: no
+VignetteBuilder: knitr
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
-Suggests: knitr,
-    rmarkdown,
-    testthat
-VignetteBuilder: knitr
