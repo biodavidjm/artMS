@@ -15,7 +15,7 @@
 .artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
   
-  data_f <- changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
+  data_f <- artms_changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
   data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
   cat("------- + Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
 
@@ -50,8 +50,8 @@
   predmss_melt$FragmentIon <- NA
   
   # Names required by MSstats
-  predmss_melt <- changeColumnName(predmss_melt, "Proteins", "ProteinName")
-  predmss_melt <- changeColumnName(predmss_melt, "Charge", "PrecursorCharge")
+  predmss_melt <- artms_changeColumnName(predmss_melt, "Proteins", "ProteinName")
+  predmss_melt <- artms_changeColumnName(predmss_melt, "Charge", "PrecursorCharge")
   
   # And re-sort it as msstats likes it
   dmss <- predmss_melt[,c("ProteinName", "PeptideSequence", "PrecursorCharge", "FragmentIon", "ProductCharge", "IsotopeLabelType", "Condition", "BioReplicate", "Run", "Intensity")]

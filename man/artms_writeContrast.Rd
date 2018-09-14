@@ -14,6 +14,11 @@ artms_writeContrast(contrast_file, all_conditions = NULL)
 \description{
 It simplifies the process of creating the contrast file
 }
-\keyword{artms_writeContrast()}
+\examples{
+\donttest{
+artms_writeContrast(contrast_file = "contrast.txt", 
+                    all_conditions = unique(keys$Condition))
+}
+}
 \keyword{check,}
 \keyword{contrast}

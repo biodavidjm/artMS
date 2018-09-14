@@ -84,7 +84,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   # Careful with old versions of MaxQuant:
   if( any(grep("Leading.Proteins", names(evidencekeys))) ){
-    evidencekeys <- changeTheName(evidencekeys,"Leading.Proteins","Leading.proteins")
+    evidencekeys <- artms_changeColumnName(evidencekeys,"Leading.Proteins","Leading.proteins")
   }
   
   # Combine all the fractions if this is a fractioning experiment by summing 

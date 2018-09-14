@@ -46,9 +46,9 @@ artms_castMaxQToWidePTM <- function(d_long){
 artms_checkRawFileColumnName <- function(df){
   if( !('RawFile' %in% colnames(df)) ) {
     if("Raw.file" %in% colnames(df)){
-      df <- changeColumnName(df, 'Raw.file', 'RawFile')
+      df <- artms_changeColumnName(df, 'Raw.file', 'RawFile')
     }else if("Raw file" %in% colnames(df)){
-      df <- changeColumnName(df, 'Raw file', 'RawFile')
+      df <- artms_changeColumnName(df, 'Raw file', 'RawFile')
     }else{
       cat("\tERROR: CANNOT FIND THE Raw.file COLUMN\n")
       stop("Please, revise it")
@@ -60,15 +60,17 @@ artms_checkRawFileColumnName <- function(df){
 # ------------------------------------------------------------------------------
 #' @title Change a specific column name in a given data.frame
 #' 
-#' @description Making easier j
-#' @param dataset the data.frame with the column name you want to change
-#' @param oldname the old column name
-#' @param newname the new name for that column
-#' @return A new data.frame with the new specified column name
+#' @description Making easier to change a column name in any data.frame
+#' @param dataset (data.frame) with the column name you want to change
+#' @param oldname (char) the old column name
+#' @param newname (char) the new name for that column
+#' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
-#' changeColumnName()
+#' @examples \donttest{
+#' artms_changeColumnName(dataset = dfabundance, "Proteins", "Protein")
+#' }
 #' @export
-changeColumnName <- function(dataset, oldname, newname){
+artms_changeColumnName <- function(dataset, oldname, newname){
   if( !(oldname %in% colnames(dataset)) ){
     stop("The Column name provided <",oldname,"> was not found in the data.table provided")
   }
@@ -426,10 +428,15 @@ trim <- function (x){
 #' @param contrast_file The text filepath of contrasts
 #' @param all_conditions a vector with all the conditions in the keys file
 #' @keywords check, contrast
-#' artms_writeContrast()
+#' @examples \donttest{
+#' artms_writeContrast(contrast_file = "contrast.txt", 
+#'                     all_conditions = unique(keys$Condition))
+#' }
 #' @export
 artms_writeContrast <- function(contrast_file, all_conditions = NULL){
   input_contrasts <- readLines(contrast_file, warn=F)
+  #remove empty lines
+  input_contrasts <- input_contrasts[sapply(input_contrasts, nchar) > 0]
   
   # check if contrast_file is old-format (i.e the contrast_file is a matrix)
   headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
@@ -446,19 +453,19 @@ artms_writeContrast <- function(contrast_file, all_conditions = NULL){
   valid <- TRUE
   accepted_chars <- c(LETTERS, letters, 0:9, '-','_')
   for (x in input_contrasts) {
-    characs <- unlist(strsplit(x, split=''))
-    not_allowed_count <- length(which(!(characs %in% accepted_chars)))
-    if (not_allowed_count > 0) {
-      valid <- FALSE
-      cat(paste(x, "is not a valid input"))
-      break
-    }
-    
-    dash_count <- length(which(characs == '-'))
-    if (dash_count != 1) {
-      valid <- FALSE
-      cat(paste(x, "needs to contain exactly 1 '-'"))
-      break    
+    if(x != ""){
+      characs <- unlist(strsplit(x, split=''))
+      not_allowed_count <- length(which(!(characs %in% accepted_chars)))
+      if (not_allowed_count > 0) {
+        valid <- FALSE
+        stop(paste(x, "is not a valid input"))
+      }
+      
+      dash_count <- length(which(characs == '-'))
+      if (dash_count != 1) {
+        valid <- FALSE
+        stop(paste(x, "needs to contain exactly 1 '-'"))
+      }
     }
   }
   
