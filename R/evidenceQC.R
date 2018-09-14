@@ -2,19 +2,23 @@
 #' @title Quality Control analysis of the MaxQuant evidence file
 #' 
 #' @description Quality Control analysis of the MaxQuant evidence file
-#' @param evidence_file The evidence file
-#' @param keys_file The keys file with the experimental design
-#' @param prot_exp Proteomics experiment. 4 options available:
+#' @param evidence_file (char) The evidence file path and name
+#' @param keys_file (char) The keys file path and name
+#' @param prot_exp (char) Proteomics experiment. 4 options available:
 #' - `APMS`: affinity purification mass spectrometry
 #' - `AB`: protein abundance
 #' - `PH`: protein phosphorylation
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
-#' @param fractions Is a fractionated experiment?
+#' @param fractions (binary) Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
-#' artms_evidenceQC()
+#' @examples \donttest{
+#' artms_evidenceQC(evidence_file = "evidence.txt", 
+#'                  keys_file = "keys.txt", 
+#'                  prot_exp = "PH")
+#' }
 #' @export
 artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
 
@@ -460,11 +464,6 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     garbage <- dev.off()
   }
   
-  cat("------------ QUALITY CONTROL ANALYSIS COMPLETED\n\n")
+  cat("\n>>QUALITY CONTROL ANALYSIS COMPLETED!\n")
 }
-
-
-
-
-
 

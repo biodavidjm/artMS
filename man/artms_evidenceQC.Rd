@@ -7,11 +7,11 @@
 artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0)
 }
 \arguments{
-\item{evidence_file}{The evidence file}
+\item{evidence_file}{(char) The evidence file path and name}
 
-\item{keys_file}{The keys file with the experimental design}
+\item{keys_file}{(char) The keys file path and name}
 
-\item{prot_exp}{Proteomics experiment. 4 options available:
+\item{prot_exp}{(char) Proteomics experiment. 4 options available:
 \itemize{
 \item \code{APMS}: affinity purification mass spectrometry
 \item \code{AB}: protein abundance
@@ -19,7 +19,7 @@ artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0)
 \item \code{UB}: protein ubiquitination (aka ubiquitylation)
 }}
 
-\item{fractions}{Is a fractionated experiment?
+\item{fractions}{(binary) Is a fractionated experiment?
 \itemize{
 \item 1 yes
 \item 0 no (default)
@@ -31,8 +31,14 @@ Quality control files and plots
 \description{
 Quality Control analysis of the MaxQuant evidence file
 }
+\examples{
+\donttest{
+artms_evidenceQC(evidence_file = "evidence.txt", 
+                 keys_file = "keys.txt", 
+                 prot_exp = "PH")
+}
+}
 \keyword{QC,}
-\keyword{artms_evidenceQC()}
 \keyword{control,}
 \keyword{evidence}
 \keyword{quality,}
