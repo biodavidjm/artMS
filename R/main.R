@@ -54,11 +54,18 @@
 # ------------------------------------------------------------------------------
 #' @title Relative quantification using MSstats
 #' 
-#' @description Relative quantification using MSstats
+#' @description Relative quantification using MSstats including:
+#' - plots
+#' - quantifications (log2fc, pvalues, etc)
+#' - normalized abundance values
 #' @param yaml_config_file (char) The yaml file name and location
-#' @return All the selected options
+#' @return The relative quantification of the conditions and comparisons 
+#' specified in the keys/contrast file resulting from running MSstats, in 
+#' addition to quality control plots (if selected)
 #' @keywords main, driver, function
-#' artms_quantification()
+#' @examples \donttest{
+#' artms_quantification("artms-ab-config.yaml")
+#' }
 #' @export
 artms_quantification <- function(yaml_config_file){
   cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
@@ -178,7 +185,7 @@ artms_quantification <- function(yaml_config_file){
         config$files$sequence_type <- 'modified'
       }
       
-      dmss <- artms_getMSstatsFormat(data_f, config$data$fractions$enabled, config$files$evidence, "sum")
+      dmss <- .artms_getMSstatsFormat(data_f, config$data$fractions$enabled, config$files$evidence, "sum")
       
       ## DEPRECATED : Make sure there are no doubles !!
       ## doubles could arise when protein groups are being kept and the same 

@@ -89,17 +89,17 @@ artms_filterData <- function(data, config){
   cat("\n>> FILTERING\n")
   if(config$data$filters$protein_groups == 'remove'){
     cat("\tPROTEIN GROUPS\tREMOVE\n")
-    data_f = removeMaxQProteinGroups(data)  
+    data_f <- .artms_removeMaxQProteinGroups(data)  
   }else if(config$data$filters$protein_groups == 'keep'){
     cat("\tPROTEIN GROUPS\tIGNORE\n")
-    data_f = data
+    data_f <- data
   }else{
     stop("\n\nFILTERING OPTION FOR protein_groups NOT UNDERSTOOD (OPTIONS AVAILABLE: keep OR remove\n\n")
   }
   
   if(config$data$filters$contaminants){
     cat("\tCONTAMINANTS\tREMOVE\n")
-    data_f = artms_filterMaxqData(data_f)  
+    data_f <- artms_filterMaxqData(data_f)  
   }
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification COULD BE EMPTY
@@ -158,7 +158,7 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
     cat(sprintf("\tkeys found: %s \n\t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
     cat(sprintf("\tdata found: %s \n\t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
   }else{
-    cat("+----- Check point: the number of RawFiles in both keys and evidences file is identical\n")
+    cat("--- Check point: the number of RawFiles in both keys and evidences file is identical\n")
   }
   
   ## select only required attributes from MQ format
@@ -259,6 +259,19 @@ prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names){
   result = paste(uniprot_acs,uniprot_ids,gene_names,sep=' ')
   return(result)
 }
+
+# ------------------------------------------------------------------------------
+#' @title Remove protein groups
+#' @description Remove the group of proteins ids separated by separated by `;`
+#' @param data Data.frame with a `Proteins` column.
+#' @return A data.frame with the protein groups removed
+#' @keywords maxquant, remove, proteingroups
+#' .artms_removeMaxQProteinGroups()
+.artms_removeMaxQProteinGroups <- function(data){
+  data_selected = data[grep(";",data$Proteins, invert=T),]
+  return(data_selected)
+}
+
 
 # ------------------------------------------------------------------------------
 #' @title Reshape the MSstats results file from long to wide format
@@ -362,6 +375,8 @@ artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05
   significant_results = selected_results[selected_results$Protein %in% significant_proteins, ]
   return(significant_results)
 }
+
+
 
 
 # ------------------------------------------------------------------------------
