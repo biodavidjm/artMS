@@ -17,7 +17,11 @@ artms_enrichForComplexes(df, backgroundNumber)
 \description{
 Enrich for Protein Complexes using CORUM
 }
-\keyword{artms_enrichForComplexes()}
+\examples{
+\donttest{
+artms_enrichForComplexes(df = dfobject, backgroundNumber = length(dfobject$Gene))
+}
+}
 \keyword{complexes}
 \keyword{enrichment,}
 \keyword{protein,}
