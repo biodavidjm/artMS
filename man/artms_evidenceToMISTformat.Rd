@@ -5,23 +5,23 @@
 \title{Convert MaxQuant Evidence file into a Protein Prospector like format
 to run through the MIST pipeline using spectral counts.}
 \usage{
-artms_evidenceToMISTformat(input_file, metric, keys_file, output_file,
-  species, uniprot_dir)
+artms_evidenceToMISTformat(input_file, quant_variable, keys_file,
+  output_file, species, uniprot_dir)
 }
 \arguments{
-\item{input_file}{MaxQuant evidence file and location}
+\item{input_file}{(char) MaxQuant evidence file and location}
 
-\item{metric}{Select quantitative metric. Two options available:
+\item{quant_variable}{(char) Select the quantitative variable. Two options available:
 \itemize{
-\item \code{int}: MS Intensity
-\item \code{spc}: MS.MS.count (Spectral Counts)
+\item \code{msint}: MS Intensity
+\item \code{msspc}: MS.MS.count (Spectral Counts)
 }}
 
-\item{keys_file}{Keys file with the experimental details}
+\item{keys_file}{(char) Keys file with the experimental details}
 
-\item{output_file}{Output file name}
+\item{output_file}{(char) Output file name}
 
-\item{species}{Specie name. If several, used a \code{dash} symbol to separate them}
+\item{species}{(char) Specie name. If several, used a \code{dash} symbol to separate them}
 
 \item{uniprot_dir}{Directory with the uniprot files with the mapping
 information. Default '~/Box Sync/db/mist/'}
@@ -36,8 +36,17 @@ MiST \emph{data} file, and that an additional \emph{keys} file will have to be
 constructed before running MiST. Multiple species can be searched at once,
 simply separate them by a "-". (eg. \code{HUMAN-MOUSE})
 }
+\examples{
+\donttest{
+artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
+                           keys_file = "a549-PB1-keys.txt", 
+                           quant_variable = "msint", 
+                           output_file = "a549-PB1-mist.txt",
+                           species = "HUMAN-FLUOMICS",
+                           uniprot_dir = "~/Box Sync/db/mist/")
+}
+}
 \keyword{apms}
-\keyword{artms_evidenceToMISTformat()}
 \keyword{evidence,}
 \keyword{keys,}
 \keyword{mist,}
