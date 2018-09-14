@@ -1,16 +1,35 @@
-
+# ------------------------------------------------------------------------------
 #' @title Filter MaxQuant data based on Number of Unique Peptides
-#' @description This will remove all condition-protein instance where the number of unique peptides is below the `min_pep` threshold. The results are written out to a file that is named similar to the evidence file, but also contains the filtering cutoff used.
-#' @param evidence_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).
-#' @param prot_groups_file The filepath to the MaxQuant searched Protein Groups file (txt tab delimited file).
-#' @param keys_file The filepath to the keys file used with MSStats (txt tab delimited file). The condition names must match the Condition names provided to the proteinGroups file replicates.
-#' @param min_pep The minimum number of peptides that need to be found with at least one bait-prey protein pair to consider it a real hit. Anything not meeting this criteria is removed before scoring.
-#' @param verbose Whether or not to display status reports. Default = TRUE
-#' @param return.results Whether or not to return the results to the R environment upon completion. This is useful if this is being used in an R pipeline and you want to feed the results directly into the next stage of analysis via an R environment/terminal. Regardless, the results will be written to file. Default = FALSE
+#' 
+#' @description Remove all condition-protein instance where the number of 
+#' unique peptides is below the `min_pep` threshold. 
+#' The results are written out to a file that is named similar to the evidence 
+#' file, but also contains the filtering cutoff used.
+#' @param evidence_file (char) The filepath to the MaxQuant searched data 
+#' (evidence) file (txt tab delimited file).
+#' @param prot_groups_file The filepath to the MaxQuant searched 
+#' `proteinGroups.txt` (txt tab delimited file).
+#' @param keys_file (char) The filepath to the keys file. The condition names 
+#' must match the Condition names provided to the proteinGroups file replicates.
+#' @param min_pep (int) The minimum number of peptides that need 
+#' to be found with at least one bait-prey protein pair to consider it a 
+#' real hit. Anything not meeting this criteria is removed before scoring.
+#' @param verbose (Boolean) Whether or not to display status reports. 
+#' Default = TRUE
+#' @param return.results (Boolean) Whether or not to return the results to 
+#' the R environment upon completion. This is useful if this is being used 
+#' in an R pipeline and you want to feed the results directly into the next 
+#' stage of analysis via an R environment/terminal. 
+#' Regardless, the results will be written to file. Default = FALSE
 #' @keywords MaxQuant, evidence, MSStats
-#' filterNumUniqPep()
+#' artms_filterNumUniqPep()
 #' @export
-filterNumUniqPep <- function(evidence_file, keys_file, prot_groups_file, min_pep, verbose = TRUE, return.results = FALSE) {
+artms_filterNumUniqPep <- function(evidence_file, 
+                                   keys_file, 
+                                   prot_groups_file, 
+                                   min_pep, 
+                                   verbose = TRUE, 
+                                   return.results = FALSE) {
     
     # Check if passing in data or if passing in files
     x <- .artms_checkIfFile(evidence_file, is.evidence = T)
@@ -68,30 +87,6 @@ filterNumUniqPep <- function(evidence_file, keys_file, prot_groups_file, min_pep
     if (return.results) 
         return(results)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
