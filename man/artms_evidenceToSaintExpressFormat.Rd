@@ -4,31 +4,43 @@
 \alias{artms_evidenceToSaintExpressFormat}
 \title{MaxQuant evidence file to SAINTexpress format}
 \usage{
-artms_evidenceToSaintExpressFormat(data_file, keys_file, ref_proteome_file,
-  quant_variable = "spectral_count", output_file)
+artms_evidenceToSaintExpressFormat(input_file, keys_file,
+  ref_proteome_file, quant_variable = "msspc", output_file)
 }
 \arguments{
-\item{data_file}{Maxquant evidence file}
+\item{input_file}{(char) Maxquant evidence file}
 
-\item{keys_file}{Keys file with a SAINT column specifying the test (\code{T}) and
-control (\code{C}) conditions}
+\item{keys_file}{(char) Keys file with a SAINT column specifying
+test (\code{T}) and control (\code{C}) conditions}
 
-\item{ref_proteome_file}{Reference proteome file in fasta format}
+\item{ref_proteome_file}{(char) Reference proteome path file name in
+fasta format}
 
-\item{quant_variable}{choose either \code{spectral_counts} (spectral counts)
-or \code{ms1}}
+\item{quant_variable}{(char) choose either
+\itemize{
+\item \code{msspc} (spectral counts, default) or
+\item \code{msint} (MS Intensity)
+}}
 
-\item{output_file}{Output file name}
+\item{output_file}{(char) Output file name}
 }
 \value{
 The 3 required files by SAINTexpress
 }
 \description{
 Converts the MaxQuant evidence file to the 3 required files
-for SAINTexpress. One can choose to either use the \code{spectral counts}
-(use \code{spectral_count}) or the \code{intensities} (use \code{ms1}) for the analysis.
+by SAINTexpress. One can choose to either use the \code{spectral counts}
+(use \code{msspc}) or the \code{intensities} (use \code{msint}) for the analysis.
+}
+\examples{
+\donttest{
+artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt", 
+             keys_file = "a549-PB1-keys.txt", 
+             ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta", 
+             quant_variable = "msint", 
+             output_file = "a549-PB1-saintexpress.txt")
+}
 }
 \keyword{APMS}
 \keyword{SAINT,}
 \keyword{SAINTexpress,}
-\keyword{artms_EvidenceToSaintExpressFormat()}
