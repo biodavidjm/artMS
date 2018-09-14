@@ -39,7 +39,16 @@
 #' Pathogens available: `tb` (Tuberculosis), `lpn` (Legionella)
 #' @return (data.frame) summary of quantifications, including annotations, enrichments, etc
 #' @keywords analysis, quantifications
-#' artms_analysisQuantifications()
+#' @examples \donttest{
+#' artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt", 
+#'                  modelqc_file = "ab-testing-new-results_ModelQC.txt", 
+#'                  specie = "human", 
+#'                  isPtm = "noptm", 
+#'                  output_dir = "resultsAQ", 
+#'                  mnbr = 2, 
+#'                  l2fc_thres = 1, 
+#'                  ipval = "pvalue")
+#' }
 #' @export
 artms_analysisQuantifications <- function(log2fc_file, 
                                           modelqc_file, 
@@ -445,7 +454,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   imputedDF <- imputedDF[!is.na(imputedDF$log2FC),]
   
   cat("--- Add labeling about the condition more abundant in the quantification\n")
-  imputedDF$CMA <- mapply(artms_selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
+  imputedDF$CMA <- mapply(.artms_selectTheOneLog2fc, imputedDF$iLog2FC, imputedDF$Label)
   
   cat("--- Removing proteins not found in a minimal number (",mnbr,") of biological replicates\n")
   imputedDF <- .artms_RemoveProtBelowThres(imputedDF, mnbr)
@@ -745,7 +754,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if( grepl("yesptm", isPtm) ){
     cat(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE\n")
-    artms_generatePhSiteExtended(df = imputedDF, pathogen = pathogen, specie = specie)
+    artms_generatePhSiteExtended(df = imputedDF, 
+                                 pathogen = pathogen, 
+                                 specie = specie, 
+                                 ptmType = isPtm)
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -810,155 +822,160 @@ artms_analysisQuantifications <- function(log2fc_file,
     # GENE BASED
     rownames(hasdc) <- paste0(hasdc$Gene,"_",hasdc$Protein)
     vamos <- within(hasdc, rm(Gene,Protein))
-    venga <- as.matrix(vamos)
     
-    # EXPERIMENT BASED
-    rownames(hasdcexp) <- hasdcexp$Comparison
-    vamosexp <- within(hasdcexp, rm(Comparison))
-    vengaexp <- as.matrix(vamosexp)
-    
-    # PCA AND CORRELATION ANALYSIS
-    cat("--- Correlation plots\n")
-    df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
-    file_corr_l2fc <- gsub(".txt",".log2fc-corr.pdf",log2fc_file)
-    file_corr_l2fc <- paste0(output_dir,"/",file_corr_l2fc)
-    pdf(file_corr_l2fc, width = 12, height = 9)
-      corrplot::corrplot(df.cor.matrix,
-               type = "upper",
-               tl.pos = "td",
-               method = "circle",
-               tl.cex = 0.9,
-               tl.col = 'black',
-               tl.srt=45,
-               # order = "hclust",
-               diag = T)
-      PerformanceAnalytics::chart.Correlation(venga, histogram=TRUE, pch=25, main = "Correlation between Comparisons")
-    garbage <- dev.off()
-    
-    # BASED ON GROUPS
-    pca.hasdcexp <- FactoMineR::PCA(hasdcexp[,-c(1)], scale.unit = FALSE, ncp = 4, graph=FALSE)
-    
-    pca_all <- factoextra::fviz_pca_ind(pca.hasdcexp,
-                                        labelsize = 3,
-                                        repel = TRUE,
-                                        habillage = as.factor(hasdcexp$Comparison),
-                                        addEllipses=F,
-                                        ellipse.level=0.95)
-    
-    cat("--- PCA, individuals plot\n")
-    file_pca_l2fc <- gsub(".txt",".log2fc-individuals-pca.pdf",log2fc_file)
-    file_pca_l2fc <- paste0(output_dir,"/",file_pca_l2fc)
-    pdf(file_pca_l2fc, width = 9, height = 7)
-      print(pca_all)
-    garbage <- dev.off()
-    
-    # Determine the OPTIMAL NUMBER OF CLUSTERS:
-    
-    # Elbow method
-    e1 <- factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
-      geom_vline(xintercept = 4, linetype = 2) +
-      labs(subtitle = "kmeans Elbow method")
-    e2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
-      geom_vline(xintercept = 4, linetype = 2)+
-      labs(subtitle = "PAM Elbow method")
-    
-    # Silhouette method
-    k1 <- factoextra::fviz_nbclust(venga, kmeans, method = "silhouette")+
-      labs(subtitle = "kmeans Silhouette method")
-    k2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "silhouette")+
-      labs(subtitle = "pam Silhouette method")
-    
-    
-    # Create a dendrogram
-    cat("--- Dendrogram\n")
-    res.dist <- factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
-    hc <- hclust(res.dist)
-    file_dendro_l2fc <- gsub(".txt",".log2fc-dendro.pdf",log2fc_file)
-    file_dendro_l2fc <- paste0(output_dir,"/",file_dendro_l2fc)
-    pdf(file_dendro_l2fc, width = 9, height = 7)
-      plot(hc)
-    garbage <- dev.off()
-    
-    # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
-    n = 10
-    pam.res <- pam(vamos, k=n)
-    
-    cp1 <- factoextra::fviz_cluster(pam.res)
-    cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = F)
-    
-    cat("--- Plots to determine optimal number of clusters\n")
-    file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
-    file_clusterplots_l2fc <- paste0(output_dir,"/",file_clusterplots_l2fc)
-    pdf(file_clusterplots_l2fc, width = 9, height = 7)
-      print(e1)
-      print(e2)
-      print(k1)
-      print(k2)
-      print(cp1)
-      print(cp2)
-    garbage <- dev.off()
-    
-    cat("--- Cluster heatmaps (10 clusters)\n")
-    hmap <- ComplexHeatmap::Heatmap(vamos,
-                    name=paste0("Clusters ","(n = ",n,")"),
-                    col = circlize::colorRamp2(c(-3, 0, 3), c("firebrick1", "black", "olivedrab1")),
-                    heatmap_legend_param=list(color_bar="continuous", legend_direction="horizontal", legend_width=unit(5,"cm"), title_position="topcenter", title_gp=gpar(fontsize=15, fontface="bold")),
-                    split=paste0("", pam.res$clustering),
-                    row_title="Genes",
-                    row_title_side="left",
-                    row_title_gp=gpar(fontsize=15, fontface="bold"),
-                    show_row_names=FALSE,
-                    column_title="Relative Quantifications",
-                    column_title_side="top",
-                    column_title_gp=gpar(fontsize=10, fontface="bold"),
-                    column_title_rot=0,
-                    show_column_names=TRUE,
-                    cluster_columns = F,
-                    clustering_distance_columns=function(x) as.dist(1-cor(t(x))),
-                    clustering_method_columns="ward.D2",
-                    clustering_distance_rows="euclidean",
-                    clustering_method_rows="ward.D2",
-                    row_dend_width=unit(30,"mm"),
-                    column_dend_height=unit(30,"mm"),
-                    # top_annotation=colAnn,
-                    top_annotation_height=unit(1.75,"cm"),
-                    # bottom_annotation=sampleBoxplot,
-                    bottom_annotation_height=unit(4, "cm"),
-                    column_names_gp = gpar(fontsize = 10))
-    file_clusterheat_l2fc <- gsub(".txt",".log2fc-clusterheatmap.pdf",log2fc_file)
-    file_clusterheat_l2fc <- paste0(output_dir,"/",file_clusterheat_l2fc)
-    pdf(file_clusterheat_l2fc, width = 12, height = 10)
-      ComplexHeatmap::draw(hmap, heatmap_legend_side="top", annotation_legend_side="right")
-    garbage <- dev.off()
-    
-    cat("--- Enrichment analysis of the clusters\n")
-    cl_number <- pam.res$clustering
-    dfclusters <- as.data.frame(cl_number)
-    dfclusters$ids <- row.names(dfclusters)
-    dfclusters$Gene <- gsub("(.*)(_)(.*)","\\1",dfclusters$ids)
-    dfclusters$Protein <- gsub("(.*)(_)(.*)","\\3",dfclusters$ids)
-    
-    # Making sure we have unique genes in each comparison (the PTM might bring redundancy)
-    pretmp <- dfclusters[c('Gene', 'cl_number')]
-    pretmp <- unique(pretmp)
-    
-    tmp = split(pretmp$Gene, pretmp$cl_number, drop=T)
-    
-    if(specie == "human"){
-      enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', listOfGenes) # 'HP'
-    }else if(specie == "mouse"){
-      enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'), specie = 'mmusculus', listOfGenes)
-    }else{
-      stop("\n\n\ntOhhh no, this specie",specie," is not supported in the enrichment!!\n\n\n")
+    # if this dataset only have one comparison, 
+    # this analysis does not makes sense: check it out:
+    if(dim(vamos)[2]>1){
+      venga <- as.matrix(vamos)
+      
+      # EXPERIMENT BASED
+      rownames(hasdcexp) <- hasdcexp$Comparison
+      vamosexp <- within(hasdcexp, rm(Comparison))
+      vengaexp <- as.matrix(vamosexp)
+      
+      # PCA AND CORRELATION ANALYSIS
+      cat("--- Correlation plots\n")
+      df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
+      file_corr_l2fc <- gsub(".txt",".log2fc-corr.pdf",log2fc_file)
+      file_corr_l2fc <- paste0(output_dir,"/",file_corr_l2fc)
+      pdf(file_corr_l2fc, width = 12, height = 9)
+        corrplot::corrplot(df.cor.matrix,
+                 type = "upper",
+                 tl.pos = "td",
+                 method = "circle",
+                 tl.cex = 0.9,
+                 tl.col = 'black',
+                 tl.srt=45,
+                 # order = "hclust",
+                 diag = T)
+        PerformanceAnalytics::chart.Correlation(venga, histogram=TRUE, pch=25, main = "Correlation between Comparisons")
+      garbage <- dev.off()
+      
+      # BASED ON GROUPS
+      pca.hasdcexp <- FactoMineR::PCA(hasdcexp[,-c(1)], scale.unit = FALSE, ncp = 4, graph=FALSE)
+      
+      pca_all <- factoextra::fviz_pca_ind(pca.hasdcexp,
+                                          labelsize = 3,
+                                          repel = TRUE,
+                                          habillage = as.factor(hasdcexp$Comparison),
+                                          addEllipses=F,
+                                          ellipse.level=0.95)
+      
+      cat("--- PCA, individuals plot\n")
+      file_pca_l2fc <- gsub(".txt",".log2fc-individuals-pca.pdf",log2fc_file)
+      file_pca_l2fc <- paste0(output_dir,"/",file_pca_l2fc)
+      pdf(file_pca_l2fc, width = 9, height = 7)
+        print(pca_all)
+      garbage <- dev.off()
+      
+      # Determine the OPTIMAL NUMBER OF CLUSTERS:
+      
+      # Elbow method
+      e1 <- factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
+        geom_vline(xintercept = 4, linetype = 2) +
+        labs(subtitle = "kmeans Elbow method")
+      e2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
+        geom_vline(xintercept = 4, linetype = 2)+
+        labs(subtitle = "PAM Elbow method")
+      
+      # Silhouette method
+      k1 <- factoextra::fviz_nbclust(venga, kmeans, method = "silhouette")+
+        labs(subtitle = "kmeans Silhouette method")
+      k2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "silhouette")+
+        labs(subtitle = "pam Silhouette method")
+      
+      
+      # Create a dendrogram
+      cat("--- Dendrogram\n")
+      res.dist <- factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
+      hc <- hclust(res.dist)
+      file_dendro_l2fc <- gsub(".txt",".log2fc-dendro.pdf",log2fc_file)
+      file_dendro_l2fc <- paste0(output_dir,"/",file_dendro_l2fc)
+      pdf(file_dendro_l2fc, width = 9, height = 7)
+        plot(hc)
+      garbage <- dev.off()
+      
+      # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
+      n = 10
+      pam.res <- pam(vamos, k=n)
+      
+      cp1 <- factoextra::fviz_cluster(pam.res)
+      cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = F)
+      
+      cat("--- Plots to determine optimal number of clusters\n")
+      file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
+      file_clusterplots_l2fc <- paste0(output_dir,"/",file_clusterplots_l2fc)
+      pdf(file_clusterplots_l2fc, width = 9, height = 7)
+        print(e1)
+        print(e2)
+        print(k1)
+        print(k2)
+        print(cp1)
+        print(cp2)
+      garbage <- dev.off()
+      
+      cat("--- Cluster heatmaps (10 clusters)\n")
+      hmap <- ComplexHeatmap::Heatmap(vamos,
+                      name=paste0("Clusters ","(n = ",n,")"),
+                      col = circlize::colorRamp2(c(-3, 0, 3), c("firebrick1", "black", "olivedrab1")),
+                      heatmap_legend_param=list(color_bar="continuous", legend_direction="horizontal", legend_width=unit(5,"cm"), title_position="topcenter", title_gp=gpar(fontsize=15, fontface="bold")),
+                      split=paste0("", pam.res$clustering),
+                      row_title="Genes",
+                      row_title_side="left",
+                      row_title_gp=gpar(fontsize=15, fontface="bold"),
+                      show_row_names=FALSE,
+                      column_title="Relative Quantifications",
+                      column_title_side="top",
+                      column_title_gp=gpar(fontsize=10, fontface="bold"),
+                      column_title_rot=0,
+                      show_column_names=TRUE,
+                      cluster_columns = F,
+                      clustering_distance_columns=function(x) as.dist(1-cor(t(x))),
+                      clustering_method_columns="ward.D2",
+                      clustering_distance_rows="euclidean",
+                      clustering_method_rows="ward.D2",
+                      row_dend_width=unit(30,"mm"),
+                      column_dend_height=unit(30,"mm"),
+                      # top_annotation=colAnn,
+                      top_annotation_height=unit(1.75,"cm"),
+                      # bottom_annotation=sampleBoxplot,
+                      bottom_annotation_height=unit(4, "cm"),
+                      column_names_gp = gpar(fontsize = 10))
+      file_clusterheat_l2fc <- gsub(".txt",".log2fc-clusterheatmap.pdf",log2fc_file)
+      file_clusterheat_l2fc <- paste0(output_dir,"/",file_clusterheat_l2fc)
+      pdf(file_clusterheat_l2fc, width = 12, height = 10)
+        ComplexHeatmap::draw(hmap, heatmap_legend_side="top", annotation_legend_side="right")
+      garbage <- dev.off()
+      
+      cat("--- Enrichment analysis of the clusters\n")
+      cl_number <- pam.res$clustering
+      dfclusters <- as.data.frame(cl_number)
+      dfclusters$ids <- row.names(dfclusters)
+      dfclusters$Gene <- gsub("(.*)(_)(.*)","\\1",dfclusters$ids)
+      dfclusters$Protein <- gsub("(.*)(_)(.*)","\\3",dfclusters$ids)
+      
+      # Making sure we have unique genes in each comparison (the PTM might bring redundancy)
+      pretmp <- dfclusters[c('Gene', 'cl_number')]
+      pretmp <- unique(pretmp)
+      
+      tmp <- split(pretmp$Gene, pretmp$cl_number, drop=T)
+      
+      if(specie == "human"){
+        enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', listOfGenes) # 'HP'
+      }else if(specie == "mouse"){
+        enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'), specie = 'mmusculus', listOfGenes)
+      }else{
+        stop("\n\n\ntOhhh no, this specie",specie," is not supported in the enrichment!!\n\n\n")
+      }
+      
+      file_clusterheatenrich_l2fc <- gsub(".txt",".log2fc-clusterheatmap-enriched.txt",log2fc_file)
+      file_clusterheatenrich_l2fc <- paste0(output_dir,"/",file_clusterheatenrich_l2fc)
+      write.table(enrichgenes, file_clusterheatenrich_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
+      
+      file_clusterheatdata_l2fc <- gsub(".txt",".log2fc-clusterheatmap.txt",log2fc_file)
+      file_clusterheatdata_l2fc <- paste0(output_dir,"/",file_clusterheatdata_l2fc)
+      write.table(dfclusters, file_clusterheatdata_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
     }
-    
-    file_clusterheatenrich_l2fc <- gsub(".txt",".log2fc-clusterheatmap-enriched.txt",log2fc_file)
-    file_clusterheatenrich_l2fc <- paste0(output_dir,"/",file_clusterheatenrich_l2fc)
-    write.table(enrichgenes, file_clusterheatenrich_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
-    
-    file_clusterheatdata_l2fc <- gsub(".txt",".log2fc-clusterheatmap.txt",log2fc_file)
-    file_clusterheatdata_l2fc <- paste0(output_dir,"/",file_clusterheatdata_l2fc)
-    write.table(dfclusters, file_clusterheatdata_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1068,10 +1085,12 @@ artms_analysisQuantifications <- function(log2fc_file,
 #' @param pathogen (char) Is there a pathogen in the dataset as well? if it does not,
 #' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
 #' `lpn` (Legionella)
-#' @param specie (char) Main organism (supported for now: `human` or `mouse`)
+#' @param specie (char) Host organism (supported for now: `human` or `mouse`)
 #' @return (data.frame) The same data.frame but with an extra column specifying the specie
 #' @keywords annotation, specie
-#' artms_annotateSpecie()
+#' @examples \donttest{
+#' artms_annotateSpecie(df = dfobject, pathogen = "influenza", specie = "human")
+#' }
 #' @export
 artms_annotateSpecie <- function(df, pathogen, specie){
   if(pathogen == "nopathogen"){
@@ -1097,11 +1116,17 @@ artms_annotateSpecie <- function(df, pathogen, specie){
 #' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not, 
 #' then use `nopathogen` (default).
 #' @param specie (char) Main organism (supported for now: `human` or `mouse`)
+#' @param ptmType (char) Is a ptm-site quantification dataset? 
+#' no: `noptm` (default), 
+#' yes: `yesptmsites` (for site specific analysis), 
+#' `yesptmph` (Jeff's script output evidence file).
 #' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
-#' artms_generatePhSiteExtended()
+#' @examples \donttest{
+#' artms_generatePhSiteExtended(df = dfobject, specie = "mouse", ptmType = "yesptmsites")
+#' }
 #' @export
-artms_generatePhSiteExtended <- function(df, pathogen, specie){
+artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   if( isPtm == "yesptmph" ){
     imputedDFext <- df
     names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
@@ -1449,7 +1474,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie){
 # @param b (char) comparison column
 # @return (char) One of the conditions from the comparison
 # @keywords internal, selection, labeling
-artms_selectTheOneLog2fc <- function(a, b) {
+.artms_selectTheOneLog2fc <- function(a, b) {
   thrs <- 0
   # a should be the log2fc column
   if(a > thrs){

@@ -63,6 +63,17 @@ It includes:
 \item Clustering analysis
 }
 }
+\examples{
+\donttest{
+artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt", 
+                 modelqc_file = "ab-testing-new-results_ModelQC.txt", 
+                 specie = "human", 
+                 isPtm = "noptm", 
+                 output_dir = "resultsAQ", 
+                 mnbr = 2, 
+                 l2fc_thres = 1, 
+                 ipval = "pvalue")
+}
+}
 \keyword{analysis,}
-\keyword{artms_analysisQuantifications()}
 \keyword{quantifications}
