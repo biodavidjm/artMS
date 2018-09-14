@@ -50,45 +50,113 @@
 # library(stats)
 # library(utils)
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# CREATE DATA
+
 setwd('~/github/biodavidjm/artMS/')
 
 # GENERATE RANDOM FILE
-randomDF <- data.frame(replicate(10,sample(0:1,100,rep=TRUE)))
-save(randomDF, file = 'data/randomDF.RData', compress = 'xz')
+artms_data_randomDF <- data.frame(replicate(10,sample(0:1,100,rep=TRUE)))
+save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData', compress = 'xz')
 
 # PH FILES
-# MaxQuant Evidence file
-ph_evidence <- read.delim('inst/extdata/evidence.txt', stringsAsFactors = F)
-save(ph_keys, file='data/ph_keys.RData', compress = 'xz')
 
 # Keys file (experimental design)
-ph_keys <- read.delim("inst/extdata/keys.txt", stringsAsFactors = F)
-save(ph_evidence, file = 'data/ph_evidence.RData', compress = 'xz')
+artms_data_keys_example <- read.delim("inst/extdata/keys.txt", stringsAsFactors = F)
+save(artms_data_keys_example, file = 'data/artms_data_keys_example.RData', compress = 'xz')
 
 # CORUM dataset
-corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = F)
-save(corum_mito_database, file = 'data/corum_mito_database.RData', compress = 'xz')
+artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = F)
+save(artms_data_corum_mito_database, file = 'data/artms_data_corum_mito_database.RData', compress = 'xz')
 
 # CONFIGURATION FILE
 artms_config <- yaml.load_file("inst/extdata/artms_config.yaml")
 save(artms_config, file = 'data/artms_config.RData', compress = 'xz')
 
+
 load("data/artms_config.RData")
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Testing artMS
 
+## APMS FLUOMICS
+setwd("~/experiments/artms/apms/")
+artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
+                           keys_file = "a549-PB1-keys.txt", 
+                           quant_variable = "msint", 
+                           output_file = "a549-PB1-mist.txt",
+                           species = "HUMAN-FLUOMICS",
+                           uniprot_dir = "~/Box Sync/db/mist/")
+
+artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt", 
+                                   keys_file = "a549-PB1-keys.txt", 
+                                   ref_proteome_file = "~/Box Sync/db/flu/fluomics-uniprot-hsa_20170516.fasta", 
+                                   quant_variable = "msint", 
+                                   output_file = "a549-PB1-saintexpress.txt")
+
 ## FRACTIONS
+setwd('~/experiments/artms/fractions/results/ab20180402/ab20180402debug/')
 evidence_file <- '~/experiments/artms/fractions/petroski-cul4-evidence.txt'
 keys_file <- '~/experiments/artms/fractions/petroski-cul4-keys.txt'
 contrast_file <- '~/experiments/artms/fractions/petroski-cul4-contrast.txt'
 yaml_config_file <- '~/experiments/artms/fractions/results/ab20180402/config-petroski-debugging.yaml'
 
-## PH
-evidence_file <- '~/experiments/artms/ph/evidence.txt'
-keys_file <- '~/experiments/artms/ph/keys.txt'
-contrast_file <- '~/experiments/artms/ph/contrast.txt'
+# Quantifications
+artms_quantification(yaml_config_file = yaml_config_file)
+
+# Analysis of Quantifications
+artms_analysisQuantifications(log2fc_file = "petroski-cul4-debug-results.txt",
+                              modelqc_file = "petroski-cul4-debug-results_ModelQC.txt",
+                              specie = "human",
+                              isPtm = "noptm",
+                              enrich = TRUE,
+                              output_dir = "testingARTMS",
+                              isFluomics = FALSE,
+                              isBackground = "nobackground",
+                              mnbr = 2,
+                              l2fc_thres = 1.5,
+                              ipval = "adjpvalue",
+                              pathogen = "nopathogen")
+
+
+## PHGLOBAL
+setwd('~/experiments/artms/ph/')
+evidence_file <- 'evidence.txt'
+keys_file <- 'keys.txt'
+contrast_file <- 'contrast.txt'
+artms_evidenceQC(evidence_file = "evidence.txt", 
+                 keys_file = "keys.txt", 
+                 prot_exp = "PH")
+
+
+artms_quantification("~/experiments/artms/ph/phglobal/phglobal_config.yaml")
+setwd('~/experiments/artms/ph/phglobal/')
+artms_analysisQuantifications(log2fc_file = "phglobal-results.txt",
+                              modelqc_file = "phglobal-results_ModelQC.txt",
+                              specie = "human",
+                              isPtm = "noptm",
+                              enrich = TRUE,
+                              output_dir = "testingARTMS",
+                              mnbr = 2,
+                              l2fc_thres = 1.5,
+                              ipval = "adjpvalue")
+
+# Debugging
+log2fc_file = "phglobal-results.txt"
+modelqc_file = "phglobal-results_ModelQC.txt"
+specie = "human"
+isPtm = "noptm"
+enrich = TRUE
+output_dir = "testingARTMS"
+mnbr = 2
+l2fc_thres = 1.5
+ipval = "adjpvalue"
+isBackground = "nobackground"
+isFluomics = FALSE
+pathogen = "nopathogen"
+
 ## PHSITES
 yaml_config_file <- '~/experiments/artms/ph/phsites/phsites_config.yaml'
 artms_main(yaml_config_file = yaml_config_file)
@@ -164,7 +232,7 @@ here <- artms_plotHeatmap(
   output_file = '~/experiments/artms/technical_replicas/results/FLU-HTBE-H5N1-results-plotheatmap.pdf')
 
 ## Evidence to MIST and MISTIN
-artms_evidenceToMISTformat(metric = "int", 
+artms_evidenceToMISTformat(quant_variable = "int", 
                            input_file = '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt', 
                            output_file = '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence-mist-int.txt', 
                            keys_file = '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt', 
@@ -189,7 +257,7 @@ select(org.Hs.eg.db, symbols, c("ENTREZID","GENENAME"), "ALIAS")
 uniprots <- c("Q6P996")
 uniprots <- Rkeys(org.Hs.egUNIPROT)[1:100]
 
-ano <- artms_mapUniprot2entrezGeneName(theUniprots = uniprots, specie = "human")
+ano <- artms_mapUniprot2entrezGeneName(uniprotkb = uniprots, specie = "human")
 
 library(org.Hs.eg.db)
 library(org.Mm.eg.db)
@@ -199,7 +267,7 @@ uni2entrez <- select(org.Hs.eg.db, uniprots, "ENTREZID", "UNIPROT")
 
 # Uniprot 2 symbol
 mappings <- select(org.Hs.eg.db, uniprots, c("UNIPROT", "SYMBOL", "GENENAME"), keytype = "UNIPROT")
-mappings <- AnnotationDbi::select(org.Hs.eg.db, uniprots, c("UNIPROT", "SYMBOL", "GENENAME"), keytype = "UNIPROT")
+mappings <- AnnotationDbi::select(org.Hs.eg.db, uniprots, c("UNIPROT", "SYMBOL", "GENENAME", "ENTREZID"), keytype = "UNIPROT")
 # Remove redundancies
 mappings <- mappings[!duplicated(mappings$UNIPROT),]
 
