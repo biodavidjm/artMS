@@ -11,16 +11,23 @@ artms_mergeMaxQDataWithKeys(data, keys, by = c("RawFile"))
 
 \item{keys}{The keys in data.frame}
 
-\item{by}{Vector specifying the columns use to merge the evidence and keys.}
+\item{by}{(vector) specifying the columns use to merge the evidence and keys.
+Obviously, both data.frames must have this column name.}
 }
 \value{
-A new data.frame with the evidence and keys merged
-Default: \code{RawFile}
+(data.frame) with the evidence and keys merged
+Default column to merge: \code{RawFile}
 }
 \description{
 Merge the evidence and keys files on the given columns
 }
-\keyword{artms_mergeMaxQDataWithKeys()}
+\examples{
+\donttest{
+evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
+keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = F)
+evidenceKeys <- artms_mergeMaxQDataWithKeys(data = evidence, keys = keys)
+}
+}
 \keyword{evidence,}
 \keyword{keys}
 \keyword{merge,}

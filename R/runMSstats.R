@@ -39,7 +39,7 @@ artms_runMSstats <- function(dmss, contrasts, config){
   
   # Normalization
   if(!is.null(config$msstats$normalization_reference) & config$msstats$normalization_method == 'globalStandards'){  # if globalStandars is selected, must have a reference protein(s)
-    normalization_refs = unlist(lapply(strsplit(config$msstats$normalization_reference, split = ','), FUN=trim))
+    normalization_refs = unlist(lapply(strsplit(config$msstats$normalization_reference, split = ','), FUN=.artms_trim))
     #mssquant = dataProcess(dmss, normalization=config$msstats$normalization_method, nameStandards=normalization_refs , fillIncompleteRows=T)
     mssquant <- dataProcess(raw = dmss, 
                             normalization=config$msstats$normalization_method,

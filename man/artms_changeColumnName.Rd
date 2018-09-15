@@ -21,7 +21,9 @@ Making easier to change a column name in any data.frame
 }
 \examples{
 \donttest{
-artms_changeColumnName(dataset = dfabundance, "Proteins", "Protein")
+artms_changeColumnName(dataset = dfabundance, 
+                       oldname = "Proteins", 
+                       newname = "Protein")
 }
 }
 \keyword{columns}

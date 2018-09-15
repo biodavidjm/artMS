@@ -2,20 +2,25 @@
 % Please edit documentation in R/MSstats_functions.R
 \name{artms_filterMaxqData}
 \alias{artms_filterMaxqData}
-\title{Remove contaminants and empty proteins}
+\title{Remove contaminants and empty proteins from the MaxQuant evidence file}
 \usage{
 artms_filterMaxqData(data)
 }
 \arguments{
-\item{data}{the data.frame in long format}
+\item{data}{(data.frame) of the Evidence file}
 }
 \value{
-A new data.frame without REV__ and CON__ Protein ids
+(data.frame) without REV__ and CON__ Protein ids
 }
 \description{
 Remove contaminants and erronously identified 'reverse'
 sequences by MaxQuant
 }
-\keyword{artms_filterMaxqData()}
+\examples{
+\donttest{
+evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
+evidence_filtered <- artms_filterMaxqData(data = evidence)
+}
+}
 \keyword{cleanup,}
 \keyword{contaminants}

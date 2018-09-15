@@ -7,10 +7,10 @@
 .artms_removeMaxQProteinGroups(data)
 }
 \arguments{
-\item{data}{Data.frame with a \code{Proteins} column.}
+\item{data}{(data.frame) with a \code{Proteins} column.}
 }
 \value{
-A data.frame with the protein groups removed
+(data.frame) with the protein groups removed
 }
 \description{
 Remove the group of proteins ids separated by separated by \code{;}

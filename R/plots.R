@@ -87,7 +87,7 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
   input <- read.delim(input_file, stringsAsFactors = F)
   
   ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
-  sign_hits <- artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
+  sign_hits <- .artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
   sign_labels <- unique(sign_hits$Label)
   cat(sprintf(">> SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
   

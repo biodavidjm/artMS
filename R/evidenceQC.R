@@ -36,7 +36,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   if(fractions){
     # Check that the keys file is correct
     keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
-    keys <- artms_checkRawFileColumnName(keys)
+    keys <- .artms_checkRawFileColumnName(keys)
     if(any(!'FractionKey' %in% colnames(keys))){
       cat('\nERROR!!! fractions WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
       stop('Please, try again once revised\n\n')

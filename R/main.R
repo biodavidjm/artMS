@@ -149,23 +149,23 @@ artms_quantification <- function(yaml_config_file){
     data[Intensity<1,]$Intensity = NA 
     
     ## FILTERING : handles Protein Groups and Modifications
-    if(config$data$filters$enabled) data_f <- artms_filterData(data, config) else data_f=data
+    if(config$data$filters$enabled) data_f <- .artms_filterData(data, config) else data_f=data
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if(!is.null(config$files$sequence_type)){
       cat(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED. 
           WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n")
-      if(config$files$sequence_type == 'modified') castFun = artms_castMaxQToWidePTM else castFun = artms_castMaxQToWide
+      if(config$files$sequence_type == 'modified') castFun = .artms_castMaxQToWidePTM else castFun = .artms_castMaxQToWide
       data_w = castFun(data_f)
     }else{
-      data_w = artms_castMaxQToWidePTM(data_f)
+      data_w = .artms_castMaxQToWidePTM(data_f)
     }
     
     ## HEATMAPS
     if(!is.null(config$data$sample_plots) && config$data$sample_plots){
       keys_in_data = keys[keys$RawFile %in% unique(data$RawFile),]
-      artms_sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config) 
-      artms_samplePeptideBarplot(data_f, config)
+      .artms_sampleCorrelationHeatmap(data_w = data_w, keys = keys_in_data, config = config) 
+      .artms_samplePeptideBarplot(data_f, config)
     }
   }
   

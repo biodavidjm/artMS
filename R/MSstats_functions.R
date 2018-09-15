@@ -6,28 +6,27 @@
 #' 
 #' @description Facilitates applying the dcast function, i.e., takes long-format
 #' data and casts it into wide-format data.
-#' @param d_long the data.frame in long format
-#' @return Evidence file reshaped by rawfile and IsotopeLabelType
-#' @keywords data.frame, dcast
-#' artms_castMaxQToWide()
-#' @export
-artms_castMaxQToWide <- function(d_long){
-  data_w = data.table::dcast( Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill = NA)
+#' @param d_long (data.frame) in long format
+#' @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
+#' @keywords internal, data.frame, dcast
+#' .artms_castMaxQToWide()
+.artms_castMaxQToWide <- function(d_long){
+  data_w <- data.table::dcast( Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill = NA)
   return(data_w)
 }
 
 # ------------------------------------------------------------------------------
 #' @title Long to Wide format selecting the `Modified.sequence` column of the 
 #' evidence file
+#' 
 #' @description Facilitates applying the dcast function, i.e., takes long-format 
 #' data and casts it into wide-format data.
-#' @param d_long the data.frame in long format
-#' @return Evidence file reshaped by rawfile and IsotopeLabelType
-#' @keywords data.frame, dcast
-#' artms_castMaxQToWidePTM()
-#' @export
-artms_castMaxQToWidePTM <- function(d_long){
-  data_w = data.table::dcast( Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill=NA)
+#' @param d_long (data.frame) in long format
+#' @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
+#' @keywords internal, data.frame, dcast, ptm
+#' .artms_castMaxQToWidePTM()
+.artms_castMaxQToWidePTM <- function(d_long){
+  data_w <- data.table::dcast( Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType, data=d_long, value.var='Intensity', fun.aggregate=sum, fill=NA)
   setnames(data_w,2,'Sequence')
   return(data_w)
 }
@@ -38,12 +37,11 @@ artms_castMaxQToWidePTM <- function(d_long){
 #' @description Depending on how the data is loaded, the `Raw file` column
 #' might have different format. This function check to ensure consistency in 
 #' both the evidence and keys data.frames
-#' @param df keys or evidence data.frames
-#' @return a data.frame with the `RawFile` column name
-#' @keywords rawfile, columname
-#' artms_checkRawFileColumnName()
-#' @export
-artms_checkRawFileColumnName <- function(df){
+#' @param (data.frame) keys or evidence files
+#' @return (data.frame) with the `RawFile` column name
+#' @keywords internal rawfile, columname
+#' .artms_checkRawFileColumnName()
+.artms_checkRawFileColumnName <- function(df){
   if( !('RawFile' %in% colnames(df)) ) {
     if("Raw.file" %in% colnames(df)){
       df <- artms_changeColumnName(df, 'Raw.file', 'RawFile')
@@ -67,7 +65,9 @@ artms_checkRawFileColumnName <- function(df){
 #' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
 #' @examples \donttest{
-#' artms_changeColumnName(dataset = dfabundance, "Proteins", "Protein")
+#' artms_changeColumnName(dataset = dfabundance, 
+#'                        oldname = "Proteins", 
+#'                        newname = "Protein")
 #' }
 #' @export
 artms_changeColumnName <- function(dataset, oldname, newname){
@@ -80,14 +80,14 @@ artms_changeColumnName <- function(dataset, oldname, newname){
 
 # ------------------------------------------------------------------------------
 #' @title Filtering data
+#' 
 #' @description Apply the filtering options, i.e., remove protein groups and/or
 #' contaminants, and/or, select posttranslational modification (if any)
-#' @param data Evidence file (data.frame)
-#' @param config Configuration object (opened yaml file)
-#' @keywords filtering, remove, proteingroups, ptms
-#' artms_filterData()
-#' @export
-artms_filterData <- function(data, config){
+#' @param data (data.frame) Evidence file
+#' @param config (yaml.object) Configuration object (opened yaml file)
+#' @keywords internal, filtering, remove, proteingroups, ptms
+#' .artms_filterData()
+.artms_filterData <- function(data, config){
   cat("\n>> FILTERING\n")
   if(config$data$filters$protein_groups == 'remove'){
     cat("\tPROTEIN GROUPS\tREMOVE\n")
@@ -121,13 +121,17 @@ artms_filterData <- function(data, config){
 }
 
 # ------------------------------------------------------------------------------
-#' @title Remove contaminants and empty proteins
+#' @title Remove contaminants and empty proteins from the MaxQuant evidence file
+#' 
 #' @description Remove contaminants and erronously identified 'reverse' 
 #' sequences by MaxQuant
-#' @param data the data.frame in long format
-#' @return A new data.frame without REV__ and CON__ Protein ids
+#' @param data (data.frame) of the Evidence file
+#' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
-#' artms_filterMaxqData()
+#' @examples \donttest{
+#' evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
+#' evidence_filtered <- artms_filterMaxqData(data = evidence)
+#' }
 #' @export
 artms_filterMaxqData <- function(data){
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
@@ -135,6 +139,7 @@ artms_filterMaxqData <- function(data){
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if(length(blank.idx)>0)  data_selected = data_selected[-blank.idx,]
+  cat(">> CONTAMINANTS CON__|REV__ REMOVED\n")
   return(data_selected)
 }
 
@@ -143,28 +148,38 @@ artms_filterMaxqData <- function(data){
 #' @description Merge the evidence and keys files on the given columns
 #' @param data The evidence in data.frame
 #' @param keys The keys in data.frame
-#' @param by Vector specifying the columns use to merge the evidence and keys.
-#' @return A new data.frame with the evidence and keys merged
-#' Default: `RawFile`
+#' @param by (vector) specifying the columns use to merge the evidence and keys.
+#' Obviously, both data.frames must have this column name.
+#' @return (data.frame) with the evidence and keys merged
+#' Default column to merge: `RawFile`
 #' @keywords merge, evidence, keys
-#' artms_mergeMaxQDataWithKeys()
+#' @examples \donttest{
+#' evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
+#' keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = F)
+#' evidenceKeys <- artms_mergeMaxQDataWithKeys(data = evidence, keys = keys)
+#' }
 #' @export
 artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
+  cat(">> MERGING evidence AND keys FILES\n")
+  
+  data <- .artms_checkRawFileColumnName(data)
+  keys <- .artms_checkRawFileColumnName(keys)
+  
   # Check if the number of RawFiles is the same.
   unique_data <- unique(data$RawFile)
   unique_keys <- unique(keys$RawFile)
   
   if (length(unique_keys) != length(unique_data)){
-    keys_not_found = setdiff(unique_keys, unique_data)
-    data_not_found = setdiff(unique_data, unique_keys)
+    keys_not_found <- setdiff(unique_keys, unique_data)
+    data_not_found <- setdiff(unique_data, unique_keys)
     cat(sprintf("\tkeys found: %s \n\t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
     cat(sprintf("\tdata found: %s \n\t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
   }else{
-    cat("--- Check point: the number of RawFiles in both keys and evidences file is identical\n")
+    cat("--- Check point: the number of RawFiles in both keys and evidence files is identical\n")
   }
   
   ## select only required attributes from MQ format
-  data = merge(data, keys, by=by)
+  data <- merge(data, keys, by=by)
   return(data)
 }
 
@@ -173,19 +188,24 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
 #' @title Merge evidence and keys by file name
 #' 
 #' @description Merge evidence and keys by file name
-#' @param evidence_file The Evidence file name
-#' @param keys_file The keys file name
-#' @return A data.frame with both evidence and keys files merged by raw.files
-#' @keywords merge, evidence, keys
-#' artms_mergeEvidenceKeysByFiles()
+#' @param evidence_file (char) The Evidence file name
+#' @param keys_file (char) The keys file name
+#' @return (data.frame) with both evidence and keys files merged by raw.files
+#' @keywords internal, merge, evidence, keys
+#' @examples \donttest{
+#' evidenceKeys <- artms_mergeEvidenceKeysByFiles(
+#' 	evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+#' 	keys_file = "FLU-THP1-H1N1-AB-keys.txt")
+#' }
 #' @export
 artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
   
+  cat(">> MERGING evidence_file AND keys_file (it might take some time)\n")
   data <- read.delim(evidence_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
   keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
   
-  data <- artms_checkRawFileColumnName(data)
-  keys <- artms_checkRawFileColumnName(keys)
+  data <- .artms_checkRawFileColumnName(data)
+  keys <- .artms_checkRawFileColumnName(keys)
   
   # Check that the keys file is correct
   if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
@@ -223,14 +243,17 @@ artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
 #' @description Converting the evidence file from a SILAC search to a format 
 #' compatible with MSstats. It basically modifies the Raw.files adding the 
 #' Heavy and Light label
-#' @param filename Text filepath to the evidence file
-#' @param output Text filepath of the output name
-#' @return A data.frame with SILAC data processed for MSstats
-#' @keywords 
-#' artms_SILACtoLong()
+#' @param filename (char) Text filepath to the evidence file
+#' @param output (char) Text filepath of the output name
+#' @return (data.frame) with SILAC data processed for MSstats (and output file)
+#' @keywords convert, silac, evidence
+#' @examples \donttest{
+#' evidence2silac <- artms_SILACtoLong(evidence_file = "silac.evicence.txt", 
+#'                                    output = "silac-evidence.txt")
+#' }
 #' @export
-artms_SILACtoLong <- function(filename, output){
-  file = Sys.glob(filename)
+artms_SILACtoLong <- function(evidence_file, output){
+  file = Sys.glob(evidence_file)
   cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
   tmp = fread(file, integer64 = 'double')
   
@@ -243,30 +266,31 @@ artms_SILACtoLong <- function(filename, output){
   levels(tmp_long$IsotopeLabelType) = c('L','H')
   tmp_long[!is.na(tmp_long$Intensity) && tmp_long$Intensity<1,]$Intensity=NA
   write.table(tmp_long, file=output, sep='\t', quote=F, row.names=F, col.names=T)
-  cat("----- + File ",output, " has been created\n")
+  cat("--- File ",output, " is ready\n")
   return(tmp_long)
 }
 
 # ------------------------------------------------------------------------------
 #' @title Pretty Labels for Heatmaps
+#' 
 #' @description Generates pretty labels for the heatmaps.
-#' @param uniprot_acs Uniprot accession id
-#' @param uniprot_ids Uniprot entry id
-#' @param gene_names Gene symbol
+#' @param uniprot_acs (char) Uniprot accession id
+#' @param uniprot_ids (char) Uniprot entry id
+#' @param gene_names (car) Gene symbol
 #' @return Pretty labels for a heatmap
-#' @keywords plots, pretty
-#' prettyPrintHeatmapLabels()
-#' @export
-prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names){
+#' @keywords internal, plots, pretty
+#' .artms_prettyPrintHeatmapLabels()
+.artms_prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names){
   result = paste(uniprot_acs,uniprot_ids,gene_names,sep=' ')
   return(result)
 }
 
 # ------------------------------------------------------------------------------
 #' @title Remove protein groups
+#' 
 #' @description Remove the group of proteins ids separated by separated by `;`
-#' @param data Data.frame with a `Proteins` column.
-#' @return A data.frame with the protein groups removed
+#' @param data (data.frame) with a `Proteins` column.
+#' @return (data.frame) with the protein groups removed
 #' @keywords maxquant, remove, proteingroups
 #' .artms_removeMaxQProteinGroups()
 .artms_removeMaxQProteinGroups <- function(data){
@@ -278,40 +302,45 @@ prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names){
 # ------------------------------------------------------------------------------
 #' @title Reshape the MSstats results file from long to wide format
 #' 
-#' @description Converts the normal MSStats output file into "wide" format 
-#' where each row represents a protein's results, and each column represents 
-#' the comparison made by MSStats. The fold change and p-value of each 
-#' comparison will be it's own column.
-#' @param input_file Input file name and location (MSstats `results.txt` file)
-#' @param output_file Output file name and location
-#' @return Reshaped file with unique protein ids and as many columns log2fc
-#' and adj.pvalues as comparisons available
-#' for as many 
-#' @keywords
-#' artms_resultsWide()
+#' @description Converts the normal MSStats results.txt file into "wide" format 
+#' where each row represents a unique protein's results, and each column
+#' represents the comparison made by MSStats. The fold change and p-value 
+#' of each comparison will be its own column.
+#' @param evidence_file (char) Input file name and location 
+#' (MSstats `results.txt` file)
+#' @param output_file (char) Output file name and location 
+#' (e.g. `results-wide.txt`)
+#' @return (output file tab delimited) reshaped file with unique protein ids 
+#' and as many columns log2fc and adj.pvalues as comparisons available
+#' @keywords msstats, results, wide, reshape
+#' @examples \donttest{
+#' artms_resultsWide(evidence_file = "ab-results.txt", 
+#'                   output_file = "ab-results-wide.txt")
+#' }
 #' @export
-artms_resultsWide <- function(input_file, output_file){
-  input = fread(input_file, integer64 = 'double')
+artms_resultsWide <- function(evidence_file, output_file){
+  cat(">> PRINTING OUT MSSTATS RESULTS IN wide FORMAT\n")
+  input = fread(evidence_file, integer64 = 'double')
   input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'), with=F], id.vars = c('Protein', 'Label'))
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
   write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+  cat("--- done!\n")
 }
 
 # ------------------------------------------------------------------------------
 #' @title Correlation heatmaps of all the individual features
 #' @description Correlation heatmap using intensity values across all the 
 #' conditions
-#' @param data_w reshaped data.frame resulting from the `artms_castMaxQToWidePTM` 
+#' @param data_w (data.frame) resulting from the `.artms_castMaxQToWidePTM` 
 #' function
-#' @param keys keys data.frame
-#' @param config Configuration object (yaml loaded)
-#' @return A heatmap
-#' @keywords heatmap, intensity, comparisons
-#' artms_sampleCorrelationHeatmap()
-#' @export
-artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
+#' @param keys (data.frame) of the keys
+#' @param config (yaml.object) Configuration object (yaml loaded)
+#' @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
+#' @keywords internal, heatmap, intensity, comparisons
+#' .artms_sampleCorrelationHeatmap()
+.artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
   mat = log2(data_w[,4:ncol(data_w),with=F])
   mat[is.na(mat)]=0
   mat_cor = cor(mat, method = 'pearson', use = 'everything')
@@ -328,47 +357,47 @@ artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
 
 # ------------------------------------------------------------------------------
 #' @title Barplot of peptide counts per biological replicate
+#' 
 #' @description Total number of unique peptide identified per biological 
 #' replicate
-#' @param data_f Evidence file (same structure as the original)
-#' @param config Configuration object
-#' @return Barplot of peptide counts
+#' @param data_f (char) Evidence file (same structure as the original)
+#' @param config (yaml.object) Configuration object
+#' @return (pdf) Barplot of peptide counts
 #' @keywords barplot, counts, peptides
-#' artms_samplePeptideBarplot()
-#' @export
-artms_samplePeptideBarplot <- function(data_f, config){
+#' .artms_samplePeptideBarplot()
+.artms_samplePeptideBarplot <- function(data_f, config){
   # set up data into ggplot compatible format
-  data_f = data.table(data_f, labels=paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
-  data_f = data_f[with(data_f, order(labels,decreasing = T)),]
+  data_f <- data.table(data_f, labels=paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
+  data_f <- data_f[with(data_f, order(labels,decreasing = T)),]
   
   # plot the peptide counts for all the samples TOGETHER
-  p = ggplot(data = data_f, aes(x=labels))
-  p = p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = 'mono')) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
+  p <- ggplot(data = data_f, aes(x=labels))
+  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = 'mono')) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
   ggsave(filename = gsub('.txt','-peptidecounts.pdf',config$files$output), plot=p, width = 8, height = 10)
   
-  w = 10
-  h = ceiling( (7/5+2) * ceiling(length(unique(data_f$Condition))/5) )
+  w <- 10
+  h <- ceiling( (7/5+2) * ceiling(length(unique(data_f$Condition))/5) )
   # plot the peptide counts for all the samples PER BAIT
-  p = ggplot(data = data_f, aes(x=as.factor(BioReplicate)))
-  p = p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = 'mono')) + ggtitle('Unique peptides per run\n after filtering') + facet_wrap(~Condition, scales='free', ncol=5)  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  p <- ggplot(data = data_f, aes(x=as.factor(BioReplicate)))
+  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90, hjust = 1, family = 'mono')) + ggtitle('Unique peptides per run\n after filtering') + facet_wrap(~Condition, scales='free', ncol=5)  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
   ggsave(filename = gsub('.txt','-peptidecounts-perBait.pdf',config$files$output), plot=p, width = w, height = h)
   
 }
 
 # ------------------------------------------------------------------------------
 #' @title Select significant hits
+#' 
 #' @description Filtered data.frame with significant values (log2fc > 2 | 
-#' log2fc < -2; adj.pvalue < 0.05)
-#' @param mss_results data.frame of MSstats results
-#' @param labels vector of selected labels. Default: all (`*`)
-#' @param LFC log2fc vector, with the negative and positive threshold. Default: 
+#' log2fc < -2; adj.pvalue < 0.05) from the MSstats results
+#' @param mss_results (data.frame) of MSstats results
+#' @param labels (vector) of selected labels. Default: all (`*`)
+#' @param LFC (vector, int) with the negative and positive threshold. Default: 
 #' c(-2, 2)
-#' @param FDR false discovery rate (adj.pvalue) threshold. Default: 0.05
-#' @return A data.frame only with significant hits
-#' @keywords significant, selections
-#' artms_significantHits()
-#' @export
-artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
+#' @param FDR (int) false discovery rate (adj.pvalue) threshold. Default: 0.05
+#' @return (data.frame) only with significant hits
+#' @keywords internal, significant, selections
+#' .artms_significantHits()
+.artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
   ## get subset based on labels
   selected_results = mss_results[grep(labels,mss_results$Label), ]
   cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP: %s\n',paste(unique(mss_results$Label), collapse=', ')))
@@ -379,48 +408,51 @@ artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05
 }
 
 
-
-
 # ------------------------------------------------------------------------------
 #' @title Outputs the spectral counts from the MaxQuant evidence file.
 #' 
 #' @description Outputs the spectral counts from the MaxQuant evidence file.
-#' @param input_file Maxquant evidence file
-#' @param keys_file Keys file with the experimental design
-#' @param output_file Output file name (add `.txt` extenstion)
+#' @param evidence_file (char) Maxquant evidence file
+#' @param keys_file (char) Keys file with the experimental design
+#' @param output_file (char) Output file name (add `.txt` extenstion)
 #' @return A txt file with biological replicates, protein id, and spectral 
 #' count columns
 #' @keywords spectral_counts, evidence
-#' artms_spectralCounts()
+#' @examples \donttest{
+#' artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+#'                      keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
+#'                      output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
+#' }
 #' @export
-artms_spectralCounts <- function(input_file, keys_file, output_file){
-  data = fread(input_file, integer64 = 'double')
-  keys = fread(keys_file, integer64 = 'double')
-  
-  tryCatch(setnames(data, 'Raw file', 'RawFile'), error=function(e) cat('Raw file not found. Try searching Raw.file instead\n'))
-  tryCatch(setnames(keys, 'Raw.file', 'RawFile'), error=function(e) cat('Raw file not found. Try searching Raw file instead\n'))
-  
-  cat('\tVERIFYING DATA AND KEYS\n')
+artms_spectralCounts <- function(evidence_file, keys_file, output_file){
+  cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
+  data <- fread(evidence_file, integer64 = 'double')
+  keys <- fread(keys_file, integer64 = 'double')
+
+  data <- .artms_checkRawFileColumnName(data)
+  keys <- .artms_checkRawFileColumnName(keys)
+
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
+  
   data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS/MS Count'), with=F]
   setnames(data_sel, 'MS/MS Count', 'spectral_counts')
   data_sel = aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
-  data_sel = data.frame(data_sel, bait_name=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
-  write.table(data_sel[,c('bait_name','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+  data_sel = data.frame(data_sel, AllCondition=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
+  write.table(data_sel[,c('AllCondition','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+  cat(">> OUTPUT FILE <",output_file,"> is ready\n")
 }
 
 # ------------------------------------------------------------------------------
 #' @title Remove white spaces
+#' 
 #' @description Remove white spaces
-#' @param x A string
-#' @keywords remove, whitespace
-#' trim()
-#' @export
-trim <- function (x){
+#' @param x (vector) A string
+#' @keywords internal remove, whitespace
+#' .artms_trim()
+.artms_trim <- function (x){
   gsub("^\\s+|\\s+$", "", x)
 }
-
 
 # ------------------------------------------------------------------------------
 #' @title Generate the contrast matrix required by MSstats from a txt file
