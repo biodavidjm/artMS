@@ -122,7 +122,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   }
   
   pdf(seqReproName)
-    artms_plotReproducibilityEvidence(evidencekeysclean)
+    .artms_plotReproducibilityEvidence(evidencekeysclean)
   garbage <- dev.off()
   
   # Create matrix of reproducibility TECHNICAL REPLICAS
@@ -144,7 +144,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
     Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
-    theTechCorDis <- artms_plotCorrelationDistribution(Mtechnicalrep)
+    theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
     
     # And now for clustering
     cat("--- By Technical replicates\n")
@@ -196,7 +196,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
   Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
   
-  theBiorCorDis <- artms_plotCorrelationDistribution(Mbioreplicas)
+  theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
   
   cat("--- By Biological replicates\n")
   matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixBR.pdf", evidence_file)
@@ -242,7 +242,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   precordfConditions <- evidencekeyscleanDCASTconditions[,3:dim(evidencekeyscleanDCASTconditions)[2]]
   Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
   
-  theCondCorDis <- artms_plotCorrelationDistribution(Mcond)
+  theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
   
   cat("--- By Conditions\n")
   matrixCorrelationCond <- gsub("evidence.txt", "qcplot.correlationMatrixConditions.pdf", evidence_file)

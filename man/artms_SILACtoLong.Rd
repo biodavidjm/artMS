@@ -7,9 +7,9 @@
 artms_SILACtoLong(evidence_file, output)
 }
 \arguments{
-\item{output}{(char) Text filepath of the output name}
+\item{evidence_file}{(char) Text filepath to the evidence file}
 
-\item{filename}{(char) Text filepath to the evidence file}
+\item{output}{(char) Text filepath of the output name}
 }
 \value{
 (data.frame) with SILAC data processed for MSstats (and output file)

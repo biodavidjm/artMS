@@ -2,23 +2,30 @@
 % Please edit documentation in R/plots.R
 \name{artms_dataPlots}
 \alias{artms_dataPlots}
-\title{Protein abundance dot plots}
+\title{Individual Normalized abundance dot plots for every protein}
 \usage{
 artms_dataPlots(input_file, output_file)
 }
 \arguments{
-\item{input_file}{The \code{-normalized.txt} output file from MSstats}
+\item{input_file}{(char) File path and name to the \code{-normalized.txt} output
+file from MSstats}
 
-\item{output_file}{Wished output file name (add the \code{.pdf} extension)}
+\item{output_file}{(char) Output file (path) name (add the \code{.pdf} extension)}
 }
 \value{
-A pdf file with each individual protein abundance plot for each
+(pdf) file with each individual protein abundance plot for each
 conditions
 }
 \description{
-Protein abundance dot plots for each unique uniprot id
+Protein abundance dot plots for each unique uniprot id. It can
+take a long time
+}
+\examples{
+\donttest{
+artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt", 
+               output_file = "results/ab-results-mss-normalized.pdf")
+}
 }
 \keyword{abundance,}
-\keyword{artms_dataPlots()}
 \keyword{dotplots,}
 \keyword{plot}

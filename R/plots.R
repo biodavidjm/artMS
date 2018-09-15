@@ -4,12 +4,10 @@
 #' @title Plot correlation distributions
 #' 
 #' @description Plot correlation distributions
-#' @param MatrixCorrelations Matrix of correlations
+#' @param MatrixCorrelations (matrix) of correlations
 #' @return A ggplot2 correlation plot
 #' @keywords plot, correlation
-#' artms_plotCorrelationDistribution()
-#' @export
-artms_plotCorrelationDistribution <- function(MatrixCorrelations){
+.artms_plotCorrelationDistribution <- function(MatrixCorrelations){
   cor.data <- MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]  # we're only interested in one of the off-diagonals, otherwise there'd be duplicates
   cor.data <- as.data.frame(cor.data)  # that's how ggplot likes it
   colnames(cor.data) <- "pearson"
@@ -25,76 +23,99 @@ artms_plotCorrelationDistribution <- function(MatrixCorrelations){
 }
 
 # ------------------------------------------------------------------------------
-#' @title Protein abundance dot plots
+#' @title Individual Normalized abundance dot plots for every protein
 #' 
-#' @description Protein abundance dot plots for each unique uniprot id
-#' @param input_file The `-normalized.txt` output file from MSstats
-#' @param output_file Wished output file name (add the `.pdf` extension)
-#' @return A pdf file with each individual protein abundance plot for each
+#' @description Protein abundance dot plots for each unique uniprot id. It can
+#' take a long time
+#' @param input_file (char) File path and name to the `-normalized.txt` output 
+#' file from MSstats
+#' @param output_file (char) Output file (path) name (add the `.pdf` extension)
+#' @return (pdf) file with each individual protein abundance plot for each
 #' conditions
 #' @keywords abundance, dotplots, plot
-#' artms_dataPlots()
+#' @examples \donttest{
+#'	artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt", 
+#'                output_file = "results/ab-results-mss-normalized.pdf")
+#' }
 #' @export
 artms_dataPlots <- function(input_file, output_file){
   
   data_mss = fread(input_file, integer64 = 'double')
-  unique_subjects = unique(data_mss$PROTEIN)
-  condition_length = length(unique(data_mss$GROUP_ORIGINAL))
-  min_abu = min(data_mss$ABUNDANCE, na.rm = T)
-  max_abu = max(data_mss$ABUNDANCE, na.rm=T)
+  unique_subjects <- unique(data_mss$PROTEIN)
+  condition_length <- length(unique(data_mss$GROUP_ORIGINAL))
+  min_abu <- min(data_mss$ABUNDANCE, na.rm = T)
+  max_abu <- max(data_mss$ABUNDANCE, na.rm=T)
   
   pdf(output_file, width = condition_length*1.5, height = 3)
-  
-  cat('PRINTING CONDITION PLOTS\n')
-  for(subject in unique_subjects){
-    subject_data = data_mss[PROTEIN==subject,]
-    cat(sprintf('\t%s\n',subject))
-    p = ggplot(data = subject_data, aes(x=SUBJECT_ORIGINAL,y=ABUNDANCE, colour=FEATURE))
-    p = p + geom_point(size=2) + 
-      facet_wrap(facets = ~ GROUP_ORIGINAL, drop = T, scales = 'free_x', ncol = condition_length) + 
-      ylim(min_abu,max_abu) +
-      theme(axis.text.x=element_text(angle=-90,hjust=1)) +
-      guides(colour=FALSE) +
-      xlab(NULL) +
-      ggtitle(subject)
-    print(p)
-  }
-  dev.off()
+    cat('>> PRINTING CONDITION PLOTS for every protein\n')
+    for(subject in unique_subjects){
+      subject_data <- data_mss[PROTEIN==subject,]
+      cat(sprintf('%s ',subject))
+      p <- ggplot(data = subject_data, aes(x=SUBJECT_ORIGINAL,y=ABUNDANCE, colour=FEATURE))
+      p <- p + geom_point(size=2) + 
+        facet_wrap(facets = ~ GROUP_ORIGINAL, drop = T, scales = 'free_x', ncol = condition_length) + 
+        ylim(min_abu,max_abu) +
+        theme(axis.text.x=element_text(angle=-90,hjust=1)) +
+        guides(colour=FALSE) +
+        xlab(NULL) +
+        ggtitle(subject)
+      print(p)
+    }
+    cat("--- Done!\n")
+  garbarge <- dev.off()
 }
 
 # ------------------------------------------------------------------------------
 #' @title Outputs a heatmap of the MSStats results created using the log2fold 
 #' changes
 #' 
-#' @description Outputs a heatmap of the MSStats results created using the 
-#' log2 fold changes.
-#' @param input_file MSstats `results.txt` file and location
-#' @param output_file Output file name (pdf format) and location
-#' @param labels Vector of uniprot ids if only specific labes would like to
+#' @description Heatmap of the Relative Quantifications (MSStats results)
+#' @param input_file (char) MSstats `results.txt` file and location
+#' @param output_file (char) Output file name (pdf format) and location
+#' @param specie (char). Specie name to be able to add the Gene name. To find
+#' out more about the supported species check `?artms_mapUniprot2entrezGeneName`
+#' @param labels (vector) of uniprot ids if only specific labes would like to
 #' be plotted. Default: all labels
-#' @param cluster_cols `True` or `False` to cluster columns. Default: FALSE
-#' @param lfc_lower Lower limit for the log2fc. Default: -2
-#' @param lfc_upper Upper limit for the log2fc. Default: +2
-#' @param FDR Upper limit false discovery rate. Default: 0.05
-#' @param display Metric to be displayed (default: `log2fc`)
-#' @return A heatmap in pdf format of the MSStats results using the 
-#' log2 fold changes and the data used to generate the heatmap
+#' @param cluster_cols (boolean) `True` or `False` to cluster columns. 
+#' Default: FALSE
+#' @param lfc_lower (int) Lower limit for the log2fc. Default: -2
+#' @param lfc_upper (int) Upper limit for the log2fc. Default: +2
+#' @param FDR (int) Upper limit false discovery rate. Default: 0.05
+#' @param display Metric to be displayed. Options: 
+#' - `log2fc` (default)
+#' - `adj.pvalue`
+#' - `pvalue`
+#' @return (pdf) heatmap of the MSStats results using the selected metric
 #' @keywords heatmap, log2fc
-#' artms_plotHeatmap()
+#' artms_plotHeatmapQuant()
 #' @export
-artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=F, display='log2FC', lfc_lower=-2, lfc_upper=2, FDR=0.05){
-  ## read input
+artms_plotHeatmapQuant <- function(input_file, 
+                              output_file,
+                              specie,
+                              labels='*',
+                              cluster_cols=F, 
+                              display='log2FC', 
+                              lfc_lower=-2,
+                              lfc_upper=2, 
+                              FDR=0.05){
+
   input <- read.delim(input_file, stringsAsFactors = F)
   
-  ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
+  ## select data points  by LFC & FDR criterium in single condition and 
+  ## adding corresponding data points from the other conditions
   sign_hits <- .artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
   sign_labels <- unique(sign_hits$Label)
-  cat(sprintf(">> SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
+  cat(sprintf(">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
+  
+  suppressMessages(
+    sign_hits <- artms_annotationUniprot(data = sign_hits, 
+                                                        columnid = "Protein", 
+                                                        sps = specie))
   
   ## REPRESENTING RESULTS AS HEATMAP
   ## plot heat map for all contrasts
-  if(any(grepl('uniprot_genename',colnames(sign_hits)))){
-    heat_labels <- paste(sign_hits$Protein,sign_hits$uniprot_genename,sep=' ')  
+  if(any(grepl('Gene',colnames(sign_hits)))){
+    heat_labels <- paste(sign_hits$Protein,sign_hits$Gene, sep=' ')  
   }else{
     heat_labels <- sign_hits$Protein
   }
@@ -135,12 +156,9 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
   colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
   colors_tot = c(colors_neg, colors_pos)
   
-  cat("--- Saving heatmap\n")
   pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename = output_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")
-  return(heat_data_w)
+  cat("--- Heatmap done\n")
 }
-
-
 
 # ------------------------------------------------------------------------------
 #' @title Generate reproducibility plots based on raw intentities 
@@ -148,12 +166,10 @@ artms_plotHeatmap <- function(input_file, output_file, labels='*', cluster_cols=
 #' 
 #' @description Generate reproducibility plots based on raw intentities 
 #' (log tranformed) from the evidence file
-#' @param data evidence data.frame
-#' @return A reproducibility plot based on evidence values
-#' @keywords plot, qc, quality, control
-#' artms_plotReproducibilityEvidence()
-#' @export
-artms_plotReproducibilityEvidence <- function(data) {
+#' @param data (data.frame) clean processed evidence
+#' @return (pdf) A reproducibility plot based on evidence values
+#' @keywords internal, plot, qc, quality, control
+.artms_plotReproducibilityEvidence <- function(data) {
   
   data <- data[c('Feature', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
   condi <- unique(data$Condition)
@@ -271,12 +287,10 @@ artms_plotReproducibilityEvidence <- function(data) {
 #' @title Plot abundance boxplots
 #' 
 #' @description Plot abundance boxplots
-#' @param data modelqc processed data.frame
+#' @param data (data.frame) processed modelqc
 #' @return Abundacen boxplot
-#' @keywords plot, abundance
-#' artms_plotAbundanceBoxplots()
-#' @export
-artms_plotAbundanceBoxplots <- function(data){
+#' @keywords internal, plot, abundance
+.artms_plotAbundanceBoxplots <- function(data){
   p1 <- ggplot2::ggplot(data, aes(x=SUBJECT_ORIGINAL, y=ABUNDANCE, fill=ABUNDANCE))
   p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL))
   p1 <- p1 + theme_linedraw()
@@ -300,11 +314,10 @@ artms_plotAbundanceBoxplots <- function(data){
 #' 
 #' @description Total Number of unique proteins per biological replicate and
 #' conditions
-#' @param data modelqc data.frame
-#' @return Barplots with the number of proteins per br / condition
-#' @keywords plots, abundance, counts
-#' artms_plotNumberProteinsAbundance()
-#' @export
+#' @param data (data.frame) modelqc
+#' @return (pdf) Barplots with the number of proteins per br / condition
+#' @keywords internal, plots, abundance, counts
+#' .artms_plotNumberProteinsAbundance()
 artms_plotNumberProteinsAbundance <- function(data) {
   x <- data[c('PROTEIN','SUBJECT_ORIGINAL')]
   y <- unique(x)
@@ -333,12 +346,10 @@ artms_plotNumberProteinsAbundance <- function(data) {
 #' 
 #' @description Generate reproducibility plots based on abundance data 
 #' (normalized intensities from MSstats modelqc)
-#' @param data Protein abundance data.frame (modelqc)
+#' @param data (data.frame) Protein abundance (modelqc)
 #' @return Reproducibility plots based on abundance data (normalized intensities)
 #' @keywords plot, reproducibility, abundance
-#' artms_plotReproducibilityAbundance()
-#' @export
-artms_plotReproducibilityAbundance <- function(data) {
+.artms_plotReproducibilityAbundance <- function(data) {
   
   condi <- unique(data$GROUP_ORIGINAL)
   
@@ -440,13 +451,11 @@ artms_plotReproducibilityAbundance <- function(data) {
 #' @title Plot correlation between conditions
 #' 
 #' @description Plot correlation between conditions
-#' @param data Protein Abundance (MSstats modelqc) data.frame
-#' @param numberBiologicalReplicas Number of biological replicates
-#' @return A correlation plot between conditions
-#' @keywords plot, correlation
-#' artms_plotCorrelationConditions()
-#' @export
-artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
+#' @param data (data.frame) of Protein Abundance (MSstats modelqc)
+#' @param numberBiologicalReplicas (int) Number of biological replicates
+#' @return (ggplot.object) A correlation plot between conditions
+#' @keywords internal, plot, correlation
+.artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
   
   # Before jumping to merging biological replicas:
   # Technical replicas: aggregate on the technical replicas
@@ -505,12 +514,10 @@ artms_plotCorrelationConditions <- function(data, numberBiologicalReplicas) {
 #' 
 #' @description Plot correlation between all quantifications, i.e., different 
 #' quantified comparisons
-#' @param datai Processed MSstats results
-#' @return Plot correlation between quantifications and r values
-#' @keywords plot, correlation, log2fc
-#' artms_plotRatioLog2fc()
-#' @export
-artms_plotRatioLog2fc <- function(datai) {
+#' @param datai (data.frame) Processed MSstats results
+#' @return (ggplot.object) Plot correlation between quantifications and r values
+#' @keywords internal, plot, correlation, log2fc
+.artms_plotRatioLog2fc <- function(datai) {
 
   datadc <- dcast(data=datai, Protein~Label, value.var = 'log2FC')
   before <- dim(datadc)[1]
@@ -564,10 +571,8 @@ artms_plotRatioLog2fc <- function(datai) {
 #' @param filename Prefix to generate output names (WITH NO EXTENSION)
 #' @param allConditions Conditions selected to generate the plots
 #' @return PCA plots based on abundance data (pdf format)
-#' @keywords plot, pca
-#' artms_getPCAplots()
-#' @export
-artms_getPCAplots <- function(data, filename, allConditions){
+#' @keywords internal, plot, pca
+.artms_getPCAplots <- function(data, filename, allConditions){
   
   # PRINCIPAL COMPONENT ANALYSIS
   # Using the following packages: 

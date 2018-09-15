@@ -293,8 +293,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
   pdf(abundancesName)
-    artms_plotAbundanceBoxplots(dfmq)
-    artms_plotNumberProteinsAbundance(dfmq)
+    .artms_plotAbundanceBoxplots(dfmq)
+    .artms_plotNumberProteinsAbundance(dfmq)
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
@@ -303,7 +303,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   reproName <- paste0("plot.",reproName)
   reproName <- paste0(output_dir,"/",reproName)
   pdf(reproName)
-    artms_plotReproducibilityAbundance(dfmq)
+    .artms_plotReproducibilityAbundance(dfmq)
   garbage <- dev.off()
   
   # Conditions
@@ -312,7 +312,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   relaCond <- paste0("plot.",relaCond)
   relaCond <- paste0(output_dir,"/",relaCond)
   pdf(relaCond)
-    artms_plotCorrelationConditions(dfmq, numberBioReplicas)
+    .artms_plotCorrelationConditions(dfmq, numberBioReplicas)
   garbage <- dev.off()
   
   # Relationship between log2fc comparisons
@@ -322,7 +322,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     relaChanges <- paste0("plot.",relaChanges)
     relaChanges <- paste0(output_dir,"/",relaChanges)
     pdf(relaChanges)
-      artms_plotRatioLog2fc(dflog2fc)
+      .artms_plotRatioLog2fc(dflog2fc)
     garbage <- dev.off()
   }else{
     cat("--- Only one Comparison is available (correlation is not possible)\n")
@@ -412,7 +412,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   modelqcabundance <- .artms_loadModelQCstrict(df_input = dfmq, specie = specie, ptmis = isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir,"/",out.pca)
-  suppressWarnings(artms_getPCAplots(modelqcabundance, out.pca, conditions))
+  suppressWarnings(.artms_getPCAplots(modelqcabundance, out.pca, conditions))
   cat("---+ PCA done!\n")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

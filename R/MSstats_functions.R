@@ -243,7 +243,7 @@ artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
 #' @description Converting the evidence file from a SILAC search to a format 
 #' compatible with MSstats. It basically modifies the Raw.files adding the 
 #' Heavy and Light label
-#' @param filename (char) Text filepath to the evidence file
+#' @param evidence_file (char) Text filepath to the evidence file
 #' @param output (char) Text filepath of the output name
 #' @return (data.frame) with SILAC data processed for MSstats (and output file)
 #' @keywords convert, silac, evidence
@@ -400,8 +400,8 @@ artms_resultsWide <- function(evidence_file, output_file){
 .artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
   ## get subset based on labels
   selected_results = mss_results[grep(labels,mss_results$Label), ]
-  cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP: %s\n',paste(unique(mss_results$Label), collapse=', ')))
-  cat(sprintf('>> SELECTED LABELS FOR HEATMAP: %s\n',paste(unique(selected_results$Label), collapse=', ')))
+  cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP:\n %s\n',paste(unique(mss_results$Label), collapse=', ')))
+  cat(sprintf('>> SELECTED LABELS FOR HEATMAP:\n %s\n',paste(unique(selected_results$Label), collapse=', ')))
   significant_proteins = selected_results[(!is.na(selected_results$log2FC) & selected_results$adj.pvalue <= FDR & (selected_results$log2FC >= LFC[2] | selected_results$log2FC <= LFC[1])) , 'Protein']
   significant_results = selected_results[selected_results$Protein %in% significant_proteins, ]
   return(significant_results)
