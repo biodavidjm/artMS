@@ -4,25 +4,37 @@
 #' `Uniprot_PTM` notation
 #' 
 #' @description It enables the site-specific quantification of PTMs by
-#' converting the `Proteins` column of the evidence file to a `Uniprot_PTM`
+#' converting the `Proteins` column of the evidence file to an `Uniprot_PTM`
 #' notation. In this way, each of the modified peptides can be quantified
-#' independently.
-#' @param evidence_file The evidence file name and location
-#' @param ref_proteome_file The reference proteome used as database 
+#' independently across conditions
+#' @param evidence_file (char) The evidence file name and location
+#' @param ref_proteome_file (char) The reference proteome used as database 
 #' to search the `evidence.txt` file with MaxQuant. It will be used to map the 
-#' modified peptide to the protein sequence and find the site location)
-#' @param output_file Output file name (-sites-evidence.txt recommended)
-#' @param mod_type The posttranslational modification. Options: `ub`, `ph`, or 
-#' `ac`
-#' @return Return a new evidence file with the `Proteins` column modified by
-#' adding the sequence site location(s) + postranslational modification(s) 
-#' to the uniprot entry id. 
+#' modified peptide to the protein sequence and find the site location.
+#' Therefore, it does NOT need the MaxQuant's `Phospho (STY)Sites.txt`
+#' @param output_file (char) Output file name (`-sites-evidence.txt` recommended)
+#' @param mod_type (char) The posttranslational modification. Options: 
+#' - `ub`: Protein Ubiquitination
+#' - `ph`: Protein Phosphorylation
+#' - `ac`: Protein Acetylation
+#' @return (file) Return a new evidence file with the `Proteins` column 
+#' modified by adding the sequence site location(s) + postranslational 
+#' modification(s) to the uniprot entry id. 
 #' Examples: `A34890_ph3`; `Q64890_ph24_ph456`; `Q64890_ub34_ub129_ub234`; 
 #' `Q64890_ac35`.
-#' @keywords
-#' artms_proteinToSiteConversion()
+#' @keywords evidence, convert, ptm, ph, ub, ac
+#' @examples \donttest{
+#' artms_proteinToSiteConversion(
+#'   evidence_file = "evidence.txt", 
+#'   ref_proteome_file = "uniprot_canonical.fasta", 
+#'   output_file = "phsite_evidence.txt", 
+#'   mod_type = "ph")
+#' }
 #' @export
-artms_proteinToSiteConversion <- function (evidence_file, ref_proteome_file, output_file, mod_type='PH') {
+artms_proteinToSiteConversion <- function (evidence_file, 
+                                           ref_proteome_file, 
+                                           output_file, 
+                                           mod_type='PH') {
   
   if(is.null(output_file)){
     stop("output_file MISSED!")
@@ -47,7 +59,7 @@ artms_proteinToSiteConversion <- function (evidence_file, ref_proteome_file, out
     stop("CHECK ?artms_proteinToSiteConversion TO GET THE LIST OF SUPPORTED POST-TRANSLATIONAL MODIFICATIONS\n")
   }
   
-  cat(">> READING REFERENCE PROTEOME\n")
+  cat("--- READING REFERENCE PROTEOME\n")
   ## read in reference proteome
   ref_proteome = read.fasta(file = ref_proteome_file, 
                             seqtype = "AA", 
@@ -84,7 +96,7 @@ artms_proteinToSiteConversion <- function (evidence_file, ref_proteome_file, out
   protein_indices = data.table(uniprot_ac=keys, ptm_site=unlist(ptm_sites), res_index = unlist(indices))
   
   ## map mod sites in data to index 
-  cat(">> OPENING EVIDENCE FILE\n")
+  cat("--- OPENING EVIDENCE FILE\n")
   ## read in maxq. data
   maxq_data = fread(evidence_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
@@ -95,7 +107,7 @@ artms_proteinToSiteConversion <- function (evidence_file, ref_proteome_file, out
   mod_sites = c()
   mod_seqs = c()
   
-  cat("---Extracting information from the modified peptides (it might take some time)\n")
+  cat("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES (it might take some time)\n")
   for(i in 1:nrow(unique_peptides_in_data)){
     entry = unique_peptides_in_data[i,]
     peptide_seq = entry$sequence

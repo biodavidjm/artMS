@@ -9,28 +9,47 @@ artms_proteinToSiteConversion(evidence_file, ref_proteome_file,
   output_file, mod_type = "PH")
 }
 \arguments{
-\item{evidence_file}{The evidence file name and location}
+\item{evidence_file}{(char) The evidence file name and location}
 
-\item{ref_proteome_file}{The reference proteome used as database
+\item{ref_proteome_file}{(char) The reference proteome used as database
 to search the \code{evidence.txt} file with MaxQuant. It will be used to map the
-modified peptide to the protein sequence and find the site location)}
+modified peptide to the protein sequence and find the site location.
+Therefore, it does NOT need the MaxQuant's \code{Phospho (STY)Sites.txt}}
 
-\item{output_file}{Output file name (-sites-evidence.txt recommended)}
+\item{output_file}{(char) Output file name (\code{-sites-evidence.txt} recommended)}
 
-\item{mod_type}{The posttranslational modification. Options: \code{ub}, \code{ph}, or
-\code{ac}}
+\item{mod_type}{(char) The posttranslational modification. Options:
+\itemize{
+\item \code{ub}: Protein Ubiquitination
+\item \code{ph}: Protein Phosphorylation
+\item \code{ac}: Protein Acetylation
+}}
 }
 \value{
-Return a new evidence file with the \code{Proteins} column modified by
-adding the sequence site location(s) + postranslational modification(s)
-to the uniprot entry id.
+(file) Return a new evidence file with the \code{Proteins} column
+modified by adding the sequence site location(s) + postranslational
+modification(s) to the uniprot entry id.
 Examples: \code{A34890_ph3}; \code{Q64890_ph24_ph456}; \code{Q64890_ub34_ub129_ub234};
 \code{Q64890_ac35}.
 }
 \description{
 It enables the site-specific quantification of PTMs by
-converting the \code{Proteins} column of the evidence file to a \code{Uniprot_PTM}
+converting the \code{Proteins} column of the evidence file to an \code{Uniprot_PTM}
 notation. In this way, each of the modified peptides can be quantified
-independently.
+independently across conditions
 }
-\keyword{artms_proteinToSiteConversion()}
+\examples{
+\donttest{
+artms_proteinToSiteConversion(
+  evidence_file = "evidence.txt", 
+  ref_proteome_file = "uniprot_canonical.fasta", 
+  output_file = "phsite_evidence.txt", 
+  mod_type = "ph")
+}
+}
+\keyword{ac}
+\keyword{convert,}
+\keyword{evidence,}
+\keyword{ph,}
+\keyword{ptm,}
+\keyword{ub,}
