@@ -52,7 +52,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
     mod_residue = 'S|T|Y'
   }else if(mod_type=='AC'){
     cat('--- SELECTING << AC >> MODIFIED PEPTIDES\n')
-    maxq_mod_residue='K\\(ac\\)'  
+    maxq_mod_residue='K\\(ac\\)'
     mod_residue = 'K'
   }else{
     cat("ERROR!!! THE MOD_TYPE <<",mod_type,">> IS NOT SUPPORTED\n")

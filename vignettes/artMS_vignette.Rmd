@@ -232,7 +232,13 @@ A few comments:
 
 Taking as input the evidence file location, it will summarize and report back the average intensity, average retention time, and the average caliberated retention time for each protein. If a list of proteins is provided, then only those proteins will be summarized and returned. Check `?artms_avg_intensity_RT()` to find out more options.
 
+it generates reproducibility plots, as specificied by the user. It requires an
+additional file with the following information:
 
+**condition1**|**rep1\_1**|**rep1\_2**|**condition2**|**rep2\_1**|**rep2\_2**
+-----|-----|-----|-----|-----|-----
+Cal33|Cal33-1|Cal33-2|HSC6|HSC6-1|HSC6-2
+Cal33|Cal33-3|Cal33-4|HSC6|HSC6-3|HSC6-4
 
 
 Please, don't hesitate to send us your questions at <artms.help@gmail.com>

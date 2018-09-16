@@ -27,7 +27,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   prot_exp <- toupper(prot_exp)
 
-  if(any(!prot_exp %in% c('AB','PH','UP','APMS'))){
+  if(any(!prot_exp %in% c('AB','PH','UB','APMS'))){
     cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
     cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- AB\n\t- PH\n\t- UB\n\t- APMS\n")
     stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT")
