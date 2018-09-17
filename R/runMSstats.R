@@ -3,9 +3,9 @@
 #' @description Run MSstats giving a processed evidence file (MSstats format)
 #' and a contrast file. It also generates a series of summary plots before,
 #' and after normalization.
-#' @param dmss Formatted and filtered evidence file (MSstats format)
-#' @param contrasts The contrast data.frame in MSstats format
-#' @param config the configation (imported yaml) object
+#' @param dmss (data.frame) Formatted and filtered evidence file (MSstats format)
+#' @param contrasts (data.frame) The contrast data.frame in MSstats format
+#' @param config (yaml object) the configation (imported yaml) object
 #' @return It generates several output files
 #' - If selected `before` and/or `after`, the `ProfilePlot` and `QCPlot` plots 
 #' by the MSstats `dataProcessPlots` function are generated 
@@ -17,10 +17,8 @@
 #' - MSstats `ModelQC` results
 #' - MSstats `designSampleSize` sample size
 #' - MSstats `designSampleSize` power experiment
-#' @keywords run, MSstats, contrast, intensity, plots, QC
-#' artms_runMSstats()
-#' @export
-artms_runMSstats <- function(dmss, contrasts, config){
+#' @keywords internal, run, MSstats, contrast, intensity, plots, QC
+.artms_runMSstats <- function(dmss, contrasts, config){
   # plot the data BEFORE normalization
   if(grepl('before', config$msstats$profilePlots)){
     mssquant = dataProcess(raw = dmss, 
