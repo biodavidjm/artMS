@@ -1,15 +1,26 @@
+# ------------------------------------------------------------------------------
 #' @title Select Reference protein(s) for normalization
-#' @description This function creates an interactive environment where the user can select which prein(s) to use as a reference when normalizing the different samples prior to analysis. Only proteins that are present in each sample are considered. The user can remove the unnecessary/unwanted proteins by checking the box next to the protein name. One can use the general view of the proteins plotted across the samples, or at a clustering of the proteins.
-#' @param dat_file The filepath to the MaxQuant searched data (evidence) file (txt tab delimited file).
-#' @param keys_file The filepath to the MSStats formatted keys file (txt tab delimited file).
+#' 
+#' NEEDS TO BE FIXED
+#' 
+#' @description This function creates an interactive environment where the 
+#' user can select which prein(s) to use as a reference when normalizing 
+#' the different samples prior to analysis. Only proteins that are present 
+#' in each sample are considered. The user can remove the unnecessary/unwanted 
+#' proteins by checking the box next to the protein name. One can use the
+#' general view of the proteins plotted across the samples, or at a clustering
+#'   of the proteins.
+#' @param dat_file (char) The filepath to the MaxQuant searched data (evidence) 
+#' file (txt tab delimited file).
+#' @param keys_file (char) The filepath to the MSStats formatted keys file 
+#' (txt tab delimited file).
 #' @keywords msstat, reference protein, normalization
-#' select_ref()
-select_ref <- function(keys_file, dat_file) {
+.select_ref <- function(keys_file, dat_file) {
     
     cat("Reading in files...\n")
     keys <- read.delim(keys_file, stringsAsFactors = F)
     dat <- x <- read.delim(dat_file, stringsAsFactors = F)
-    # dat <- x <- .artms_checkIfFile(dat_file, is.evidence=T)
+    
     cat("Removing MaxQuant described contaminants...\n")
     x <- x[-grep("__|;", x$Proteins), ]
     if (length(which(x$Proteins == "")) > 0) 
@@ -32,7 +43,7 @@ select_ref <- function(keys_file, dat_file) {
     temp <- dat[(dat$Proteins %in% tmp) & (dat$Raw.file %in% keys$RawFile), ]
     
     # getting into ggplot compatible format
-    tmp <- dcast(temp, Proteins ~ Raw.file, value.var = "Intensity", median, na.rm = T)
+    tmp <- data.table::dcast(temp, Proteins ~ Raw.file, value.var = "Intensity", median, na.rm = T)
     tmp <- melt(tmp)
     tmp <- tmp[order(tmp$variable, tmp$value), ]
     cat("Finished Pre-processing steps\n")
@@ -115,8 +126,7 @@ select_ref <- function(keys_file, dat_file) {
     
     
     ################################################# 
-    
-    
+
     
     ui <- shiny::shinyUI(shiny::basicPage(shiny::titlePanel("Reference Protein Selection"), shiny::sidebarLayout(shiny::div(style = "width: 1000px", 
         shiny::sidebarPanel(shiny::checkboxGroupInput("check_proteins", "Proteins displayed:", sort(unique(x.clust$prot_names)), 
@@ -126,21 +136,3 @@ select_ref <- function(keys_file, dat_file) {
         height = "800px")), shiny::tabPanel("Proteins", shiny::textOutput("text1"))))))))
     shiny::shinyApp(ui = ui, server = serv)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
