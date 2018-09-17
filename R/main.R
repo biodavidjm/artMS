@@ -209,7 +209,7 @@ artms_quantification <- function(yaml_config_file){
   ## ANNOTATING RESULT FILE
   if(config$output_extras$enabled){
     if(!config$msstats$enabled) results = read.delim(config$output_extras$msstats_output, stringsAsFactors=F)
-    artms_writeExtras(results$ComparisonResult, config)
+    .artms_writeExtras(results$ComparisonResult, config)
   }
   
   cat(">> ANALYSIS COMPLETE! HAVE A NICE DAY :)\n")
