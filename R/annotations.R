@@ -11,7 +11,15 @@
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
-#' artms_annotationUniprot()
+#' @examples \donttest{
+#' # Open the evidence file (for example)
+#' dfevidence <- read.delim("evidence.txt", stringsAsFactors = F)
+#' 
+#' # and add annotations based on the column "Proteins"
+#' artms_annotationUniprot(data = dfevidence, 
+#'                         columnid = "Proteins", 
+#'                         sps = "human")
+#' }
 #' @export
 artms_annotationUniprot <- function(data, columnid, sps) {
   

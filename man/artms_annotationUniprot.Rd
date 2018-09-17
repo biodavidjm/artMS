@@ -23,6 +23,16 @@ the column from your data.frame specified by the \code{columnid} argument,
 search for the gene symbol, name, and entrez based on the specie (\code{sps}
 argument) and merge the information back to the input data.frame
 }
+\examples{
+\donttest{
+# Open the evidence file (for example)
+dfevidence <- read.delim("evidence.txt", stringsAsFactors = F)
+
+# and add annotations based on the column "Proteins"
+artms_annotationUniprot(data = dfevidence, 
+                        columnid = "Proteins", 
+                        sps = "human")
+}
+}
 \keyword{annotation,}
-\keyword{artms_annotationUniprot()}
 \keyword{uniprot}
