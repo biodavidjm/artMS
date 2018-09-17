@@ -8,24 +8,36 @@ artms_volcanoPlot(mss_results_sel, lfc_upper, lfc_lower, FDR,
   file_name = "", PDF = T, decimal_threshold = 16)
 }
 \arguments{
-\item{mss_results_sel}{Selected MSstats results}
+\item{mss_results_sel}{(data.frame) Selected MSstats results}
 
-\item{lfc_upper}{log2fc upper threshold (positive value)}
+\item{lfc_upper}{(numeric) log2fc upper threshold (positive value)}
 
-\item{lfc_lower}{log2fc lower threshold (negative value)}
+\item{lfc_lower}{(numeric) log2fc lower threshold (negative value)}
 
-\item{FDR}{False Discovery Rate threshold}
+\item{FDR}{(numeric) False Discovery Rate threshold}
 
-\item{file_name}{Name for the output file}
+\item{file_name}{(char) Name for the output file}
 
-\item{PDF}{Option to generate pdf format. Default: \code{T}}
+\item{PDF}{(logical) Option to generate pdf format. Default: \code{T}}
 
-\item{decimal_threshold}{Decimal threshold for the pvalue.
+\item{decimal_threshold}{(numeric) Decimal threshold for the pvalue.
 Default: 16 (10^-16)}
 }
 \description{
 It generates a scatter-plot used to quickly identify changes
 }
-\keyword{artms_volcanoPlot()}
+\examples{
+\donttest{
+# Open the msstats results
+mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+# And generate volcano plot
+artms_volcanoPlot(mss_results_sel = mss,
+                  lfc_upper = 1, 
+                  lfc_lower = -1, 
+                  FDR = 0.05, 
+                  file_name = "a549-PB1-results-volcanoPlot.pdf", 
+                  PDF = T)
+}
+}
 \keyword{plot,}
 \keyword{volcano}

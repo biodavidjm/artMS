@@ -24,6 +24,7 @@ proteins by checking the box next to the protein name. One can use the
 general view of the proteins plotted across the samples, or at a clustering
 of the proteins.
 }
+\keyword{internal,}
 \keyword{msstat,}
 \keyword{normalization}
 \keyword{protein,}

@@ -1,18 +1,35 @@
 # ------------------------------------------------------------------------------
 #' @title Volcano plot (log2fc / pvalues)
+#' 
 #' @description It generates a scatter-plot used to quickly identify changes
-#' @param mss_results_sel Selected MSstats results
-#' @param lfc_upper log2fc upper threshold (positive value)
-#' @param lfc_lower log2fc lower threshold (negative value)
-#' @param FDR False Discovery Rate threshold
-#' @param file_name Name for the output file
-#' @param PDF Option to generate pdf format. Default: `T`
-#' @param decimal_threshold Decimal threshold for the pvalue. 
+#' @param mss_results_sel (data.frame) Selected MSstats results
+#' @param lfc_upper (numeric) log2fc upper threshold (positive value)
+#' @param lfc_lower (numeric) log2fc lower threshold (negative value)
+#' @param FDR (numeric) False Discovery Rate threshold
+#' @param file_name (char) Name for the output file
+#' @param PDF (logical) Option to generate pdf format. Default: `T`
+#' @param decimal_threshold (numeric) Decimal threshold for the pvalue. 
 #' Default: 16 (10^-16)
 #' @keywords plot, volcano
-#' artms_volcanoPlot()
+#' @examples \donttest{
+#' # Open the msstats results
+#' mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+#' # And generate volcano plot
+#' artms_volcanoPlot(mss_results_sel = mss,
+#'                   lfc_upper = 1, 
+#'                   lfc_lower = -1, 
+#'                   FDR = 0.05, 
+#'                   file_name = "a549-PB1-results-volcanoPlot.pdf", 
+#'                   PDF = T)
+#' }
 #' @export
-artms_volcanoPlot <- function(mss_results_sel, lfc_upper, lfc_lower, FDR, file_name='', PDF=T, decimal_threshold=16){
+artms_volcanoPlot <- function(mss_results_sel, 
+                              lfc_upper, 
+                              lfc_lower, 
+                              FDR, 
+                              file_name='', 
+                              PDF=T, 
+                              decimal_threshold=16){
   
   # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
   # Issues with extreme_val later if we have Inf/-Inf values.
