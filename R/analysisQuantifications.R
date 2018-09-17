@@ -293,8 +293,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundancesName <- paste0("plot.",abundancesName)
   abundancesName <- paste0(output_dir,"/",abundancesName)
   pdf(abundancesName)
-    .artms_plotAbundanceBoxplots(dfmq)
-    .artms_plotNumberProteinsAbundance(dfmq)
+    .artms_plotAbundanceBoxplots(data = dfmq)
+    .artms_plotNumberProteinsAbundance(data = dfmq)
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
@@ -336,7 +336,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   # TECHNICAL REPLICAS: if there are technical replicas means that we will find
   # two values for the same protein in the same bioreplica, therefore we need to 
   # aggregate first just in case:
-  abundance <- aggregate(Abundance~Prey+Bait+Bioreplica, data = abundance, FUN = mean)
+  abundance <- aggregate(Abundance~Prey+Bait+BioReplicate, data = abundance, FUN = mean)
   
   # Let's aggregate to get the sum of the abundance, we will use it later.
   abundance_dcsum <- data.table::dcast(abundance, Prey~Bait, value.var = 'Abundance', fun.aggregate = sum, fill = 0 )
@@ -1221,10 +1221,10 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   # Take the abundance values for all the proteins
   abu2imp <- .artms_loadModelqcBasic(dfmq)
   # Aggregate the technical replica by choosing the maximum value
-  abu2imp2 <- aggregate(Abundance~Protein+Condition+Bioreplica, data = abu2imp, FUN = mean)
+  abu2imp2 <- aggregate(Abundance~Protein+Condition+BioReplicate, data = abu2imp, FUN = mean)
   
   # Check things that will be imputed
-  # dfdc.ni <- data.table::dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance")  
+  # dfdc.ni <- data.table::dcast(data=abu2imp2, Protein~BioReplicate, value.var = "Abundance")  
   
   # Two possible options here. 
   # 1. Select based on the bottom x%
@@ -1247,13 +1247,13 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   numbers2sample <- seq(from=theMin, to=theMax, by=.00001)
   
   # dcast on abundance and fill with random numbers between the minimum and q05
-  suppressWarnings(dfdc.im <- data.table::dcast(data=abu2imp2, Protein~Bioreplica, value.var = "Abundance", fill = sample(numbers2sample, replace = F)  ) )
+  suppressWarnings(dfdc.im <- data.table::dcast(data=abu2imp2, Protein~BioReplicate, value.var = "Abundance", fill = sample(numbers2sample, replace = F)  ) )
   
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
-  dfdc.melt <- reshape2::melt(dfdc.im, id.vars = c('Protein'), value.name = 'Abundance', variable.name = 'Bioreplica')
+  dfdc.melt <- reshape2::melt(dfdc.im, id.vars = c('Protein'), value.name = 'Abundance', variable.name = 'BioReplicate')
   # 2. Get the condition
-  dfdc.melt$Condition <- gsub("(.*)(-)(.*)","\\1",dfdc.melt$Bioreplica)
+  dfdc.melt$Condition <- gsub("(.*)(-)(.*)","\\1",dfdc.melt$BioReplicate)
   # 3. Dcast and Aggregate on the condition, taking the mean
   dfdc.final <- data.table::dcast(data=dfdc.melt, Protein~Condition, value.var = 'Abundance', fun.aggregate = mean)
   # 4. Filter by proteins to impute
@@ -1326,9 +1326,10 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
 
 #------------------------------------------------------------------------------
 # @title Load the basic ModelQC file
+# 
 # @param data (data.frame) of the ModelQC file
 # @return (data.frame) of the modelqc file with the columns Protein, Abundance, 
-# Condition, Bioreplica
+# Condition, BioReplicate
 # @keywords internal, loading
 .artms_loadModelqcBasic <- function(data){
   if( length(grep(";",data$PROTEIN))>0 ) data <- data[-grep(";",data$PROTEIN),] # NOTE!!! We lose a lot of entries this way.
@@ -1351,12 +1352,12 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
     stop("Abort mission\n!")
   }
   if("SUBJECT_ORIGINAL" %in% colnames(data)){
-    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'Bioreplica'
+    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'BioReplicate'
   }else{
     cat("ERROR: you should check the abundance file because something is seriously wrong!\n") 
     stop("Abort mission\n!")
   }
-  data <- subset(data, select = c(Protein, Abundance, Condition, Bioreplica))
+  data <- subset(data, select = c(Protein, Abundance, Condition, BioReplicate))
   return(data)
 }
 

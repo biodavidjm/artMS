@@ -34,6 +34,7 @@
 #' @import org.Pf.plasmo.db
 #' @import org.Pt.eg.db
 #' @import org.Rn.eg.db
+#' @import org.Sc.sgd.db
 #' @import org.Ss.eg.db
 #' @import org.Xl.eg.db
 #' @importFrom PerformanceAnalytics chart.Correlation
@@ -47,9 +48,22 @@
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
 #' @import stringr
 #' @importFrom tidyr unnest
-#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head
+#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head globalVariables
 #' @import VennDiagram
 #' @import yaml
+
+utils::globalVariables(c("Modifications", "Protein", "Abundance", "Condition", 
+"BioReplicate", "Comparison", "Intensity", "log2FC", "Label", "RawFile",
+"iLog2FC", "pvalue", "adj.pvalue", "iPvalue", "Prey", "ReproBioreplicaCount", 
+"ReproConditionCount", "category", "Specie", "AbMean", "Gene", "imputedDFext",
+"pathogen.ids", "Contaminant", "TR", "MODIFICATION", "Proteins", "ComplexName",
+"PTMone", "PTMsite", "output_dir", "isPtm", "log2fc_file",
+"artms_data_corum_mito_database",
+"SUBJECT_ORIGINAL", "ABUNDANCE", "IsotopeLabelType", 
+"GROUP_ORIGINAL", "SYMBOL", "GENENAME", "PROTEIN", "FEATURE", 
+"pearson", "..count..", "tr1", "tr2", "sample_name", "value", "prot_names",
+"cluster", "ymax", "ymin", "uniprot_ac", "uniprot_id", "res_index", "ptm_site"
+))
 
 # ------------------------------------------------------------------------------
 #' @title Relative quantification using MSstats
@@ -212,7 +226,7 @@ artms_quantification <- function(yaml_config_file){
     .artms_writeExtras(results$ComparisonResult, config)
   }
   
-  cat(">> ANALYSIS COMPLETE! HAVE A NICE DAY :)\n")
+  cat("\nANALYSIS COMPLETE! HAVE A NICE DAY :)\n")
 }
 
 

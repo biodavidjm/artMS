@@ -19,9 +19,9 @@ Merge evidence and keys by file name
 }
 \examples{
 \donttest{
-evidenceKeys <- artms_mergeEvidenceKeysByFiles(
-	evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
-	keys_file = "FLU-THP1-H1N1-AB-keys.txt")
+  evidenceKeys <- artms_mergeEvidenceKeysByFiles(
+                  evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+                  keys_file = "FLU-THP1-H1N1-AB-keys.txt")
 }
 }
 \keyword{evidence,}

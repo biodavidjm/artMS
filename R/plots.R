@@ -8,8 +8,10 @@
 #' @return A ggplot2 correlation plot
 #' @keywords plot, correlation
 .artms_plotCorrelationDistribution <- function(MatrixCorrelations){
-  cor.data <- MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]  # we're only interested in one of the off-diagonals, otherwise there'd be duplicates
-  cor.data <- as.data.frame(cor.data)  # that's how ggplot likes it
+  # we're only interested in one of the off-diagonals, 
+  # otherwise there'd be duplicates
+  cor.data <- MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]  
+  cor.data <- as.data.frame(cor.data)
   colnames(cor.data) <- "pearson"
   
   g <- ggplot(data = cor.data, mapping = aes(x = pearson))
@@ -63,6 +65,76 @@ artms_dataPlots <- function(input_file, output_file){
     }
     cat("--- Done!\n")
   garbarge <- dev.off()
+}
+
+# ------------------------------------------------------------------------------
+#' @title Heatmap of significant values
+#' 
+#' @description heatmap plot to represent proteins with significant changes
+#' @param mss_F (data.frame) with the significant values (log2fc, pvalues)
+#' @param out_file (char) Name for the output
+#' @param labelOrder (vector) Vector with the particular order for the IDs 
+#' (default, `NULL` no order)
+#' @param names (char) Type of ID used. Default is `Protein` (uniprot entry id). 
+#' Soon will be possible to use 'Gene' name ids.
+#' @param cluster_cols (logical) Select whether to cluster the columns. 
+#' Options: `T` or `F`. Default `T`.
+#' @param display (char) Value used to genarate the heatmaps. Options: 
+#' - `log2FC` (default)
+#' - `adj.pvalue`
+#' - `pvalue`
+#' @return A heatmap of significant values
+#' @keywords significant, heatmap
+.artms_plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_cols=F, display='log2FC'){
+  heat_data = data.frame(mss_F, names=names)
+  
+  ## create matrix from log2FC or p-value as user defined
+  if(display=='log2FC'){
+    # Issues with extreme_val later if we have Inf/-Inf values.
+    if( sum(is.infinite(heat_data$log2FC)) > 0 ){
+      idx <- is.infinite(heat_data$log2FC)
+      heat_data$log2FC[ idx ] <- NA
+    }
+    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='log2FC') 
+  }else if(display=='adj.pvalue'){
+    heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
+    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='adj.pvalue')  
+  }else if(display=='pvalue'){
+    heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
+    heat_data_w = dcast(names ~ Label, data=heat_data, value.var='pvalue')  
+  }
+  
+  ## try
+  #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
+  rownames(heat_data_w) = heat_data_w$names
+  heat_data_w = heat_data_w[,-1]
+  heat_data_w[is.na(heat_data_w)]=0
+  max_val = ceiling(max(heat_data_w))
+  min_val = floor(min(heat_data_w))
+  extreme_val = max(max_val, abs(min_val))
+  if(extreme_val %% 2 != 0) extreme_val=extreme_val+1
+  bin_size=2
+  signed_bins = (extreme_val/bin_size)
+  colors_neg = rev(colorRampPalette(brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
+  colors_pos = colorRampPalette(brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
+  colors_tot = c(colors_neg, colors_pos)
+  
+  if(is.null(labelOrder)){
+    pheatmap(heat_data_w, scale="none", cellheight=10, 
+             cellwidth=10, filename =out_file, color=colors_tot, 
+             breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), 
+             cluster_cols=cluster_cols, fontfamily="mono")  
+    cat("--- Heatmap is out\n")
+  }else{
+    heat_data_w <- heat_data_w[,labelOrder]
+    pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, 
+             filename=out_file, color=colors_tot, 
+             breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), 
+             cluster_cols=cluster_cols, fontfamily="mono")
+    cat("--- Heatmap is out\n")
+  }
+  
+  return(heat_data_w)
 }
 
 # ------------------------------------------------------------------------------
@@ -317,12 +389,11 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @param data (data.frame) modelqc
 #' @return (pdf) Barplots with the number of proteins per br / condition
 #' @keywords internal, plots, abundance, counts
-#' .artms_plotNumberProteinsAbundance()
-artms_plotNumberProteinsAbundance <- function(data) {
+.artms_plotNumberProteinsAbundance <- function(data) {
   x <- data[c('PROTEIN','SUBJECT_ORIGINAL')]
   y <- unique(x)
-  names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicates'
-  z <- ggplot2::ggplot(y, aes(x = BioReplicates, fill = BioReplicates))
+  names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicate'
+  z <- ggplot2::ggplot(y, aes(x = BioReplicate, fill = BioReplicate))
   z <- z + geom_bar(stat = "count")
   z <- z + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
   z <- z + geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7)
@@ -331,8 +402,8 @@ artms_plotNumberProteinsAbundance <- function(data) {
   
   a <- data[c('PROTEIN','GROUP_ORIGINAL')]
   b <- unique(a)
-  names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Conditions'
-  c <- ggplot2::ggplot(b, aes(x = Conditions, fill = Conditions))
+  names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
+  c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
   c <- c + geom_bar(stat = "count")
   c <- c + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
   c <- c + geom_text(stat='count', aes(label=..count..), vjust=-0.5, size = 2.7)

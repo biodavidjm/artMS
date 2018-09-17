@@ -19,6 +19,7 @@
 #' - MSstats `designSampleSize` power experiment
 #' @keywords internal, run, MSstats, contrast, intensity, plots, QC
 .artms_runMSstats <- function(dmss, contrasts, config){
+  cat(">> MSstats STARTS RUNNING:\n")
   # plot the data BEFORE normalization
   if(grepl('before', config$msstats$profilePlots)){
     mssquant = dataProcess(raw = dmss, 
@@ -51,7 +52,7 @@
                             MBimpute = config$msstats$MBimpute,
                             featureSubset=config$msstats$feature_subset)
   }else{
-    cat(sprintf('\n>> NORMALIZATION\t%s\n',config$msstats$normalization_method))
+    cat(sprintf('\n--- NORMALIZATION METHOD: %s\n',config$msstats$normalization_method))
     #mssquant = dataProcess(dmss, normalization=config$msstats$normalization_method , fillIncompleteRows = F, betweenRunInterferenceScore = F)
     mssquant = dataProcess(raw = dmss, 
                            normalization=config$msstats$normalization_method,
@@ -81,17 +82,17 @@
   
   cat(sprintf('\tFITTING CONTRASTS:\t%s\n',paste(rownames(contrasts),collapse=',')))
   write.table(mssquant$ProcessedData, file=gsub('.txt','-mss-normalized.txt',config$files$output), eol="\n", sep="\t", quote=F, row.names=F, col.names=T)
-  results = groupComparison(data = mssquant, contrast.matrix = contrasts)
+  results <- groupComparison(data = mssquant, contrast.matrix = contrasts)
   write.table(results$ComparisonResult, file=config$files$output, eol="\n", sep="\t", quote=F, row.names=F, col.names=T)  
   write.table(results$ModelQC, file=gsub(".txt","_ModelQC.txt",config$files$output), eol="\n", sep="\t", quote=F, row.names=F, col.names=T) 
-  cat(sprintf(">> WRITTEN\t%s\n",config$files$output))
+  cat(">> MSstats IS DONE!\n")
   
   #(1) Minimal number of biological replicates per condition
   cat(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS\n" )
   results.ss1 <- designSampleSize(data=results$fittedmodel,numSample=TRUE,desiredFC=c(1.25,2),FDR=0.05,power=0.95)
   results.ss2 <- designSampleSize(data=results$fittedmodel,numSample=TRUE,desiredFC=c(1.25,2),FDR=0.05,power=0.9)
   results.ss3 <- designSampleSize(data=results$fittedmodel,numSample=TRUE,desiredFC=c(1.25,2),FDR=0.05,power=0.8)
-  results.ss = rbind( results.ss1, results.ss2, results.ss3)
+  results.ss <- rbind( results.ss1, results.ss2, results.ss3)
   write.table(results.ss, file=gsub(".txt","_sampleSize.txt",config$files$output), eol="\n", sep="\t", quote=F, row.names=F, col.names=T) 
   
   #(2) Power calculation

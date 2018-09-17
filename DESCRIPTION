@@ -1,7 +1,7 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.5
+Version: 0.99.6
 Date: 2018-09-13
 Author: David Jimenez-Morales, John Von Dollen, Alexandre Rosa Campos
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
@@ -53,6 +53,7 @@ Imports:
   org.Pf.plasmo.db,
   org.Pt.eg.db,
   org.Rn.eg.db,
+  org.Sc.sgd.db,
   org.Ss.eg.db,
   org.Xl.eg.db,
   PerformanceAnalytics,

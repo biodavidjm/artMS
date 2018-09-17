@@ -41,24 +41,22 @@
   sign_labels <- unique(sign_hits$Label)
   cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, config$output_extras$FDR, nrow(sign_hits)/length(sign_labels))) 
   
-  cat(paste("output_file: ", config$files$output, "\n"))
-  
   ## REPRESENTING RESULTS AS HEATMAP
   if(config$output_extras$heatmap){
     ## plot heat map for all contrasts
-    cat(">>   PLOTTING HEATMAP FOR ALL CONTRASTS\n")
+    cat(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES\n")
     heat_labels <- .artms_prettyPrintHeatmapLabels(uniprot_acs=sign_hits$Protein,uniprot_ids=sign_hits$name, gene_names=sign_hits$Gene.names)
-    heat_data_w <- plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
+    heat_data_w <- .artms_plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
   }
   
   if(config$output_extras$volcano){
-    cat(">>   PLOTTING VOLCANO PLOT\n")
+    cat(">> PLOTTING VOLCANO PLOT\n")
     file_name <- gsub('.txt','-volcano.pdf',config$files$output)
     artms_volcanoPlot(results_ann[grep(selected_labels,results_ann$Label),], lfc_upper, lfc_lower, FDR=config$output_extras$FDR, file_name=file_name)  
   }
 }
 
-# 
+
 # ------------------------------------------------------------------------------
 #' @title Annotate the files based on the Uniprot accession id
 #' @description Annotate the files based on the Uniprot accession id
@@ -81,7 +79,7 @@
   Uniprot = NULL
   for(org in species_split){
     cat(sprintf("\tLOADING %s\n",org))
-    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt",uniprot_dir,org), stringsAsFactors=F, quote="")    
+    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt", uniprot_dir,org), stringsAsFactors=F, quote="")    
     if(is.null(Uniprot)){
       Uniprot = as.data.frame(tmp)
     }else{

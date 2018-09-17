@@ -193,9 +193,9 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
 #' @return (data.frame) with both evidence and keys files merged by raw.files
 #' @keywords internal, merge, evidence, keys
 #' @examples \donttest{
-#' evidenceKeys <- artms_mergeEvidenceKeysByFiles(
-#' 	evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
-#' 	keys_file = "FLU-THP1-H1N1-AB-keys.txt")
+#'   evidenceKeys <- artms_mergeEvidenceKeysByFiles(
+#'                   evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+#'                   keys_file = "FLU-THP1-H1N1-AB-keys.txt")
 #' }
 #' @export
 artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
@@ -400,8 +400,8 @@ artms_resultsWide <- function(evidence_file, output_file){
 .artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
   ## get subset based on labels
   selected_results = mss_results[grep(labels,mss_results$Label), ]
-  cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP:\n %s\n',paste(unique(mss_results$Label), collapse=', ')))
-  cat(sprintf('>> SELECTED LABELS FOR HEATMAP:\n %s\n',paste(unique(selected_results$Label), collapse=', ')))
+  # cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP:\n %s\n',paste(unique(mss_results$Label), collapse=', ')))
+  # cat(sprintf('>> SELECTED LABELS FOR HEATMAP:\n %s\n',paste(unique(selected_results$Label), collapse=', ')))
   significant_proteins = selected_results[(!is.na(selected_results$log2FC) & selected_results$adj.pvalue <= FDR & (selected_results$log2FC >= LFC[2] | selected_results$log2FC <= LFC[1])) , 'Protein']
   significant_results = selected_results[selected_results$Protein %in% significant_proteins, ]
   return(significant_results)
