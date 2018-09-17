@@ -13,7 +13,7 @@ artms_annotateSpecie(df, pathogen, specie)
 then use \code{pathogen = nopathogen} (default), \code{tb} (Tuberculosis),
 \code{lpn} (Legionella)}
 
-\item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
+\item{specie}{(char) Host organism (supported for now: \code{human} or \code{mouse})}
 }
 \value{
 (data.frame) The same data.frame but with an extra column specifying the specie
@@ -26,6 +26,10 @@ case that it does not need to be specified, as far as the proteins were
 originally annotated as \code{INFLUENZAGENE_STRAIN}
 (strains covered \code{H1N1}, \code{H3N2}, \code{H5N1}), as for example, \code{NS1_H1N1}
 }
+\examples{
+\donttest{
+artms_annotateSpecie(df = dfobject, pathogen = "influenza", specie = "human")
+}
+}
 \keyword{annotation,}
-\keyword{artms_annotateSpecie()}
 \keyword{specie}

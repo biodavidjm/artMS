@@ -31,8 +31,12 @@ average intensity, average retention time, and the average caliberated
 retention time. If a list of proteins is provided, then only those proteins
 will be summarized and returned.
 }
+\examples{
+\donttest{
+artms_avg_intensity_RT(evidence_file = "/path/to/the/evidence.txt")
+}
+}
 \keyword{MaxQuant,}
-\keyword{artms_avg_intensity_RT()}
 \keyword{caliberated}
 \keyword{evidence,}
 \keyword{intensity,}

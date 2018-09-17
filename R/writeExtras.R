@@ -7,9 +7,7 @@
 #' - volcano plot (pdf)
 #' - Adding annotations (gene symbol based on uniprot)
 #' @keywords extras, annotations, volcano
-#' artms_writeExtras()
-#' @export
-artms_writeExtras <- function(results, config){
+.artms_writeExtras <- function(results, config){
   
   if(length(results)==0 | !exists('results')){
     stop("ERROR!! NO RESULTS FOUND TO ANNOTATE!")
@@ -17,10 +15,10 @@ artms_writeExtras <- function(results, config){
   
   # Annotation 
   if(config$output_extras$annotate & is.null(config$data$filters$modifications) ){
-    results_ann <- Extras.annotate(results, output_file=config$files$output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = config$output_extras$annotation_dir, species=config$output_extras$species)
+    results_ann <- .extras_annotate(results, output_file=config$files$output, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = config$output_extras$annotation_dir, species=config$output_extras$species)
   }else{
     if( !is.null(config$data$filters$modifications) ) cat("\tSITES NEED TO BE MAPPED BACK TO PROTEINS BEFORE ANNOTATING.\n")
-    results_ann = results
+    results_ann <- results
     if( !is.null(config$output_extras$msstats_output)){
       config$files$output = config$output_extras$msstats_output
     }else{
@@ -28,17 +26,17 @@ artms_writeExtras <- function(results, config){
     }
   }
   
-  lfc_lower = as.numeric(unlist(strsplit(config$output_extras$LFC,split=" "))[1])
-  lfc_upper = as.numeric(unlist(strsplit(config$output_extras$LFC,split=" "))[2])
+  lfc_lower <- as.numeric(unlist(strsplit(config$output_extras$LFC,split=" "))[1])
+  lfc_upper <- as.numeric(unlist(strsplit(config$output_extras$LFC,split=" "))[2])
   ## select subset of labels for heatmap and volcan plots
-  selected_labels = config$output_extras$comparisons
+  selected_labels <- config$output_extras$comparisons
   if(is.null(selected_labels) || selected_labels=='all') selected_labels='*'
   
   # remove the Inf, -Inf log2FC hits. 
   results_ann <- results_ann[!is.infinite(results_ann$log2FC),]
   
   ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
-  sign_hits <- artms_significantHits(results_ann,labels=selected_labels,LFC=c(lfc_lower,lfc_upper),FDR=config$output_extras$FDR)
+  sign_hits <- .artms_significantHits(results_ann,labels=selected_labels,LFC=c(lfc_lower,lfc_upper),FDR=config$output_extras$FDR)
   if( dim(sign_hits)[1] == 0 ) stop("NO SIGNIFICANT HITS DETECTED IN THIS EXPERIMENT. ABORTING PLOTS.\n")
   sign_labels <- unique(sign_hits$Label)
   cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, config$output_extras$FDR, nrow(sign_hits)/length(sign_labels))) 
@@ -49,13 +47,13 @@ artms_writeExtras <- function(results, config){
   if(config$output_extras$heatmap){
     ## plot heat map for all contrasts
     cat(">>   PLOTTING HEATMAP FOR ALL CONTRASTS\n")
-    heat_labels = prettyPrintHeatmapLabels(uniprot_acs=sign_hits$Protein,uniprot_ids=sign_hits$name, gene_names=sign_hits$Gene.names)
-    heat_data_w = plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
+    heat_labels <- .artms_prettyPrintHeatmapLabels(uniprot_acs=sign_hits$Protein,uniprot_ids=sign_hits$name, gene_names=sign_hits$Gene.names)
+    heat_data_w <- plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
   }
   
   if(config$output_extras$volcano){
     cat(">>   PLOTTING VOLCANO PLOT\n")
-    file_name = gsub('.txt','-volcano.pdf',config$files$output)
+    file_name <- gsub('.txt','-volcano.pdf',config$files$output)
     artms_volcanoPlot(results_ann[grep(selected_labels,results_ann$Label),], lfc_upper, lfc_lower, FDR=config$output_extras$FDR, file_name=file_name)  
   }
 }
@@ -71,10 +69,8 @@ artms_writeExtras <- function(results, config){
 #' @param uniprot_dir Directory with the Uniprot mappings
 #' @param species Species (dash separated accordind to the uniprot file name)
 #' @return Annotated data.frame
-#' @keywords extras, annotations
-#' Extras.annotate()
-#' @export
-Extras.annotate <- function(results, output_file, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
+#' @keywords internal, extras, annotations
+.extras_annotate <- function(results, output_file, uniprot_ac_col='Protein', group_sep=';', uniprot_dir = '~/github/kroganlab/source/db/', species='HUMAN'){
   cat(">> ANNOTATING\n")
   
   # remove unnamed proteins that are listed as ""

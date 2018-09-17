@@ -10,12 +10,23 @@ artms_quantification(yaml_config_file)
 \item{yaml_config_file}{(char) The yaml file name and location}
 }
 \value{
-All the selected options
+The relative quantification of the conditions and comparisons
+specified in the keys/contrast file resulting from running MSstats, in
+addition to quality control plots (if selected)
 }
 \description{
-Relative quantification using MSstats
+Relative quantification using MSstats including:
+\itemize{
+\item plots
+\item quantifications (log2fc, pvalues, etc)
+\item normalized abundance values
 }
-\keyword{artms_quantification()}
+}
+\examples{
+\donttest{
+artms_quantification("artms-ab-config.yaml")
+}
+}
 \keyword{driver,}
 \keyword{function}
 \keyword{main,}

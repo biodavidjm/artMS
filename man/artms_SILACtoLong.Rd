@@ -4,19 +4,27 @@
 \alias{artms_SILACtoLong}
 \title{Convert the SILAC evidence file to MSstats format}
 \usage{
-artms_SILACtoLong(filename, output)
+artms_SILACtoLong(evidence_file, output)
 }
 \arguments{
-\item{filename}{Text filepath to the evidence file}
+\item{evidence_file}{(char) Text filepath to the evidence file}
 
-\item{output}{Text filepath of the output name}
+\item{output}{(char) Text filepath of the output name}
 }
 \value{
-A data.frame with SILAC data processed for MSstats
+(data.frame) with SILAC data processed for MSstats (and output file)
 }
 \description{
 Converting the evidence file from a SILAC search to a format
 compatible with MSstats. It basically modifies the Raw.files adding the
 Heavy and Light label
 }
-\keyword{artms_SILACtoLong()}
+\examples{
+\donttest{
+evidence2silac <- artms_SILACtoLong(evidence_file = "silac.evicence.txt", 
+                                   output = "silac-evidence.txt")
+}
+}
+\keyword{convert,}
+\keyword{evidence}
+\keyword{silac,}

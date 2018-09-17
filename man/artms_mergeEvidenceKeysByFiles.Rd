@@ -7,17 +7,24 @@
 artms_mergeEvidenceKeysByFiles(evidence_file, keys_file)
 }
 \arguments{
-\item{evidence_file}{The Evidence file name}
+\item{evidence_file}{(char) The Evidence file name}
 
-\item{keys_file}{The keys file name}
+\item{keys_file}{(char) The keys file name}
 }
 \value{
-A data.frame with both evidence and keys files merged by raw.files
+(data.frame) with both evidence and keys files merged by raw.files
 }
 \description{
 Merge evidence and keys by file name
 }
-\keyword{artms_mergeEvidenceKeysByFiles()}
+\examples{
+\donttest{
+evidenceKeys <- artms_mergeEvidenceKeysByFiles(
+	evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+	keys_file = "FLU-THP1-H1N1-AB-keys.txt")
+}
+}
 \keyword{evidence,}
+\keyword{internal,}
 \keyword{keys}
 \keyword{merge,}

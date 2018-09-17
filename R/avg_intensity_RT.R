@@ -18,7 +18,9 @@
 #' output_file argument is provided). It contains averages of Intensity, 
 #' Retention Time, Caliberated Retention Time
 #' @keywords MaxQuant, evidence, summary, intensity, retention time, caliberated
-#' artms_avg_intensity_RT()
+#' @examples \donttest{
+#' artms_avg_intensity_RT(evidence_file = "/path/to/the/evidence.txt")
+#' }
 #' @export
 artms_avg_intensity_RT <- function(evidence_file, protein_file = NULL, output_file = FALSE) {
     # read in data

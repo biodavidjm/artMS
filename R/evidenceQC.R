@@ -2,19 +2,23 @@
 #' @title Quality Control analysis of the MaxQuant evidence file
 #' 
 #' @description Quality Control analysis of the MaxQuant evidence file
-#' @param evidence_file The evidence file
-#' @param keys_file The keys file with the experimental design
-#' @param prot_exp Proteomics experiment. 4 options available:
+#' @param evidence_file (char) The evidence file path and name
+#' @param keys_file (char) The keys file path and name
+#' @param prot_exp (char) Proteomics experiment. 4 options available:
 #' - `APMS`: affinity purification mass spectrometry
 #' - `AB`: protein abundance
 #' - `PH`: protein phosphorylation
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
-#' @param fractions Is a fractionated experiment?
+#' @param fractions (binary) Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
-#' artms_evidenceQC()
+#' @examples \donttest{
+#' artms_evidenceQC(evidence_file = "evidence.txt", 
+#'                  keys_file = "keys.txt", 
+#'                  prot_exp = "PH")
+#' }
 #' @export
 artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
 
@@ -23,7 +27,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   prot_exp <- toupper(prot_exp)
 
-  if(any(!prot_exp %in% c('AB','PH','UP','APMS'))){
+  if(any(!prot_exp %in% c('AB','PH','UB','APMS'))){
     cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
     cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- AB\n\t- PH\n\t- UB\n\t- APMS\n")
     stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT")
@@ -32,7 +36,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   if(fractions){
     # Check that the keys file is correct
     keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
-    keys <- artms_checkRawFileColumnName(keys)
+    keys <- .artms_checkRawFileColumnName(keys)
     if(any(!'FractionKey' %in% colnames(keys))){
       cat('\nERROR!!! fractions WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
       stop('Please, try again once revised\n\n')
@@ -80,7 +84,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   # Careful with old versions of MaxQuant:
   if( any(grep("Leading.Proteins", names(evidencekeys))) ){
-    evidencekeys <- changeTheName(evidencekeys,"Leading.Proteins","Leading.proteins")
+    evidencekeys <- artms_changeColumnName(evidencekeys,"Leading.Proteins","Leading.proteins")
   }
   
   # Combine all the fractions if this is a fractioning experiment by summing 
@@ -118,7 +122,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   }
   
   pdf(seqReproName)
-    artms_plotReproducibilityEvidence(evidencekeysclean)
+    .artms_plotReproducibilityEvidence(evidencekeysclean)
   garbage <- dev.off()
   
   # Create matrix of reproducibility TECHNICAL REPLICAS
@@ -140,7 +144,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
     Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
-    theTechCorDis <- artms_plotCorrelationDistribution(Mtechnicalrep)
+    theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
     
     # And now for clustering
     cat("--- By Technical replicates\n")
@@ -192,7 +196,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[,3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
   Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
   
-  theBiorCorDis <- artms_plotCorrelationDistribution(Mbioreplicas)
+  theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
   
   cat("--- By Biological replicates\n")
   matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixBR.pdf", evidence_file)
@@ -238,7 +242,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   precordfConditions <- evidencekeyscleanDCASTconditions[,3:dim(evidencekeyscleanDCASTconditions)[2]]
   Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
   
-  theCondCorDis <- artms_plotCorrelationDistribution(Mcond)
+  theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
   
   cat("--- By Conditions\n")
   matrixCorrelationCond <- gsub("evidence.txt", "qcplot.correlationMatrixConditions.pdf", evidence_file)
@@ -460,11 +464,6 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     garbage <- dev.off()
   }
   
-  cat("------------ QUALITY CONTROL ANALYSIS COMPLETED\n\n")
+  cat("\n>>QUALITY CONTROL ANALYSIS COMPLETED!\n")
 }
-
-
-
-
-
 

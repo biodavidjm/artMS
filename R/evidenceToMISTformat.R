@@ -7,27 +7,34 @@
 #' MiST *data* file, and that an additional *keys* file will have to be 
 #' constructed before running MiST. Multiple species can be searched at once, 
 #' simply separate them by a "-". (eg. `HUMAN-MOUSE`)
-#' @param input_file MaxQuant evidence file and location
-#' @param metric Select quantitative metric. Two options available:
-#' - `int`: MS Intensity
-#' - `spc`: MS.MS.count (Spectral Counts)
-#' @param keys_file Keys file with the experimental details
-#' @param output_file Output file name
-#' @param species Specie name. If several, used a `dash` symbol to separate them
+#' @param input_file (char) MaxQuant evidence file and location
+#' @param keys_file (char) Keys file with the experimental details
+#' @param quant_variable (char) Select the quantitative variable. Two options available:
+#' - `msint`: MS Intensity
+#' - `msspc`: MS.MS.count (Spectral Counts)
+#' @param output_file (char) Output file name
+#' @param species (char) Specie name. If several, used a `dash` symbol to separate them
 #' @param uniprot_dir Directory with the uniprot files with the mapping 
 #' information. Default '~/Box Sync/db/mist/'
 #' @return MIST compatible input files (reformatted evidence and keys)
 #' @keywords mist, evidence, keys, apms
-#' artms_evidenceToMISTformat()
+#' @examples \donttest{
+#' artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
+#'                            keys_file = "a549-PB1-keys.txt", 
+#'                            quant_variable = "msint", 
+#'                            output_file = "a549-PB1-mist.txt",
+#'                            species = "HUMAN-FLUOMICS",
+#'                            uniprot_dir = "~/Box Sync/db/mist/")
+#' }
 #' @export
-artms_evidenceToMISTformat <- function(input_file, metric, keys_file, output_file, species, uniprot_dir){
+artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, output_file, species, uniprot_dir){
   cat('\n>> GENERATING INPUT FILES FOR MIST\n')
-  if(metric == "int"){
+  if(quant_variable == "msint"){
     cat("---USING MS Intensity\n")
-  }else if(metric == "spc"){
+  }else if(quant_variable == "msspc"){
     cat("---USING MS.MS.Count (spectral counts)\n")
   }else{
-    stop("\n << ",metric," >> NOT ALLOWED. ONLY int OR spc ALLOWED\n")
+    stop("\n << ",quant_variable," >> NOT ALLOWED. ONLY msint OR msspc ALLOWED\n")
   }
   cat('\tREADING IN DATA AND KEYS\n')
   
@@ -50,14 +57,14 @@ artms_evidenceToMISTformat <- function(input_file, metric, keys_file, output_fil
   tryCatch(setnames(keys, 'Raw file', 'RawFile'), error=function(e) cat('\t---Raw file in keys not found: trying Raw.file instead\n'))
   tryCatch(setnames(keys, 'Raw.file', 'RawFile'), error=function(e) cat('\t---Raw.file in keys not found: trying Raw file instead\n'))
   
-  if(metric == "spc"){
+  if(quant_variable == "msspc"){
     tryCatch(setnames(data,'MS/MS Count','ms_spectral_counts'), error=function(e) cat('\t---MS/MS Count column not found in evidence file: trying MS.MS.Count instead\n'))
     tryCatch(setnames(data,'MS.MS.Count','ms_spectral_counts'), error=function(e) cat('\t---MS.MS.Count column not found in evidence file: trying MS/MS Count instead\n'))
     tryCatch(setnames(data,'MS.MS.count','ms_spectral_counts'), error=function(e) cat('\t---MS.MS.count column not found in evidence file: trying MS/MS Count instead\n'))
-  }else if(metric == "int"){
+  }else if(quant_variable == "msint"){
     tryCatch(setnames(data,'Intensity','ms_intensity'), error=function(e) stop('\t--- INTENSITY NOT FOUND IN THE evidence FILE!!\n\n'))
   }else{
-    stop("\n << ",metric," >> NOT ALLOWED. ONLY int OR spc ALLOWED\n")
+    stop("\n << ",quant_variable," >> NOT ALLOWED. ONLY msint OR msspc ALLOWED\n")
   }
   
   
@@ -65,14 +72,14 @@ artms_evidenceToMISTformat <- function(input_file, metric, keys_file, output_fil
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
   data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
 
-  if(metric == "spc"){
+  if(quant_variable == "msspc"){
     data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_spectral_counts'),with=F]
     data_sel <- aggregate( ms_spectral_counts ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)
-  }else if(metric == "int"){
+  }else if(quant_variable == "msint"){
     data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_intensity'),with=F]
     data_sel <- aggregate( ms_intensity ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)
   }else{
-    stop("\n << ",metric," >> NOT ALLOWED. ONLY int OR spc ALLOWED\n")
+    stop("\n << ",quant_variable," >> NOT ALLOWED. ONLY msint OR msspc ALLOWED\n")
   }
   
   data_sel <- data.frame(data_sel, bait_name=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
@@ -95,20 +102,20 @@ artms_evidenceToMISTformat <- function(input_file, metric, keys_file, output_fil
   data_sel$ms_unique_pep = ""
   # re-order
 
-  if(metric == "spc"){
+  if(quant_variable == "msspc"){
     data_sel <- data_sel[,c("RawFile",'Proteins','ms_unique_pep', 'ms_spectral_counts')]
     # RENAMING!
     names(data_sel) = c('id','ms_uniprot_ac','ms_unique_pep','ms_spectral_counts')
     # remove interactions with ms_spectral_counts=0
     if(any(data_sel$ms_spectral_counts == 0)) { data_sel <- data_sel[-which(data_sel$ms_spectral_counts==0),]}
-  }else if(metric == "int"){
+  }else if(quant_variable == "msint"){
     data_sel <- data_sel[,c("RawFile",'Proteins','ms_unique_pep', 'ms_intensity')]
     # RENAMING!
     names(data_sel) <- c('id','ms_uniprot_ac','ms_unique_pep','ms_intensity')
     # remove interactions with ms_intensity=0
     if(any(data_sel$ms_intensity == 0)) { data_sel <- data_sel[-which(data_sel$ms_intensity==0),]}
   }else{
-    stop("\n << ",metric," >> NOT ALLOWED. ONLY int OR spc ALLOWED\n")
+    stop("\n << ",quant_variable," >> NOT ALLOWED. ONLY msint OR msspc ALLOWED\n")
   }
 
   # annotate proteins and add Masses for Mist

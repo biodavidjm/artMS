@@ -7,16 +7,17 @@
 artms_plotNumberProteinsAbundance(data)
 }
 \arguments{
-\item{data}{modelqc data.frame}
+\item{data}{(data.frame) modelqc}
 }
 \value{
-Barplots with the number of proteins per br / condition
+(pdf) Barplots with the number of proteins per br / condition
 }
 \description{
 Total Number of unique proteins per biological replicate and
 conditions
 }
+\keyword{.artms_plotNumberProteinsAbundance()}
 \keyword{abundance,}
-\keyword{artms_plotNumberProteinsAbundance()}
 \keyword{counts}
+\keyword{internal,}
 \keyword{plots,}

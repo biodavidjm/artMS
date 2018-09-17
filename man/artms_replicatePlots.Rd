@@ -5,16 +5,26 @@
 \title{Create the replicate plots based on the pairings from
 the replicate plot file}
 \usage{
-artms_replicatePlots(input_file, keys_file, replicate_file, out_file)
+artms_replicatePlots(input_file, keys_file, replicate_file, out_file,
+  prot_exp = "AB")
 }
 \arguments{
-\item{input_file}{MaxQuant evidence file and location}
+\item{input_file}{(char) MaxQuant evidence file and location}
 
-\item{keys_file}{Keys file with the experimental details}
+\item{keys_file}{(char) Keys file with the experimental details}
 
-\item{replicate_file}{Replicate file}
+\item{replicate_file}{(char) Replicate file. Check Vignette for examples}
 
-\item{out_file}{Output text file with the intensity values of every feature}
+\item{out_file}{(char) Output .TEXT file with the intensity values of every
+feature}
+
+\item{prot_exp}{(char) Proteomics experiment. 4 options available:
+\itemize{
+\item \code{AB}: (default) protein abundance
+\item \code{APMS}: affinity purification mass spectrometry
+\item \code{PH}: protein phosphorylation
+\item \code{UB}: protein ubiquitination (aka ubiquitylation)
+}}
 }
 \value{
 The output file of the summary of features and intensity values
@@ -26,15 +36,21 @@ value of the maximum intensities per modified sequence.
 The "replicate file" should describe which replicates of which conditions
 should be compared against each other. Each row represents a replicate
 plot to be created. The file should be structured using the following
-format and column names:
-
-| condition1 | rep1_1 | rep1_2 | condition2 | rep2_1 | rep2_2 |
-|---|---|---|---|---|---|
-|  Infected | Infected_Rep1_name | Infected_Rep2_name | Negative | Negative_Rep1_name | Negative_Rep2_name |
-| etc... |   |   |   |   |   |
-| etc... |   |   |   |   |   |
+format and column names:\preformatted{**condition1**|**rep1\\_1**|**rep1\\_2**|**condition2**|**rep2\\_1**|**rep2\\_2**
+-----|-----|-----|-----|-----|-----
+Cal33|Cal33-1|Cal33-2|HSC6|HSC6-1|HSC6-2
+Cal33|Cal33-3|Cal33-4|HSC6|HSC6-3|HSC6-4
 }
-\keyword{artms_replicatePlots()}
+}
+\examples{
+\donttest{
+artms_replicatePlots(input_file = "evidence.txt", 
+                     keys_file = "keys.txt", 
+                     replicate_file = "replicates_plots.txt", 
+                     prot_exp = "PH",
+                     out_file = "ph-replicates.txt")
+}
+}
 \keyword{evidence,}
 \keyword{plots}
 \keyword{replica,}

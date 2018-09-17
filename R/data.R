@@ -75,7 +75,7 @@
 #' please visit this 
 #' [link](http://mips.helmholtz-muenchen.de/corum/)
 #' }
-"corum_mito_database"
+"artms_data_corum_mito_database"
 
 #' The artMS Keys File
 #' 
@@ -115,7 +115,7 @@
 #' 
 #' \item{Run}{The MS run number}
 #' }
-"artms_keys_example"
+"artms_data_keys_example"
 
 #' Random data set
 #'

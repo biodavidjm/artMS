@@ -4,14 +4,14 @@
 \alias{artms_spectralCounts}
 \title{Outputs the spectral counts from the MaxQuant evidence file.}
 \usage{
-artms_spectralCounts(input_file, keys_file, output_file)
+artms_spectralCounts(evidence_file, keys_file, output_file)
 }
 \arguments{
-\item{input_file}{Maxquant evidence file}
+\item{evidence_file}{(char) Maxquant evidence file}
 
-\item{keys_file}{Keys file with the experimental design}
+\item{keys_file}{(char) Keys file with the experimental design}
 
-\item{output_file}{Output file name (add \code{.txt} extenstion)}
+\item{output_file}{(char) Output file name (add \code{.txt} extenstion)}
 }
 \value{
 A txt file with biological replicates, protein id, and spectral
@@ -20,6 +20,12 @@ count columns
 \description{
 Outputs the spectral counts from the MaxQuant evidence file.
 }
-\keyword{artms_spectralCounts()}
+\examples{
+\donttest{
+artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+                     keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
+                     output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
+}
+}
 \keyword{evidence}
 \keyword{spectral_counts,}

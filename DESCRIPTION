@@ -72,6 +72,7 @@ Imports:
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 Encoding: UTF-8
 LazyLoad: yes
+LazyData: true
 biocViews: mass-spectrometry, proteomics, bioinformatics, ap-ms, 
   phosphoproteomics, quantitative-analysis, posttranslational, modifications
 NeedsCompilation: no

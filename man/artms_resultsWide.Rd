@@ -4,22 +4,32 @@
 \alias{artms_resultsWide}
 \title{Reshape the MSstats results file from long to wide format}
 \usage{
-artms_resultsWide(input_file, output_file)
+artms_resultsWide(evidence_file, output_file)
 }
 \arguments{
-\item{input_file}{Input file name and location (MSstats \code{results.txt} file)}
+\item{evidence_file}{(char) Input file name and location
+(MSstats \code{results.txt} file)}
 
-\item{output_file}{Output file name and location}
+\item{output_file}{(char) Output file name and location
+(e.g. \code{results-wide.txt})}
 }
 \value{
-Reshaped file with unique protein ids and as many columns log2fc
-and adj.pvalues as comparisons available
-for as many
+(output file tab delimited) reshaped file with unique protein ids
+and as many columns log2fc and adj.pvalues as comparisons available
 }
 \description{
-Converts the normal MSStats output file into "wide" format
-where each row represents a protein's results, and each column represents
-the comparison made by MSStats. The fold change and p-value of each
-comparison will be it's own column.
+Converts the normal MSStats results.txt file into "wide" format
+where each row represents a unique protein's results, and each column
+represents the comparison made by MSStats. The fold change and p-value
+of each comparison will be its own column.
 }
-\keyword{artms_resultsWide()}
+\examples{
+\donttest{
+artms_resultsWide(evidence_file = "ab-results.txt", 
+                  output_file = "ab-results-wide.txt")
+}
+}
+\keyword{msstats,}
+\keyword{reshape}
+\keyword{results,}
+\keyword{wide,}

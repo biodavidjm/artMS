@@ -1,23 +1,22 @@
 # ------------------------------------------------------------------------------
 #' @title Generate MSstats format object and file
+#' 
 #' @description Takes as input a reduced version of the Evidence file and 
-#' generates the input data.frame required by MSstats. It processes fractionated
-#' data.
-#' @param data_f Maxquant evidence data.frame filtered
-#' @param fraction 1 or 0 option to specified whether it is a fractionated
-#' experiment
-#' @param datafile The evidence file name (to generate the output file)
-#' @param funfunc The function to use to aggregating the data if it is a 
-#' fractionated experiment (`sum` recommended)
-#' @keywords MSstats, format, input, fractions
-#' artms_getMSstatsFormat()
-#' @export
-artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
+#' generates the input data.frame required by MSstats. 
+#' It processes fractionated data as well.
+#' @param data_f (data.frame) of the filtered Maxquant evidence file.
+#' @param fraction (boolean) 1 or 0 option to specified whether or not
+#'  is a fractionated experiment
+#' @param datafile (char) The evidence file name (to generate the output file)
+#' @param funfunc (char) The function to use to aggregating the data if it is a 
+#' fractionated experiment (default: `sum`)
+#' @keywords internal, MSstats, format, input, fractions
+#' .artms_getMSstatsFormat()
+.artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
-  
-  data_f <- changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
+  data_f <- artms_changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
   data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
-  cat("------- + Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
+  cat("---+ Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
 
   # DEAL WITH FRACTIONS FIRST (but in reality it is just checking, 
   # because it is doing a sum up of redundant features anyway)
@@ -50,8 +49,8 @@ artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   predmss_melt$FragmentIon <- NA
   
   # Names required by MSstats
-  predmss_melt <- changeColumnName(predmss_melt, "Proteins", "ProteinName")
-  predmss_melt <- changeColumnName(predmss_melt, "Charge", "PrecursorCharge")
+  predmss_melt <- artms_changeColumnName(predmss_melt, "Proteins", "ProteinName")
+  predmss_melt <- artms_changeColumnName(predmss_melt, "Charge", "PrecursorCharge")
   
   # And re-sort it as msstats likes it
   dmss <- predmss_melt[,c("ProteinName", "PeptideSequence", "PrecursorCharge", "FragmentIon", "ProductCharge", "IsotopeLabelType", "Condition", "BioReplicate", "Run", "Intensity")]

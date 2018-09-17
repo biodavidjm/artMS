@@ -8,12 +8,14 @@ artms_enrichProfiler(x, categorySource = c("GO"), specie,
   background = NA)
 }
 \arguments{
-\item{x}{List of protein ids. \code{x} can be anything: either a list of ids,
-or you could also send a data.frame and it will find the columns
-with the IDs. Is not cool?}
+\item{x}{(list, data.frame) List of protein ids. It can be anything:
+either a list of ids, or you could also send a data.frame and it will find
+the columns with the IDs. Is not cool? Multiple list can be also sent
+simultaneously, as for example running:
+\code{tmp <- split(enrichment$Gene, enrichment$cl_number, drop=T)}}
 
-\item{categorySource}{Resources providing the terms on which the enrichment
-will be performed. The supported resources by gprofiler are:
+\item{categorySource}{(vector) Resources providing the terms on which
+the enrichment will be performed. The supported resources by gprofiler are:
 \itemize{
 \item GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
 \item KEGG: Biological pathways
@@ -38,11 +40,11 @@ Inferred by curator (IC)
 \item No biological data (ND) / Not annotated or not in background (NA)
 }}
 
-\item{specie}{Specie code: Organism names are constructed by concatenating
+\item{specie}{(char) Specie code: Organism names are constructed by concatenating
 the first letter of the name and the family name.
 Example: human - ’hsapiens’, mouse - ’mmusculus’.}
 
-\item{background}{Vector gene list to use as background for the enrichment
+\item{background}{(vector) gene list to use as background for the enrichment
 analysis. Default: \code{NA}}
 }
 \value{
@@ -73,5 +75,12 @@ This function uses the following \code{gprofiler} arguments as default:
 \item include_graph = T
 }
 }
-\keyword{artms_enrichProfiler()}
+\examples{
+\donttest{
+artms_enrichProfiler(tmp, 
+   categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'OMIM'), 
+   specie = 'hsapiens', 
+   background = listOfGenes)
+}
+}
 \keyword{enrichment}

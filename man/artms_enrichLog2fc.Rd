@@ -7,19 +7,26 @@
 artms_enrichLog2fc(data, fileout, specie, background)
 }
 \arguments{
-\item{data}{data.frame with \code{Gene} and \code{Comparison} columns}
+\item{data}{(data.frame) with \code{Gene} and \code{Comparison} columns}
 
-\item{fileout}{Name for the output file}
+\item{fileout}{(char) Name for the output file}
 
-\item{specie}{Specie, only supported "human" or "mouse"}
+\item{specie}{(char) Specie, only supported "human" or "mouse"}
 
-\item{background}{Background genes for the enrichment analysis.}
+\item{background}{(vector) Background genes for the enrichment analysis.}
 }
 \value{
-Results from the enrichment analysis using Gprofiler
+(data.frame) Results from the enrichment analysis using Gprofiler
 }
 \description{
 Enrichment analysis of the selected proteins
 }
-\keyword{artms_enrichLog2fc()}
+\examples{
+\donttest{
+artms_enrichLog2fc(data = df, 
+                   fileout = "results-enrich.txt", 
+                   specie = "human", 
+                   background = df$Gene)
+}
+}
 \keyword{enrichment}

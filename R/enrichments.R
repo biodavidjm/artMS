@@ -8,20 +8,20 @@
 #' @param backgroundNumber (int) Background number of genes
 #' @return (data.frame) A text delimited data.frame with protein complex enrichment results
 #' @keywords enrichment, protein, complexes
-#' artms_enrichForComplexes()
+#' @examples \donttest{
+#' artms_enrichForComplexes(df = dfobject, backgroundNumber = length(dfobject$Gene))
+#' }
 #' @export
 artms_enrichForComplexes <- function(df, backgroundNumber){
   
   listOfConditions <- unique(df$Comparisons)
-  
-  fileCorum <- '~/Box Sync/db/proteinComplexes/20170801_corum_mitoT.txt'
-  corumKrogan <- read.delim(file = fileCorum, header = T, sep = "\t", quote = "", stringsAsFactors = F)
+
   complexEnrichmentConditions <- NULL
   
   for (i in 1:length(listOfConditions)){
     condi <- listOfConditions[i]
     tmp <- unique(df$Protein[which(df$Comparisons == condi)])
-    tmpEnrich <- artms_foldComplexEnrichment(tmp, corumKrogan, backgroundNumber)
+    tmpEnrich <- .artms_foldComplexEnrichment(tmp, artms_data_corum_mito_database, backgroundNumber)
     # Check point
     checkpc <- dim(tmpEnrich)[1]
     if (checkpc > 0){
@@ -37,13 +37,18 @@ artms_enrichForComplexes <- function(df, backgroundNumber){
 #' @title Enrichment of changes in protein abundance or PTMs
 #' 
 #' @description Enrichment analysis of the selected proteins 
-#' @param data data.frame with `Gene` and `Comparison` columns
-#' @param fileout Name for the output file
-#' @param specie Specie, only supported "human" or "mouse"
-#' @param background Background genes for the enrichment analysis. 
-#' @return Results from the enrichment analysis using Gprofiler
+#' @param data (data.frame) with `Gene` and `Comparison` columns
+#' @param fileout (char) Name for the output file
+#' @param specie (char) Specie, only supported "human" or "mouse"
+#' @param background (vector) Background genes for the enrichment analysis. 
+#' @return (data.frame) Results from the enrichment analysis using Gprofiler
 #' @keywords enrichment
-#' artms_enrichLog2fc()
+#' @examples \donttest{
+#' artms_enrichLog2fc(data = df, 
+#'                    fileout = "results-enrich.txt", 
+#'                    specie = "human", 
+#'                    background = df$Gene)
+#' }
 #' @export
 artms_enrichLog2fc <- function(data, fileout, specie, background){
   
@@ -71,7 +76,7 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
     cat("\t--- Plotting '", i, "' annotations... ")
     tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
     outfile <- gsub(".txt", paste0("_",i, ".txt"), fileout )
-    artms_EnrichmentPlotHeatmaps(tmp, outfile)
+    .artms_EnrichmentPlotHeatmaps(tmp, outfile)
     cat("done!\n")
   }
   # DECIDE: add the cleaning?
@@ -80,13 +85,26 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
   return(enrichgenes)
 }
 
+
+# ------------------------------------------------------------------------------
+#' @title Plot Corum Enrichment results
+#' 
+#' @description Heatmap of significant enrichment
+#' @param df (data.frame) output from `artms_enrichForComplexes`
+#' @param outfile (char) output file name (must have the extenstion `.pdf`)
+#' @param theTitle (char) Plot's title
+#' @return (pdf) heatmap of the significantly enriched protein complexes
+#' @keywords plot, heatmap, enrichment
+#' @examples \donttest{
+#' artms_plotCorumEnrichment(df = "log2fc-results-complexEnrichment.txt", 
+#'              outfile = "log2fc-results-complexEnrichment.pdf",
+#'              theTitle = "Protein Complex Enrichment (log2fc > 1)")
+#' }
+#' @export
 artms_plotCorumEnrichment <- function(df, outfile, theTitle){
   checkPoint <- length(unique(df$Comparisons))
   if(checkPoint >= 1){
-    
-    # Some of the p-values are going to be very small
-    # Transform them to the smallest p-value / 10 would keep them 
-    # and move it to the top
+    # Dealing with the smallest pvalues (pvalue = 0)
     dftemp <- df[-which(df$pvalue == 0),]
     if(dim(dftemp)[1] > 0){
       theMinimal <- min(dftemp$pvalue)/10
@@ -132,11 +150,13 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' 
 #' @description This function simplifies the enrichment analysis performed by
 #' the excellent tool GprofileR.
-#' @param x List of protein ids. `x` can be anything: either a list of ids, 
-#' or you could also send a data.frame and it will find the columns 
-#' with the IDs. Is not cool?
-#' @param categorySource Resources providing the terms on which the enrichment 
-#' will be performed. The supported resources by gprofiler are:
+#' @param x (list, data.frame) List of protein ids. It can be anything: 
+#' either a list of ids, or you could also send a data.frame and it will find
+#' the columns with the IDs. Is not cool? Multiple list can be also sent 
+#' simultaneously, as for example running: 
+#' `tmp <- split(enrichment$Gene, enrichment$cl_number, drop=T)`
+#' @param categorySource (vector) Resources providing the terms on which 
+#' the enrichment will be performed. The supported resources by gprofiler are:
 #' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
 #' - KEGG: Biological pathways
 #' - REAC: Biological pathways (Reactome)
@@ -158,10 +178,10 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' - Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
 #' - Reviewed computational analysis (RCA) / Electronic annotation (IEA)
 #' - No biological data (ND) / Not annotated or not in background (NA)
-#' @param specie Specie code: Organism names are constructed by concatenating 
+#' @param specie (char) Specie code: Organism names are constructed by concatenating 
 #' the first letter of the name and the family name.
 #' Example: human - ’hsapiens’, mouse - ’mmusculus’.
-#' @param background Vector gene list to use as background for the enrichment
+#' @param background (vector) gene list to use as background for the enrichment
 #' analysis. Default: `NA`
 #' @details This function uses the following `gprofiler` arguments as default:
 #' - ordered_query = F
@@ -182,7 +202,12 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' - include_graph = T
 #' @return The enrichment results as provided by gprofiler
 #' @keywords enrichment
-#' artms_enrichProfiler()
+#' @examples \donttest{
+#' artms_enrichProfiler(tmp, 
+#'    categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'OMIM'), 
+#'    specie = 'hsapiens', 
+#'    background = listOfGenes)
+#' }
 #' @export
 artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background = NA){
   gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
@@ -211,26 +236,35 @@ artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background
   return(enrichData)
 }
 
-# Little function to clean up the gProfiler output, if wished
-artms_cleanGPROFILER <- function(gp){
-  sendBack <- gp[c('query.number', 'domain', 'p.value', 'query.size', 'overlap.size', 'term.size', 'recall', 'precision', 'term.id', 'term.name', 'intersection')]
+# Little function to 
+# ------------------------------------------------------------------------------
+#' @title Simplify the gProfiler output
+#' 
+#' @description Simplify the output from `artms_enrichProfiler` resulted from 
+#' running `gProfileR`
+#' @param gp (data.frame) with the results
+#' @return (data.frame) with the following columns:
+#'       'query.number', 'domain', 'p.value', 'query.size', 'overlap.size', 
+#'       'term.size', 'recall', 'precision', 'term.id', 'term.name', 
+#'       'intersection'
+#' @keywords internal, cleaning
+.artms_cleanGPROFILER <- function(gp){
+  sendBack <- gp[c('query.number', 'domain', 'p.value', 'query.size', 
+                   'overlap.size', 'term.size', 'recall', 'precision', 
+                   'term.id', 'term.name', 'intersection')]
   return(sendBack)
 }
 
-# 
 # ------------------------------------------------------------------------------
-#' @title plot and save heatmaps of the significant enrichment results
+#' @title Plot and save heatmaps of the significant enrichment results
 #' 
 #' @description plot and save heatmaps of the significant enrichment results
-#' @param dat The data.frame output from gprofiler
-#' @param out_file output file name (must have `.txt` extension)
-#' @return A heatmap in PDF format with the most significant enrichments
-#' @keywords plot, heatmap, enrichments
-#' artms_EnrichmentPlotHeatmaps()
-#' @export
-artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
-  # dat <- tmp
-  # out_file <- outfile
+#' @param dat (data.frame) output from gprofiler
+#' @param out_file (char) output file name (must have `.txt` extension)
+#' @return (pdf) A heatmap of the most significant enrichments
+#' @keywords internal, plot, heatmap, enrichments
+#' .artms_EnrichmentPlotHeatmaps()
+.artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
   
   # formatting data to heatmap compatible format
   x <- dcast(dat, term.name~query.number, value.var='p.value', max, fill=1)
@@ -276,14 +310,16 @@ artms_EnrichmentPlotHeatmaps <- function(dat, out_file){
 #' 
 #' @description Enrichment analysis of Protein Complexes 
 #' (based on CORUM database)
-#' @param mylist Vector of protein ids
-#' @param corum The corum database (with the corum format and labels)
-#' @param background Total number of proteins (number) to use as background
-#' @return List of protein complexes with a fold change larger than 1
-#' @keywords enrichment, protein, complexes
-#' artms_foldComplexEnrichment()
-#' @export
-artms_foldComplexEnrichment <- function(mylist, corum, background){
+#' @param mylist (vector) of protein ids
+#' @param corum (data.frame) The corum database (with the corum format 
+#' and labels)
+#' @param background (int) Total number of proteins (number) to use as 
+#' background
+#' @return (data.frame) with the list of protein complexes with a fold change 
+#' larger than 1
+#' @keywords internal, enrichment, protein, complexes
+#' .artms_foldComplexEnrichment()
+.artms_foldComplexEnrichment <- function(mylist, corum, background){
   
   corum$Num.Uniprot.IDs <- sapply(corum$subunits.UniProt.IDs, function(x) length(unlist(strsplit(as.character(x), ";"))))
   

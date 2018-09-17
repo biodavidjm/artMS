@@ -8,7 +8,7 @@
 #' @param is.evidence (logical) Whether or not the file to be read in is an 
 #' evidence file. This will assign proper classes to the evidence file 
 #' when being read in.
-#' @keywords file, evidence, input
+#' @keywords internal, file, evidence, input
 #' .artms_checkIfFile()
 .artms_checkIfFile <- function(input_file, is.evidence = FALSE) {
     # check if already a data.frame or data.table
@@ -37,9 +37,11 @@
 #' it comes from the latest version of the evidence file.
 #' @param evidence_file the evidence file name
 #' @keywords file, evidence, input, check version
-#' isEvidenceNewVersion()
+#' @examples \donttest{
+#' artms_isEvidenceNewVersion(evidence_file = "/path/to/evidence.txt")
+#' }
 #' @export
-isEvidenceNewVersion <- function(evidence_file){
+artms_isEvidenceNewVersion <- function(evidence_file){
   rawEvidence <-read.delim(evidence_file, sep = "\t", quote = "", header = T, stringsAsFactors = F)
   if( any(grepl("^Leading.proteins$", names(rawEvidence))) & any(grepl("^Leading.razor.protein$", names(rawEvidence))) ) {
     cat("(+)-- New MaxQuant version\n")
@@ -59,7 +61,7 @@ isEvidenceNewVersion <- function(evidence_file){
 #' @param evidence_file (char)The filepath to the MaxQuant searched data 
 #' (evidence) file (txt tab delimited file).
 #' @return (data.frame) with the evidence file with defining classes 
-#' @keywords MaxQuant, evidence
+#' @keywords internal, MaxQuant, evidence
 #' .artms_read_evidence_file()
 .artms_read_evidence_file <- function(evidence_file) {
   cat("--- Reading in evidence file...\n")
@@ -119,19 +121,19 @@ isEvidenceNewVersion <- function(evidence_file){
 #' @param x (data.frame) Loaded evidence file.
 #' @return (data.frame) with the evidence file with defining classes and
 #' unified columns 
-#' @keywords MaxQuant, evidence
+#' @keywords internal, MaxQuant, evidence
 #' .artms_unifyColumnNames()
 .artms_unifyColumnNames <- function(x) {
-  names(x) = gsub("^Mass error \\[ppm\\]$", "Mass Error \\[ppm\\]", names(x))
-  names(x) = gsub("^Mass error \\[Da\\]$", "Mass Error \\[Da\\]", names(x))
-  names(x) = gsub("^Protein Names$", "Protein names", names(x))
-  names(x) = gsub("^Leading Razor Protein$", "Leading razor protein", names(x))
-  names(x) = gsub("^Leading Proteins$", "Leading proteins", names(x))
-  names(x) = gsub("^Gene Names$", "Gene names", names(x))
-  names(x) = gsub("^MS/MS count$", "MS/MS Count", names(x))
-  names(x) = gsub("^MS/MS scan number$", "MS/MS Scan Number", names(x))
-  names(x) = gsub("^Uncalibrated mass error \\[Da\\]$", "Uncalibrated Mass Error \\[Da\\]", names(x))
-  names(x) = gsub("^Uncalibrated mass error \\[ppm\\]$", "Uncalibrated Mass Error \\[ppm\\]", names(x))
+  names(x) <- gsub("^Mass error \\[ppm\\]$", "Mass Error \\[ppm\\]", names(x))
+  names(x) <- gsub("^Mass error \\[Da\\]$", "Mass Error \\[Da\\]", names(x))
+  names(x) <- gsub("^Protein Names$", "Protein names", names(x))
+  names(x) <- gsub("^Leading Razor Protein$", "Leading razor protein", names(x))
+  names(x) <- gsub("^Leading Proteins$", "Leading proteins", names(x))
+  names(x) <- gsub("^Gene Names$", "Gene names", names(x))
+  names(x) <- gsub("^MS/MS count$", "MS/MS Count", names(x))
+  names(x) <- gsub("^MS/MS scan number$", "MS/MS Scan Number", names(x))
+  names(x) <- gsub("^Uncalibrated mass error \\[Da\\]$", "Uncalibrated Mass Error \\[Da\\]", names(x))
+  names(x) <- gsub("^Uncalibrated mass error \\[ppm\\]$", "Uncalibrated Mass Error \\[ppm\\]", names(x))
   
   return(x)
 }
