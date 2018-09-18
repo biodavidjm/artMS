@@ -35,18 +35,21 @@
   # remove the Inf, -Inf log2FC hits. 
   results_ann <- results_ann[!is.infinite(results_ann$log2FC),]
   
-  ## select data points  by LFC & FDR criterium in single condition and adding corresponding data points from the other conditions
+  ## select data points  by LFC & FDR criterium in single condition and 
+  ## adding corresponding data points from the other conditions
   sign_hits <- .artms_significantHits(results_ann,labels=selected_labels,LFC=c(lfc_lower,lfc_upper),FDR=config$output_extras$FDR)
   if( dim(sign_hits)[1] == 0 ) stop("NO SIGNIFICANT HITS DETECTED IN THIS EXPERIMENT. ABORTING PLOTS.\n")
   sign_labels <- unique(sign_hits$Label)
   cat(sprintf("\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",lfc_lower, lfc_upper, config$output_extras$FDR, nrow(sign_hits)/length(sign_labels))) 
   
-  ## REPRESENTING RESULTS AS HEATMAP
+  ## REPRESENTING RESULTS AS HEATMAP, if enabled
   if(config$output_extras$heatmap){
-    ## plot heat map for all contrasts
-    cat(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES\n")
-    heat_labels <- .artms_prettyPrintHeatmapLabels(uniprot_acs=sign_hits$Protein,uniprot_ids=sign_hits$name, gene_names=sign_hits$Gene.names)
-    heat_data_w <- .artms_plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
+    # Heatmap only for > 1 comparison
+    if(dim(sign_hits)[1] > 1){
+      cat(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES\n")
+      heat_labels <- .artms_prettyPrintHeatmapLabels(uniprot_acs=sign_hits$Protein,uniprot_ids=sign_hits$name, gene_names=sign_hits$Gene.names)
+      heat_data_w <- .artms_plotHeat(mss_F = sign_hits, out_file =  gsub('.txt','-sign.pdf',config$files$output), names=heat_labels, cluster_cols=config$output_extras$heatmap_cluster_cols, display = config$output_extras$heatmap_display)  
+    }
   }
   
   if(config$output_extras$volcano){
