@@ -39,8 +39,8 @@ Quality Control analysis of the MaxQuant evidence file
 {
 artms_evidenceQC(evidence_file = artms_data_ph_evidence, 
                  keys_file = artms_data_ph_keys, 
-                 prot_exp = "PH",
-                 output_name = "qcPlots_evidence")
+                 output_name = "qcPlots_evidence",
+                 prot_exp = "PH")
 }
 }
 \keyword{QC,}
