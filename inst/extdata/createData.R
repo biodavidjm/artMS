@@ -32,6 +32,7 @@
 # library(org.Pf.plasmo.db)
 # library(org.Pt.eg.db)
 # library(org.Rn.eg.db)
+# library(org.Sc.sgd.db)
 # library(org.Ss.eg.db)
 # library(org.Xl.eg.db)
 # library(PerformanceAnalytics)
@@ -62,9 +63,15 @@ save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData', compress = 'x
 
 # PH FILES
 
-# Keys file (experimental design)
-artms_data_keys_example <- read.delim("inst/extdata/keys.txt", stringsAsFactors = F)
-save(artms_data_keys_example, file = 'data/artms_data_keys_example.RData', compress = 'xz')
+# Reduced version of an Evidence file (generated below)
+artms_data_ph_evidence <- read.delim("inst/extdata/artms_data_ph_evidence.txt", stringsAsFactors = F)
+save(artms_data_ph_evidence, file = 'data/artms_data_ph_evidence.RData', compress = 'xz')
+
+
+# Reduced version of the Keys file (experimental design)
+artms_data_ph_keys <- read.delim("inst/extdata/artms_data_ph_keys.txt", stringsAsFactors = F)
+save(artms_data_ph_keys, file = 'data/artms_data_ph_keys.RData', compress = 'xz')
+
 
 # CORUM dataset
 artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = F)
@@ -83,6 +90,7 @@ load("data/artms_config.RData")
 
 ## APMS FLUOMICS
 setwd("~/experiments/artms/apms/")
+contrast_file <- 'a549-PB1-contrast.txt'
 artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
                            keys_file = "a549-PB1-keys.txt", 
                            quant_variable = "msint", 
@@ -95,6 +103,23 @@ artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt",
                                    ref_proteome_file = "~/Box Sync/db/flu/fluomics-uniprot-hsa_20170516.fasta", 
                                    quant_variable = "msint", 
                                    output_file = "a549-PB1-saintexpress.txt")
+
+artms_quantification(yaml_config_file = "resultsQuant/artms_apms_config.yaml")
+
+setwd("~/experiments/artms/apms/resultsQuant/")
+artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt", 
+                              modelqc_file = "a549-PB1-results_ModelQC.txt", 
+                              specie = "human", output_dir = "analysisQ", 
+                              enrich = TRUE, l2fc_thres = 1, 
+                              ipval = "adjpvalue")
+
+mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+artms_volcanoPlot(mss_results_sel = mss,
+                  lfc_upper = 1, 
+                  lfc_lower = -1, 
+                  FDR = 0.05, 
+                  file_name = "a549-PB1-results-volcanoPlot.pdf", 
+                  PDF = T)
 
 ## FRACTIONS
 setwd('~/experiments/artms/fractions/results/ab20180402/ab20180402debug/')
@@ -120,19 +145,46 @@ artms_analysisQuantifications(log2fc_file = "petroski-cul4-debug-results.txt",
                               ipval = "adjpvalue",
                               pathogen = "nopathogen")
 
-
+#-------------------------------------------------------------------------------
 ## PHGLOBAL
 setwd('~/experiments/artms/ph/')
 evidence_file <- 'evidence.txt'
 keys_file <- 'keys.txt'
 contrast_file <- 'contrast.txt'
-artms_evidenceQC(evidence_file = "evidence.txt", 
-                 keys_file = "keys.txt", 
+
+edf <- read.delim(evidence_file, stringsAsFactors = F, check.names=FALSE)
+kdf <- read.delim(keys_file, stringsAsFactors = F, check.names=FALSE)
+
+# Select 2 biological replicates
+selectedBR <- c("qx006145", "qx006148", "qx006151", "qx006152")
+edfnew <- edf[which(edf$`Raw file` %in% selectedBR),]
+kdfnew <- kdf[which(kdf$RawFile %in% selectedBR), ]
+
+# And random sampling lines
+n <- round(dim(edfnew)[1]/5)
+edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
+
+# print out evidence & keys
+write.table(edfnew2, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = F, col.names = T)
+write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = F, col.names = T)
+
+artms_evidenceQC(evidence_file = "reduced_ph_evidence.txt", 
+                 keys_file = "reduced_keys.txt", 
                  prot_exp = "PH")
 
+evidence <- read.delim("reduced_evidence.txt", stringsAsFactors = F)
+keys <- read.delim("reduced_keys.txt", stringsAsFactors = F)
+artms_evidenceQC(evidence_file = evidence, keys_file = keys, prot_exp = "PH")
 
-artms_quantification("~/experiments/artms/ph/phglobal/phglobal_config.yaml")
-setwd('~/experiments/artms/ph/phglobal/')
+artms_replicatePlots(input_file = "reduced_evidence.txt", 
+                     keys_file = "reduced_keys.txt", 
+                     replicate_file = "reduced_replicates_plots.txt", 
+                     prot_exp = "PH",
+                     out_file = "ph-reduced-replicates.txt")
+
+artms_quantification("~/experiments/artms/ph/phglobalreduced/phglobal_reduced_config.yaml")
+
+setwd('~/experiments/artms/ph/phglobalreduced/')
 artms_analysisQuantifications(log2fc_file = "phglobal-results.txt",
                               modelqc_file = "phglobal-results_ModelQC.txt",
                               specie = "human",
@@ -158,6 +210,17 @@ isFluomics = FALSE
 pathogen = "nopathogen"
 
 ## PHSITES
+setwd('~/experiments/artms/ph/')
+artms_proteinToSiteConversion(
+  evidence_file = "evidence.txt", 
+  ref_proteome_file = "uniprot_canonical.fasta", 
+  output_file = "phsite_evidence.txt", 
+  mod_type = "ph")
+
+
+# Generate the site-evidence.txt file:
+artms_proteinToSiteConversion(evidence_file = '')
+
 yaml_config_file <- '~/experiments/artms/ph/phsites/phsites_config.yaml'
 artms_main(yaml_config_file = yaml_config_file)
 
@@ -180,6 +243,8 @@ evidence_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-
 keys_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-keys.txt'
 contrast_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-contrasts.txt'
 yaml_config_file <- '~/experiments/artms/silac/results/config-silac.yaml'
+
+evidence2silac <- artms_SILACtoLong(evidence_file = evidence_file, output = "silac-evidence.txt")
 
 ## ABUNDANCE, technical replicates
 evidence_file <- '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt'
@@ -207,6 +272,47 @@ artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
                               l2fc_thres = 1,
                               ipval = "pvalue",
                               pathogen = "nopathogen")
+
+q <- resultsHeatmap(results_file = "ab-testing-new-results.txt", 
+                    save_file = "whatever.pdf",
+                    specie = "human")
+print(q)
+
+artms_resultsWide(evidence_file = "results/testing/ab-testing-new-results.txt", 
+                  output_file = "results/testing/ab-testing-new-results-wide.txt")
+
+artms_dataPlots(input_file = "results/testing/ab-testing-new-results-mss-normalized.txt", 
+                output_file = "results/testing/ab-testing-new-results-mss-normalized.pdf")
+
+artms_plotHeatmapQuant(input_file = "ab-testing-new-results.txt", 
+                  output_file = "ab-testing2-new-results-heatmap.pdf", 
+                  specie = "human")
+
+here <- artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+                prot_group_file = "proteinGroups.txt", 
+                keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
+                results_file = "results/testing/ab-testing-new-results.txt", 
+                return_df = TRUE)
+
+artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+                     keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
+                     output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
+
+evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
+keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = F)
+evidenceKeys <- artms_mergeMaxQDataWithKeys(data = evidence, keys = keys)
+
+evidenceKeys <- artms_mergeEvidenceKeysByFiles(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", keys_file = "FLU-THP1-H1N1-AB-keys.txt")
+  
+evidence_filtered <- artms_filterMaxqData(data = evidence)
+
+
+evidence_file = "FLU-THP1-H1N1-AB-evidence.txt"
+prot_group_file = "proteinGroups.txt"
+keys_file = "FLU-THP1-H1N1-AB-keys.txt"
+results_file = "results/testing/ab-testing-new-results.txt"
+return_results = TRUE
+
 
 log2fc_file = "ab-testing-new-results.txt"
 modelqc_file = "ab-testing-new-results_ModelQC.txt"

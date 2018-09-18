@@ -77,7 +77,18 @@
 #' }
 "artms_data_corum_mito_database"
 
-#' The artMS Keys File
+#' Evidence file example
+#'
+#' @description Reduced version of a Evidence file from a PH experiment. Only
+#' two biological replicates are available, and the number of peptides was 
+#' reduced to 1/5 due to bioconductor limitations on data size.
+#'
+#' @format A data frame with all the columns available in an evidence file
+#' generated with MaxQuant version 1.6.2.3
+"artms_data_ph_evidence"
+
+
+#' Keys File Example
 #' 
 #' @description the artMS Keys file provides the details of the experimental 
 #' design  for any given proteomics experiment. 
@@ -115,7 +126,7 @@
 #' 
 #' \item{Run}{The MS run number}
 #' }
-"artms_data_keys_example"
+"artms_data_ph_keys"
 
 #' Random data set
 #'

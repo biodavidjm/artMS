@@ -4,7 +4,8 @@
 \alias{artms_evidenceQC}
 \title{Quality Control analysis of the MaxQuant evidence file}
 \usage{
-artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0)
+artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0,
+  output_name = "qcPlots_evidence")
 }
 \arguments{
 \item{evidence_file}{(char) The evidence file path and name}
@@ -24,6 +25,9 @@ artms_evidenceQC(evidence_file, keys_file, prot_exp, fractions = 0)
 \item 1 yes
 \item 0 no (default)
 }}
+
+\item{output_name}{(char) prefix output name (no extension).
+Default: "qcPlots_evidence"}
 }
 \value{
 Quality control files and plots
@@ -32,10 +36,11 @@ Quality control files and plots
 Quality Control analysis of the MaxQuant evidence file
 }
 \examples{
-\donttest{
-artms_evidenceQC(evidence_file = "evidence.txt", 
-                 keys_file = "keys.txt", 
-                 prot_exp = "PH")
+{
+artms_evidenceQC(evidence_file = artms_data_ph_evidence, 
+                 keys_file = artms_data_ph_keys, 
+                 prot_exp = "PH",
+                 output_name = "qcPlots_evidence")
 }
 }
 \keyword{QC,}
