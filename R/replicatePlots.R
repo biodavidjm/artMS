@@ -65,8 +65,7 @@ Change out_file extension and try again\n")
   keys <- read.delim(keys_file, stringsAsFactors=F)
   # profile plot list
   repplot <- read.delim(replicate_file, stringsAsFactors=F)
-  
-  
+
   # remove negatives from MaxQuant
   if( length(grep("__", dat$Proteins)) >0 ) dat <- dat[-grep("__", dat$Proteins),]
   
@@ -91,13 +90,12 @@ Change out_file extension and try again\n")
   # NOTE: dimensions between x and dat may differ if there is data in dat that 
   # isn't in the keys file
   names(dat)[grep("Raw.file", names(dat))] <- 'RawFile'
-  # x <- merge(dat, keys[,c('RawFile','Condition','BioReplicate','IsotopeLabelType')], by=c('RawFile', 'IsotopeLabelType') )  ## !!!!!!! DIfferent for SILAC
   x <- merge(dat, keys[,c('RawFile','Condition','BioReplicate')], by=c('RawFile') )
   
   # Put into a data matrix format
   x <- data.table::dcast(data=x, Proteins+Modified.sequence+Charge~Condition+BioReplicate, value.var="Intensity", max, na.rm=T)
   # remove cases where -Inf  is introduced
-  x[x==-Inf] = 0   ###### May cause problems? Check.
+  x[x==-Inf] <- 0   ###### May cause problems? Check.
   write.table(x, out_file, quote=F, row.names=F, sep='\t')
   
   # cycle through the condition pairs in the file and plot each pair
@@ -122,41 +120,46 @@ Change out_file extension and try again\n")
       idx <- which( is.na(rep1) | is.na(rep2) | is.infinite(rep1) | is.infinite(rep2))
       rep1 <- rep1[-idx]
       rep2 <- rep2[-idx]
-      reps.cor <- cor(rep1, rep2, use="pairwise.complete.obs", method="pearson")
       
-      # set up a square plot centered at 0
-      x.lim <- ceiling(max(abs(c(rep1, rep2 )), na.rm=T))
-      y.lim <- c( -x.lim, x.lim)
-      x.lim <- c( -x.lim, x.lim)
-      
-      # name axes labels
-      y.label <- paste0(repplot$condition1[i]," vs. ",repplot$condition2[i], "  (", repplot$rep1_1[i],"/", repplot$rep2_1[i],")")
-      x.label <- paste0(repplot$condition1[i]," vs. ",repplot$condition2[i], "  (", repplot$rep1_2[i],"/", repplot$rep2_2[i],")")
-      # make plot name
-      plot.name <- paste( repplot$condition1[i], " vs "  , repplot$condition2[i], " R = ",round(reps.cor,3), sep="" )
-      plot.name2 <- paste( repplot$condition1[i], " vs "  , repplot$condition2[i], " R ",round(reps.cor,3), sep="" )
-      #       pdf( paste( dirname(out_file), "/", gsub(" ","_",plot.name) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i], ".pdf", sep="") )
-      #       plot(rep1, rep2, main=plot.name, xlab=repplot$rep1_1[i], ylab=repplot$rep1_2[i], xlim=x.lim, ylim=y.lim, pch=".")
-      #       dev.off()
-      tmp <- data.frame(rep1, rep2, stringsAsFactors=F)
-      pdf_nameout <- paste( dirname(out_file), "/", gsub(" ","_",plot.name2) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i],"-",prot_exp,".pdf", sep="")
-      p <- ggplot(tmp, aes(x=rep1, y=rep2)) + 
-        geom_point() +
-        xlim(x.lim[1],x.lim[2]) + 
-        ylim(x.lim[1],x.lim[2]) + 
-        ggtitle(plot.name) + 
-        labs(x=x.label, y=y.label)
-      
-      ggsave(filename = pdf_nameout, 
-             plot=p, 
-             width = 10, 
-             height = 10)
-      cat(pdf_nameout, "\n")
+      if(length(rep1) > 1 & length(rep2) > 1){
+        reps.cor <- cor(rep1, rep2, use="pairwise.complete.obs", method="pearson")
+        # set up a square plot centered at 0
+        x.lim <- ceiling(max(abs(c(rep1, rep2 )), na.rm=T))
+        y.lim <- c( -x.lim, x.lim)
+        x.lim <- c( -x.lim, x.lim)
+        
+        # name axes labels
+        y.label <- paste0(repplot$condition1[i]," vs. ",repplot$condition2[i], "  (", repplot$rep1_1[i],"/", repplot$rep2_1[i],")")
+        x.label <- paste0(repplot$condition1[i]," vs. ",repplot$condition2[i], "  (", repplot$rep1_2[i],"/", repplot$rep2_2[i],")")
+        # make plot name
+        plot.name <- paste( repplot$condition1[i], " vs "  , repplot$condition2[i], " R = ",round(reps.cor,3), sep="" )
+        plot.name2 <- paste( repplot$condition1[i], " vs "  , repplot$condition2[i], " R ",round(reps.cor,3), sep="" )
+        #       pdf( paste( dirname(out_file), "/", gsub(" ","_",plot.name) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i], ".pdf", sep="") )
+        #       plot(rep1, rep2, main=plot.name, xlab=repplot$rep1_1[i], ylab=repplot$rep1_2[i], xlim=x.lim, ylim=y.lim, pch=".")
+        #       dev.off()
+        tmp <- data.frame(rep1, rep2, stringsAsFactors=F)
+        pdf_nameout <- paste( dirname(out_file), "/", gsub(" ","_",plot.name2) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i],"-",prot_exp,".pdf", sep="")
+        p <- ggplot(tmp, aes(x=rep1, y=rep2)) + 
+          geom_point() +
+          xlim(x.lim[1],x.lim[2]) + 
+          ylim(x.lim[1],x.lim[2]) + 
+          ggtitle(plot.name) + 
+          labs(x=x.label, y=y.label)
+        
+        ggsave(filename = pdf_nameout, 
+               plot=p, 
+               width = 10, 
+               height = 10)
+        cat(pdf_nameout, "\n")
+      }else{
+        cat("\n\n\t(!!!!!!!!!!!!!!!!!!)
+        WARNING: not enough data for correlation analysis\n\n")
+      }
     }else{
       warning("--- REPLICATE PLOT ",i," NOT MADE -- MISSING DATA FROM ", paste(" ", reps[!(reps %in% names(x))],"\n", collapse=""))
     }
   }
-  cat(">> FILE",out_file,"ALSO AVAILABLE WITH THE SUMMARY OF INTENSITY VALUES FOR EVERY FEATURE\n")
+  cat(">> FILE",out_file,"AVAILABLE WITH THE SUMMARY OF INTENSITY VALUES FOR EVERY FEATURE\n")
 }
 
 
