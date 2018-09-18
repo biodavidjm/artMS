@@ -12,20 +12,25 @@
 #' .artms_checkIfFile()
 .artms_checkIfFile <- function(input_file, is.evidence = FALSE) {
     # check if already a data.frame or data.table
-    if (is.data.table(input_file) | is.data.frame(input_file)) {
-        x <- data.table(input_file)
-    } else if (tryCatch(file.exists(input_file), 
+    if (is.data.table(input_file)){
+      x <- data.table(input_file)
+    }else if(is.data.frame(input_file)){
+      x <- data.frame(input_file)
+    }else if(tryCatch(file.exists(input_file), 
                         error = function(e) return(FALSE))) {
         # check if file path is legit
         if (is.evidence) {
-            x <- .artms_read_evidence_file(input_file)
+          # we are not using this for now
+          # x <- .artms_read_evidence_file(input_file)
+          x <- read.delim(input_file, stringsAsFactors = F)
         } else {
-            x <- fread(input_file, integer64 = "double")
+          x <- read.delim(input_file, stringsAsFactors = F)
         }
     } else {
-        stop("There's something wrong with the file/object you submitted:\n\t", 
-             input_file, "\nPlease check that the file directory is correct, 
-             or that the data is in `data.frame` or `data.table` format.")
+        stop("There is something wrong with the file/object you submitted:", 
+             input_file, 
+"Please check that the file directory is correct, 
+or that the data is in `data.frame` or `data.table` format.")
     }
     return(x)
 }

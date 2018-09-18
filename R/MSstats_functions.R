@@ -48,8 +48,7 @@
     }else if("Raw file" %in% colnames(df)){
       df <- artms_changeColumnName(df, 'Raw file', 'RawFile')
     }else{
-      cat("\tERROR: CANNOT FIND THE Raw.file COLUMN\n")
-      stop("Please, revise it")
+      stop("\tERROR: CANNOT FIND THE Raw.file COLUMN\nPlease, revise it")
     }
   }
   return(df)

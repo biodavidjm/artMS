@@ -6,6 +6,6 @@ test_that("checkIfFile",{
   fac <- sample(L3, 10, replace = TRUE)
   d <- data.frame(x = 1, y = 1:10, fac = fac)
   
-  expect_true(data.table::is.data.table(.artms_checkIfFile(d)))
+  expect_true(is.data.frame(.artms_checkIfFile(d)))
   expect_error(.artms_checkIfFile(L3))
 })

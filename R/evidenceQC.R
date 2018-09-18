@@ -4,6 +4,8 @@
 #' @description Quality Control analysis of the MaxQuant evidence file
 #' @param evidence_file (char) The evidence file path and name
 #' @param keys_file (char) The keys file path and name
+#' @param output_name (char) prefix output name (no extension). 
+#' Default: "qcPlots_evidence"
 #' @param prot_exp (char) Proteomics experiment. 4 options available:
 #' - `APMS`: affinity purification mass spectrometry
 #' - `AB`: protein abundance
@@ -14,13 +16,18 @@
 #' - 0 no (default)
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
-#' @examples \donttest{
-#' artms_evidenceQC(evidence_file = "evidence.txt", 
-#'                  keys_file = "keys.txt", 
-#'                  prot_exp = "PH")
+#' @examples{
+#' artms_evidenceQC(evidence_file = artms_data_ph_evidence, 
+#'                  keys_file = artms_data_ph_keys, 
+#'                  prot_exp = "PH",
+#'                  output_name = "qcPlots_evidence")
 #' }
 #' @export
-artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
+artms_evidenceQC <- function(evidence_file,
+                             keys_file, 
+                             prot_exp,
+                             fractions = 0, 
+                             output_name = "qcPlots_evidence"){
 
   # evidence_file <- Sys.glob(evidence_file)
   # keys_file <- Sys.glob(keys_file)
@@ -35,7 +42,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   if(fractions){
     # Check that the keys file is correct
-    keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
+    keys <- .artms_checkIfFile(keys_file)
     keys <- .artms_checkRawFileColumnName(keys)
     if(any(!'FractionKey' %in% colnames(keys))){
       cat('\nERROR!!! fractions WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
@@ -46,9 +53,15 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   cat("\nQUALITY CONTROL ------------\n")
   cat(">> LOADING THE EVIDENCE FILE\n")
   cat("(it should take some time due to the usual large size of evidence files)\n")
+  
+  evidence <- .artms_checkIfFile(evidence_file)
+  evidence <- .artms_checkRawFileColumnName(evidence)
+  
+  keys <- .artms_checkIfFile(keys_file)
+  keys <- .artms_checkRawFileColumnName(keys)
 
   # EVIDENCE:
-  evidencekeys <- artms_mergeEvidenceKeysByFiles(evidence_file, keys_file)
+  evidencekeys <- artms_mergeMaxQDataWithKeys(evidence, keys)
   
   ekselecta <- aggregate(Intensity~Proteins+Condition+BioReplicate+Run, data=evidencekeys, FUN = sum)
   ekselectaBioreplica <- aggregate(Intensity~Proteins+Condition+BioReplicate, data=ekselecta, FUN = sum) 
@@ -67,7 +80,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   k <- k + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
   
   cat(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS\n")
-  intDistribution <- gsub("evidence.txt", "qcplot.IntensityDistributions.pdf", evidence_file)
+  intDistribution <- paste0(output_name,".qcplot.IntensityDistributions.pdf")
   
   pdf(intDistribution)
     plot(j)
@@ -111,7 +124,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   evidencekeysclean <- artms_filterMaxqData(evidencekeys)
   
   cat(">> GENERATING THE REPRODUCIBILITY PLOTS (warning: it will take some time)\n")
-  seqReproName <- gsub("evidence.txt", "qcplot.basicReproducibility.pdf", evidence_file)
+  seqReproName <- paste0(output_name,".qcplot.basicReproducibility.pdf")
   
   if (prot_exp == "UB") {
     evidencekeysclean <- evidencekeysclean[c('Feature', 'Modified.sequence', 'Proteins', 'Intensity', 'Condition', 'BioReplicate', 'Run')]
@@ -148,7 +161,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
     
     # And now for clustering
     cat("--- By Technical replicates\n")
-    matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixTR.pdf", evidence_file)
+    matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
     
     pdf(matrixCorrelationBioreplicas, width = 20, height = 20) #
     corrplot(Mtechnicalrep, 
@@ -199,7 +212,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
   
   cat("--- By Biological replicates\n")
-  matrixCorrelationBioreplicas <- gsub("evidence.txt", "qcplot.correlationMatrixBR.pdf", evidence_file)
+  matrixCorrelationBioreplicas <- paste0(output_name,".qcplot.correlationMatrixBR.pdf")
   pdf(matrixCorrelationBioreplicas, width = 20, height = 20) #, width = 20, height = 20
     corrplot(Mbioreplicas, 
              method="square", 
@@ -245,7 +258,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
   
   cat("--- By Conditions\n")
-  matrixCorrelationCond <- gsub("evidence.txt", "qcplot.correlationMatrixConditions.pdf", evidence_file)
+  matrixCorrelationCond <- paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
   pdf(matrixCorrelationCond)
     corrplot(Mcond, 
              method="square", 
@@ -332,7 +345,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   }
   
   cat("--- ",prot_exp," PROCESSED\n")
-  reproName <- gsub("evidence.txt", "qcplot.intensityStats.pdf", evidence_file)
+  reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
 
   #QC: SUM of intensities per biological replica (peptides vs contaminant)
   pisa <- ggplot(evisummary, aes(x=BioReplicate, y=Intensity, fill=Contaminant)) +
@@ -427,7 +440,7 @@ artms_evidenceQC <- function(evidence_file, keys_file, prot_exp, fractions = 0){
   
   if( prot_exp == "PH" | prot_exp == "UB"){
     cat(">> GENERATING PTM ",prot_exp," STATS\n")
-    modName <- gsub("evidence.txt", "qcplot.ptmStats.pdf", evidence_file)
+    modName <- paste0(output_name, "qcplot.ptmStats.pdf")
     
     x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = MODIFICATION))
     x <- x + geom_bar(stat = "count", position=position_dodge(width = 0.7), width=0.7)
