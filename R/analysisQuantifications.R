@@ -65,6 +65,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
+  if(class(enrich) != "logical"){
+    stop("\nArgument <enrich> must be logical (TRUE or FALSE)\n")
+  }
+  
+  if(class(isFluomics) != "logical"){
+    stop("\nArgument <isFluomics> must be logical (TRUE or FALSE)\n")
+  }
+  
   if(pathogen == "nopathogen"){
     cat("--- No Pathogen extra in these samples (only Influenza)\n")
   }else if(pathogen == "tb"){ # This should not work
@@ -1030,7 +1038,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     }else{
       stop("Oh no!! This will fail if you are using UB!!\n")
     }
-  }else if(enrich == "noenrich"){
+  }else if(!enrich){
     cat("\t\t-----+ You chose not to enrich\n")
     if( grepl("yesptm", isPtm) ) {
       list_of_datasets <- list(

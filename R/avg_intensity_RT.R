@@ -11,22 +11,28 @@
 #' (evidence) file (txt tab delimited file).
 #' @param protein_file (char) The filepath to a file or vector conatining 
 #' a list of proteins of interest.
-#' @param output_file (char) The filepath to where you want the results saved 
-#' (must have the extension `.txt`). If no file path is given, then the 
+#' @param output_file (char) The file name for the results
+#' (must have the extension `.txt`). If empty, then the 
 #' results will be returned as an R object.
+#' @param specie (char) The specie name. 
+#' Check `?artms_mapUniprot2entrezGeneName`
 #' @return An R object with the results and a file with the results (if the
 #' output_file argument is provided). It contains averages of Intensity, 
 #' Retention Time, Caliberated Retention Time
 #' @keywords MaxQuant, evidence, summary, intensity, retention time, caliberated
-#' @examples \donttest{
-#' artms_avg_intensity_RT(evidence_file = "/path/to/the/evidence.txt")
+#' @examples{
+#' ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence, 
+#'                                   specie = "human")
 #' }
 #' @export
-artms_avg_intensity_RT <- function(evidence_file, protein_file = NULL, output_file = FALSE) {
+artms_avg_intensity_RT <- function(evidence_file, 
+                                   protein_file = NULL, 
+                                   output_file = FALSE,
+                                   specie) {
     # read in data
     cat(">> READING IN FILES...\n")
     dat <- .artms_checkIfFile(evidence_file, is.evidence = T)
-    names(dat) <- gsub(" ", "_", names(dat))
+    suppressMessages(dat <- artms_annotationUniprot(dat, "Proteins", sps = specie))
     
     # proteins <- read.delim(protein_file, sep='\t', stringsAsFactors=F, header=F)
     if (!is.null(protein_file)) {
@@ -41,18 +47,18 @@ artms_avg_intensity_RT <- function(evidence_file, protein_file = NULL, output_fi
     
     cat(">> COMPUTING AVERAGES...\n")
     # Compute the average Intensity
-    dat.avg <- aggregate(data = dat[, c("Proteins", "Gene_names", "Modified_sequence", "Charge", "Intensity")], Intensity ~ ., 
+    dat.avg <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Intensity")], Intensity ~ ., 
         mean, na.rm = T)
     # Compute the average Retention Time
-    dat.ret <- aggregate(data = dat[, c("Proteins", "Gene_names", "Modified_sequence", "Charge", "Retention_time")], Retention_time ~ 
+    dat.ret <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Retention.time")], Retention.time ~ 
         ., mean, na.rm = T)
     # Compute the average Calibrated retention time
-    dat.cal <- aggregate(data = dat[, c("Proteins", "Gene_names", "Modified_sequence", "Charge", "Calibrated_retention_time")], 
-        Calibrated_retention_time ~ ., mean, na.rm = T)
+    dat.cal <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Calibrated.retention.time")], 
+        Calibrated.retention.time ~ ., mean, na.rm = T)
     
     cat(">> MERGING RESULTS...\n")
-    results <- merge(dat.avg, dat.ret, by = c("Proteins", "Gene_names", "Modified_sequence", "Charge"), all.y = T)
-    results <- merge(results, dat.cal, by = c("Proteins", "Gene_names", "Modified_sequence", "Charge"), all.y = T)
+    results <- merge(dat.avg, dat.ret, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = T)
+    results <- merge(results, dat.cal, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = T)
     # add 'Avg' to names
     names(results)[5:7] = paste0("Avg_", names(results)[5:7])
     
@@ -60,11 +66,10 @@ artms_avg_intensity_RT <- function(evidence_file, protein_file = NULL, output_fi
     
     if (output_file) {
         # write out results
-        outputFileNameFinal <- gsub(".txt", "_IntRT_summary.txt", evidence_file)
-        cat("--- WRITING OUT RESULTS TO ", outputFileNameFinal, "\n")
-        write.table(results, outputFileNameFinal, quote = F, row.names = F, sep = "\t")
+        cat("--- WRITING OUT RESULTS TO ", output_file, "\n")
+        write.table(results, output_file, quote = F, row.names = F, sep = "\t")
         return(results)
-    } else {
+    }else{
         return(results)
     }
 }

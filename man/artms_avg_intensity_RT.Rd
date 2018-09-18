@@ -5,7 +5,7 @@
 \title{Summarize average intensity and retention time per protein}
 \usage{
 artms_avg_intensity_RT(evidence_file, protein_file = NULL,
-  output_file = FALSE)
+  output_file = FALSE, specie)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
@@ -14,9 +14,12 @@ artms_avg_intensity_RT(evidence_file, protein_file = NULL,
 \item{protein_file}{(char) The filepath to a file or vector conatining
 a list of proteins of interest.}
 
-\item{output_file}{(char) The filepath to where you want the results saved
-(must have the extension \code{.txt}). If no file path is given, then the
+\item{output_file}{(char) The file name for the results
+(must have the extension \code{.txt}). If empty, then the
 results will be returned as an R object.}
+
+\item{specie}{(char) The specie name.
+Check \code{?artms_mapUniprot2entrezGeneName}}
 }
 \value{
 An R object with the results and a file with the results (if the
@@ -32,8 +35,9 @@ retention time. If a list of proteins is provided, then only those proteins
 will be summarized and returned.
 }
 \examples{
-\donttest{
-artms_avg_intensity_RT(evidence_file = "/path/to/the/evidence.txt")
+{
+ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence, 
+                                  specie = "human")
 }
 }
 \keyword{MaxQuant,}
