@@ -1,5 +1,0 @@
-RawFile	IsotopeLabelType	Condition	BioReplicate	Run
-qx006145	L	Cal33	Cal33-1	1
-qx006148	L	Cal33	Cal33-4	4
-qx006151	L	HSC6	HSC6-2	6
-qx006152	L	HSC6	HSC6-3	7
