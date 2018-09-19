@@ -15,6 +15,9 @@ NEEDS TO BE FIXED}
 \item{dat_file}{(char) The filepath to the MaxQuant searched data (evidence)
 file (txt tab delimited file).}
 }
+\value{
+(shiny) app to choose a protein to be use for normalization
+}
 \description{
 This function creates an interactive environment where the
 user can select which prein(s) to use as a reference when normalizing

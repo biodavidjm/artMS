@@ -198,9 +198,10 @@ artms_enrichLog2fc <- function(dataset,
 #' - Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
 #' - Reviewed computational analysis (RCA) / Electronic annotation (IEA)
 #' - No biological data (ND) / Not annotated or not in background (NA)
-#' @param specie (char) Specie code: Organism names are constructed by concatenating 
-#' the first letter of the name and the family name.
-#' Example: human - ’hsapiens’, mouse - ’mmusculus’.
+#' @param specie (char) Specie code: Organism names are constructed by 
+#' concatenating the first letter of the name and the family name.
+#' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
+#' more about supported species.
 #' @param background (vector) gene list to use as background for the enrichment
 #' analysis. Default: `NA`
 #' @details This function uses the following `gprofiler` arguments as default:
@@ -222,12 +223,22 @@ artms_enrichLog2fc <- function(dataset,
 #' - include_graph = TRUE
 #' @return The enrichment results as provided by gprofiler
 #' @keywords enrichment
-#' @examples \donttest{
-#' artms_enrichProfiler(tmp, 
-#'    categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'OMIM'), 
-#'    specie = 'hsapiens', 
-#'    background = listOfGenes)
-#' }
+#' @examples
+#' # annotate the MSstats results to get the Gene name
+#' data_annotated <- artms_annotationUniprot(
+#'                                      data = artms_data_ph_msstats_results, 
+#'                                      columnid = "Protein", 
+#'                                      sps = "human")
+#' 
+#' # Filter the list of genes with a log2fc > 2
+#' filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+#' 
+#' # And perform enrichment analysis
+#' data_annotated_enrich <- artms_enrichProfiler(
+#'                                    x = filtered_data, 
+#'                                    categorySource = c('KEGG'), 
+#'                                    specie = "hsapiens", 
+#'                                    background = unique(data_annotated$Gene))
 #' @export
 artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background = NA){
   gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")

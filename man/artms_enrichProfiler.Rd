@@ -40,9 +40,10 @@ Inferred by curator (IC)
 \item No biological data (ND) / Not annotated or not in background (NA)
 }}
 
-\item{specie}{(char) Specie code: Organism names are constructed by concatenating
-the first letter of the name and the family name.
-Example: human - ’hsapiens’, mouse - ’mmusculus’.}
+\item{specie}{(char) Specie code: Organism names are constructed by
+concatenating the first letter of the name and the family name.
+Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
+more about supported species.}
 
 \item{background}{(vector) gene list to use as background for the enrichment
 analysis. Default: \code{NA}}
@@ -76,11 +77,20 @@ This function uses the following \code{gprofiler} arguments as default:
 }
 }
 \examples{
-\donttest{
-artms_enrichProfiler(tmp, 
-   categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'OMIM'), 
-   specie = 'hsapiens', 
-   background = listOfGenes)
-}
+# annotate the MSstats results to get the Gene name
+data_annotated <- artms_annotationUniprot(
+                                     data = artms_data_ph_msstats_results, 
+                                     columnid = "Protein", 
+                                     sps = "human")
+
+# Filter the list of genes with a log2fc > 2
+filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+
+# And perform enrichment analysis
+data_annotated_enrich <- artms_enrichProfiler(
+                                   x = filtered_data, 
+                                   categorySource = c('KEGG'), 
+                                   specie = "hsapiens", 
+                                   background = unique(data_annotated$Gene))
 }
 \keyword{enrichment}

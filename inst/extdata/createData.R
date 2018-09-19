@@ -204,7 +204,16 @@ uniprots_anno <- artms_mapUniprot2entrezGeneName(
                   uniprotkb = unique(artms_data_ph_evidence$Proteins), 
                   specie = "human")
 
-artms_enrichProfiler(x = unique(artms_data_ph_evidence$Proteins), )
+# annotate the MSstats results to get the Gene name
+data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results, columnid = "Protein", sps = "human")
+
+# Filter the list of genes with a log2fc > 2
+filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+
+# And enrich it
+data_annotated_enrich <- artms_enrichProfiler(x = filtered_data, 
+categorySource = c('KEGG'), 
+specie = "hsapiens", background = unique(data_annotated$Gene))
 
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artms_annotationUniprot(
