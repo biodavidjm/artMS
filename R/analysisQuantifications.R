@@ -65,11 +65,11 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
-  if(class(enrich) != "logical"){
+  if(grepl("logical",class(enrich))){
     stop("\nArgument <enrich> must be logical (TRUE or FALSE)\n")
   }
   
-  if(class(isFluomics) != "logical"){
+  if(grepl("logical",class(isFluomics))){
     stop("\nArgument <isFluomics> must be logical (TRUE or FALSE)\n")
   }
   
@@ -1035,7 +1035,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         "enMACallCorum" = allsigComplexEnriched,
         "enMACposCorum" = positiveComplexEnriched,
         "enMACnegCorum" = negativesComplexEnriched)
-    }else if(isPtm == "noptm"){
+    }else if(grepl("noptm", isPtm)){
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1058,7 +1058,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue)
-    }else if(isPtm == "noptm"){
+    }else if(grepl("noptm", isPtm)){
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
