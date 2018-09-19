@@ -4,29 +4,41 @@
 \alias{artms_enrichLog2fc}
 \title{Enrichment of changes in protein abundance or PTMs}
 \usage{
-artms_enrichLog2fc(data, fileout, specie, background)
+artms_enrichLog2fc(dataset, specie, background, heatmaps = FALSE,
+  output_name = "enrichment.txt")
 }
 \arguments{
-\item{data}{(data.frame) with \code{Gene} and \code{Comparison} columns}
-
-\item{fileout}{(char) Name for the output file}
+\item{dataset}{(data.frame) with a \code{Gene} and \code{Comparison or Label} (with
+the name of the comparisons specified in the contrast file) columns}
 
 \item{specie}{(char) Specie, only supported "human" or "mouse"}
 
 \item{background}{(vector) Background genes for the enrichment analysis.}
+
+\item{heatmaps}{(logical) if \code{TRUE} generates heatmaps (pdf),
+\code{FALSE} (default) otherwise.}
+
+\item{output_name}{(char) Name of the annotation files, which will be used
+as well for the heatmaps (if \code{heatmaps} is selected)
+Default \code{output_name = "enrichment.txt"}}
 }
 \value{
 (data.frame) Results from the enrichment analysis using Gprofiler
+and heatmaps (if selected)
 }
 \description{
 Enrichment analysis of the selected proteins
 }
 \examples{
-\donttest{
-artms_enrichLog2fc(data = df, 
-                   fileout = "results-enrich.txt", 
+# The data must be annotated (Protein and Gene columns)
+data_annotated <- artms_annotationUniprot(
+                      data = artms_data_ph_msstats_results, 
+                      columnid = "Protein", 
+                      sps = "human")
+# And then the enrichment
+enrich_set <- artms_enrichLog2fc(
+                   dataset = data_annotated, 
                    specie = "human", 
-                   background = df$Gene)
-}
+                   background = unique(data_annotated$Gene))
 }
 \keyword{enrichment}

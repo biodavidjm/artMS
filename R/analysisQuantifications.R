@@ -77,11 +77,11 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- No Pathogen extra in these samples (only Influenza)\n")
   }else if(pathogen == "tb"){ # This should not work
     cat("--- PATHOGEN IN SAMPLES: TB\n")
-    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = F, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "TB",
+    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = FALSE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "TB",
     names(pathogen.ids) <- c('Entry')
   }else if(pathogen == "lpn"){
     cat("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
-    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = T, sep = "\t", quote = "", stringsAsFactors = F) # pathogen.ids$Entry, "Lpn",
+    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = TRUE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "Lpn",
   }else{
     stop("\n\nThis pathogen is not supported yet\n\n")
   }
@@ -90,12 +90,12 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   # create output directory if it doesn't exist
   if(!dir.exists(output_dir)){
-    dir.create(output_dir, recursive = T)
+    dir.create(output_dir, recursive = TRUE)
   }
   
   # LOADING ABUNDANCE
   cat(">> LOADING modelqc FILE (ABUNDANCE)\n")
-  dfmq <- read.delim(modelqc_file, header = T, sep = "\t", stringsAsFactors = F)
+  dfmq <- read.delim(modelqc_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   # Removing the empty protein names
   if(any(dfmq$PROTEIN == "")){ dfmq <- dfmq[-which(dfmq$PROTEIN == ""),]}
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN )
@@ -121,12 +121,12 @@ artms_analysisQuantifications <- function(log2fc_file,
       dfmq2Genes <- dfmq[c('PROTEIN','GROUP_ORIGINAL')] # If you want to apply some sort of filter, do it here
       names(dfmq2Genes)[grep('PROTEIN',names(dfmq2Genes))] <- 'Protein'
       # Removing party sites
-      dfmq2Genes <- dfmq2Genes[grep(",",dfmq2Genes$Protein, invert=T),]
+      dfmq2Genes <- dfmq2Genes[grep(",",dfmq2Genes$Protein, invert= TRUE),]
       # And now be very careful with the Fluomics labeling, since they have an extra _ that it is not follow by the site
       cat("--- Warning! if you have UNIPROT_PTM id with more than one underscore '_' is going to be a problem\n")
       dfmq2Genes$Protein <- ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", dfmq2Genes$Protein, perl = T) , 
-        gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = T)
+        grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", dfmq2Genes$Protein, perl = TRUE) , 
+        gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = TRUE)
       )
       dfmq2Genes <- unique(dfmq2Genes)
       suppressMessages(dfmq2Genes <- artms_annotationUniprot(dfmq2Genes, 'Protein', specie))
@@ -139,7 +139,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     }
   }else{
     # No matter what list is provided, it must come with a "Gene" column
-    backgroundList <- read.delim(isBackground, header = T, sep = "\t", quote = "", stringsAsFactors = F)
+    backgroundList <- read.delim(isBackground, header = TRUE, sep = "\t", quote = "", stringsAsFactors = FALSE)
     listOfGenes <- unique(backgroundList$Gene)
   }
   
@@ -148,7 +148,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   ##############################################################################
   # LOG2FC
   cat(">> LOADING QUANTIFICATIONS (-results.txt from MSstats)\n")
-  dflog2fcraw <- read.delim(log2fc_file, header = T, sep = "\t", stringsAsFactors = F)
+  dflog2fcraw <- read.delim(log2fc_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   if(any(dflog2fcraw$Protein == "")){ dflog2fcraw <- dflog2fcraw[-which(dflog2fcraw$Protein == ""),]}
   dflog2fcraw$Protein <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dflog2fcraw$Protein )
   dflog2fcraw$Protein <- gsub("(.*)(\\|.*)", "\\1", dflog2fcraw$Protein )
@@ -210,7 +210,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedL2FCmelted <- .artms_imputeMissingValues(dflog2fcinfinites, dfmq)
     
     # Merge with the original log2fc values to impute...
-    theImputedL2FC <- merge(dflog2fcinfinites, imputedL2FCmelted, by = c("Protein","Label"), all.x = T)
+    theImputedL2FC <- merge(dflog2fcinfinites, imputedL2FCmelted, by = c("Protein","Label"), all.x = TRUE)
     theImputedL2FC$imputed <- "yes"
   }
   
@@ -360,10 +360,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   outHeatMapOverall <- gsub(".txt",".clustering.abundance.all-overview.pdf",log2fc_file)
   outHeatMapOverall <- paste0(output_dir,"/",outHeatMapOverall)
-  pheatmap(aqui, filename=outHeatMapOverall, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = F, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
+  pheatmap(aqui, filename=outHeatMapOverall, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = FALSE, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
   outHeatMapZoom <- gsub(".txt",".clustering.abundance.all-zoom.pdf",log2fc_file)
   outHeatMapZoom <- paste0(output_dir,"/",outHeatMapZoom)
-  pheatmap(aqui, filename=outHeatMapZoom, cellheight = 10, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
+  pheatmap(aqui, filename=outHeatMapZoom, cellheight = 10, cellwidth=20, main = "Clustered Relative Abundance", cluster_cols = FALSE, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
   
   # Melt again the sum and mean
   abundancelongsum <- reshape2::melt(abundance_dcsum, id.vars = c('Prey'), value.name = 'Abundance', variable.name = 'Bait' )
@@ -433,7 +433,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if( grepl("yesptm", isPtm) ){
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    modelqc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", modelqc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = T)) 
+    modelqc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", modelqc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = TRUE) , gsub("^(\\S+?)_.*", "\\1", modelqc_file_splc$Uniprot_PTM, perl = TRUE)) 
     suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
   }else{
     suppressMessages(modelqc_file_splc <- artms_annotationUniprot(modelqc_file_splc, 'Protein', specie))
@@ -446,7 +446,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if( grepl("yesptm", isPtm) ){
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    log2fc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = T)) 
+    log2fc_file_splc$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", log2fc_file_splc$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = TRUE) , gsub("^(\\S+?)_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = TRUE)) 
     suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
   }else{
     suppressMessages(log2fc_file_splc <- artms_annotationUniprot(log2fc_file_splc, 'Protein', specie))
@@ -456,7 +456,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   imputedDF <- dflog2fc[c('Protein', 'Label', 'log2FC', 'pvalue', 'adj.pvalue','imputed','iLog2FC','iPvalue')]
   cat("--- Merging Changes with bioReplica Info\n")
-  imputedDF <- merge(imputedDF, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = T)
+  imputedDF <- merge(imputedDF, bioReplicaInfo, by.x = 'Protein', by.y = 'Prey', all.x = TRUE)
   
   cat("--- Removing NA\n")
   imputedDF <- imputedDF[!is.na(imputedDF$log2FC),]
@@ -517,10 +517,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- All changes\n")
     outHeatMapOverallL2fc <- gsub(".txt",".clustering.log2fc.all-overview.pdf",log2fc_file)
     outHeatMapOverallL2fc <- paste0(output_dir,"/",outHeatMapOverallL2fc)
-    pheatmap(l2fcolmatrix, filename=outHeatMapOverallL2fc, cellwidth=20, main = "Clustering Log2FC", cluster_cols = F, clustering_method = "average", fontfamily="Helvetica", show_colnames = F, fontsize=6, fontsize_row=3, fontsize_col=10, border_color=NA)
+    pheatmap(l2fcolmatrix, filename=outHeatMapOverallL2fc, cellwidth=20, main = "Clustering Log2FC", cluster_cols = FALSE, clustering_method = "average", fontfamily="Helvetica", show_colnames = FALSE, fontsize=6, fontsize_row=3, fontsize_col=10, border_color=NA)
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fc.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
-    pheatmap(l2fcolmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
+    pheatmap(l2fcolmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC", cluster_cols = FALSE, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
 
     # Only significant pvalues
     cat("--- Only significant changes\n")
@@ -533,10 +533,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     l2fcolSignificantsmatrix <- data.matrix(l2fcolSignificants)
     outHeatMapOverallL2fc <- gsub(".txt",".clustering.log2fcSign.all-overview.pdf",log2fc_file)
     outHeatMapOverallL2fc <- paste0(output_dir,"/",outHeatMapOverallL2fc)
-    pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapOverallL2fc, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = F, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
+    pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapOverallL2fc, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = FALSE, fontfamily="Helvetica", labels_row = "", fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
     outHeatMapZoomL2fc <- gsub(".txt",".clustering.log2fcSign.all-zoom.pdf",log2fc_file)
     outHeatMapZoomL2fc <- paste0(output_dir,"/",outHeatMapZoomL2fc)
-    pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = F, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
+    pheatmap(l2fcolSignificantsmatrix, filename=outHeatMapZoomL2fc, cellheight = 10, cellwidth=20, main = "Clustering Log2FC (p-value < 0.05)", cluster_cols = FALSE, fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, fontfamily="Helvetica")
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -553,7 +553,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     if( grepl("yesptm", isPtm) ){
       names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <- 'Uniprot_PTM'
       # Take the Protein ID, but being very careful about the fluomics labeling
-      l2fcol4enrichment$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", l2fcol4enrichment$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = T)) 
+      l2fcol4enrichment$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", l2fcol4enrichment$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = TRUE) , gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Uniprot_PTM, perl = TRUE)) 
       suppressMessages(l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie))
     }else{
       suppressMessages(l2fcol4enrichment <- artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie))
@@ -567,10 +567,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     if( grepl("yesptm", isPtm) ){
       # l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
-      l2fcol4enrichment <- l2fcol4enrichment[grep(",",l2fcol4enrichment$Protein, invert=T),]
+      l2fcol4enrichment <- l2fcol4enrichment[grep(",",l2fcol4enrichment$Protein, invert= TRUE),]
       # Select the Uniprot ID, but keep in mind that some of them might 
       # have many _ph54_ph446 before
-      # l2fcol4enrichment$Protein <- gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = T)
+      # l2fcol4enrichment$Protein <- gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = TRUE)
       l2fcol4enrichment <- unique(l2fcol4enrichment[c("Protein", "Gene", "Comparisons", "value")])
     }
     
@@ -585,10 +585,14 @@ artms_analysisQuantifications <- function(log2fc_file,
       out.mac.allsig <- gsub(".txt","-enrich-MAC-allsignificants.txt",log2fc_file)
       out.mac.allsig <- paste0(output_dir,"/",out.mac.allsig)
       
-      mac.allsig <- artms_enrichLog2fc(filallsig_log2fc_long, out.mac.allsig, specie, listOfGenes)
+      mac.allsig <- artms_enrichLog2fc(dataset = filallsig_log2fc_long, 
+                                       output_name = out.mac.allsig, 
+                                       specie = specie, 
+                                       heatmaps = TRUE, 
+                                       background = listOfGenes)
       
       if( dim(mac.allsig)[1] > 0 ){
-        write.table(mac.allsig, out.mac.allsig, quote = F, sep = "\t", row.names = F, col.names = T)
+        write.table(mac.allsig, out.mac.allsig, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
       }
       
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
@@ -599,7 +603,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       if(dim(allsigComplexEnriched)[1] > 0){
         out.mac.allsig.corum <- gsub(".txt","-enrich-MAC-allsignificants-corum.txt",log2fc_file)
         out.mac.allsig.corum <- paste0(output_dir,"/",out.mac.allsig.corum)
-        write.table(allsigComplexEnriched, out.mac.allsig.corum, quote = F, sep = "\t", row.names = F, col.names = T)
+        write.table(allsigComplexEnriched, out.mac.allsig.corum, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
       }
       # And the heatmap
       if(dim(allsigComplexEnriched)[1] > 2){
@@ -624,10 +628,14 @@ artms_analysisQuantifications <- function(log2fc_file,
     if(dim(filpos_log2fc_long)[1] > 0){
       out.mac.pos <- gsub(".txt","-enrich-MAC-positives.txt",log2fc_file)
       out.mac.pos <- paste0(output_dir,"/",out.mac.pos)
-      mac.pos <- artms_enrichLog2fc(filpos_log2fc_long, out.mac.pos, specie, listOfGenes)
+      mac.pos <- artms_enrichLog2fc(dataset = filpos_log2fc_long, 
+                                    specie = specie, 
+                                    heatmaps = TRUE, 
+                                    output_name = out.mac.pos, 
+                                    background = listOfGenes)
       
       if(dim(mac.pos)[1] > 0){
-        write.table(mac.pos, out.mac.pos, quote = F, sep = "\t", row.names = F, col.names = T)  
+        write.table(mac.pos, out.mac.pos, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)  
       }
       
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
@@ -638,7 +646,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       if(dim(positiveComplexEnriched)[1] > 0){
         out.mac.pos.corum <- gsub(".txt","-enrich-MAC-positives-corum.txt",log2fc_file)
         out.mac.pos.corum <- paste0(output_dir,"/",out.mac.pos.corum)
-        write.table(positiveComplexEnriched, out.mac.pos.corum, quote = F, sep = "\t", row.names = F, col.names = T)
+        write.table(positiveComplexEnriched, out.mac.pos.corum, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
       }
       
       # And the heatmap
@@ -668,10 +676,14 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       out.mac.neg <- gsub(".txt","-enrich-MAC-negatives.txt",log2fc_file)
       out.mac.neg <- paste0(output_dir,"/",out.mac.neg)  
-      mac.neg <- artms_enrichLog2fc(filneg_log2fc_long, out.mac.neg, specie, listOfGenes)
+      mac.neg <- artms_enrichLog2fc(dataset = filneg_log2fc_long, 
+                                    output_name = out.mac.neg, 
+                                    specie = specie, 
+                                    heatmaps = TRUE,
+                                    background = listOfGenes)
       
       if( dim(mac.neg)[1] > 0 ){
-        write.table(mac.neg, out.mac.neg, quote = F, sep = "\t", row.names = F, col.names = T)
+        write.table(mac.neg, out.mac.neg, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
       }
 
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
@@ -681,7 +693,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       if(dim(negativesComplexEnriched)[1] > 0){
         out.mac.neg.corum <- gsub(".txt","-enrich-MAC-negatives-corum.txt",log2fc_file)
         out.mac.neg.corum <- paste0(output_dir,"/",out.mac.neg.corum)
-        write.table(negativesComplexEnriched, out.mac.neg.corum, quote = F, sep = "\t", row.names = F, col.names = T)  
+        write.table(negativesComplexEnriched, out.mac.neg.corum, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)  
       }
       
       # And the heatmap
@@ -704,14 +716,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   cat(">> PRINT OUT FILES\n")
-  superunified <- merge(abundancelongsummean, nbr_long, by = c('Bait', 'Prey'), all = T)
-  superunified <- merge(superunified, reprocondition2merge, by = 'Prey', all = T)
-  superunified <- merge(superunified, reprospec2merge, by = 'Prey', all = T)
+  superunified <- merge(abundancelongsummean, nbr_long, by = c('Bait', 'Prey'), all = TRUE)
+  superunified <- merge(superunified, reprocondition2merge, by = 'Prey', all = TRUE)
+  superunified <- merge(superunified, reprospec2merge, by = 'Prey', all = TRUE)
   
   if( grepl("yesptm", isPtm) ){
     names(superunified)[grep('^Prey$', names(superunified))] <- 'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    superunified$Prey <- ifelse(grepl("_H1N1|_H3N2|_H5N1", superunified$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", superunified$Uniprot_PTM, perl = T) , gsub("^(\\S+?)_.*", "\\1", superunified$Uniprot_PTM, perl = T)) 
+    superunified$Prey <- ifelse(grepl("_H1N1|_H3N2|_H5N1", superunified$Uniprot_PTM), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", superunified$Uniprot_PTM, perl = TRUE) , gsub("^(\\S+?)_.*", "\\1", superunified$Uniprot_PTM, perl = TRUE)) 
   }
   
   suppressMessages(superunified <- artms_annotationUniprot(superunified, 'Prey', specie))
@@ -774,7 +786,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
     # The virus labeling has to be taken into account when getting the uniprot id:
-    imputedDF$UniprotID <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDF$UniprotID, perl = T) , gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = T)) 
+    imputedDF$UniprotID <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID), gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDF$UniprotID, perl = TRUE) , gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = TRUE)) 
     suppressMessages(imputedDF <- artms_annotationUniprot(imputedDF, 'UniprotID', specie))
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
@@ -855,7 +867,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                  tl.col = 'black',
                  tl.srt=45,
                  # order = "hclust",
-                 diag = T)
+                 diag = TRUE)
         PerformanceAnalytics::chart.Correlation(venga, histogram=TRUE, pch=25, main = "Correlation between Comparisons")
       garbage <- dev.off()
       
@@ -908,7 +920,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       pam.res <- pam(vamos, k=n)
       
       cp1 <- factoextra::fviz_cluster(pam.res)
-      cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = F)
+      cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = FALSE)
       
       cat("--- Plots to determine optimal number of clusters\n")
       file_clusterplots_l2fc <- gsub(".txt",".log2fc-clusters.pdf",log2fc_file)
@@ -937,7 +949,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                       column_title_gp=gpar(fontsize=10, fontface="bold"),
                       column_title_rot=0,
                       show_column_names=TRUE,
-                      cluster_columns = F,
+                      cluster_columns = FALSE,
                       clustering_distance_columns=function(x) as.dist(1-cor(t(x))),
                       clustering_method_columns="ward.D2",
                       clustering_distance_rows="euclidean",
@@ -966,7 +978,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       pretmp <- dfclusters[c('Gene', 'cl_number')]
       pretmp <- unique(pretmp)
       
-      tmp <- split(pretmp$Gene, pretmp$cl_number, drop=T)
+      tmp <- split(pretmp$Gene, pretmp$cl_number, drop= TRUE)
       
       if(specie == "human"){
         enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', listOfGenes) # 'HP'
@@ -978,11 +990,11 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       file_clusterheatenrich_l2fc <- gsub(".txt",".log2fc-clusterheatmap-enriched.txt",log2fc_file)
       file_clusterheatenrich_l2fc <- paste0(output_dir,"/",file_clusterheatenrich_l2fc)
-      write.table(enrichgenes, file_clusterheatenrich_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
+      write.table(enrichgenes, file_clusterheatenrich_l2fc, col.names = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
       
       file_clusterheatdata_l2fc <- gsub(".txt",".log2fc-clusterheatmap.txt",log2fc_file)
       file_clusterheatdata_l2fc <- paste0(output_dir,"/",file_clusterheatdata_l2fc)
-      write.table(dfclusters, file_clusterheatdata_l2fc, col.names = T, row.names = F, sep = "\t", quote = F)
+      write.table(dfclusters, file_clusterheatdata_l2fc, col.names = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
     }
   }
   
@@ -992,19 +1004,19 @@ artms_analysisQuantifications <- function(log2fc_file,
   # PRINT OUT IMPUTED
   outlog2fcImpute <- gsub(".txt","-log2fc-long.txt", log2fc_file)
   outlog2fcImpute <- paste0(output_dir,"/",outlog2fcImpute)
-  write.table(imputedDF, outlog2fcImpute, quote = F, sep = "\t", row.names = F, col.names = T)
+  write.table(imputedDF, outlog2fcImpute, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
   
   outlog2fc <- gsub(".txt","-log2fc-wide.txt", log2fc_file)
   outlog2fc <- paste0(output_dir,"/",outlog2fc)
-  write.table(log2fc_file_splc, outlog2fc, quote = F, sep = "\t", row.names = F, col.names = T)
+  write.table(log2fc_file_splc, outlog2fc, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
   
   outmodeqcLong <- gsub(".txt","-abundance-long.txt", log2fc_file)
   outmodeqcLong <- paste0(output_dir,"/",outmodeqcLong)
-  write.table(superunified, outmodeqcLong, quote = F, sep = "\t", row.names = F, col.names = T)
+  write.table(superunified, outmodeqcLong, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
   
   outmodelqc <- gsub(".txt","-abundance-wide.txt", log2fc_file)
   outmodelqc <- paste0(output_dir,"/",outmodelqc)
-  write.table(modelqc_file_splc, outmodelqc, quote = F, sep = "\t", row.names = F, col.names = T)
+  write.table(modelqc_file_splc, outmodelqc, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
   outexcel <- gsub(".txt","-summary.xlsx",log2fc_file)
   outexcel <- paste0(output_dir,"/",outexcel)
@@ -1141,12 +1153,12 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
     # Take the Protein ID, but being very careful about the fluomics labeling
     imputedDFext$Protein <- ifelse(
       grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Uniprot_PTM), 
-      gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T) , 
-      gsub("^(\\S+?)_.*", "\\1", imputedDFext$Uniprot_PTM, perl = T)
+      gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$Uniprot_PTM, perl = TRUE) , 
+      gsub("^(\\S+?)_.*", "\\1", imputedDFext$Uniprot_PTM, perl = TRUE)
     ) 
     
     # Extract sites from Uniprot_PTM
-    imputedDFext$PTMsite <- gsub("^(\\S+?)(_ph.*)", "\\2", imputedDFext$Uniprot_PTM, perl = T)
+    imputedDFext$PTMsite <- gsub("^(\\S+?)(_ph.*)", "\\2", imputedDFext$Uniprot_PTM, perl = TRUE)
     imputedDFext$PTMsite <- gsub("^(_ph)","", imputedDFext$PTMsite)
     imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
     # And create independent columns for each of them
@@ -1158,7 +1170,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
     
     outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
     outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
-    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
+    write.table(imputedDFext, outlog2fcImputext, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
   }else if(isPtm == "yesptmsites"){
     imputedDFext <- df
     #1. Change the Protein name
@@ -1172,8 +1184,8 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
     
     # 4. And take the labels:
     imputedDFext$Protein <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$PTMone), 
-                                   gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$PTMone, perl = T) , 
-                                   gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = T)) 
+                                   gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1", imputedDFext$PTMone, perl = TRUE) , 
+                                   gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = TRUE)) 
     imputedDFext$PTMsite <- gsub("(\\S+)(_[S,T,Y,K])(\\d+)","\\3",imputedDFext$PTMone)
     
     imputedDFext <- artms_annotationUniprot(imputedDFext, 'Protein', specie)
@@ -1185,7 +1197,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
     
     outlog2fcImputext <- gsub(".txt","-imputedL2fcExtended.txt", log2fc_file)
     outlog2fcImputext <- paste0(output_dir,"/",outlog2fcImputext)
-    write.table(imputedDFext, outlog2fcImputext, quote = F, sep = "\t", row.names = F, col.names = T)
+    write.table(imputedDFext, outlog2fcImputext, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
   }else{
     stop("--- YOU SHOULD NOT SEE THIS MESSAGE. PLEASE, LET THE DEVELOPER KNOW ABOUT THIS MESSAGE\n. THANKS\n")
   }
@@ -1243,7 +1255,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   # 
   # 2. Select the bottom 20 intensities
   # Grab the bottom 30 intensities in the dataset
-  dfmqOrdered <- dfmq[order(dfmq$ABUNDANCE, decreasing = F),]
+  dfmqOrdered <- dfmq[order(dfmq$ABUNDANCE, decreasing = FALSE),]
   
   numberFromBottom <- 10
   abuBottom <- head(dfmqOrdered$ABUNDANCE, n = numberFromBottom)
@@ -1255,7 +1267,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   numbers2sample <- seq(from=theMin, to=theMax, by=.00001)
   
   # dcast on abundance and fill with random numbers between the minimum and q05
-  suppressWarnings(dfdc.im <- data.table::dcast(data=abu2imp2, Protein~BioReplicate, value.var = "Abundance", fill = sample(numbers2sample, replace = F)  ) )
+  suppressWarnings(dfdc.im <- data.table::dcast(data=abu2imp2, Protein~BioReplicate, value.var = "Abundance", fill = sample(numbers2sample, replace = FALSE)  ) )
   
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
@@ -1290,7 +1302,7 @@ artms_generatePhSiteExtended <- function(df, pathogen, specie, ptmType){
   # And let's add p-values
   samplingPvalue <- seq(from=0.01, to=0.05, by=.0000001)
   # And add imputed pvalues
-  imputedL2FCmelted$iPvalue <- sample(samplingPvalue, size = nrow(imputedL2FCmelted), replace = F)
+  imputedL2FCmelted$iPvalue <- sample(samplingPvalue, size = nrow(imputedL2FCmelted), replace = FALSE)
   
   return (imputedL2FCmelted)
 }

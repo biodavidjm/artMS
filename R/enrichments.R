@@ -33,27 +33,55 @@
 #' @title Enrichment of changes in protein abundance or PTMs
 #' 
 #' @description Enrichment analysis of the selected proteins 
-#' @param data (data.frame) with `Gene` and `Comparison` columns
-#' @param fileout (char) Name for the output file
+#' @param dataset (data.frame) with a `Gene` and `Comparison or Label` (with
+#' the name of the comparisons specified in the contrast file) columns
 #' @param specie (char) Specie, only supported "human" or "mouse"
-#' @param background (vector) Background genes for the enrichment analysis. 
+#' @param background (vector) Background genes for the enrichment analysis.
+#' @param heatmaps (logical) if `TRUE` generates heatmaps (pdf), 
+#' `FALSE` (default) otherwise.
+#' @param output_name (char) Name of the annotation files, which will be used
+#' as well for the heatmaps (if `heatmaps` is selected)
+#' Default `output_name = "enrichment.txt"`
 #' @return (data.frame) Results from the enrichment analysis using Gprofiler
+#' and heatmaps (if selected)
 #' @keywords enrichment
-#' @examples \donttest{
-#' artms_enrichLog2fc(data = df, 
-#'                    fileout = "results-enrich.txt", 
+#' @examples
+#' # The data must be annotated (Protein and Gene columns)
+#' data_annotated <- artms_annotationUniprot(
+#'                       data = artms_data_ph_msstats_results, 
+#'                       columnid = "Protein", 
+#'                       sps = "human")
+#' # And then the enrichment
+#' enrich_set <- artms_enrichLog2fc(
+#'                    dataset = data_annotated, 
 #'                    specie = "human", 
-#'                    background = df$Gene)
-#' }
+#'                    background = unique(data_annotated$Gene))
 #' @export
-artms_enrichLog2fc <- function(data, fileout, specie, background){
+artms_enrichLog2fc <- function(dataset, 
+                               specie, 
+                               background,
+                               heatmaps = FALSE,
+                               output_name = "enrichment.txt"){
   
-  # data <- filallsig_log2fc_long
-  # fileout <- out.mac.allsig
-  # background <- listOfGenes
+  # Check point
+  if(heatmaps){
+    if(!grepl("\\.txt", output_name)){
+      stop("WRONG output_name VALUE: DOES NOT HAVE EXTENSION .txt)")
+    }
+  }
+  
+  # First check the "comparisons" column. if it is a msstats results file
+  # should have instead the "Label" column.
+  if(!any(grepl("Comparisons", colnames(dataset)))){
+    if(any(grepl("Label", colnames(dataset)))){
+      dataset <- artms_changeColumnName(dataset, "Label", "Comparisons")
+    }else{
+      stop("THE DATASET DOES NOT HAVE A <Label> or <Comparisons> column")
+    }
+  }
   
   # Selecting unique genes in each comparison
-  pretmp <- data[c('Gene', 'Comparisons')]
+  pretmp <- dataset[c('Gene', 'Comparisons')]
   pretmp <- unique(pretmp)
   
   tmp = split(pretmp$Gene, pretmp$Comparisons, drop=T)
@@ -66,18 +94,20 @@ artms_enrichLog2fc <- function(data, fileout, specie, background){
     stop("\nSORRY, this specie (",specie,") is not supported in the enrichment!!\n")
   }
   
-  enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500),]
-  
-  for( i in unique(enrichgenes2plot$domain) ){
-    cat("\t--- Plotting '", i, "' annotations... ")
-    tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
-    outfile <- gsub(".txt", paste0("_",i, ".txt"), fileout )
-    .artms_EnrichmentPlotHeatmaps(tmp, outfile)
-    cat("done!\n")
+  if(dim(enrichgenes)[1] == 0){
+    cat("--- NO SIGNIFICANT RESULTS from the ENRICHMENT ANALYSIS\n")
+  }else{
+    if(is.null(heatmaps)){
+      enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500),]
+      for( i in unique(enrichgenes2plot$domain) ){
+        cat("\t--- Plotting '", i, "' annotations... ")
+        tmp <- enrichgenes2plot[which(enrichgenes2plot$domain == i),]
+        outfile <- gsub(".txt", paste0("_",i, ".txt"), output_name )
+        .artms_EnrichmentPlotHeatmaps(tmp, outfile)
+        cat("out!\n")
+      }
+    }
   }
-  # DECIDE: add the cleaning?
-  # OUTenrich <- cleanGPROFILER(enrichgenes)
-  # return(OUTenrich)
   return(enrichgenes)
 }
 
