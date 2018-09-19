@@ -26,7 +26,7 @@
         } else {
           x <- read.delim(input_file, stringsAsFactors = F)
         }
-    } else {
+    }else{
         stop("There is something wrong with the file/object you submitted:", 
              input_file, 
 "Please check that the file directory is correct, 

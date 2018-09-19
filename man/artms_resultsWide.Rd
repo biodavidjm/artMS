@@ -4,14 +4,26 @@
 \alias{artms_resultsWide}
 \title{Reshape the MSstats results file from long to wide format}
 \usage{
-artms_resultsWide(evidence_file, output_file)
+artms_resultsWide(results_msstats, output_file = NULL,
+  select_pvalues = "adjpvalue", specie)
 }
 \arguments{
-\item{evidence_file}{(char) Input file name and location
+\item{results_msstats}{(char) Input file name and location
 (MSstats \code{results.txt} file)}
 
 \item{output_file}{(char) Output file name and location
-(e.g. \code{results-wide.txt})}
+(e.g. \code{results-wide.txt}). If \code{NULL} (default) returns an
+R object (data.frame)}
+
+\item{select_pvalues}{(char) Either
+\itemize{
+\item \code{pvalue} or
+\item \code{adjpvalue} (default)
+}}
+
+\item{specie}{(char) Specie name for annotation purposes.
+Check \code{?artms_mapUniprot2entrezGeneName} to find out more about the
+supported species (e.g \code{specie = "human"})}
 }
 \value{
 (output file tab delimited) reshaped file with unique protein ids
@@ -25,8 +37,10 @@ of each comparison will be its own column.
 }
 \examples{
 \donttest{
-artms_resultsWide(evidence_file = "ab-results.txt", 
-                  output_file = "ab-results-wide.txt")
+ph_results_wide <- artms_resultsWide(
+                         results_msstats = artms_data_ph_msstats_results,
+                         output_file = NULL,
+                         specie = "human")
 }
 }
 \keyword{msstats,}

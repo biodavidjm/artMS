@@ -18,7 +18,6 @@
 Total number of unique peptide identified per biological
 replicate
 }
-\keyword{.artms_samplePeptideBarplot()}
 \keyword{barplot,}
 \keyword{counts,}
 \keyword{peptides}

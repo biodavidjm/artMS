@@ -64,9 +64,10 @@
 #' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
 #' @examples{
-#' artms_changeColumnName(dataset = artms_data_ph_evidence, 
-#'                        oldname = "Phospho..STY.", 
-#'                        newname = "PH_STY")
+#' artms_data_ph_evidence <- artms_changeColumnName(
+#'                                dataset = artms_data_ph_evidence, 
+#'                                oldname = "Phospho..STY.", 
+#'                                newname = "PH_STY")
 #' }
 #' @export
 artms_changeColumnName <- function(dataset, oldname, newname){
@@ -133,7 +134,7 @@ artms_changeColumnName <- function(dataset, oldname, newname){
 #' @export
 artms_filterEvidenceContaminants <- function(data){
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
-  data_selected = data[grep("CON__|REV__",data$Proteins, invert=T),]
+  data_selected <- data[grep("CON__|REV__",data$Proteins, invert=T),]
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if(length(blank.idx)>0)  data_selected = data_selected[-blank.idx,]
@@ -262,24 +263,47 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' @param results_msstats (char) Input file name and location 
 #' (MSstats `results.txt` file)
 #' @param output_file (char) Output file name and location 
-#' (e.g. `results-wide.txt`)
+#' (e.g. `results-wide.txt`). If `NULL` (default) returns an 
+#' R object (data.frame)
+#' @param select_pvalues (char) Either 
+#' - `pvalue` or 
+#' - `adjpvalue` (default)
+#' @param specie (char) Specie name for annotation purposes. 
+#' Check `?artms_mapUniprot2entrezGeneName` to find out more about the 
+#' supported species (e.g `specie = "human"`)
 #' @return (output file tab delimited) reshaped file with unique protein ids 
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
 #' @examples \donttest{
-#' artms_resultsWide(results_msstats = "ab-results.txt", 
-#'                   output_file = "ab-results-wide.txt")
+#' ph_results_wide <- artms_resultsWide(
+#'                          results_msstats = artms_data_ph_msstats_results,
+#'                          output_file = NULL,
+#'                          specie = "human")
 #' }
 #' @export
-artms_resultsWide <- function(results_msstats, output_file){
-  cat(">> PRINTING OUT MSSTATS RESULTS IN wide FORMAT\n")
-  input = fread(results_msstats, integer64 = 'double')
-  input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'), with=F], id.vars = c('Protein', 'Label'))
+artms_resultsWide <- function(results_msstats, 
+                              output_file = NULL, 
+                              select_pvalues = "adjpvalue",
+                              specie){
   
+  cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
+  results_msstats <- .artms_checkIfFile(results_msstats)
+  
+  if(select_pvalues == "adjpvalue"){
+    input_l <- reshape2::melt(data <- results_msstats[,c('Protein', 'Label','log2FC','adj.pvalue')], id.vars = c('Protein', 'Label'))
+  }else if(select_pvalues == "pvalue"){
+    input_l <- reshape2::melt(data = results_msstats[,c('Protein', 'Label','log2FC','pvalue')], id.vars = c('Protein', 'Label'))
+  }
+
   ## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w = dcast.data.table( Protein ~ Label+variable, data=input_l, value.var=c('value'))
-  write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-  cat("--- done!\n")
+  input_w <- data.table::dcast( Protein~Label+variable, data=input_l, value.var=c('value'))
+  suppressMessages(input_w <- artms_annotationUniprot(input_w, "Protein", specie))
+  if(!is.null(output_file)){
+    write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+    cat("--- Results wide are out!\n")
+  }else{
+    return(input_w)
+  }
 }
 
 # ------------------------------------------------------------------------------
@@ -292,7 +316,6 @@ artms_resultsWide <- function(results_msstats, output_file){
 #' @param config (yaml.object) Configuration object (yaml loaded)
 #' @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
 #' @keywords internal, heatmap, intensity, comparisons
-#' .artms_sampleCorrelationHeatmap()
 .artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
   mat = log2(data_w[,4:ncol(data_w),with=F])
   mat[is.na(mat)]=0
@@ -317,7 +340,6 @@ artms_resultsWide <- function(results_msstats, output_file){
 #' @param config (yaml.object) Configuration object
 #' @return (pdf) Barplot of peptide counts
 #' @keywords barplot, counts, peptides
-#' .artms_samplePeptideBarplot()
 .artms_samplePeptideBarplot <- function(data_f, config){
   # set up data into ggplot compatible format
   data_f <- data.table(data_f, labels=paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))

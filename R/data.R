@@ -128,6 +128,18 @@
 #' }
 "artms_data_ph_keys"
 
+#' MSstats results file example
+#'
+#' @description Relative quantification results obtained running MSstats
+#' on a PH datasets (global analysis). Changes in protein phosphorylation
+#' were quantified between two conditions
+#'
+#' @format A data frame resulting from running the lastest version of MSstats
+"artms_data_ph_msstats_results"
+
+
+
+
 #' Random data set
 #'
 #' Dataset randomly generated for testing purposes

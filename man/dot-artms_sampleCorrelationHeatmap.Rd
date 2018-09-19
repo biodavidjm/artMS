@@ -21,7 +21,6 @@ function}
 Correlation heatmap using intensity values across all the
 conditions
 }
-\keyword{.artms_sampleCorrelationHeatmap()}
 \keyword{comparisons}
 \keyword{heatmap,}
 \keyword{intensity,}
