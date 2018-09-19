@@ -121,7 +121,7 @@ artms_evidenceQC <- function(evidence_file,
   evisummary <- aggregate(Intensity~Condition+BioReplicate+Contaminant+Run, data=evigeneral, FUN = sum)
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
-  evidencekeysclean <- artms_filterMaxqData(evidencekeys)
+  evidencekeysclean <- artms_filterEvidenceContaminants(evidencekeys)
   
   cat(">> GENERATING THE REPRODUCIBILITY PLOTS (warning: it will take some time)\n")
   seqReproName <- paste0(output_name,".qcplot.basicReproducibility.pdf")

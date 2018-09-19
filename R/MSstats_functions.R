@@ -100,7 +100,7 @@ artms_changeColumnName <- function(dataset, oldname, newname){
   
   if(config$data$filters$contaminants){
     cat("\tCONTAMINANTS\tREMOVE\n")
-    data_f <- artms_filterMaxqData(data_f)  
+    data_f <- artms_filterEvidenceContaminants(data_f)  
   }
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification COULD BE EMPTY
@@ -123,16 +123,15 @@ artms_changeColumnName <- function(dataset, oldname, newname){
 #' @title Remove contaminants and empty proteins from the MaxQuant evidence file
 #' 
 #' @description Remove contaminants and erronously identified 'reverse' 
-#' sequences by MaxQuant
+#' sequences by MaxQuant, in addition to empty protein ids
 #' @param data (data.frame) of the Evidence file
 #' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
 #' @examples \donttest{
-#' evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
-#' evidence_filtered <- artms_filterMaxqData(data = evidence)
+#' evidence_filtered <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
 #' }
 #' @export
-artms_filterMaxqData <- function(data){
+artms_filterEvidenceContaminants <- function(data){
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
   data_selected = data[grep("CON__|REV__",data$Proteins, invert=T),]
   # Remove empty proteins names

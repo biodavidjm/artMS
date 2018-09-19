@@ -51,7 +51,7 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
   } 
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
   data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
-  data_f <- artms_filterMaxqData(data)
+  data_f <- artms_filterEvidenceContaminants(data)
   data_f <- .artms_removeMaxQProteinGroups(data_f) ## do we want this or not?
   
   cat(">> AGGREGATING ON", quant_variable,"VALUES...\n")

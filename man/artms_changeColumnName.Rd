@@ -22,7 +22,7 @@ Making easier to change a column name in any data.frame
 \examples{
 {
 artms_changeColumnName(dataset = artms_data_ph_evidence, 
-                       oldname = "Phospho..STY", 
+                       oldname = "Phospho..STY.", 
                        newname = "PH_STY")
 }
 }
