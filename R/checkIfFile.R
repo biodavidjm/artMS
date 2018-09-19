@@ -8,8 +8,8 @@
 #' @param is.evidence (logical) Whether or not the file to be read in is an 
 #' evidence file. This will assign proper classes to the evidence file 
 #' when being read in.
+#' @return An R data object
 #' @keywords internal, file, evidence, input
-#' .artms_checkIfFile()
 .artms_checkIfFile <- function(input_file, is.evidence = FALSE) {
     # check if already a data.frame or data.table
     if (is.data.table(input_file)){
@@ -22,9 +22,9 @@
         if (is.evidence) {
           # we are not using this for now
           # x <- .artms_read_evidence_file(input_file)
-          x <- read.delim(input_file, stringsAsFactors = F)
+          x <- read.delim(input_file, stringsAsFactors = FALSE)
         } else {
-          x <- read.delim(input_file, stringsAsFactors = F)
+          x <- read.delim(input_file, stringsAsFactors = FALSE)
         }
     }else{
         stop("There is something wrong with the file/object you submitted:", 
@@ -41,13 +41,15 @@ or that the data is in `data.frame` or `data.table` format.")
 #' of columns for the evidence file. This function check whether the evidence
 #' it comes from the latest version of the evidence file.
 #' @param evidence_file the evidence file name
+#' @return (logical) `TRUE` if it is a newer version of MaxQuant, 
+#' `FALSE` otherwise
 #' @keywords file, evidence, input, check version
 #' @examples \donttest{
 #' artms_isEvidenceNewVersion(evidence_file = "/path/to/evidence.txt")
 #' }
 #' @export
 artms_isEvidenceNewVersion <- function(evidence_file){
-  rawEvidence <-read.delim(evidence_file, sep = "\t", quote = "", header = T, stringsAsFactors = F)
+  rawEvidence <-read.delim(evidence_file, sep = "\t", quote = "", header = TRUE, stringsAsFactors = FALSE)
   if( any(grepl("^Leading.proteins$", names(rawEvidence))) & any(grepl("^Leading.razor.protein$", names(rawEvidence))) ) {
     cat("(+)-- New MaxQuant version\n")
     return(TRUE)

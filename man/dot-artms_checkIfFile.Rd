@@ -13,12 +13,14 @@
 evidence file. This will assign proper classes to the evidence file
 when being read in.}
 }
+\value{
+An R data object
+}
 \description{
 This function is used in order to make it so a user can submit
 either a path to a data file or a data object in data.frame or data.table
 form.
 }
-\keyword{.artms_checkIfFile()}
 \keyword{evidence,}
 \keyword{file,}
 \keyword{input}

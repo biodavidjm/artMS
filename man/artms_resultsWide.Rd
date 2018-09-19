@@ -36,7 +36,7 @@ represents the comparison made by MSStats. The fold change and p-value
 of each comparison will be its own column.
 }
 \examples{
-\donttest{
+{
 ph_results_wide <- artms_resultsWide(
                          results_msstats = artms_data_ph_msstats_results,
                          output_file = NULL,

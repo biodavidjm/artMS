@@ -10,6 +10,10 @@ artms_isEvidenceNewVersion(evidence_file)
 \arguments{
 \item{evidence_file}{the evidence file name}
 }
+\value{
+(logical) \code{TRUE} if it is a newer version of MaxQuant,
+\code{FALSE} otherwise
+}
 \description{
 MaxQuant introduced changes in the column names and number
 of columns for the evidence file. This function check whether the evidence

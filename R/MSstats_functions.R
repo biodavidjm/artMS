@@ -274,7 +274,7 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' @return (output file tab delimited) reshaped file with unique protein ids 
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
-#' @examples \donttest{
+#' @examples{
 #' ph_results_wide <- artms_resultsWide(
 #'                          results_msstats = artms_data_ph_msstats_results,
 #'                          output_file = NULL,
@@ -387,35 +387,43 @@ artms_resultsWide <- function(results_msstats,
 #' @title Outputs the spectral counts from the MaxQuant evidence file.
 #' 
 #' @description Outputs the spectral counts from the MaxQuant evidence file.
-#' @param evidence_file (char) Maxquant evidence file
-#' @param keys_file (char) Keys file with the experimental design
-#' @param output_file (char) Output file name (add `.txt` extenstion)
+#' @param evidence_file (char) Maxquant evidence file or data object
+#' @param keys_file (char) Keys file with the experimental design or data object
+#' @param output_file (char) Output file name (add `.txt` extension). 
+#' If `NULL` (default) it returns a data.frame object
 #' @return A txt file with biological replicates, protein id, and spectral 
 #' count columns
 #' @keywords spectral_counts, evidence
-#' @examples \donttest{
-#' artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
-#'                      keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
-#'                      output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
+#' @examples{
+#' artms_spectralCounts(evidence_file = artms_data_ph_evidence, 
+#'                      keys_file = artms_data_ph_keys)
 #' }
 #' @export
-artms_spectralCounts <- function(evidence_file, keys_file, output_file){
+artms_spectralCounts <- function(evidence_file, 
+                                 keys_file, 
+                                 output_file = NULL){
+  
   cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
-  data <- fread(evidence_file, integer64 = 'double')
-  keys <- fread(keys_file, integer64 = 'double')
 
+  data <- .artms_checkIfFile(evidence_file)
+  keys <- .artms_checkIfFile(keys_file)
+  
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
 
-  if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
   
   data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
-  data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS/MS Count'), with=F]
-  setnames(data_sel, 'MS/MS Count', 'spectral_counts')
-  data_sel = aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
-  data_sel = data.frame(data_sel, AllCondition=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
-  write.table(data_sel[,c('AllCondition','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
-  cat(">> OUTPUT FILE <",output_file,"> is ready\n")
+  data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS.MS.count'), with=F]
+  data_sel <- artms_changeColumnName(data_sel, 'MS.MS.count', 'spectral_counts')
+  data_sel <- aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
+  data_sel <- data.frame(data_sel, AllCondition=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
+  
+  if(!is.null(output_file)){
+    write.table(data_sel[,c('AllCondition','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+    cat(">> OUTPUT FILE <",output_file,"> is ready\n")
+  }else{
+    return(data_sel)
+  }
 }
 
 # ------------------------------------------------------------------------------
@@ -434,13 +442,10 @@ artms_spectralCounts <- function(evidence_file, keys_file, output_file){
 #' @description It simplifies the process of creating the contrast file
 #' @param contrast_file The text filepath of contrasts
 #' @param all_conditions a vector with all the conditions in the keys file
+#' @return (data.frame) with the contrast file in the format required by
+#' MSstats
 #' @keywords check, contrast
-#' @examples \donttest{
-#' artms_writeContrast(contrast_file = "contrast.txt", 
-#'                     all_conditions = unique(keys$Condition))
-#' }
-#' @export
-artms_writeContrast <- function(contrast_file, all_conditions = NULL){
+.artms_writeContrast <- function(contrast_file, all_conditions = NULL){
   input_contrasts <- readLines(contrast_file, warn=F)
   #remove empty lines
   input_contrasts <- input_contrasts[sapply(input_contrasts, nchar) > 0]
@@ -500,6 +505,8 @@ artms_writeContrast <- function(contrast_file, all_conditions = NULL){
       }
     }
     return (contrast_matrix)
+  }else{
+    stop('Something went wrong while generating the contrast file. 
+         Please, let the developers know at <artms.help@gmail.com>')
   }
-  return (NA)
 }
