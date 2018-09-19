@@ -35,10 +35,8 @@ retention time. If a list of proteins is provided, then only those proteins
 will be summarized and returned.
 }
 \examples{
-{
 ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence, 
                                   specie = "human")
-}
 }
 \keyword{MaxQuant,}
 \keyword{caliberated}

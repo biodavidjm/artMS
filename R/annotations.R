@@ -11,14 +11,13 @@
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
-#' @examples{
+#' @examples
 #' # This example adds annotations to the evidence file available in 
 #' # artMS, based on the column "Proteins".
 #' 
 #' evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
 #'                                          columnid = "Proteins", 
 #'                                          sps = "human")
-#' }
 #' @export
 artms_annotationUniprot <- function(data, columnid, sps) {
   
@@ -43,9 +42,9 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Map UniprotKB to Entrez and Gene Name
+#' @title Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' 
-#' @description Map UniprotKB to Entrez and Gene Name
+#' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' @param uniprotkb (vector) Vector of UniprotKB IDs
 #' @param specie (char) The specie name. Currently supporting:
 #' - ANOPHELES
@@ -68,52 +67,55 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #' - XENOPUS
 #' @return (data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
 #' @keywords annotation, ids
-#' artms_mapUniprot2entrezGeneName()
+#' @examples
+#' uniprots_anno <- artms_mapUniprot2entrezGeneName(
+#'                        uniprotkb = unique(artms_data_ph_evidence$Proteins), 
+#'                        specie = "human")
 #' @export
 artms_mapUniprot2entrezGeneName <- function(uniprotkb, specie){
   
   specie <- toupper(specie)
   
   if(specie == "ANOPHELES"){
-    mappings <- AnnotationDbi::select(org.Ag.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Ag.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "ARABIDOPSIS"){
-    mappings <- AnnotationDbi::select(org.At.tair.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.At.tair.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "BOVINE"){
-    mappings <- AnnotationDbi::select(org.Bt.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Bt.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "WORM"){
-    mappings <- AnnotationDbi::select(org.Ce.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Ce.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "CANINE"){
-    mappings <- AnnotationDbi::select(org.Cf.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Cf.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "FLY"){
-    mappings <- AnnotationDbi::select(org.Dm.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Dm.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "ZEBRAFISH"){
-    mappings <- AnnotationDbi::select(org.Dr.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Dr.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "ECOLI_STRAIN_K12"){
-    mappings <- AnnotationDbi::select(org.EcK12.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.EcK12.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "ECOLI_STRAIN_SAKAI"){
-    mappings <- AnnotationDbi::select(org.EcSakai.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.EcSakai.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "CHICKEN"){
-    mappings <- AnnotationDbi::select(org.Gg.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Gg.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "HUMAN"){
-    mappings <- AnnotationDbi::select(org.Hs.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Hs.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "MOUSE"){
-    mappings <- AnnotationDbi::select(org.Mm.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Mm.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "RHESUS"){
-    mappings <- AnnotationDbi::select(org.Mmu.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Mmu.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "MALARIA"){
-    mappings <- AnnotationDbi::select(org.Pf.plasmo.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Pf.plasmo.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "CHIMP"){
-    mappings <- AnnotationDbi::select(org.Pt.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Pt.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "RAT"){
-    mappings <- AnnotationDbi::select(org.Rn.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Rn.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "YEAST"){
-    mappings <- AnnotationDbi::select(org.Sc.sgd.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Sc.sgd.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "PIG"){
-    mappings <- AnnotationDbi::select(org.Ss.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Ss.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else if(specie == "XENOPUS"){
-    mappings <- AnnotationDbi::select(org.Xl.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT")
+    suppressMessages(mappings <- AnnotationDbi::select(org.Xl.eg.db, uniprotkb, c("UNIPROT", "SYMBOL","GENENAME", "ENTREZID"), keytype = "UNIPROT"))
   }else{
-    cat("ERROR: Specie not supported.")
+    cat("\nERROR: Specie not supported.")
     stop("PLEASE, CHECK HELP TO FIND OUT MORE ABOUT SUPPORTED SPECIES")
   }
   mappings <- unique(mappings)

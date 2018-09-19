@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotations.R
 \name{artms_mapUniprot2entrezGeneName}
 \alias{artms_mapUniprot2entrezGeneName}
-\title{Map UniprotKB to Entrez and Gene Name}
+\title{Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS}
 \usage{
 artms_mapUniprot2entrezGeneName(uniprotkb, specie)
 }
@@ -35,8 +35,12 @@ artms_mapUniprot2entrezGeneName(uniprotkb, specie)
 (data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
 }
 \description{
-Map UniprotKB to Entrez and Gene Name
+Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
+}
+\examples{
+uniprots_anno <- artms_mapUniprot2entrezGeneName(
+                       uniprotkb = unique(artms_data_ph_evidence$Proteins), 
+                       specie = "human")
 }
 \keyword{annotation,}
-\keyword{artms_mapUniprot2entrezGeneName()}
 \keyword{ids}

@@ -26,6 +26,7 @@
 #' used in an R pipeline and you want to feed the results directly into the 
 #' next stage of analysis via an R environment/terminal. 
 #' Regardless, the results will be written to file. Default = FALSE
+#' @return (data.frame or txt file) with the summary
 #' @keywords MaxQuant, evidence, MSStats, summary
 #' @examples \donttest{
 #' artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 

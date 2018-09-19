@@ -11,7 +11,6 @@
 #' @param funfunc (char) The function to use to aggregating the data if it is a 
 #' fractionated experiment (default: `sum`)
 #' @keywords internal, MSstats, format, input, fractions
-#' .artms_getMSstatsFormat()
 .artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
   data_f <- artms_changeColumnName(data_f, "Modified.sequence", "PeptideSequence")

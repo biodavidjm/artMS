@@ -22,11 +22,9 @@ count columns
 Outputs the spectral counts from the MaxQuant evidence file.
 }
 \examples{
-{
 summary_spectral_counts <- artms_spectralCounts(
                                  evidence_file = artms_data_ph_evidence, 
                                  keys_file = artms_data_ph_keys)
-}
 }
 \keyword{evidence}
 \keyword{spectral_counts,}

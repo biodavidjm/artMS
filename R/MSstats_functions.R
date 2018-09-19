@@ -63,12 +63,11 @@
 #' @param newname (char) the new name for that column
 #' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
-#' @examples{
+#' @examples
 #' artms_data_ph_evidence <- artms_changeColumnName(
 #'                                dataset = artms_data_ph_evidence, 
 #'                                oldname = "Phospho..STY.", 
 #'                                newname = "PH_STY")
-#' }
 #' @export
 artms_changeColumnName <- function(dataset, oldname, newname){
   if( !(oldname %in% colnames(dataset)) ){
@@ -85,8 +84,8 @@ artms_changeColumnName <- function(dataset, oldname, newname){
 #' contaminants, and/or, select posttranslational modification (if any)
 #' @param data (data.frame) Evidence file
 #' @param config (yaml.object) Configuration object (opened yaml file)
+#' @return (data.frame) filtered according to the options selected
 #' @keywords internal, filtering, remove, proteingroups, ptms
-#' .artms_filterData()
 .artms_filterData <- function(data, config){
   cat("\n>> FILTERING\n")
   if(config$data$filters$protein_groups == 'remove'){
@@ -152,10 +151,9 @@ artms_filterEvidenceContaminants <- function(data){
 #' Default: `by=c('RawFile')`
 #' @return (data.frame) with the evidence and keys merged
 #' @keywords merge, evidence, keys
-#' @examples{
+#' @examples
 #' evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence, 
 #'                                            keys = artms_data_ph_keys)
-#' }
 #' @export
 artms_mergeEvidenceAndKeys <- function(data, keys, by=c('RawFile')){
   cat(">> MERGING evidence AND keys FILES\n")
@@ -272,12 +270,11 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' @return (output file tab delimited) reshaped file with unique protein ids 
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
-#' @examples{
+#' @examples
 #' ph_results_wide <- artms_resultsWide(
 #'                          results_msstats = artms_data_ph_msstats_results,
 #'                          output_file = NULL,
 #'                          specie = "human")
-#' }
 #' @export
 artms_resultsWide <- function(results_msstats, 
                               output_file = NULL, 
@@ -392,11 +389,10 @@ artms_resultsWide <- function(results_msstats,
 #' @return A txt file with biological replicates, protein id, and spectral 
 #' count columns
 #' @keywords spectral_counts, evidence
-#' @examples{
+#' @examples
 #' summary_spectral_counts <- artms_spectralCounts(
 #'                                  evidence_file = artms_data_ph_evidence, 
 #'                                  keys_file = artms_data_ph_keys)
-#' }
 #' @export
 artms_spectralCounts <- function(evidence_file, 
                                  keys_file, 
@@ -431,7 +427,6 @@ artms_spectralCounts <- function(evidence_file,
 #' @description Remove white spaces
 #' @param x (vector) A string
 #' @keywords internal remove, whitespace
-#' .artms_trim()
 .artms_trim <- function (x){
   gsub("^\\s+|\\s+$", "", x)
 }

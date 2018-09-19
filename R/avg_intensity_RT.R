@@ -20,10 +20,9 @@
 #' output_file argument is provided). It contains averages of Intensity, 
 #' Retention Time, Caliberated Retention Time
 #' @keywords MaxQuant, evidence, summary, intensity, retention time, caliberated
-#' @examples{
+#' @examples
 #' ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence, 
 #'                                   specie = "human")
-#' }
 #' @export
 artms_avg_intensity_RT <- function(evidence_file, 
                                    protein_file = NULL, 

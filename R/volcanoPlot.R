@@ -11,6 +11,7 @@
 #' @param decimal_threshold (numeric) Decimal threshold for the pvalue. 
 #' Default: 16 (10^-16)
 #' @keywords plot, volcano
+#' @return (pdf) of a volcano plot
 #' @examples \donttest{
 #' # Open the msstats results
 #' mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
