@@ -22,7 +22,6 @@ Takes as input a reduced version of the Evidence file and
 generates the input data.frame required by MSstats.
 It processes fractionated data as well.
 }
-\keyword{.artms_getMSstatsFormat()}
 \keyword{MSstats,}
 \keyword{format,}
 \keyword{fractions}

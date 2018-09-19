@@ -7,12 +7,8 @@
 #' @param df (data.frame) Data.frame with columns: `Protein` and `Conditions`
 #' @param backgroundNumber (int) Background number of genes
 #' @return (data.frame) A text delimited data.frame with protein complex enrichment results
-#' @keywords enrichment, protein, complexes
-#' @examples \donttest{
-#' artms_enrichForComplexes(df = dfobject, backgroundNumber = length(dfobject$Gene))
-#' }
-#' @export
-artms_enrichForComplexes <- function(df, backgroundNumber){
+#' @keywords internal, enrichment, protein, complexes
+.artms_enrichForComplexes <- function(df, backgroundNumber){
   
   listOfConditions <- unique(df$Comparisons)
 

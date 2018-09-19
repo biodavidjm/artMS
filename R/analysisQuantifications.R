@@ -594,7 +594,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
       
       # CORUM
-      allsigComplexEnriched <- artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
+      allsigComplexEnriched <- .artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
       
       if(dim(allsigComplexEnriched)[1] > 0){
         out.mac.allsig.corum <- gsub(".txt","-enrich-MAC-allsignificants-corum.txt",log2fc_file)
@@ -633,7 +633,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
       
       # CORUM
-      positiveComplexEnriched <- artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
+      positiveComplexEnriched <- .artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
       
       if(dim(positiveComplexEnriched)[1] > 0){
         out.mac.pos.corum <- gsub(".txt","-enrich-MAC-positives-corum.txt",log2fc_file)
@@ -676,7 +676,7 @@ artms_analysisQuantifications <- function(log2fc_file,
 
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
 
-      negativesComplexEnriched <- artms_enrichForComplexes(filneg_log2fc_long, backgroundNumber)
+      negativesComplexEnriched <- .artms_enrichForComplexes(filneg_log2fc_long, backgroundNumber)
       
       if(dim(negativesComplexEnriched)[1] > 0){
         out.mac.neg.corum <- gsub(".txt","-enrich-MAC-negatives-corum.txt",log2fc_file)

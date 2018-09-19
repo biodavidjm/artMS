@@ -28,6 +28,9 @@ used in an R pipeline and you want to feed the results directly into the
 next stage of analysis via an R environment/terminal.
 Regardless, the results will be written to file. Default = FALSE}
 }
+\value{
+(data.frame or txt file) with the summary
+}
 \description{
 Converts the MSStats results file to wide format
 (unique Protein ID and columns are the comparisons), as well as adds

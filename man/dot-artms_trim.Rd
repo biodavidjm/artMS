@@ -12,7 +12,6 @@
 \description{
 Remove white spaces
 }
-\keyword{.artms_trim()}
 \keyword{internal}
 \keyword{remove,}
 \keyword{whitespace}

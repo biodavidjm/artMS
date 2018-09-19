@@ -23,6 +23,9 @@ artms_volcanoPlot(mss_results_sel, lfc_upper, lfc_lower, FDR,
 \item{decimal_threshold}{(numeric) Decimal threshold for the pvalue.
 Default: 16 (10^-16)}
 }
+\value{
+(pdf) of a volcano plot
+}
 \description{
 It generates a scatter-plot used to quickly identify changes
 }

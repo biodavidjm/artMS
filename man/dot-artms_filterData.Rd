@@ -11,11 +11,13 @@
 
 \item{config}{(yaml.object) Configuration object (opened yaml file)}
 }
+\value{
+(data.frame) filtered according to the options selected
+}
 \description{
 Apply the filtering options, i.e., remove protein groups and/or
 contaminants, and/or, select posttranslational modification (if any)
 }
-\keyword{.artms_filterData()}
 \keyword{filtering,}
 \keyword{internal,}
 \keyword{proteingroups,}
