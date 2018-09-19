@@ -14,6 +14,7 @@
 #' file (txt tab delimited file).
 #' @param keys_file (char) The filepath to the MSStats formatted keys file 
 #' (txt tab delimited file).
+#' @return (shiny) app to choose a protein to be use for normalization
 #' @keywords internal, msstat, reference protein, normalization
 .select_ref <- function(keys_file, dat_file) {
     
