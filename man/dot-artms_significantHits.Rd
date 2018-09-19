@@ -5,7 +5,7 @@
 \title{Select significant hits}
 \usage{
 .artms_significantHits(mss_results, labels = "*", LFC = c(-2, 2),
-  FDR = 0.05)
+  whatPvalue = "adj.pvalue", FDR = 0.05)
 }
 \arguments{
 \item{mss_results}{(data.frame) of MSstats results}
@@ -14,6 +14,8 @@
 
 \item{LFC}{(vector, int) with the negative and positive threshold. Default:
 c(-2, 2)}
+
+\item{whatPvalue}{(char) \code{pvalue} or \code{adj.pvalue} (default)?}
 
 \item{FDR}{(int) false discovery rate (adj.pvalue) threshold. Default: 0.05}
 }

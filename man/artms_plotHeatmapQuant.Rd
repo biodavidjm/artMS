@@ -5,14 +5,17 @@
 \title{Outputs a heatmap of the MSStats results created using the log2fold
 changes}
 \usage{
-artms_plotHeatmapQuant(input_file, output_file, specie, labels = "*",
+artms_plotHeatmapQuant(input_file,
+  output_file = "quantifications_heatmap.pdf", specie, labels = "*",
   cluster_cols = FALSE, display = "log2FC", lfc_lower = -2,
-  lfc_upper = 2, FDR = 0.05)
+  lfc_upper = 2, whatPvalue = "adj.pvalue", FDR = 0.05)
 }
 \arguments{
-\item{input_file}{(char) MSstats \code{results.txt} file and location}
+\item{input_file}{(char) MSstats \code{results.txt} file and location (or
+data.frame of resuts)}
 
-\item{output_file}{(char) Output file name (pdf format) and location}
+\item{output_file}{(char) Output file name (pdf format) and location.
+Default:"quantifications_heatmap.pdf"}
 
 \item{specie}{(char). Specie name to be able to add the Gene name. To find
 out more about the supported species check \code{?artms_mapUniprot2entrezGeneName}}
@@ -34,14 +37,29 @@ Default: FALSE}
 
 \item{lfc_upper}{(int) Upper limit for the log2fc. Default: +2}
 
-\item{FDR}{(int) Upper limit false discovery rate. Default: 0.05}
+\item{whatPvalue}{(char) \code{pvalue} or \code{adj.pvalue} (default)?}
+
+\item{FDR}{(int) Upper limit false discovery rate (or pvalue). Default: 0.05}
 }
 \value{
-(pdf) heatmap of the MSStats results using the selected metric
+(pdf or ggplot2 object) heatmap of the MSStats results using the
+selected metric
 }
 \description{
 Heatmap of the Relative Quantifications (MSStats results)
 }
-\keyword{artms_plotHeatmapQuant()}
+\keyword{"human",}
+\keyword{"pvalue",}
+\keyword{-1,}
+\keyword{1)}
+\keyword{=}
+\keyword{NULL,}
+\keyword{artms_data_ph_msstats_results,}
+\keyword{artms_plotHeatmapQuant(input_file}
 \keyword{heatmap,}
+\keyword{lfc_lower}
+\keyword{lfc_upper}
 \keyword{log2fc}
+\keyword{output_file}
+\keyword{specie}
+\keyword{whatPvalue}

@@ -363,17 +363,34 @@ artms_resultsWide <- function(results_msstats,
 #' @param labels (vector) of selected labels. Default: all (`*`)
 #' @param LFC (vector, int) with the negative and positive threshold. Default: 
 #' c(-2, 2)
+#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)? 
 #' @param FDR (int) false discovery rate (adj.pvalue) threshold. Default: 0.05
 #' @return (data.frame) only with significant hits
 #' @keywords internal, significant, selections
 #' .artms_significantHits()
-.artms_significantHits <- function(mss_results, labels='*', LFC=c(-2,2), FDR=0.05){
-  ## get subset based on labels
-  selected_results = mss_results[grep(labels,mss_results$Label), ]
-  # cat(sprintf('>> AVAILABLE LABELS FOR HEATMAP:\n %s\n',paste(unique(mss_results$Label), collapse=', ')))
-  # cat(sprintf('>> SELECTED LABELS FOR HEATMAP:\n %s\n',paste(unique(selected_results$Label), collapse=', ')))
-  significant_proteins = selected_results[(!is.na(selected_results$log2FC) & selected_results$adj.pvalue <= FDR & (selected_results$log2FC >= LFC[2] | selected_results$log2FC <= LFC[1])) , 'Protein']
-  significant_results = selected_results[selected_results$Protein %in% significant_proteins, ]
+.artms_significantHits <- function(mss_results, 
+                                   labels = '*', 
+                                   LFC = c(-2,2),
+                                   whatPvalue = 'adj.pvalue',
+                                   FDR = 0.05){
+  
+  selected_results <- mss_results[grep(labels, mss_results$Label), ]
+
+  if(whatPvalue == "adj.pvalue"){
+    significant_proteins <- selected_results[(!is.na(selected_results$log2FC) & 
+                             selected_results$adj.pvalue <= FDR & 
+                             (selected_results$log2FC >= LFC[2] | 
+                             selected_results$log2FC <= LFC[1])), 'Protein']
+  }else if(whatPvalue == "pvalue"){
+    significant_proteins <- selected_results[(!is.na(selected_results$log2FC) & 
+                            selected_results$pvalue <= FDR & 
+                            (selected_results$log2FC >= LFC[2] | 
+                            selected_results$log2FC <= LFC[1])), 'Protein']
+  }else{
+    stop("The whatPvalue argument is wrong. Valid options: pvalue or adj.pvalue")
+  }
+
+  significant_results <- selected_results[selected_results$Protein %in% significant_proteins, ]
   return(significant_results)
 }
 

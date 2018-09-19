@@ -142,8 +142,10 @@ artms_dataPlots <- function(input_file, output_file){
 #' changes
 #' 
 #' @description Heatmap of the Relative Quantifications (MSStats results)
-#' @param input_file (char) MSstats `results.txt` file and location
-#' @param output_file (char) Output file name (pdf format) and location
+#' @param input_file (char) MSstats `results.txt` file and location (or 
+#' data.frame of resuts)
+#' @param output_file (char) Output file name (pdf format) and location.
+#' Default:"quantifications_heatmap.pdf"
 #' @param specie (char). Specie name to be able to add the Gene name. To find
 #' out more about the supported species check `?artms_mapUniprot2entrezGeneName`
 #' @param labels (vector) of uniprot ids if only specific labes would like to
@@ -152,42 +154,60 @@ artms_dataPlots <- function(input_file, output_file){
 #' Default: FALSE
 #' @param lfc_lower (int) Lower limit for the log2fc. Default: -2
 #' @param lfc_upper (int) Upper limit for the log2fc. Default: +2
-#' @param FDR (int) Upper limit false discovery rate. Default: 0.05
+#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)? 
+#' @param FDR (int) Upper limit false discovery rate (or pvalue). Default: 0.05
 #' @param display Metric to be displayed. Options: 
 #' - `log2fc` (default)
 #' - `adj.pvalue`
 #' - `pvalue`
-#' @return (pdf) heatmap of the MSStats results using the selected metric
+#' @return (pdf or ggplot2 object) heatmap of the MSStats results using the 
+#' selected metric
 #' @keywords heatmap, log2fc
-#' artms_plotHeatmapQuant()
+#' artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results, 
+#'                        specie = "human",
+#'                        output_file = NULL,
+#'                        whatPvalue = "pvalue", 
+#'                        lfc_lower = -1, 
+#'                        lfc_upper = 1)
 #' @export
 artms_plotHeatmapQuant <- function(input_file, 
-                              output_file,
+                              output_file = "quantifications_heatmap.pdf",
                               specie,
-                              labels='*',
-                              cluster_cols= FALSE, 
-                              display='log2FC', 
-                              lfc_lower=-2,
-                              lfc_upper=2, 
+                              labels = '*',
+                              cluster_cols = FALSE, 
+                              display = 'log2FC', 
+                              lfc_lower = -2,
+                              lfc_upper = 2, 
+                              whatPvalue = "adj.pvalue",
                               FDR=0.05){
 
-  input <- read.delim(input_file, stringsAsFactors = FALSE)
-  
+  input <- .artms_checkIfFile(input_file)
+
   ## select data points  by LFC & FDR criterium in single condition and 
   ## adding corresponding data points from the other conditions
-  sign_hits <- .artms_significantHits(input,labels=labels,LFC=c(lfc_lower,lfc_upper),FDR=FDR)
+  sign_hits <- .artms_significantHits(input,
+                                      labels=labels,
+                                      LFC=c(lfc_lower, lfc_upper),
+                                      whatPvalue = whatPvalue,
+                                      FDR=FDR)
+  sign_hits <- sign_hits[complete.cases(sign_hits$log2FC),]
+  sign_hits <- sign_hits[is.finite(sign_hits$log2FC),]
+  if( dim(sign_hits)[1] == 0){
+    stop("--- NOT ENOUGH SIGNIFICANT HITS!")
+  }
+  
   sign_labels <- unique(sign_hits$Label)
   cat(sprintf(">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s\n",lfc_lower, lfc_upper, FDR, nrow(sign_hits)/length(sign_labels))) 
   
   suppressMessages(
     sign_hits <- artms_annotationUniprot(data = sign_hits, 
-                                                        columnid = "Protein", 
-                                                        sps = specie))
+                                         columnid = "Protein", 
+                                         sps = specie))
   
   ## REPRESENTING RESULTS AS HEATMAP
   ## plot heat map for all contrasts
   if(any(grepl('Gene',colnames(sign_hits)))){
-    heat_labels <- paste(sign_hits$Protein,sign_hits$Gene, sep=' ')  
+    heat_labels <- paste(sign_hits$Protein, sign_hits$Gene, sep='_')  
   }else{
     heat_labels <- sign_hits$Protein
   }
@@ -195,7 +215,7 @@ artms_plotHeatmapQuant <- function(input_file,
   heat_labels <- gsub('\\sNA$','',heat_labels)
   
   # Old PlotHeat function:
-  heat_data = data.frame(sign_hits, heat_labels=heat_labels)
+  heat_data <- data.frame(sign_hits, heat_labels=heat_labels)
   
   ## create matrix from log2FC or p-value as user defined
   if(display=='log2FC'){
@@ -204,32 +224,50 @@ artms_plotHeatmapQuant <- function(input_file,
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[ idx ] <- NA
     }
-    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
+    heat_data_w <- data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='log2FC') 
   }else if(display=='adj.pvalue'){
-    heat_data$adj.pvalue = -log10(heat_data$adj.pvalue+10^-16)  
-    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
+    heat_data$adj.pvalue <- -log10(heat_data$adj.pvalue+10^-16)  
+    heat_data_w <- data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='adj.pvalue')  
   }else if(display=='pvalue'){
-    heat_data$pvalue = -log10(heat_data$pvalue+10^-16)  
-    heat_data_w = data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
+    heat_data$pvalue <- -log10(heat_data$pvalue+10^-16)  
+    heat_data_w <- data.table::dcast(heat_labels ~ Label, data=heat_data, value.var='pvalue')  
   }
-  
-  ## try
-  #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
-  rownames(heat_data_w) = heat_data_w$heat_labels
-  heat_data_w = heat_data_w[,-1]
+
+  #gene_names <- uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
+  rownames(heat_data_w) <- heat_data_w$heat_labels
+  heat_data_w <- heat_data_w[,-1]
   heat_data_w[is.na(heat_data_w)]=0
-  max_val = ceiling(max(heat_data_w))
-  min_val = floor(min(heat_data_w))
-  extreme_val = max(max_val, abs(min_val))
+  max_val <- ceiling(max(heat_data_w))
+  min_val <- floor(min(heat_data_w))
+  extreme_val <- max(max_val, abs(min_val))
   if(extreme_val %% 2 != 0) extreme_val=extreme_val+1
   bin_size=2
-  signed_bins = (extreme_val/bin_size)
-  colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
-  colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
-  colors_tot = c(colors_neg, colors_pos)
+  signed_bins <- (extreme_val/bin_size)
+  colors_neg <- rev(colorRampPalette(RColorBrewer::brewer.pal("Blues",n=extreme_val/bin_size))(signed_bins))
+  colors_pos <- colorRampPalette(RColorBrewer::brewer.pal("Reds",n=extreme_val/bin_size))(signed_bins)
+  colors_tot <- c(colors_neg, colors_pos)
   
-  pheatmap(heat_data_w, scale="none", cellheight=10, cellwidth=10, filename = output_file, color=colors_tot, breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), cluster_cols=cluster_cols, fontfamily="mono")
-  cat("--- Heatmap done\n")
+  if(!is.null(output_file)){
+    pheatmap(heat_data_w, 
+             scale="none", 
+             cellheight=10, 
+             cellwidth=10, 
+             filename = output_file, 
+             color=colors_tot, 
+             breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), 
+             cluster_cols=cluster_cols, 
+             fontfamily="mono")
+    cat("--- Heatmap done\n")
+  }else{
+    pheatmap(heat_data_w, 
+             scale="none", 
+             cellheight=10, 
+             cellwidth=10, 
+             color=colors_tot, 
+             breaks=seq(from=-extreme_val, to=extreme_val, by=bin_size), 
+             cluster_cols=cluster_cols, 
+             fontfamily="mono")
+  }
 }
 
 # ------------------------------------------------------------------------------
