@@ -63,15 +63,15 @@
 #' @param newname (char) the new name for that column
 #' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
-#' @examples \donttest{
-#' artms_changeColumnName(dataset = dfabundance, 
-#'                        oldname = "Proteins", 
-#'                        newname = "Protein")
+#' @examples{
+#' artms_changeColumnName(dataset = artms_data_ph_evidence, 
+#'                        oldname = "Phospho..STY.", 
+#'                        newname = "PH_STY")
 #' }
 #' @export
 artms_changeColumnName <- function(dataset, oldname, newname){
   if( !(oldname %in% colnames(dataset)) ){
-    stop("The Column name provided <",oldname,"> was not found in the data.table provided")
+    stop("\nThe Column name provided <",oldname,"> was not found in the object provided\n")
   }
   colnames(dataset)[grep(paste0('^',oldname,'$'), colnames(dataset))] <- newname
   return(dataset)
