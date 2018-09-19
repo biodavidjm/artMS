@@ -133,7 +133,7 @@ artms_changeColumnName <- function(dataset, oldname, newname){
 #' @export
 artms_filterEvidenceContaminants <- function(data){
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
-  data_selected <- data[grep("CON__|REV__",data$Proteins, invert=T),]
+  data_selected <- data[grep("CON__|REV__",data$Proteins, invert= TRUE),]
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if(length(blank.idx)>0)  data_selected = data_selected[-blank.idx,]
@@ -165,7 +165,7 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by=c('RawFile')){
   keys <- .artms_checkRawFileColumnName(keys)
   
   # Check that the keys file is correct
-  if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
+  if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){
     cat('\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. One of these columns is lost:\n\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
     stop('PLEASE, REVISE THE KEYS FILE AND TRY AGAIN')
   }
@@ -215,7 +215,7 @@ artms_SILACtoLong <- function(evidence_file, output){
   setnames(tmp_long,'Raw file','Raw.file')
   levels(tmp_long$IsotopeLabelType) = c('L','H')
   tmp_long[!is.na(tmp_long$Intensity) && tmp_long$Intensity<1,]$Intensity=NA
-  write.table(tmp_long, file=output, sep='\t', quote=F, row.names=F, col.names=T)
+  write.table(tmp_long, file=output, sep='\t', quote= FALSE, row.names= FALSE, col.names= TRUE)
   cat("--- File ",output, " is ready\n")
   return(tmp_long)
 }
@@ -244,7 +244,7 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' @keywords maxquant, remove, proteingroups
 #' .artms_removeMaxQProteinGroups()
 .artms_removeMaxQProteinGroups <- function(data){
-  data_selected = data[grep(";",data$Proteins, invert=T),]
+  data_selected = data[grep(";",data$Proteins, invert= TRUE),]
   return(data_selected)
 }
 
@@ -294,7 +294,7 @@ artms_resultsWide <- function(results_msstats,
   input_w <- data.table::dcast( Protein~Label+variable, data=input_l, value.var=c('value'))
   suppressMessages(input_w <- artms_annotationUniprot(input_w, "Protein", specie))
   if(!is.null(output_file)){
-    write.table(input_w, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+    write.table(input_w, file=output_file, eol='\n', sep='\t', quote= FALSE, row.names= FALSE, col.names= TRUE)
     cat("--- Results wide are out!\n")
   }else{
     return(input_w)
@@ -312,7 +312,7 @@ artms_resultsWide <- function(results_msstats,
 #' @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
 #' @keywords internal, heatmap, intensity, comparisons
 .artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
-  mat = log2(data_w[,4:ncol(data_w),with=F])
+  mat = log2(data_w[,4:ncol(data_w),with= FALSE])
   mat[is.na(mat)]=0
   mat_cor = cor(mat, method = 'pearson', use = 'everything')
   ordered_keys = keys[with(keys, order(RawFile)),] ## we want to make informarive row names so order by RawFile because that's how data_w is ordered
@@ -338,7 +338,7 @@ artms_resultsWide <- function(results_msstats,
 .artms_samplePeptideBarplot <- function(data_f, config){
   # set up data into ggplot compatible format
   data_f <- data.table(data_f, labels=paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
-  data_f <- data_f[with(data_f, order(labels,decreasing = T)),]
+  data_f <- data_f[with(data_f, order(labels,decreasing = TRUE)),]
   
   # plot the peptide counts for all the samples TOGETHER
   p <- ggplot(data = data_f, aes(x=labels))
@@ -414,7 +414,7 @@ artms_spectralCounts <- function(evidence_file,
   data_sel <- data.frame(data_sel, AllCondition=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
   
   if(!is.null(output_file)){
-    write.table(data_sel[,c('AllCondition','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+    write.table(data_sel[,c('AllCondition','Proteins','spectral_counts')], file=output_file, eol='\n', sep='\t', quote= FALSE, row.names= FALSE, col.names= TRUE)
     cat(">> OUTPUT FILE <",output_file,"> is ready\n")
   }else{
     return(data_sel)
@@ -440,7 +440,7 @@ artms_spectralCounts <- function(evidence_file,
 #' MSstats
 #' @keywords check, contrast
 .artms_writeContrast <- function(contrast_file, all_conditions = NULL){
-  input_contrasts <- readLines(contrast_file, warn=F)
+  input_contrasts <- readLines(contrast_file, warn= FALSE)
   #remove empty lines
   input_contrasts <- input_contrasts[sapply(input_contrasts, nchar) > 0]
   

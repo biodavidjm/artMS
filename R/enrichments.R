@@ -84,7 +84,7 @@ artms_enrichLog2fc <- function(dataset,
   pretmp <- dataset[c('Gene', 'Comparisons')]
   pretmp <- unique(pretmp)
   
-  tmp = split(pretmp$Gene, pretmp$Comparisons, drop=T)
+  tmp = split(pretmp$Gene, pretmp$Comparisons, drop= TRUE)
   
   if(specie == "human"){
     enrichgenes <- artms_enrichProfiler(tmp, categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM', 'HPA','OMIM'), specie = 'hsapiens', background) # 'HP'
@@ -152,8 +152,8 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
     color.palette  <- colorRampPalette(c("white","steelblue"))(length(palette.breaks))
     pheatmap::pheatmap(x, 
              filename = outfile,
-             cluster_rows = T,
-             cluster_cols = F,
+             cluster_rows = TRUE,
+             cluster_cols = FALSE,
              cellheight = 10, 
              cellwidth=25, 
              main = theTitle,
@@ -162,8 +162,8 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
              fontsize_col=12, 
              border_color='black',
              fontfamily="Helvetica",
-             treeheight_row = F, 
-             treeheight_col = F,
+             treeheight_row = FALSE, 
+             treeheight_col = FALSE,
              color = color.palette
     )
   }else{
@@ -180,7 +180,7 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' either a list of ids, or you could also send a data.frame and it will find
 #' the columns with the IDs. Is not cool? Multiple list can be also sent 
 #' simultaneously, as for example running: 
-#' `tmp <- split(enrichment$Gene, enrichment$cl_number, drop=T)`
+#' `tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)`
 #' @param categorySource (vector) Resources providing the terms on which 
 #' the enrichment will be performed. The supported resources by gprofiler are:
 #' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
@@ -210,12 +210,12 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' @param background (vector) gene list to use as background for the enrichment
 #' analysis. Default: `NA`
 #' @details This function uses the following `gprofiler` arguments as default:
-#' - ordered_query = F
-#' - significant = T
-#' - exclude_iea = T
-#' - underrep = F
-#' - evcodes = F
-#' - region_query = F
+#' - ordered_query = FALSE
+#' - significant = TRUE
+#' - exclude_iea = TRUE
+#' - underrep = FALSE
+#' - evcodes = FALSE
+#' - region_query = FALSE
 #' - max_p_value = 0.05 
 #' - min_set_size = 0 
 #' - max_set_size = 0
@@ -225,7 +225,7 @@ artms_plotCorumEnrichment <- function(df, outfile, theTitle){
 #' - domain_size = "known" # annotated or known
 #' - numeric_ns = "" 
 #' - png_fn = NULL
-#' - include_graph = T
+#' - include_graph = TRUE
 #' @return The enrichment results as provided by gprofiler
 #' @keywords enrichment
 #' @examples \donttest{
@@ -240,12 +240,12 @@ artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background
   cat("---+ Enrichment analysis using gProfiler...")
   enrichData <- gprofiler(x, 
                           organism = specie, # "scerevisiae","hsapiens", "mmusculus"
-                          ordered_query = F,
-                          significant = T, 
-                          exclude_iea = T, # do you want to exclude electronic annotations (IEA)? if so.. change it to 'T'
-                          underrep = F, 
-                          evcodes = F,
-                          region_query = F, 
+                          ordered_query = FALSE,
+                          significant = TRUE, 
+                          exclude_iea = TRUE, # do you want to exclude electronic annotations (IEA)? if so.. change it to 'T'
+                          underrep = FALSE, 
+                          evcodes = FALSE,
+                          region_query = FALSE, 
                           max_p_value = 0.05, 
                           min_set_size = 0, 
                           max_set_size = 0,
@@ -256,7 +256,7 @@ artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background
                           custom_bg = background,
                           numeric_ns = "", 
                           png_fn = NULL, 
-                          include_graph = T, 
+                          include_graph = TRUE, 
                           src_filter = categorySource )
   cat("done!\n")
   return(enrichData)
@@ -319,10 +319,10 @@ artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background
       term_groups_selected_w_display[term_groups_selected_w_display>LOWER_T]=LOWER_T
       if(length(x)>1){
         #Do you need a main title: main=paste( gsub(".txt","",basename(out_file)) , "(color: -log10 p-value )"),
-        pheatmap(term_groups_selected_w_display, cluster_cols = F, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, breaks=BREAKS, legend_breaks=BREAKS,legend_labels=LABELS, fontfamily="Helvetica")
+        pheatmap(term_groups_selected_w_display, cluster_cols = FALSE, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, breaks=BREAKS, legend_breaks=BREAKS,legend_labels=LABELS, fontfamily="Helvetica")
       }else{
         cat(" [SORRY!! We currently don't support heatmaps of a single set] ")
-        #pheatmap(term_groups_selected_w_display, cluster_cols=F,cluster_rows=F, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, fontfamily="Helvetica")
+        #pheatmap(term_groups_selected_w_display, cluster_cols= FALSE,cluster_rows= FALSE, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, fontfamily="Helvetica")
       }
     } else{
       cat(" [SORRY, NOT ENOUGH SIGNIFICANT TERMS FOR THIS DOMAIN] ")
@@ -375,7 +375,7 @@ artms_enrichProfiler <- function(x, categorySource = c('GO'), specie, background
   corum$querysize <- querysize
   corum$expected <- (corum$Num.Uniprot.IDs/background)*querysize
   corum$FCEnrichment <- corum$MyListOverlap/corum$expected
-  corum$pvalue <- phyper(corum$MyListOverlap,corum$Num.Uniprot.IDs,(background-corum$Num.Uniprot.IDs),querysize,lower.tail = F)
+  corum$pvalue <- phyper(corum$MyListOverlap,corum$Num.Uniprot.IDs,(background-corum$Num.Uniprot.IDs),querysize,lower.tail = FALSE)
   # Return only complexes with a FC > 1
   toreturn <- corum[which(corum$FCEnrichment >= 1 & corum$pvalue < 0.05),]
   return(toreturn)

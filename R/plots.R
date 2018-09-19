@@ -45,8 +45,8 @@ artms_dataPlots <- function(input_file, output_file){
   data_mss = fread(input_file, integer64 = 'double')
   unique_subjects <- unique(data_mss$PROTEIN)
   condition_length <- length(unique(data_mss$GROUP_ORIGINAL))
-  min_abu <- min(data_mss$ABUNDANCE, na.rm = T)
-  max_abu <- max(data_mss$ABUNDANCE, na.rm=T)
+  min_abu <- min(data_mss$ABUNDANCE, na.rm = TRUE)
+  max_abu <- max(data_mss$ABUNDANCE, na.rm= TRUE)
   
   pdf(output_file, width = condition_length*1.5, height = 3)
     cat('>> PRINTING CONDITION PLOTS for every protein\n')
@@ -55,7 +55,7 @@ artms_dataPlots <- function(input_file, output_file){
       cat(sprintf('%s ',subject))
       p <- ggplot(data = subject_data, aes(x=SUBJECT_ORIGINAL,y=ABUNDANCE, colour=FEATURE))
       p <- p + geom_point(size=2) + 
-        facet_wrap(facets = ~ GROUP_ORIGINAL, drop = T, scales = 'free_x', ncol = condition_length) + 
+        facet_wrap(facets = ~ GROUP_ORIGINAL, drop = TRUE, scales = 'free_x', ncol = condition_length) + 
         ylim(min_abu,max_abu) +
         theme(axis.text.x=element_text(angle=-90,hjust=1)) +
         guides(colour=FALSE) +
@@ -85,7 +85,7 @@ artms_dataPlots <- function(input_file, output_file){
 #' - `pvalue`
 #' @return A heatmap of significant values
 #' @keywords significant, heatmap
-.artms_plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_cols=F, display='log2FC'){
+.artms_plotHeat <- function(mss_F, out_file, labelOrder=NULL, names='Protein', cluster_cols= FALSE, display='log2FC'){
   heat_data = data.frame(mss_F, names=names)
   
   ## create matrix from log2FC or p-value as user defined
@@ -165,13 +165,13 @@ artms_plotHeatmapQuant <- function(input_file,
                               output_file,
                               specie,
                               labels='*',
-                              cluster_cols=F, 
+                              cluster_cols= FALSE, 
                               display='log2FC', 
                               lfc_lower=-2,
                               lfc_upper=2, 
                               FDR=0.05){
 
-  input <- read.delim(input_file, stringsAsFactors = F)
+  input <- read.delim(input_file, stringsAsFactors = FALSE)
   
   ## select data points  by LFC & FDR criterium in single condition and 
   ## adding corresponding data points from the other conditions
@@ -534,7 +534,7 @@ artms_plotHeatmapQuant <- function(input_file,
   # Aggregate now the CONDITIONS on the biological replicas:
   
   # One way to do this would be to be very stringent, requiring to find data in all biological replicas:
-  # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == numberBiologicalReplicas, mean(x, na.rm = T), NA)}
+  # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == numberBiologicalReplicas, mean(x, na.rm = TRUE), NA)}
   # datadc <- data.table::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = allBiologicalReplicas, fill = 0)
   
   # Or a most relaxed way:
@@ -666,7 +666,7 @@ artms_plotHeatmapQuant <- function(input_file,
   # Correlation plots:
   out.correlation <- paste0(filename,"-correlations.pdf")
   pdf(out.correlation)
-    corrplot::corrplot(df.cor.matrix, type="upper", tl.col="black", tl.srt=45, diag = F, addCoef.col = T)
+    corrplot::corrplot(df.cor.matrix, type="upper", tl.col="black", tl.srt=45, diag = FALSE, addCoef.col = TRUE)
     PerformanceAnalytics::chart.Correlation(df, histogram=TRUE, pch=19, main = "Correlation between Conditions")
   garbage <- dev.off()
   

@@ -14,14 +14,14 @@
 #' @return (pdf) of a volcano plot
 #' @examples \donttest{
 #' # Open the msstats results
-#' mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+#' mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = FALSE)
 #' # And generate volcano plot
 #' artms_volcanoPlot(mss_results_sel = mss,
 #'                   lfc_upper = 1, 
 #'                   lfc_lower = -1, 
 #'                   FDR = 0.05, 
 #'                   file_name = "a549-PB1-results-volcanoPlot.pdf", 
-#'                   PDF = T)
+#'                   PDF = TRUE)
 #' }
 #' @export
 artms_volcanoPlot <- function(mss_results_sel, 
@@ -29,7 +29,7 @@ artms_volcanoPlot <- function(mss_results_sel,
                               lfc_lower, 
                               FDR, 
                               file_name='', 
-                              PDF=T, 
+                              PDF= TRUE, 
                               decimal_threshold=16){
   
   # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
@@ -39,12 +39,12 @@ artms_volcanoPlot <- function(mss_results_sel,
     mss_results_sel$log2FC[ idx ] <- NA
   }
   
-  min_x = -ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
-  max_x = ceiling(max(abs(mss_results_sel$log2FC), na.rm=T))
+  min_x = -ceiling(max(abs(mss_results_sel$log2FC), na.rm= TRUE))
+  max_x = ceiling(max(abs(mss_results_sel$log2FC), na.rm= TRUE))
   # Deal with special cases in the data where we have pvalues = Inf,NA,0
   if( sum(is.na(mss_results_sel$adj.pvalue))>0 ) mss_results_sel <- mss_results_sel[!is.na(mss_results_sel$adj.pvalue),]
   if(nrow(mss_results_sel[mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf,]) > 0) mss_results_sel[!is.na(mss_results_sel$adj.pvalue) & (mss_results_sel$adj.pvalue == 0 | mss_results_sel$adj.pvalue == -Inf),]$adj.pvalue = 10^-decimal_threshold
-  max_y = ceiling(-log10(min(mss_results_sel[mss_results_sel$adj.pvalue > 0,]$adj.pvalue, na.rm=T))) + 1
+  max_y = ceiling(-log10(min(mss_results_sel[mss_results_sel$adj.pvalue > 0,]$adj.pvalue, na.rm= TRUE))) + 1
   
   l = length(unique(mss_results_sel$Label))
   w_base = 7

@@ -61,6 +61,6 @@
   
   dmss <- as.data.frame(dmss)
   cat("------- + Write out the MSstats input file (-mss.txt)\n")
-  write.table(dmss, file=gsub('.txt','-mss.txt',datafile), eol="\n", sep="\t", quote=F, row.names=F, col.names=T)
+  write.table(dmss, file=gsub('.txt','-mss.txt',datafile), eol="\n", sep="\t", quote= FALSE, row.names= FALSE, col.names= TRUE)
   return(dmss)  
 }

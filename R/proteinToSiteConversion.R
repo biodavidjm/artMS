@@ -63,7 +63,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
   ## read in reference proteome
   ref_proteome <- read.fasta(file = ref_proteome_file, 
                             seqtype = "AA", 
-                            as.string = T,
+                            as.string = TRUE,
                             set.attributes = TRUE, 
                             legacy.mode = TRUE, 
                             seqonly = FALSE, 
@@ -100,8 +100,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
   ## read in maxq. data
   maxq_data <- fread(evidence_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
-  maxq_data <- maxq_data[grep("CON__|REV__",maxq_data$Proteins, invert=T),]
-  unique_peptides_in_data <- unique(maxq_data[,c('Proteins','Modified sequence'),with=F])
+  maxq_data <- maxq_data[grep("CON__|REV__",maxq_data$Proteins, invert= TRUE),]
+  unique_peptides_in_data <- unique(maxq_data[,c('Proteins','Modified sequence'),with= FALSE])
   setnames(unique_peptides_in_data,'Modified sequence','sequence')
   
   mod_sites <- c()
@@ -157,7 +157,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
   
   setnames(maxq_data,'Modified sequence','mod_seqs')
   unmapped_mod_seqs <- maxq_data[!(mod_seqs %in% mod_site_mapping_agg$mod_seqs) & grepl('(gl)',mod_seqs) & !grepl('REV__|CON__',Proteins),]
-  unmapped_mod_seqs <- unique(unmapped_mod_seqs[,c('mod_seqs','Proteins'),with=F])
+  unmapped_mod_seqs <- unique(unmapped_mod_seqs[,c('mod_seqs','Proteins'),with= FALSE])
   if(dim(unmapped_mod_seqs)[1]>0){
     cat('>> UNABLE TO MAP\n\t')
     print(unmapped_mod_seqs)
@@ -167,13 +167,13 @@ artms_proteinToSiteConversion <- function (evidence_file,
   
   final_data <- merge(maxq_data, mod_site_mapping_agg, by='mod_seqs')
   setnames(final_data,c('Proteins','mod_sites','mod_seqs'),c('Proteins_ref','Proteins','Modified sequence'))
-  write.table(final_data, file = output_file, eol='\n', sep='\t',quote=F, row.names=F, col.names=T)
+  write.table(final_data, file = output_file, eol='\n', sep='\t',quote= FALSE, row.names= FALSE, col.names= TRUE)
   
   ## write a mapping table
-  protein_seq_mapping <- unique(maxq_data[,c('Proteins','mod_seqs'),with=F])
+  protein_seq_mapping <- unique(maxq_data[,c('Proteins','mod_seqs'),with= FALSE])
   setnames(protein_seq_mapping,'Proteins','Protein')
-  mapping_table <- merge(protein_seq_mapping, mod_site_mapping_agg, by='mod_seqs', all=T)
-  write.table(mapping_table, file=gsub('.txt','-mapping.txt',output_file), eol='\n', sep='\t',quote=F, row.names=F, col.names=T)
+  mapping_table <- merge(protein_seq_mapping, mod_site_mapping_agg, by='mod_seqs', all= TRUE)
+  write.table(mapping_table, file=gsub('.txt','-mapping.txt',output_file), eol='\n', sep='\t',quote= FALSE, row.names= FALSE, col.names= TRUE)
   
   cat(">> FILES OUT:\n",
       "\t---New evidence-site file: ", output_file, "\n",

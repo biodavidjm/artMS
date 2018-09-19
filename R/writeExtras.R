@@ -82,7 +82,7 @@
   Uniprot = NULL
   for(org in species_split){
     cat(sprintf("\tLOADING %s\n",org))
-    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt", uniprot_dir,org), stringsAsFactors=F, quote="")    
+    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt", uniprot_dir,org), stringsAsFactors= FALSE, quote="")    
     if(is.null(Uniprot)){
       Uniprot = as.data.frame(tmp)
     }else{
@@ -92,39 +92,39 @@
   
   # get list of all unique prey entries in this file. Keep 'group_sep' in mind.
   preys <- unique(results$Protein)
-  preys <- preys.original <- data.frame(prey = preys, idx = 1:length(preys), stringsAsFactors=F)
+  preys <- preys.original <- data.frame(prey = preys, idx = 1:length(preys), stringsAsFactors= FALSE)
   # split apart all the preys and index them so we can piece them back together when merging
-  preys <- do.call(rbind, apply(preys, 1, function(y){ data.frame(prey = unlist(strsplit(y[1], ";")), idx = as.numeric(y[2]), stringsAsFactors = F) } ))
+  preys <- do.call(rbind, apply(preys, 1, function(y){ data.frame(prey = unlist(strsplit(y[1], ";")), idx = as.numeric(y[2]), stringsAsFactors = FALSE) } ))
   
   # annotate all the preys wiht the Uniprot info
-  preys <- merge( preys, Uniprot[,c("Entry","Entry.name","Protein.names","Gene.names")], by.x ="prey", by.y="Entry", all.x=T)
+  preys <- merge( preys, Uniprot[,c("Entry","Entry.name","Protein.names","Gene.names")], by.x ="prey", by.y="Entry", all.x= TRUE)
   # aggregate all the preys on the indexes so we can merge with the original data
   
   # merge protein name
   tmp <- aggregate(data = preys[,c("prey",'idx','Entry.name')], .~idx, paste, collapse=";")
   names(tmp) <- c('idx','uniprot_ac','Protein_name')
-  preys.new <- merge(preys.original, tmp, by='idx', all.x=T)
+  preys.new <- merge(preys.original, tmp, by='idx', all.x= TRUE)
   
   # merge protein description
   tmp <- aggregate(data = preys[,c('idx','Protein.names')], .~idx, paste, collapse=";")
   names(tmp) <- c('idx', 'Protein_desc')
-  preys.new <- merge(preys.new, tmp, by='idx', all.x=T)
+  preys.new <- merge(preys.new, tmp, by='idx', all.x= TRUE)
   
   # merge protein description
   preys$Gene.names <- gsub(" .*","", preys$Gene.names)
   tmp <- aggregate(data = preys[,c('idx','Gene.names')], .~idx, paste, collapse=";")
   names(tmp) <- c('idx','Gene.names')
-  preys.new <- merge(preys.new, tmp, by='idx',all.x=T)
+  preys.new <- merge(preys.new, tmp, by='idx',all.x= TRUE)
   
   # merge the annotations all back into the original data
-  results_out <- merge(results, preys.new, by.x="Protein", by.y="prey", all.x=T)
+  results_out <- merge(results, preys.new, by.x="Protein", by.y="prey", all.x= TRUE)
   results_out$idx = c()
   
   # alert user of any unmapped proteins
   unmapped = unique(results_out[is.na(results_out$uniprot_ac),"Protein"]) 
   cat('UNMAPPED PROTEINS\t', length(unmapped), '\n')
   cat('\t',paste(unmapped,collapse='\n\t'),'\n')
-  write.table(results_out, file=output_file, sep='\t', quote=F, row.names=F, col.names=T)
+  write.table(results_out, file=output_file, sep='\t', quote= FALSE, row.names= FALSE, col.names= TRUE)
   cat(">> ANNOTATING COMPLETE!\n")
   return(results_out)
 }

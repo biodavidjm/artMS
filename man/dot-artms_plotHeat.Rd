@@ -5,7 +5,7 @@
 \title{Heatmap of significant values}
 \usage{
 .artms_plotHeat(mss_F, out_file, labelOrder = NULL, names = "Protein",
-  cluster_cols = F, display = "log2FC")
+  cluster_cols = FALSE, display = "log2FC")
 }
 \arguments{
 \item{mss_F}{(data.frame) with the significant values (log2fc, pvalues)}

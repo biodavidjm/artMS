@@ -37,7 +37,7 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
   ## write baits in format
   ## hIP101-10       PV_2C_co_uni    T
   
-  saint_baits = keys[,c('BioReplicate','Condition','SAINT'),with=F]
+  saint_baits = keys[,c('BioReplicate','Condition','SAINT'),with= FALSE]
   
   ## write interactions in format
   ## hIP101-10       PV_2C_co_uni    Q9NTG7  1
@@ -75,7 +75,7 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
   
   ref_proteome = read.fasta(file = ref_proteome_file, 
                             seqtype = "AA", 
-                            as.string = T,
+                            as.string = TRUE,
                             set.attributes = TRUE, 
                             legacy.mode = TRUE, 
                             seqonly = FALSE, 
@@ -91,24 +91,24 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
   ref_table[,uniprot_id:=gsub('([a-z,0-9,A-Z]+\\|{1})([a-z,0-9,A-Z]+\\|{1})([A-Z,a-z,0-9,_]+)','\\3',names)]
   
   unique_preys = data.table(uniprot_ac=unique(data_f_agg$Proteins))
-  saint_preys = ref_table[,c('uniprot_ac','lengths','uniprot_id'),with=F]
-  saint_preys = merge(unique_preys, saint_preys, by='uniprot_ac', all.x=T)
+  saint_preys = ref_table[,c('uniprot_ac','lengths','uniprot_id'),with= FALSE]
+  saint_preys = merge(unique_preys, saint_preys, by='uniprot_ac', all.x= TRUE)
   missing_lengths = nrow(saint_preys[is.na(saint_preys$uniprot_id),])
   saint_preys[is.na(saint_preys$uniprot_id),]$uniprot_id=saint_preys[is.na(saint_preys$uniprot_id),]$uniprot_ac  
   if(missing_lengths>0){
     cat(sprintf("--- WARNING! COMPUTING %s MISSING LENGTHS WITH THE MEDIAN LENGTH FROM THE DATASET\n",missing_lengths))
-    saint_preys[is.na(saint_preys$lengths),]$lengths=median(saint_preys$lengths,na.rm = T)
+    saint_preys[is.na(saint_preys$lengths),]$lengths=median(saint_preys$lengths,na.rm = TRUE)
   }
   
   # Check if output directory exists and create it if not.
   if(!dir.exists(dirname(output_file))){
-    dir.create(dirname(output_file), recursive=T)
+    dir.create(dirname(output_file), recursive= TRUE)
   }
   
   ## WRITE
-  write.table(saint_baits, file = gsub('.txt','-saint-baits.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
-  write.table(saint_preys, file = gsub('.txt','-saint-preys.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
-  write.table(saint_interactions, file = gsub('.txt','-saint-interactions.txt',output_file), eol='\n',sep='\t', quote=F, row.names=F, col.names=F)
+  write.table(saint_baits, file = gsub('.txt','-saint-baits.txt',output_file), eol='\n',sep='\t', quote= FALSE, row.names= FALSE, col.names= FALSE)
+  write.table(saint_preys, file = gsub('.txt','-saint-preys.txt',output_file), eol='\n',sep='\t', quote= FALSE, row.names= FALSE, col.names= FALSE)
+  write.table(saint_interactions, file = gsub('.txt','-saint-interactions.txt',output_file), eol='\n',sep='\t', quote= FALSE, row.names= FALSE, col.names= FALSE)
   cat(">> OUTPUT FILES:\n")
   cat("--- ", gsub('.txt','-saint-baits.txt', output_file), "\n")
   cat("--- ", gsub('.txt','-saint-preys.txt', output_file), "\n")

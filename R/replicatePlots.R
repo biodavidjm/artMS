@@ -60,11 +60,11 @@ Change out_file extension and try again\n")
   
   cat("--- READING IN FILES...\n")
   # read in data
-  dat <- read.delim(input_file, stringsAsFactors=F)
+  dat <- read.delim(input_file, stringsAsFactors= FALSE)
   # keys
-  keys <- read.delim(keys_file, stringsAsFactors=F)
+  keys <- read.delim(keys_file, stringsAsFactors= FALSE)
   # profile plot list
-  repplot <- read.delim(replicate_file, stringsAsFactors=F)
+  repplot <- read.delim(replicate_file, stringsAsFactors= FALSE)
 
   # remove negatives from MaxQuant
   if( length(grep("__", dat$Proteins)) >0 ) dat <- dat[-grep("__", dat$Proteins),]
@@ -93,10 +93,10 @@ Change out_file extension and try again\n")
   x <- merge(dat, keys[,c('RawFile','Condition','BioReplicate')], by=c('RawFile') )
   
   # Put into a data matrix format
-  x <- data.table::dcast(data=x, Proteins+Modified.sequence+Charge~Condition+BioReplicate, value.var="Intensity", max, na.rm=T)
+  x <- data.table::dcast(data=x, Proteins+Modified.sequence+Charge~Condition+BioReplicate, value.var="Intensity", max, na.rm= TRUE)
   # remove cases where -Inf  is introduced
   x[x==-Inf] <- 0   ###### May cause problems? Check.
-  write.table(x, out_file, quote=F, row.names=F, sep='\t')
+  write.table(x, out_file, quote= FALSE, row.names= FALSE, sep='\t')
   
   # cycle through the condition pairs in the file and plot each pair
   for(i in 1:dim(repplot)[1]){
@@ -124,7 +124,7 @@ Change out_file extension and try again\n")
       if(length(rep1) > 1 & length(rep2) > 1){
         reps.cor <- cor(rep1, rep2, use="pairwise.complete.obs", method="pearson")
         # set up a square plot centered at 0
-        x.lim <- ceiling(max(abs(c(rep1, rep2 )), na.rm=T))
+        x.lim <- ceiling(max(abs(c(rep1, rep2 )), na.rm= TRUE))
         y.lim <- c( -x.lim, x.lim)
         x.lim <- c( -x.lim, x.lim)
         
@@ -137,7 +137,7 @@ Change out_file extension and try again\n")
         #       pdf( paste( dirname(out_file), "/", gsub(" ","_",plot.name) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i], ".pdf", sep="") )
         #       plot(rep1, rep2, main=plot.name, xlab=repplot$rep1_1[i], ylab=repplot$rep1_2[i], xlim=x.lim, ylim=y.lim, pch=".")
         #       dev.off()
-        tmp <- data.frame(rep1, rep2, stringsAsFactors=F)
+        tmp <- data.frame(rep1, rep2, stringsAsFactors= FALSE)
         pdf_nameout <- paste( dirname(out_file), "/", gsub(" ","_",plot.name2) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i],"-",prot_exp,".pdf", sep="")
         p <- ggplot(tmp, aes(x=rep1, y=rep2)) + 
           geom_point() +

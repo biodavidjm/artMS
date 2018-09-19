@@ -12,7 +12,7 @@ artms_enrichProfiler(x, categorySource = c("GO"), specie,
 either a list of ids, or you could also send a data.frame and it will find
 the columns with the IDs. Is not cool? Multiple list can be also sent
 simultaneously, as for example running:
-\code{tmp <- split(enrichment$Gene, enrichment$cl_number, drop=T)}}
+\code{tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)}}
 
 \item{categorySource}{(vector) Resources providing the terms on which
 the enrichment will be performed. The supported resources by gprofiler are:
@@ -57,12 +57,12 @@ the excellent tool GprofileR.
 \details{
 This function uses the following \code{gprofiler} arguments as default:
 \itemize{
-\item ordered_query = F
-\item significant = T
-\item exclude_iea = T
-\item underrep = F
-\item evcodes = F
-\item region_query = F
+\item ordered_query = FALSE
+\item significant = TRUE
+\item exclude_iea = TRUE
+\item underrep = FALSE
+\item evcodes = FALSE
+\item region_query = FALSE
 \item max_p_value = 0.05
 \item min_set_size = 0
 \item max_set_size = 0
@@ -72,7 +72,7 @@ This function uses the following \code{gprofiler} arguments as default:
 \item domain_size = "known" # annotated or known
 \item numeric_ns = ""
 \item png_fn = NULL
-\item include_graph = T
+\item include_graph = TRUE
 }
 }
 \examples{

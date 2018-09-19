@@ -5,7 +5,7 @@
 \title{Volcano plot (log2fc / pvalues)}
 \usage{
 artms_volcanoPlot(mss_results_sel, lfc_upper, lfc_lower, FDR,
-  file_name = "", PDF = T, decimal_threshold = 16)
+  file_name = "", PDF = TRUE, decimal_threshold = 16)
 }
 \arguments{
 \item{mss_results_sel}{(data.frame) Selected MSstats results}
@@ -32,14 +32,14 @@ It generates a scatter-plot used to quickly identify changes
 \examples{
 \donttest{
 # Open the msstats results
-mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = FALSE)
 # And generate volcano plot
 artms_volcanoPlot(mss_results_sel = mss,
                   lfc_upper = 1, 
                   lfc_lower = -1, 
                   FDR = 0.05, 
                   file_name = "a549-PB1-results-volcanoPlot.pdf", 
-                  PDF = T)
+                  PDF = TRUE)
 }
 }
 \keyword{plot,}

@@ -18,8 +18,8 @@
 .select_ref <- function(keys_file, dat_file) {
     
     cat("Reading in files...\n")
-    keys <- read.delim(keys_file, stringsAsFactors = F)
-    dat <- x <- read.delim(dat_file, stringsAsFactors = F)
+    keys <- read.delim(keys_file, stringsAsFactors = FALSE)
+    dat <- x <- read.delim(dat_file, stringsAsFactors = FALSE)
     
     cat("Removing MaxQuant described contaminants...\n")
     x <- x[-grep("__|;", x$Proteins), ]
@@ -36,14 +36,14 @@
     length(unique(x$Raw.file))
     tmp <- data.table::dcast(x, Proteins ~ 1)
     
-    tmp <- tmp[order(tmp$`1`, decreasing = T), ]
+    tmp <- tmp[order(tmp$`1`, decreasing = TRUE), ]
     tmp <- tmp[tmp$`1` == length(unique(x$Raw.file)), "Proteins"]
     
     # keep only the proteins that appear in ALL the samples
     temp <- dat[(dat$Proteins %in% tmp) & (dat$Raw.file %in% keys$RawFile), ]
     
     # getting into ggplot compatible format
-    tmp <- data.table::dcast(temp, Proteins ~ Raw.file, value.var = "Intensity", median, na.rm = T)
+    tmp <- data.table::dcast(temp, Proteins ~ Raw.file, value.var = "Intensity", median, na.rm = TRUE)
     tmp <- melt(tmp)
     tmp <- tmp[order(tmp$variable, tmp$value), ]
     cat("Finished Pre-processing steps\n")

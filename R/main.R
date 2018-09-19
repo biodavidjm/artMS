@@ -115,16 +115,16 @@ artms_quantification <- function(yaml_config_file){
         output <- gsub(".txt","-silac.txt",config$files$evidence)
         data <- artms_SILACtoLong(config$files$evidence, output)
       }else{
-        data <- read.delim(config$files$evidence, stringsAsFactors=F, sep='\t')
+        data <- read.delim(config$files$evidence, stringsAsFactors= FALSE, sep='\t')
       }
     }else{
-      data <- read.delim(config$files$evidence, stringsAsFactors=F, sep='\t')
+      data <- read.delim(config$files$evidence, stringsAsFactors= FALSE, sep='\t')
     }
     
     data <- data.table(data)
     setnames(data, colnames(data), gsub('\\s','.',colnames(data)))
     
-    keys <- read.delim(config$files$keys, stringsAsFactors=F, sep='\t')
+    keys <- read.delim(config$files$keys, stringsAsFactors= FALSE, sep='\t')
     keys <- data.table(keys)
     
     if( !any(grepl("RawFile", names(data))) ){
@@ -207,11 +207,11 @@ artms_quantification <- function(yaml_config_file){
       ## but it seems to be like this in maxquant output. 
       ## A possible explanation is that these peptides have different 
       ## retention times (needs to be looked into)
-      ## dmss <- data.frame(dmss[,j=list(ProteinName=paste(ProteinName,collapse=';'),Intensity=median(Intensity, na.rm=T)),by=c('PeptideSequence','ProductCharge','PrecursorCharge','FragmentIon','IsotopeLabelType','Run','BioReplicate','Condition')])
+      ## dmss <- data.frame(dmss[,j=list(ProteinName=paste(ProteinName,collapse=';'),Intensity=median(Intensity, na.rm= TRUE)),by=c('PeptideSequence','ProductCharge','PrecursorCharge','FragmentIon','IsotopeLabelType','Run','BioReplicate','Condition')])
       
     }else{
       cat(sprintf("\tREADING PREPROCESSED\t%s\n", config$msstats$msstats_input)) 
-      dmss <- read.delim(config$msstats$msstats_input, stringsAsFactors=F, sep='\t')
+      dmss <- read.delim(config$msstats$msstats_input, stringsAsFactors= FALSE, sep='\t')
       dmss <- data.table(dmss)
     }
     
@@ -222,7 +222,7 @@ artms_quantification <- function(yaml_config_file){
   
   ## ANNOTATING RESULT FILE
   if(config$output_extras$enabled){
-    if(!config$msstats$enabled) results = read.delim(config$output_extras$msstats_output, stringsAsFactors=F)
+    if(!config$msstats$enabled) results = read.delim(config$output_extras$msstats_output, stringsAsFactors= FALSE)
     .artms_writeExtras(results$ComparisonResult, config)
   }
   

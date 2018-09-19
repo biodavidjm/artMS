@@ -64,17 +64,19 @@ save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData', compress = 'x
 # PH FILES
 
 # Reduced version of an Evidence file (generated below)
-artms_data_ph_evidence <- read.delim("inst/extdata/artms_data_ph_evidence.txt", stringsAsFactors = F)
+artms_data_ph_evidence <- read.delim("~/experiments/artms/ph/artms_data_ph_evidence.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_evidence, file = 'data/artms_data_ph_evidence.RData', compress = 'xz')
 
-
 # Reduced version of the Keys file (experimental design)
-artms_data_ph_keys <- read.delim("inst/extdata/artms_data_ph_keys.txt", stringsAsFactors = F)
+artms_data_ph_keys <- read.delim("~/experiments/artms/extdata/artms_data_ph_keys.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_keys, file = 'data/artms_data_ph_keys.RData', compress = 'xz')
 
+# Reduced version of the results
+artms_data_ph_msstats_results <- read.delim("~/experiments/artms/extdata/artms_data_ph_msstats_results.txt", stringsAsFactors = FALSE)
+save(artms_data_ph_msstats_results, file = 'data/artms_data_ph_msstats_results.RData', compress = 'xz')
 
 # CORUM dataset
-artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = F)
+artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = FALSE)
 save(artms_data_corum_mito_database, file = 'data/artms_data_corum_mito_database.RData', compress = 'xz')
 
 # CONFIGURATION FILE
@@ -113,7 +115,7 @@ artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt",
                               enrich = TRUE, l2fc_thres = 1, 
                               ipval = "adjpvalue")
 
-mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = F)
+mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = FALSE)
 artms_volcanoPlot(mss_results_sel = mss,
                   lfc_upper = 1, 
                   lfc_lower = -1, 
@@ -146,14 +148,13 @@ artms_analysisQuantifications(log2fc_file = "petroski-cul4-debug-results.txt",
                               pathogen = "nopathogen")
 
 #-------------------------------------------------------------------------------
-## PHGLOBAL
-setwd('~/experiments/artms/ph/')
+## CREATE THE OFFICIAL PHGLOBAL COMING WITH THE PACKAGE
 evidence_file <- 'evidence.txt'
 keys_file <- 'keys.txt'
 contrast_file <- 'contrast.txt'
 
-edf <- read.delim(evidence_file, stringsAsFactors = F, check.names=FALSE)
-kdf <- read.delim(keys_file, stringsAsFactors = F, check.names=FALSE)
+edf <- read.delim(evidence_file, stringsAsFactors = FALSE, check.names = FALSE)
+kdf <- read.delim(keys_file, stringsAsFactors = FALSE, check.names = FALSE)
 
 # Select 2 biological replicates
 selectedBR <- c("qx006145", "qx006148", "qx006151", "qx006152")
@@ -161,39 +162,75 @@ edfnew <- edf[which(edf$`Raw file` %in% selectedBR),]
 kdfnew <- kdf[which(kdf$RawFile %in% selectedBR), ]
 
 # And random sampling lines
-n <- round(dim(edfnew)[1]/5)
+n <- round(dim(edfnew)[1]/7)
 edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
 
 # print out evidence & keys
-write.table(edfnew2, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = F, col.names = T)
-write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = F, col.names = T)
+write.table(edfnew2, file = "~/experiments/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = T)
+write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = T)
 
-artms_evidenceQC(evidence_file = "reduced_ph_evidence.txt", 
-                 keys_file = "reduced_keys.txt", 
+# PH GLOBAL: 
+setwd('~/experiments/artms/ph/')
+evidence_file <- "~/experiments/artms/extdata/artms_data_ph_evidence.txt"
+keys_file <- "~/experiments/artms/extdata/artms_data_ph_keys.txt"
+contrast_file <- 'contrast.txt'
+
+artms_evidenceQC(evidence_file = edfnew2, 
+                 keys_file = kdfnew, 
                  prot_exp = "PH")
 
-evidence <- read.delim("reduced_evidence.txt", stringsAsFactors = F)
-keys <- read.delim("reduced_keys.txt", stringsAsFactors = F)
-artms_evidenceQC(evidence_file = evidence, keys_file = keys, prot_exp = "PH")
-
-artms_replicatePlots(input_file = "reduced_evidence.txt", 
-                     keys_file = "reduced_keys.txt", 
+artms_replicatePlots(input_file = evidence_file, 
+                     keys_file = keys_file, 
                      replicate_file = "reduced_replicates_plots.txt", 
                      prot_exp = "PH",
-                     out_file = "ph-reduced-replicates.txt")
+                     out_file = "ph-replicates-summary.txt")
 
 artms_quantification("~/experiments/artms/ph/phglobalreduced/phglobal_reduced_config.yaml")
 
 setwd('~/experiments/artms/ph/phglobalreduced/')
-artms_analysisQuantifications(log2fc_file = "phglobal-results.txt",
-                              modelqc_file = "phglobal-results_ModelQC.txt",
+
+ph_results_wide <- artms_resultsWide(
+                        results_msstats = artms_data_ph_msstats_results,
+                        output_file = NULL)
+
+summary_spectral_counts <- artms_spectralCounts(evidence_file = artms_data_ph_evidence, 
+                     keys_file = artms_data_ph_keys)
+
+evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+                                          columnid = "Proteins", 
+                                          sps = "human")
+
+uniprots_anno <- artms_mapUniprot2entrezGeneName(
+                  uniprotkb = unique(artms_data_ph_evidence$Proteins), 
+                  specie = "human")
+
+# The data must be annotated (Protein and Gene columns)
+data_annotated <- artms_annotationUniprot(
+  data = artms_data_ph_msstats_results, 
+  columnid = "Protein", 
+  sps = "human")
+# And then the enrichment
+enrich_set <- artms_enrichLog2fc(
+  dataset = data_annotated, 
+  specie = "human", 
+  background = unique(data_annotated$Gene),
+  heatmaps = TRUE)
+
+dataset = data_annotated
+specie = "human"
+background = unique(data_annotated$Gene)
+heatmaps = TRUE
+
+artms_analysisQuantifications(log2fc_file = "phglobal_reduced-results.txt",
+                              modelqc_file = "phglobal_reduced-results_ModelQC.txt",
                               specie = "human",
                               isPtm = "noptm",
-                              enrich = TRUE,
+                              enrich = FALSE,
                               output_dir = "testingARTMS",
                               mnbr = 2,
                               l2fc_thres = 1.5,
-                              ipval = "adjpvalue")
+                              ipval = "pvalue")
+
 
 # Debugging
 log2fc_file = "phglobal-results.txt"
@@ -298,9 +335,9 @@ artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
                      keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
                      output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
 
-evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
-keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = F)
-evidenceKeys <- artms_mergeMaxQDataWithKeys(data = evidence, keys = keys)
+evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = FALSE)
+keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = FALSE)
+evidenceKeys <- artms_mergeEvidenceAndKeys(data = evidence, keys = keys)
 
 evidenceKeys <- artms_mergeEvidenceKeysByFiles(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", keys_file = "FLU-THP1-H1N1-AB-keys.txt")
   

@@ -74,7 +74,7 @@ artms_isEvidenceNewVersion <- function(evidence_file){
   cat("--- Reading in evidence file...\n")
   # read in the first line to get the header names
   cols <- readLines(evidence_file, 1)
-  cols <- data.frame(V1 = unlist(strsplit(cols, "\t")), stringsAsFactors = F)
+  cols <- data.frame(V1 = unlist(strsplit(cols, "\t")), stringsAsFactors = FALSE)
   cols$idx <- 1:dim(cols)[1]
   
   # get data frame of pre-recorded column names and their respective classes
@@ -100,9 +100,9 @@ artms_isEvidenceNewVersion <- function(evidence_file){
                                         "Character", "Acetyl (K) Score Diffs", "character", "GlyGly (K) Score Diffs", "character", "Phospho (STY) Score Diffs", 
                                         "character", "Acetyl (K)", "integer", "GlyGly (K)", "integer", "Phospho (STY)", "integer", "Acetyl (K) site IDs", "character", 
                                         "GlyGly (K) site IDs", "character", "Phospho (STY) site IDs", "character", "Contaminant", "character", "Fraction", "integer"), 
-                                      ncol = 2, byrow = T), stringsAsFactors = F)
+                                      ncol = 2, byrow = TRUE), stringsAsFactors = FALSE)
   # merge the classes to the columns
-  cols.matched = merge(cols, col.classes, by = "V1", all.x = T)
+  cols.matched = merge(cols, col.classes, by = "V1", all.x = TRUE)
   # re-order things to match the initial order
   cols.matched <- cols.matched[order(cols.matched$idx), ]
   

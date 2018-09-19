@@ -48,8 +48,8 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
     cat("\t---uniprot_dir NOT SPECIFIED. USING DEFAULT:  ",uniprot_dir,"\n")
   }
   
-  data <- data.table(read.delim(input_file, stringsAsFactors=F))
-  keys <- data.table(read.delim(keys_file, stringsAsFactors = F))
+  data <- data.table(read.delim(input_file, stringsAsFactors= FALSE))
+  keys <- data.table(read.delim(keys_file, stringsAsFactors = FALSE))
   
   cat('\tCHECKING DATA AND KEYS COLUMN NAMES\n')
   tryCatch(setnames(data, 'Raw file', 'RawFile'), error=function(e) cat('\t---Raw file in evidence not found: trying Raw.file instead\n'))
@@ -73,10 +73,10 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
   data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
 
   if(quant_variable == "msspc"){
-    data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_spectral_counts'),with=F]
+    data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_spectral_counts'),with= FALSE]
     data_sel <- aggregate( ms_spectral_counts ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)
   }else if(quant_variable == "msint"){
-    data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_intensity'),with=F]
+    data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_intensity'),with= FALSE]
     data_sel <- aggregate( ms_intensity ~ Proteins+Condition+BioReplicate+Run+RawFile, data=data_sel, FUN = sum)
   }else{
     stop("\n << ",quant_variable," >> NOT ALLOWED. ONLY msint OR msspc ALLOWED\n")
@@ -123,7 +123,7 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
   Uniprot = NULL
   for(org in species_split){
     cat(sprintf("\tLOADING %s\n",org))
-    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt",uniprot_dir,org), stringsAsFactors=F, quote="")
+    tmp <- read.delim(sprintf("%s/uniprot_protein_descriptions_%s.txt",uniprot_dir,org), stringsAsFactors= FALSE, quote="")
     if(is.null(Uniprot)){
       Uniprot = as.data.frame(tmp)
     }else{
@@ -131,7 +131,7 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
     }
   }
   cat('\tANNOTATING RESULTS...\n')
-  results_annotated = merge(data_sel, Uniprot, all.x=T, by.x='ms_uniprot_ac', by.y='Entry')
+  results_annotated = merge(data_sel, Uniprot, all.x= TRUE, by.x='ms_uniprot_ac', by.y='Entry')
   
   # Adding the Mass column: it is required for MIST for preprocessing!
   # For that, we will calculate the mass of the whole protein just taking the average molecular 
@@ -140,15 +140,15 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
   
   # create output directory if it doesnt exist
   if(!dir.exists(dirname(output_file))){
-    dir.create(dirname(output_file), recursive =T)
+    dir.create(dirname(output_file), recursive = TRUE)
   }
   
-  write.table(results_annotated, file=output_file, eol='\n', sep='\t', quote=F, row.names=F, col.names=T)
+  write.table(results_annotated, file=output_file, eol='\n', sep='\t', quote= FALSE, row.names= FALSE, col.names= TRUE)
   cat('\n>> MIST FILES CREATED!\n')
   
   keysout <- subset(keys, select = c(RawFile, Condition))
   keysname <- gsub(".txt",'_mistkeys.txt', output_file)
-  write.table(keysout, file=keysname, eol = '\n', sep = '\t', quote = F, row.names = F, col.names = F)
+  write.table(keysout, file=keysname, eol = '\n', sep = '\t', quote = FALSE, row.names = FALSE, col.names = FALSE)
   cat('>> MIST keys FILE ALSO CREATED. Enjoy your day!\n\n')
 }
 

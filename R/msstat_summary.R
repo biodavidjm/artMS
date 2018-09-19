@@ -44,7 +44,7 @@ artms_msstats_summary <- function(evidence_file,
     
     # Check if passing in data or if passing in files
     cat(">> Getting data ...\n")
-    evidence <- .artms_checkIfFile(evidence_file, is.evidence = T)
+    evidence <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
     pg <- .artms_checkIfFile(prot_group_file)
     keys <- .artms_checkIfFile(keys_file)
     results <- .artms_checkIfFile(results_file)
@@ -63,7 +63,7 @@ artms_msstats_summary <- function(evidence_file,
     # find the UNIQUE PEPTIDE columns
     cat(">> Summarizing Unique Peptides\n")
     idx <- grep("Peptide counts (unique)", colnames(pg), fixed = TRUE)
-    pg.uniqPep <- pg[, c(1, idx), with = F]
+    pg.uniqPep <- pg[, c(1, idx), with = FALSE]
     # # fix names to match the rest of the data and to merge smoothly
     # names(pg.uniqPep) <- gsub("Peptide counts (unique)", "", names(pg.uniqPep))
     # names(pg.uniqPep)[-1] <- paste0(names(pg.uniqPep)[-1], "_UniqPep")
@@ -74,21 +74,21 @@ artms_msstats_summary <- function(evidence_file,
     
     # convert RESULTS to WIDE format
     cat(">> Converting Results to Wide format\n")
-    results_l = melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), with = F], id.vars = c("Protein", "Label"))
+    results_l = melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), with = FALSE], id.vars = c("Protein", "Label"))
     ## then cast to get combinations of LFCV/PVAl and Label as columns
     results_w <- dcast(Protein ~ Label + variable, data = results_l, value.var = c("value"))
     names(results_w)[1] = "Proteins"
     
     # Combine them all together
     cat(">> Bringing it all together\n")
-    results_summary = Reduce(function(...) merge(..., by = "Proteins", all.x = T), list(pg.uniqPep, results_w, dat.sc, dat.intensity))
+    results_summary = Reduce(function(...) merge(..., by = "Proteins", all.x = TRUE), list(pg.uniqPep, results_w, dat.sc, dat.intensity))
     names(results_summary)[grep("Proteins", names(results_summary))] = "Protein"  # updating for annotation purposes later
     
     # write out summary
     cat(">> Writing out Summary.\n")
     if (!is.data.frame(results_file) & !is.data.table(results_file)) {
         out_file <- gsub(".txt", "_summarized.txt", results_file)
-        write.table(results_summary, out_file, quote = F, row.names = F, sep = "\t")
+        write.table(results_summary, out_file, quote = FALSE, row.names = FALSE, sep = "\t")
     }
     
     if (return_df){

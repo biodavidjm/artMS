@@ -6,7 +6,7 @@
 changes}
 \usage{
 artms_plotHeatmapQuant(input_file, output_file, specie, labels = "*",
-  cluster_cols = F, display = "log2FC", lfc_lower = -2,
+  cluster_cols = FALSE, display = "log2FC", lfc_lower = -2,
   lfc_upper = 2, FDR = 0.05)
 }
 \arguments{

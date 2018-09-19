@@ -33,7 +33,7 @@ artms_avg_intensity_RT <- function(evidence_file,
     dat <- .artms_checkIfFile(evidence_file, is.evidence = T)
     suppressMessages(dat <- artms_annotationUniprot(dat, "Proteins", sps = specie))
     
-    # proteins <- read.delim(protein_file, sep='\t', stringsAsFactors=F, header=F)
+    # proteins <- read.delim(protein_file, sep='\t', stringsAsFactors= FALSE, header= FALSE)
     if (!is.null(protein_file)) {
         cat(">> FILTERING OUT UNWANTED PROTEINS...\n")
         proteins <- .artms_checkIfFile(protein_file)
@@ -66,7 +66,7 @@ artms_avg_intensity_RT <- function(evidence_file,
     if (output_file) {
         # write out results
         cat("--- WRITING OUT RESULTS TO ", output_file, "\n")
-        write.table(results, output_file, quote = F, row.names = F, sep = "\t")
+        write.table(results, output_file, quote = FALSE, row.names = FALSE, sep = "\t")
         return(results)
     }else{
         return(results)
