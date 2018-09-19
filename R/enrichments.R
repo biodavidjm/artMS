@@ -120,14 +120,8 @@ artms_enrichLog2fc <- function(dataset,
 #' @param outfile (char) output file name (must have the extenstion `.pdf`)
 #' @param theTitle (char) Plot's title
 #' @return (pdf) heatmap of the significantly enriched protein complexes
-#' @keywords plot, heatmap, enrichment
-#' @examples \donttest{
-#' artms_plotCorumEnrichment(df = "log2fc-results-complexEnrichment.txt", 
-#'              outfile = "log2fc-results-complexEnrichment.pdf",
-#'              theTitle = "Protein Complex Enrichment (log2fc > 1)")
-#' }
-#' @export
-artms_plotCorumEnrichment <- function(df, outfile, theTitle){
+#' @keywords internal, plot, heatmap, enrichment
+.artms_plotCorumEnrichment <- function(df, outfile, theTitle){
   checkPoint <- length(unique(df$Comparisons))
   if(checkPoint >= 1){
     # Dealing with the smallest pvalues (pvalue = 0)

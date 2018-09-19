@@ -30,7 +30,7 @@ artms_avg_intensity_RT <- function(evidence_file,
                                    specie) {
     # read in data
     cat(">> READING IN FILES...\n")
-    dat <- .artms_checkIfFile(evidence_file, is.evidence = T)
+    dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
     suppressMessages(dat <- artms_annotationUniprot(dat, "Proteins", sps = specie))
     
     # proteins <- read.delim(protein_file, sep='\t', stringsAsFactors= FALSE, header= FALSE)
@@ -47,17 +47,17 @@ artms_avg_intensity_RT <- function(evidence_file,
     cat(">> COMPUTING AVERAGES...\n")
     # Compute the average Intensity
     dat.avg <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Intensity")], Intensity ~ ., 
-        mean, na.rm = T)
+        mean, na.rm = TRUE)
     # Compute the average Retention Time
     dat.ret <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Retention.time")], Retention.time ~ 
-        ., mean, na.rm = T)
+        ., mean, na.rm = TRUE)
     # Compute the average Calibrated retention time
     dat.cal <- aggregate(data = dat[, c("Protein", "Gene", "Modified.sequence", "Charge", "Calibrated.retention.time")], 
-        Calibrated.retention.time ~ ., mean, na.rm = T)
+        Calibrated.retention.time ~ ., mean, na.rm = TRUE)
     
     cat(">> MERGING RESULTS...\n")
-    results <- merge(dat.avg, dat.ret, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = T)
-    results <- merge(results, dat.cal, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = T)
+    results <- merge(dat.avg, dat.ret, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = TRUE)
+    results <- merge(results, dat.cal, by = c("Protein", "Gene", "Modified.sequence", "Charge"), all.y = TRUE)
     # add 'Avg' to names
     names(results)[5:7] = paste0("Avg_", names(results)[5:7])
     

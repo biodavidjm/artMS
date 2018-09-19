@@ -26,11 +26,11 @@ artms_annotationUniprot <- function(data, columnid, sps) {
   theUniprots <- unique(data[[columnid]])
   preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, specie = sps)
   
-  dc_merged <- merge(data, preload, by.x = columnid, by.y = 'UNIPROT', all.x = T)
+  dc_merged <- merge(data, preload, by.x = columnid, by.y = 'UNIPROT', all.x = TRUE)
   # Move Gene name to the left:
   gene_first <- preload[,c('SYMBOL', 'UNIPROT', 'GENENAME')]
   dc_merged <- subset(dc_merged, select=-c(SYMBOL, GENENAME))
-  send_back <- merge(gene_first, dc_merged, by.x = 'UNIPROT', by.y = columnid, all.y = T)
+  send_back <- merge(gene_first, dc_merged, by.x = 'UNIPROT', by.y = columnid, all.y = TRUE)
   names(send_back)[grep('^UNIPROT$', names(send_back) )] <- 'Protein'
   names(send_back)[grep('^SYMBOL$', names(send_back) )] <- 'Gene'
   names(send_back)[grep('^GENENAME$', names(send_back) )] <- 'Protein.names'

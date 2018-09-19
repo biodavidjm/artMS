@@ -121,7 +121,7 @@ artms_volcanoPlot(mss_results_sel = mss,
                   lfc_lower = -1, 
                   FDR = 0.05, 
                   file_name = "a549-PB1-results-volcanoPlot.pdf", 
-                  PDF = T)
+                  PDF = TRUE)
 
 ## FRACTIONS
 setwd('~/experiments/artms/fractions/results/ab20180402/ab20180402debug/')
@@ -166,8 +166,8 @@ n <- round(dim(edfnew)[1]/7)
 edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
 
 # print out evidence & keys
-write.table(edfnew2, file = "~/experiments/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = T)
-write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = T)
+write.table(edfnew2, file = "~/experiments/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 # PH GLOBAL: 
 setwd('~/experiments/artms/ph/')
@@ -203,6 +203,8 @@ evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
 uniprots_anno <- artms_mapUniprot2entrezGeneName(
                   uniprotkb = unique(artms_data_ph_evidence$Proteins), 
                   specie = "human")
+
+artms_enrichProfiler(x = unique(artms_data_ph_evidence$Proteins), )
 
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artms_annotationUniprot(

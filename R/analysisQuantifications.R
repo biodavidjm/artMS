@@ -609,7 +609,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       if(dim(allsigComplexEnriched)[1] > 2){
         out.mac.allsig.corum.pdf <- gsub(".txt","-enrich-MAC-allsignificants-corum.pdf",log2fc_file)
         out.mac.allsig.corum.pdf <- paste0(output_dir,"/",out.mac.allsig.corum.pdf)
-        artms_plotCorumEnrichment(allsigComplexEnriched, out.mac.allsig.corum.pdf, "MAC ALL SIGNIFICANT Protein Complex Enrichment")
+        .artms_plotCorumEnrichment(allsigComplexEnriched, out.mac.allsig.corum.pdf, "MAC ALL SIGNIFICANT Protein Complex Enrichment")
       }else{
         cat("--- (-) Not enough negative corum complexes to plot\n")
       }
@@ -654,7 +654,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         out.mac.pos.corum.pdf <- gsub(".txt","-enrich-MAC-positives-corum.pdf",log2fc_file)
         out.mac.pos.corum.pdf <- paste0(output_dir,"/",out.mac.pos.corum.pdf)
         # out.mac.pos.corum.pdf <- 'whatever.corum.positive.pdf'
-        artms_plotCorumEnrichment(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
+        .artms_plotCorumEnrichment(positiveComplexEnriched, out.mac.pos.corum.pdf, "MAC+ Protein Complex Enrichment")
       }else{
         
         cat("\t----(-) Not enough positive corum complexes to plot\n")
@@ -700,7 +700,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       if(dim(negativesComplexEnriched)[1] > 2){
         out.mac.neg.corum.pdf <- gsub(".txt","-enrich-MAC-negatives-corum.pdf",log2fc_file)
         out.mac.neg.corum.pdf <- paste0(output_dir,"/",out.mac.neg.corum.pdf)
-        artms_plotCorumEnrichment(negativesComplexEnriched, out.mac.neg.corum.pdf, "MAC- Protein Complex Enrichment")
+        .artms_plotCorumEnrichment(negativesComplexEnriched, out.mac.neg.corum.pdf, "MAC- Protein Complex Enrichment")
       }else{
         cat("\t-----(-) Not enough negative corum complexes to plot\n")
       }    
@@ -878,7 +878,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           labelsize = 3,
                                           repel = TRUE,
                                           habillage = as.factor(hasdcexp$Comparison),
-                                          addEllipses=F,
+                                          addEllipses= FALSE,
                                           ellipse.level=0.95)
       
       cat("--- PCA, individuals plot\n")
