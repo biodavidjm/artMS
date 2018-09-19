@@ -426,7 +426,8 @@ artms_spectralCounts <- function(evidence_file,
 #' 
 #' @description Remove white spaces
 #' @param x (vector) A string
-#' @keywords internal remove, whitespace
+#' @return (vector) with no white spaces
+#' @keywords internal, remove, whitespace
 .artms_trim <- function (x){
   gsub("^\\s+|\\s+$", "", x)
 }

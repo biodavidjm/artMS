@@ -9,9 +9,12 @@
 \arguments{
 \item{x}{(vector) A string}
 }
+\value{
+(vector) with no white spaces
+}
 \description{
 Remove white spaces
 }
-\keyword{internal}
+\keyword{internal,}
 \keyword{remove,}
 \keyword{whitespace}

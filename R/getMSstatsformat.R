@@ -10,6 +10,7 @@
 #' @param datafile (char) The evidence file name (to generate the output file)
 #' @param funfunc (char) The function to use to aggregating the data if it is a 
 #' fractionated experiment (default: `sum`)
+#' @return (data.frame) MSstats compatible format
 #' @keywords internal, MSstats, format, input, fractions
 .artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum"){
   cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")

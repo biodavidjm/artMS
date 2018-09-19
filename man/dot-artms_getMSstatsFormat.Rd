@@ -17,6 +17,9 @@ is a fractionated experiment}
 \item{funfunc}{(char) The function to use to aggregating the data if it is a
 fractionated experiment (default: \code{sum})}
 }
+\value{
+(data.frame) MSstats compatible format
+}
 \description{
 Takes as input a reduced version of the Evidence file and
 generates the input data.frame required by MSstats.
