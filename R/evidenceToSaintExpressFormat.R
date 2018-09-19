@@ -50,7 +50,7 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
     stop('COLNAMES IN KEYS NOT CONFORM TO SCHEMA\n\tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n')
   } 
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_f <- artms_filterEvidenceContaminants(data)
   data_f <- .artms_removeMaxQProteinGroups(data_f) ## do we want this or not?
   

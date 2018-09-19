@@ -70,7 +70,7 @@ artms_evidenceToMISTformat <- function(input_file, quant_variable, keys_file, ou
   
   cat('\n\tVERIFYING DATA AND KEYS\n')
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
-  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
 
   if(quant_variable == "msspc"){
     data_sel <- data[,c('Proteins','Condition','BioReplicate','Run','RawFile','ms_spectral_counts'),with=F]

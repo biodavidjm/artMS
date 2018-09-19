@@ -144,24 +144,32 @@ artms_filterEvidenceContaminants <- function(data){
 # ------------------------------------------------------------------------------
 #' @title Merge evidence and keys files
 #' @description Merge the evidence and keys files on the given columns
-#' @param data The evidence in data.frame
-#' @param keys The keys in data.frame
+#' @param data (data.frame or char) The evidence data, either as adata.frame or
+#' the file name (and path)
+#' @param keys The keys data, either as a data.frame or file name (and path)
 #' @param by (vector) specifying the columns use to merge the evidence and keys.
-#' Obviously, both data.frames must have this column name.
+#' Default: `by=c('RawFile')`
 #' @return (data.frame) with the evidence and keys merged
-#' Default column to merge: `RawFile`
 #' @keywords merge, evidence, keys
-#' @examples \donttest{
-#' evidence <- read.delim("FLU-THP1-H1N1-AB-evidence.txt", stringsAsFactors = F)
-#' keys <- read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = F)
-#' evidenceKeys <- artms_mergeMaxQDataWithKeys(data = evidence, keys = keys)
+#' @examples{
+#' evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence, 
+#'                                            keys = artms_data_ph_keys)
 #' }
 #' @export
-artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
+artms_mergeEvidenceAndKeys <- function(data, keys, by=c('RawFile')){
   cat(">> MERGING evidence AND keys FILES\n")
+  
+  data <- .artms_checkIfFile(data)
+  keys <- .artms_checkIfFile(keys)
   
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
+  
+  # Check that the keys file is correct
+  if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
+    cat('\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. One of these columns is lost:\n\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
+    stop('PLEASE, REVISE THE KEYS FILE AND TRY AGAIN')
+  }
   
   # Check if the number of RawFiles is the same.
   unique_data <- unique(data$RawFile)
@@ -179,59 +187,6 @@ artms_mergeMaxQDataWithKeys <- function(data, keys, by=c('RawFile')){
   ## select only required attributes from MQ format
   data <- merge(data, keys, by=by)
   return(data)
-}
-
-
-# ------------------------------------------------------------------------------
-#' @title Merge evidence and keys by file name
-#' 
-#' @description Merge evidence and keys by file name
-#' @param evidence_file (char) The Evidence file name
-#' @param keys_file (char) The keys file name
-#' @return (data.frame) with both evidence and keys files merged by raw.files
-#' @keywords internal, merge, evidence, keys
-#' @examples \donttest{
-#'   evidenceKeys <- artms_mergeEvidenceKeysByFiles(
-#'                   evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
-#'                   keys_file = "FLU-THP1-H1N1-AB-keys.txt")
-#' }
-#' @export
-artms_mergeEvidenceKeysByFiles <- function(evidence_file, keys_file) {
-  
-  cat(">> MERGING evidence_file AND keys_file (it might take some time)\n")
-  data <- read.delim(evidence_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
-  keys <- read.delim(keys_file, sep='\t', quote = "", header = T, stringsAsFactors = F)
-  
-  data <- .artms_checkRawFileColumnName(data)
-  keys <- .artms_checkRawFileColumnName(keys)
-  
-  # Check that the keys file is correct
-  if(any(!c('RawFile','IsotopeLabelType','Condition','BioReplicate','Run') %in% colnames(keys))){ #,'SAINT','BioReplicaSaint'
-    cat('\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. One of these columns is lost:\n\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n') # \tSAINT\n\tBioReplicaSaint\n\n
-    cat('Please, try again once revised\n\n')
-    stop()
-  }
-  
-  # MERGING THE DATA
-  # Checking that the keys make sense
-  unique_data <- unique(data$RawFile)
-  unique_keys <- unique(keys$RawFile)
-  
-  # Rawfiles on Keys not found on the data
-  keys_not_found <- setdiff(unique_keys, unique_data)
-  # Rawfiles on Data not found on the keys
-  data_not_found <- setdiff(unique_data, unique_keys)
-  
-  if ( (length(keys_not_found) != 0) & ( length(data_not_found) != 0) ) {
-    cat(sprintf("keys found: %s \t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
-    cat(sprintf("data found: %s \t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
-    stop('\nThis script is sorry, but it needs to stop this because something is going on between your keys and evidence files so you better check\n')
-  }
-  
-  ## select only required attributes from MQ format
-  datamerged <- merge(data, keys, by='RawFile')
-  
-  return(datamerged)
 }
 
 
@@ -304,7 +259,7 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' where each row represents a unique protein's results, and each column
 #' represents the comparison made by MSStats. The fold change and p-value 
 #' of each comparison will be its own column.
-#' @param evidence_file (char) Input file name and location 
+#' @param results_msstats (char) Input file name and location 
 #' (MSstats `results.txt` file)
 #' @param output_file (char) Output file name and location 
 #' (e.g. `results-wide.txt`)
@@ -312,13 +267,13 @@ artms_SILACtoLong <- function(evidence_file, output){
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
 #' @examples \donttest{
-#' artms_resultsWide(evidence_file = "ab-results.txt", 
+#' artms_resultsWide(results_msstats = "ab-results.txt", 
 #'                   output_file = "ab-results-wide.txt")
 #' }
 #' @export
-artms_resultsWide <- function(evidence_file, output_file){
+artms_resultsWide <- function(results_msstats, output_file){
   cat(">> PRINTING OUT MSSTATS RESULTS IN wide FORMAT\n")
-  input = fread(evidence_file, integer64 = 'double')
+  input = fread(results_msstats, integer64 = 'double')
   input_l = melt(data = input[,c('Protein', 'Label','log2FC','adj.pvalue'), with=F], id.vars = c('Protein', 'Label'))
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
@@ -432,7 +387,7 @@ artms_spectralCounts <- function(evidence_file, keys_file, output_file){
 
   if(!'IsotopeLabelType' %in% colnames(data)) data[,IsotopeLabelType:='L']
   
-  data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
   data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS/MS Count'), with=F]
   setnames(data_sel, 'MS/MS Count', 'spectral_counts')
   data_sel = aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)

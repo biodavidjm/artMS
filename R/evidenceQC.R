@@ -61,7 +61,7 @@ artms_evidenceQC <- function(evidence_file,
   keys <- .artms_checkRawFileColumnName(keys)
 
   # EVIDENCE:
-  evidencekeys <- artms_mergeMaxQDataWithKeys(evidence, keys)
+  evidencekeys <- artms_mergeEvidenceAndKeys(evidence, keys)
   
   ekselecta <- aggregate(Intensity~Proteins+Condition+BioReplicate+Run, data=evidencekeys, FUN = sum)
   ekselectaBioreplica <- aggregate(Intensity~Proteins+Condition+BioReplicate, data=ekselecta, FUN = sum) 

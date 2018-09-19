@@ -151,12 +151,12 @@ artms_quantification <- function(yaml_config_file){
         keys$Run = paste(keys$IsotopeLabelType,keys$Run , sep='')
         data$IsotopeLabelType = 'L'
         keys$IsotopeLabelType = 'L'
-        data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+        data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
       }else{
-        data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+        data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
       }
     }else{
-      data <- artms_mergeMaxQDataWithKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
+      data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
     }
     
     ## fix for weird converted values from fread
