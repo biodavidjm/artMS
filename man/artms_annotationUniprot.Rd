@@ -7,7 +7,7 @@
 artms_annotationUniprot(data, columnid, sps)
 }
 \arguments{
-\item{data}{(data.frame) to be annotated}
+\item{data}{(data.frame) to be annotated (or file path and name)}
 
 \item{columnid}{(char) The column with the uniprotkb ids}
 
@@ -24,14 +24,13 @@ search for the gene symbol, name, and entrez based on the specie (\code{sps}
 argument) and merge the information back to the input data.frame
 }
 \examples{
-\donttest{
-# Open the evidence file (for example)
-dfevidence <- read.delim("evidence.txt", stringsAsFactors = F)
+{
+# This example adds annotations to the evidence file available in 
+# artMS, based on the column "Proteins".
 
-# and add annotations based on the column "Proteins"
-artms_annotationUniprot(data = dfevidence, 
-                        columnid = "Proteins", 
-                        sps = "human")
+evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+                                         columnid = "Proteins", 
+                                         sps = "human")
 }
 }
 \keyword{annotation,}

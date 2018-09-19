@@ -5,23 +5,24 @@
 #' the column from your data.frame specified by the `columnid` argument, 
 #' search for the gene symbol, name, and entrez based on the specie (`sps`
 #' argument) and merge the information back to the input data.frame
-#' @param data (data.frame) to be annotated 
+#' @param data (data.frame) to be annotated (or file path and name)
 #' @param columnid (char) The column with the uniprotkb ids
 #' @param sps (char) The specie name. Check `?artms_mapUniprot2entrezGeneName` 
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
-#' @examples \donttest{
-#' # Open the evidence file (for example)
-#' dfevidence <- read.delim("evidence.txt", stringsAsFactors = F)
+#' @examples{
+#' # This example adds annotations to the evidence file available in 
+#' # artMS, based on the column "Proteins".
 #' 
-#' # and add annotations based on the column "Proteins"
-#' artms_annotationUniprot(data = dfevidence, 
-#'                         columnid = "Proteins", 
-#'                         sps = "human")
+#' evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+#'                                          columnid = "Proteins", 
+#'                                          sps = "human")
 #' }
 #' @export
 artms_annotationUniprot <- function(data, columnid, sps) {
+  
+  data <- .artms_checkIfFile(data)
   
   theUniprots <- unique(data[[columnid]])
   preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, specie = sps)

@@ -181,8 +181,6 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by=c('RawFile')){
     data_not_found <- setdiff(unique_data, unique_keys)
     cat(sprintf("\tkeys found: %s \n\t keys not in data file:\n%s\n", length(unique_keys)-length(keys_not_found), paste(keys_not_found,collapse='\t')))
     cat(sprintf("\tdata found: %s \n\t data not in keys file:\n%s\n", length(unique_data)-length(data_not_found), paste(data_not_found, collapse='\t')))
-  }else{
-    cat("--- Check point: the number of RawFiles in both keys and evidence files is identical\n")
   }
   
   ## select only required attributes from MQ format
@@ -395,8 +393,9 @@ artms_resultsWide <- function(results_msstats,
 #' count columns
 #' @keywords spectral_counts, evidence
 #' @examples{
-#' artms_spectralCounts(evidence_file = artms_data_ph_evidence, 
-#'                      keys_file = artms_data_ph_keys)
+#' summary_spectral_counts <- artms_spectralCounts(
+#'                                  evidence_file = artms_data_ph_evidence, 
+#'                                  keys_file = artms_data_ph_keys)
 #' }
 #' @export
 artms_spectralCounts <- function(evidence_file, 
@@ -412,10 +411,10 @@ artms_spectralCounts <- function(evidence_file,
   keys <- .artms_checkRawFileColumnName(keys)
 
   
-  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile','IsotopeLabelType'))
-  data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS.MS.count'), with=F]
+  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile'))
+  data_sel <- data[,c('Proteins', 'Condition', 'BioReplicate', 'Run', 'MS.MS.count')]
   data_sel <- artms_changeColumnName(data_sel, 'MS.MS.count', 'spectral_counts')
-  data_sel <- aggregate( spectral_counts ~ Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
+  data_sel <- aggregate(spectral_counts~Proteins+Condition+BioReplicate+Run, data=data_sel, FUN = sum)
   data_sel <- data.frame(data_sel, AllCondition=paste(data_sel$Condition, data_sel$BioReplicate, data_sel$Run, sep='_'))
   
   if(!is.null(output_file)){
