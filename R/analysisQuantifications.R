@@ -77,11 +77,11 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- No Pathogen extra in these samples (only Influenza)\n")
   }else if(pathogen == "tb"){ # This should not work
     cat("--- PATHOGEN IN SAMPLES: TB\n")
-    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = FALSE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "TB",
+    pathogen.ids <- artms_data_pathogen_TB
     names(pathogen.ids) <- c('Entry')
   }else if(pathogen == "lpn"){
     cat("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
-    pathogen.ids <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = TRUE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "Lpn",
+    pathogen.ids <- artms_data_pathogen_LPN
   }else{
     stop("\n\nThis pathogen is not supported yet\n\n")
   }
@@ -1102,22 +1102,30 @@ artms_analysisQuantifications <- function(log2fc_file,
 #' originally annotated as `INFLUENZAGENE_STRAIN` 
 #' (strains covered `H1N1`, `H3N2`, `H5N1`), as for example, `NS1_H1N1`
 #' @param df (data.frame) with a `Protein` column (of uniprot ids)
-#' @param pathogen (char) Is there a pathogen in the dataset as well? if it does not,
-#' then use `pathogen = nopathogen` (default), `tb` (Tuberculosis), 
+#' @param pathogen (char) Is there a pathogen in the dataset as well? 
+#' if it does not, then use `pathogen = nopathogen` (default). Supported`tb` (Tuberculosis), 
 #' `lpn` (Legionella)
 #' @param specie (char) Host organism (supported for now: `human` or `mouse`)
 #' @return (data.frame) The same data.frame but with an extra column specifying the specie
 #' @keywords annotation, specie
-#' @examples \donttest{
-#' artms_annotateSpecie(df = dfobject, pathogen = "influenza", specie = "human")
-#' }
+#' @examples
+#' # Adding a new column with the main specie of the data. Easy. 
+#' # But the main functionality is to add both the host-specie and a pathogen,
+#' # which is not illustrated in this example
+#' data_with_specie <- artms_annotateSpecie(df = artms_data_ph_msstats_results, 
+#'                                          specie = "human")
 #' @export
-artms_annotateSpecie <- function(df, pathogen, specie){
+artms_annotateSpecie <- function(df, 
+                                 pathogen = "nopathogen", 
+                                 specie){
   if(pathogen == "nopathogen"){
     # Influenza is treated differently
     df$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", df$Protein), "Influenza", specie)  
-  }else{
-    # Pathogens
+  }else if(pathogen == "tb"){
+    pathogen.ids <- artms_data_pathogen_TB
+    df$Specie <- ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
+  }else if(pathogen == "lpn"){
+    pathogen.ids <- artms_data_pathogen_LPN
     df$Specie <- ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
   }
   return(df)
