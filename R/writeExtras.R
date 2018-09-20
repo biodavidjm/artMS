@@ -180,27 +180,28 @@
             by.x = "prey",
             by.y = "Entry",
             all.x = TRUE)
-    # aggregate all the preys on the indexes so we can merge with the original data
+    # aggregate all the preys on the indexes so we can merge with the original 
+    # data
     
     # merge protein name
     tmp <-
-      aggregate(data = preys[, c("prey", 'idx', 'Entry.name')], . ~ idx, paste, collapse =
-                  ";")
+      aggregate(data = preys[, c("prey", 'idx', 'Entry.name')], . ~ idx, 
+                paste, collapse = ";")
     names(tmp) <- c('idx', 'uniprot_ac', 'Protein_name')
     preys.new <- merge(preys.original, tmp, by = 'idx', all.x = TRUE)
     
     # merge protein description
     tmp <-
-      aggregate(data = preys[, c('idx', 'Protein.names')], . ~ idx, paste, collapse =
-                  ";")
+      aggregate(data = preys[, c('idx', 'Protein.names')], . ~ idx, paste, 
+                collapse = ";")
     names(tmp) <- c('idx', 'Protein_desc')
     preys.new <- merge(preys.new, tmp, by = 'idx', all.x = TRUE)
     
     # merge protein description
     preys$Gene.names <- gsub(" .*", "", preys$Gene.names)
     tmp <-
-      aggregate(data = preys[, c('idx', 'Gene.names')], . ~ idx, paste, collapse =
-                  ";")
+      aggregate(data = preys[, c('idx', 'Gene.names')], . ~ idx, paste, 
+                collapse = ";")
     names(tmp) <- c('idx', 'Gene.names')
     preys.new <- merge(preys.new, tmp, by = 'idx', all.x = TRUE)
     

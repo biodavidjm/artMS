@@ -113,7 +113,8 @@ artms_dataPlots <- function(input_file, output_file) {
       heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
     } else if (display == 'adj.pvalue') {
       heat_data$adj.pvalue = -log10(heat_data$adj.pvalue + 10 ^ -16)
-      heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'adj.pvalue')
+      heat_data_w = dcast(names ~ Label, 
+                          data = heat_data, value.var = 'adj.pvalue')
     } else if (display == 'pvalue') {
       heat_data$pvalue = -log10(heat_data$pvalue + 10 ^ -16)
       heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
@@ -133,7 +134,8 @@ artms_dataPlots <- function(input_file, output_file) {
     signed_bins = (extreme_val / bin_size)
     colors_neg = rev(colorRampPalette(brewer.pal("Blues", n = extreme_val /
                                                    bin_size))(signed_bins))
-    colors_pos = colorRampPalette(brewer.pal("Reds", n = extreme_val / bin_size))(signed_bins)
+    colors_pos = colorRampPalette(
+      brewer.pal("Reds", n = extreme_val / bin_size))(signed_bins)
     colors_tot = c(colors_neg, colors_pos)
     
     if (is.null(labelOrder)) {
@@ -392,17 +394,19 @@ artms_plotHeatmapQuant <- function(input_file,
       
       if (length(here) > 1) {
         #Limit to 2 technical replicas: (length(here) > 1 & length(here) == 2)
-        # We are expecting no more than 2 technical replicas. If there is more... it is worthy to double check
+        # We are expecting no more than 2 technical replicas. 
+        # If there is more... it is worthy to double check
         # cat('\t\t>>Reproducibility for technical replicas of',eBioreplica,":")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$Run
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
         biorepli$TR[biorepli$TR == here[2]] <- 'tr2'
         
-        # Let's select unique features per TECHNICAL REPLICAS, and sum them up (the same feature might have been many differnt times)
+        # Let's select unique features per TECHNICAL REPLICAS, 
+        # and sum them up (the same feature might have been many differnt times)
         biorepliaggregated <-
           aggregate(
-            Intensity ~ Feature + Proteins + Condition + BioReplicate + Run + TR,
+            Intensity ~ Feature+Proteins+Condition+BioReplicate+Run+TR,
             data = biorepli,
             FUN = sum
           )
@@ -420,8 +424,8 @@ artms_plotHeatmapQuant <- function(input_file,
                 digits = 2)
         # cat("r:\t",corr_coef,"\n")
         p1 <- ggplot(bdc, aes(x = tr1, y = tr2))
-        p1 <-
-          p1 + geom_point() + geom_rug() + geom_density_2d(colour = 'lightgreen')
+        p1 <- p1 + geom_point() + geom_rug() + 
+          geom_density_2d(colour = 'lightgreen')
         p1 <-
           p1 + geom_smooth(colour = "green",
                            fill = "lightblue",
@@ -452,10 +456,12 @@ artms_plotHeatmapQuant <- function(input_file,
     
     
     # NOW BETWEEN BIOREPLICAS
-    # Before comparing the different biological replicas, aggregate the technical replicas
+    # Before comparing the different biological replicas, 
+    # aggregate the technical replicas
     # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
     #
-    # First choose the maximum for the technical replicas as before, but first check whether there are more than one
+    # First choose the maximum for the technical replicas as before, 
+    # but first check whether there are more than one
     if (length(here) > 1) {
       conditionOne <-
         aggregate(
@@ -499,13 +505,14 @@ artms_plotHeatmapQuant <- function(input_file,
           
           # Let's check the total number of peptides here...
           checkTotalNumber <- subset(bcfinal, select = c(br1, br2))
-          # checkTotalNumber <- checkTotalNumber[complete.cases(checkTotalNumber),]
+          # checkTotalNumber <- 
+          # checkTotalNumber[complete.cases(checkTotalNumber),]
           
           npt <- dim(checkTotalNumber)[1]
           
           corr_coef <-
-            round(cor(bcfinal[[br1]], bcfinal[[br2]], use = "pairwise.complete.obs"),
-                  digits = 2)
+            round(cor(bcfinal[[br1]], bcfinal[[br2]], 
+                      use = "pairwise.complete.obs"), digits = 2)
           # cat("r:\t",corr_coef,"\n")
           p2 <-
             ggplot(bcfinal, aes(x = bcfinal[[br1]], y = bcfinal[[br2]]))
@@ -554,7 +561,9 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @keywords internal, plot, abundance
 .artms_plotAbundanceBoxplots <- function(data) {
   p1 <-
-    ggplot2::ggplot(data, aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, fill = ABUNDANCE))
+    ggplot2::ggplot(data, aes(x = SUBJECT_ORIGINAL, 
+                              y = ABUNDANCE, 
+                              fill = ABUNDANCE))
   p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL))
   p1 <- p1 + theme_linedraw()
   p1 <-
@@ -653,7 +662,8 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @description Generate reproducibility plots based on abundance data
 #' (normalized intensities from MSstats modelqc)
 #' @param data (data.frame) Protein abundance (modelqc)
-#' @return Reproducibility plots based on abundance data (normalized intensities)
+#' @return Reproducibility plots based on abundance data 
+#' (normalized intensities)
 #' @keywords plot, reproducibility, abundance
 .artms_plotReproducibilityAbundance <- function(data) {
   condi <- unique(data$GROUP_ORIGINAL)
@@ -669,7 +679,7 @@ artms_plotHeatmapQuant <- function(input_file,
     # Progress bar
     setTxtProgressBar(pb, i)
     
-    # cat("\n#####################################\nCONDITION: ",eCondition,"\n#####################################\n")
+    # cat("\n##################\nCONDITION: ",eCondition,"\n###############\n")
     # cat("TECHNICAL REPLICAS\n---------------------------\n")
     # cat("- ", eCondition,"\n")
     
@@ -685,20 +695,23 @@ artms_plotHeatmapQuant <- function(input_file,
       here <- unique(biorepli$RUN)
       
       if (length(here) > 1) {
-        # Check whether we have more than 2 technical replicas and let the user know:
+        # Check whether we have more than 2 technical replicas and let 
+        # the user know:
         if (length(here) > 2) {
           cat(
             "\n\n(-)----- WARNING: More than 2 technical replicas! make sure that this is right\n\n"
           )
         }
-        # We are expecting no more than 2 technical replicas. If there is more... it is worthy to double check
+        # We are expecting no more than 2 technical replicas. 
+        # If there is more... it is worthy to double check
         # cat('\t\t>>Plotting Reproducibility between technical replicas ',eBioreplica,"\n")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$RUN
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
         biorepli$TR[biorepli$TR == here[2]] <- 'tr2'
         bdc <-
-          data.table::dcast(data = biorepli, PROTEIN ~ TR, value.var = 'ABUNDANCE')
+          data.table::dcast(data = biorepli, PROTEIN ~ TR, 
+                            value.var = 'ABUNDANCE')
         bdc <- bdc[complete.cases(bdc), ]
         # Get the number of proteins
         np <- length(unique(bdc$PROTEIN))
@@ -734,7 +747,8 @@ artms_plotHeatmapQuant <- function(input_file,
     
     
     # NOW BETWEEN BIOREPLICAS
-    # Before comparing the different biological replicas, aggregate on the technical replicas
+    # Before comparing the different biological replicas, 
+    # aggregate on the technical replicas
     # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
     b <-
       aggregate(
@@ -819,9 +833,14 @@ artms_plotHeatmapQuant <- function(input_file,
       ) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Aggregate now the CONDITIONS on the biological replicas:
     
-    # One way to do this would be to be very stringent, requiring to find data in all biological replicas:
-    # allBiologicalReplicas <- function(x){ifelse(sum(!is.na(x)) == numberBiologicalReplicas, mean(x, na.rm = TRUE), NA)}
-    # datadc <- data.table::dcast(data=b, PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', fun.aggregate = allBiologicalReplicas, fill = 0)
+    # One way to do this would be to be very stringent, 
+    # requiring to find data in all biological replicas:
+    # allBiologicalReplicas <- function(x){
+    # ifelse(sum(!is.na(x)) == numberBiologicalReplicas, 
+    # mean(x, na.rm = TRUE), NA)}
+    # datadc <- data.table::dcast(data=b, 
+    # PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', 
+    # fun.aggregate = allBiologicalReplicas, fill = 0)
     
     # Or a most relaxed way:
     datadc <-
@@ -854,7 +873,9 @@ artms_plotHeatmapQuant <- function(input_file,
           npt <- length(unique(datadc$PROTEIN))
           
           corr_coef <-
-            round(cor(datadc[[br1]], datadc[[br2]], use = "complete.obs"), digits = 2)
+            round(cor(datadc[[br1]], 
+                      datadc[[br2]], 
+                      use = "complete.obs"), digits = 2)
           # cat ("r:",corr_coef,"\n")
           
           p2 <-
@@ -1013,7 +1034,7 @@ artms_plotHeatmapQuant <- function(input_file,
   PerformanceAnalytics::chart.Correlation(df,
                                           histogram = TRUE,
                                           pch = 19,
-                                          main = "Correlation between Conditions")
+                                      main = "Correlation between Conditions")
   garbage <- dev.off()
   
   res.pca <-
@@ -1051,10 +1072,11 @@ artms_plotHeatmapQuant <- function(input_file,
   )
   garbage <- dev.off()
   
-  h <-
-    factoextra::fviz_pca_var(res.pca, col.var = "contrib") + theme_minimal()
-  i <-
-    factoextra::fviz_pca_biplot(res.pca,  labelsize = 3, pointsize = 0.8) + theme_minimal()
+  h <- factoextra::fviz_pca_var(res.pca, 
+                                col.var = "contrib") + theme_minimal()
+  i <- factoextra::fviz_pca_biplot(res.pca,  
+                                   labelsize = 3, 
+                                   pointsize = 0.8) + theme_minimal()
   j <- factoextra::fviz_contrib(res.pca, choice = "var", axes = 1)
   l <- factoextra::fviz_contrib(res.pca, choice = "var", axes = 2)
   
@@ -1103,7 +1125,8 @@ artms_volcanoPlot <- function(mss_results,
   
   mss_results <- .artms_checkIfFile(mss_results)
   
-  # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
+  # handle cases where log2FC is Inf. There are no pvalues or other 
+  # information for these cases :(
   # Issues with extreme_val later if we have Inf/-Inf values.
   if (sum(is.infinite(mss_results$log2FC)) > 0) {
     idx <- is.infinite(mss_results$log2FC)

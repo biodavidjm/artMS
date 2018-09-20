@@ -117,7 +117,9 @@ artms_evidenceQC <- function(evidence_file,
   # Careful with old versions of MaxQuant:
   if (any(grep("Leading.Proteins", names(evidencekeys)))) {
     evidencekeys <-
-      artms_changeColumnName(evidencekeys, "Leading.Proteins", "Leading.proteins")
+      artms_changeColumnName(evidencekeys, 
+                             "Leading.Proteins", 
+                             "Leading.proteins")
   }
   
   # Combine all the fractions if this is a fractioning experiment by summing
@@ -126,7 +128,7 @@ artms_evidenceQC <- function(evidence_file,
     # Sum up all the fractions first
     evidencekeys <-
       aggregate(
-        Intensity ~ Feature + Proteins + Leading.proteins + Condition + BioReplicate +
+        Intensity~Feature+Proteins+Leading.proteins+Condition+BioReplicate +
           Run,
         data = evidencekeys,
         FUN = sum
@@ -616,7 +618,8 @@ artms_evidenceQC <- function(evidence_file,
     legend.title = element_blank()) +
     ggtitle("QC: Peptide Counts in Conditions")
   
-  #QC: MAX INTENSITY IN REDUNDANT PEPTIDES, AND AGGREGATE FOR EACH PROTEIN THE SUM OF INTENSITY
+  #QC: MAX INTENSITY IN REDUNDANT PEPTIDES, AND AGGREGATE FOR EACH PROTEIN 
+  #THE SUM OF INTENSITY
   ekselectaBioreplica2plot <- ekselectaBioreplica
   ekselectaBioreplica2plot$Intensity <-
     log2(ekselectaBioreplica2plot$Intensity)

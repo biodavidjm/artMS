@@ -81,7 +81,7 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
     setnames(data_f, 'MS/MS Count', 'spectral_counts')
     data_f_agg <-
       aggregate(
-        spectral_counts ~ BioReplicate + Condition + Proteins + Sequence + Charge,
+        spectral_counts ~ BioReplicate+Condition+Proteins+Sequence+Charge,
         data = data_f,
         FUN = max
       )
@@ -136,8 +136,10 @@ artms_evidenceToSaintExpressFormat <- function(input_file,
                                  names)]
   
   unique_preys = data.table(uniprot_ac = unique(data_f_agg$Proteins))
-  saint_preys = ref_table[, c('uniprot_ac', 'lengths', 'uniprot_id'), with = FALSE]
-  saint_preys = merge(unique_preys, saint_preys, by = 'uniprot_ac', all.x = TRUE)
+  saint_preys = ref_table[, c('uniprot_ac', 'lengths', 'uniprot_id'), 
+                          with = FALSE]
+  saint_preys = merge(unique_preys, saint_preys, by = 'uniprot_ac', 
+                      all.x = TRUE)
   missing_lengths = nrow(saint_preys[is.na(saint_preys$uniprot_id), ])
   saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_id = saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_ac
   if (missing_lengths > 0) {

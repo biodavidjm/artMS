@@ -86,13 +86,16 @@ artms_msstats_summary <- function(evidence_file,
   # names(pg.uniqPep)[-1] <- paste0(names(pg.uniqPep)[-1], "_UniqPep")
   # names(pg.uniqPep)[1] <- "Proteins"
   
-  names(pg.uniqPep)[grep("Peptide counts (unique)", names(pg.uniqPep), fixed = TRUE)] <-
-    "UniquePeptides"
+  names(pg.uniqPep)[grep("Peptide counts (unique)", 
+                         names(pg.uniqPep), 
+                         fixed = TRUE)] <- "UniquePeptides"
   names(pg.uniqPep)[1] <- "Proteins"
   
   # convert RESULTS to WIDE format
   cat(">> Converting Results to Wide format\n")
-  results_l = melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), with = FALSE], id.vars = c("Protein", "Label"))
+  results_l = melt(data = 
+                     results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
+                             with = FALSE], id.vars = c("Protein", "Label"))
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   results_w <-
     dcast(Protein ~ Label + variable,
@@ -107,7 +110,7 @@ artms_msstats_summary <- function(evidence_file,
       merge(..., by = "Proteins", all.x = TRUE),
     list(pg.uniqPep, results_w, dat.sc, dat.intensity)
   )
-  names(results_summary)[grep("Proteins", names(results_summary))] = "Protein"  # updating for annotation purposes later
+  names(results_summary)[grep("Proteins", names(results_summary))] = "Protein"
   
   # write out summary
   cat(">> Writing out Summary.\n")

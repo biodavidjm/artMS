@@ -132,14 +132,16 @@ artms_proteinToSiteConversion <- function (evidence_file,
   for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
-    ## cleanup the sequence (removing all modifications) for matching the protein sequence
+    ## cleanup the sequence (removing all modifications) for matching the 
+    ## protein sequence
     peptide_seq_clean <- gsub('[a-z,0-9,\\(,\\),_]', '', peptide_seq)
     mod_sites_in_peptide <-
       str_locate_all(string = peptide_seq, pattern = maxq_mod_residue)[[1]][, 1]
     
     if (length(mod_sites_in_peptide) > 0) {
       uniprot_acs <- entry$Proteins
-      # separates the ambiguous cases (;) and appends the site info to all the proteins
+      # separates the ambiguous cases (;) and appends the site info to all 
+      # the proteins
       uniprot_acs <-
         str_split(string = uniprot_acs, pattern = ';')[[1]]
       
@@ -159,14 +161,16 @@ artms_proteinToSiteConversion <- function (evidence_file,
             ## modification to get the relative position of the modification
             ## in the peptide sequence
             residues_before_site <-
-              str_count(string = peptide_seq_before_site, pattern = 'A|C|D|E|F|G|H|I|K|L|M|N|P|Q|R|S|T|V|W|Y')
+              str_count(string = peptide_seq_before_site, 
+                        pattern = 'A|C|D|E|F|G|H|I|K|L|M|N|P|Q|R|S|T|V|W|Y')
             mod_site_index_in_protein <-
               peptide_index_in_protein + residues_before_site
             protein_mod_sites <- protein_indices[uniprot_ac == uac, ]
             if (!is.na(mod_site_index_in_protein)) {
               #cat(sprintf('%s\n',mod_site_id))
               mod_res <-
-                protein_mod_sites[res_index == mod_site_index_in_protein, ptm_site]
+                protein_mod_sites[res_index == mod_site_index_in_protein, 
+                                  ptm_site]
               mod_site_id <-
                 sprintf(
                   '%s_%s%s',

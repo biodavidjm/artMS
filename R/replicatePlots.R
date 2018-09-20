@@ -31,7 +31,8 @@
 #' @keywords evidence, replica, plots
 #' @examples
 #' # First, let's make the "replicate file" (in a data.frame)
-#' x_names <- c("condition1", "rep1_1", "rep1_2", "condition2", "rep2_1", "rep2_2")
+#' x_names <- c("condition1", "rep1_1", "rep1_2", "condition2", "rep2_1", 
+#' "rep2_2")
 #' x_values <- c("Cal33", "Cal33-1", "Cal33-4", "HSC6", "HSC6-2", "HSC6-3")
 #' replica_info <- data.frame(t(x_values))
 #' colnames(replica_info) <- x_names
@@ -112,7 +113,8 @@ artms_replicatePlots <- function(input_file,
   # isn't in the keys file
   names(dat)[grep("Raw.file", names(dat))] <- 'RawFile'
   x <-
-    merge(dat, keys[, c('RawFile', 'Condition', 'BioReplicate')], by = c('RawFile'))
+    merge(dat, keys[, c('RawFile', 'Condition', 'BioReplicate')], 
+          by = c('RawFile'))
   
   # Put into a data matrix format
   x <-
@@ -150,8 +152,10 @@ artms_replicatePlots <- function(input_file,
     if (!any(!(reps %in% names(x)))) {
       # prep 1st replicate comparison for plot
       rep1 <-
-        log2(x[, paste(repplot$condition1[i], repplot$rep1_1[i], sep = "_")] / x[, paste(repplot$condition2[i], repplot$rep2_1[i], sep =
-                                                                                           "_")])
+        log2(x[, paste(repplot$condition1[i], 
+                       repplot$rep1_1[i], sep = "_")] / x[, paste(repplot$condition2[i], 
+                                                                  repplot$rep2_1[i], 
+                                                                  sep = "_")])
       # prep 2nd replicate comparison for plot
       rep2 <-
         log2(x[, paste(repplot$condition1[i], repplot$rep1_2[i], sep = "_")] / x[, paste(repplot$condition2[i], repplot$rep2_2[i], sep =
@@ -214,9 +218,6 @@ artms_replicatePlots <- function(input_file,
             round(reps.cor, 3),
             sep = ""
           )
-        #       pdf( paste( dirname(out_file), "/", gsub(" ","_",plot.name) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i], ".pdf", sep="") )
-        #       plot(rep1, rep2, main=plot.name, xlab=repplot$rep1_1[i], ylab=repplot$rep1_2[i], xlim=x.lim, ylim=y.lim, pch=".")
-        #       dev.off()
         tmp <- data.frame(rep1, rep2, stringsAsFactors = FALSE)
         p <- ggplot(tmp, aes(x = rep1, y = rep2)) +
           geom_point() +

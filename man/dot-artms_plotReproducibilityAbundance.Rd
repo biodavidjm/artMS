@@ -11,7 +11,8 @@
 \item{data}{(data.frame) Protein abundance (modelqc)}
 }
 \value{
-Reproducibility plots based on abundance data (normalized intensities)
+Reproducibility plots based on abundance data
+(normalized intensities)
 }
 \description{
 Generate reproducibility plots based on abundance data

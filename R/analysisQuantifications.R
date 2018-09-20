@@ -155,7 +155,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       listOfGenes <- unique(dfmq2Genes$Gene)
     } else if (grepl("ptm", isPtm)) {
       dfmq2Genes <-
-        dfmq[c('PROTEIN', 'GROUP_ORIGINAL')] # If you want to apply some sort of filter, do it here
+        dfmq[c('PROTEIN', 'GROUP_ORIGINAL')] 
       names(dfmq2Genes)[grep('PROTEIN', names(dfmq2Genes))] <- 'Protein'
       # Removing party sites
       dfmq2Genes <-
@@ -880,7 +880,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat("--- Only significant changes\n")
     imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05), ]
     l2fcolSignificants <-
-      data.table::dcast(data = imputedDFsig, Protein ~ Label, value.var = 'iLog2FC')
+      data.table::dcast(data = imputedDFsig, 
+                        Protein ~ Label, 
+                        value.var = 'iLog2FC')
     rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
     l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
     l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
@@ -931,8 +933,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   # Let's select first significance based on pvalue, by using the iPvalue
   # we are already including the imputed pvalues...
   l2fcol4enrichment <-
-    data.table::dcast(data = imputedDF[which(imputedDF$iPvalue < 0.05), ], Protein ~
-                        Label, value.var = 'iLog2FC')
+    data.table::dcast(data = imputedDF[which(imputedDF$iPvalue < 0.05), ], 
+                      Protein ~ Label, value.var = 'iLog2FC')
   
   if (dim(l2fcol4enrichment)[1] > 0) {
     # Let's melt now for enrichment analysis
@@ -981,13 +983,15 @@ artms_analysisQuantifications <- function(log2fc_file,
     cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
     if (grepl("ptm", isPtm)) {
-      # l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
+      # l2fcol4enrichment <- 
+      # within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <-
         l2fcol4enrichment[grep(",", l2fcol4enrichment$Protein, invert = TRUE), ]
       # Select the Uniprot ID, but keep in mind that some of them might
       # have many _ph54_ph446 before
-      # l2fcol4enrichment$Protein <- gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = TRUE)
+      # l2fcol4enrichment$Protein <- 
+      # gsub("^(\\S+?)_.*", "\\1", l2fcol4enrichment$Protein, perl = TRUE)
       l2fcol4enrichment <-
         unique(l2fcol4enrichment[c("Protein", "Gene", "Comparisons", "value")])
     }
@@ -1292,7 +1296,8 @@ artms_analysisQuantifications <- function(log2fc_file,
       gsub(".txt", ".abundanceGrouped.pdf", log2fc_file)
     abuJittered <- paste0("plot.", abuJittered)
     abuJittered <- paste0(output_dir, "/", abuJittered)
-    # j <- ggplot(superunifiedfiltered %>% arrange(Specie), aes(Condition,AbMean))
+    # j <- ggplot(superunifiedfiltered %>% arrange(Specie), 
+    # aes(Condition,AbMean))
     # j <- j + geom_jitter(aes(colour = Specie), width = 0.3)
     if (specie == "human") {
       j <-
@@ -1343,7 +1348,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   if (grepl("ptm", isPtm)) {
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
-    # The virus labeling has to be taken into account when getting the uniprot id:
+    # The virus labeling has to be taken into account 
+    # when getting the uniprot id:
     imputedDF$UniprotID <-
       ifelse(
         grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID),
@@ -1384,7 +1390,8 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
-    # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, pathogen, specie)
+    # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, 
+    # pathogen, specie)
     imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
     
     # Wide version of imputedDF
@@ -2259,7 +2266,8 @@ artms_generatePhSiteExtended <-
     gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN)
   df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN)
   
-  # TECHNICAL REPLICAS: if there are technical replicas, this means that we will find
+  # TECHNICAL REPLICAS: if there are technical replicas, 
+  # this means that we will find
   # two values for the same protein in the same bioreplica, therefore we need to
   # aggregate first just in case:
   df_input <-
@@ -2299,7 +2307,8 @@ artms_generatePhSiteExtended <-
 # @keywords changes, log2fc, reproducibility, merging
 .artms_mergeChangesNbr <- function (df_input, repro, specie) {
   # # Remove the weird empty proteins
-  # if(any(df_input$Protein == "")){ df_input <- df_input[-which(df_input$Protein == ""),]}
+  # if(any(df_input$Protein == "")){ df_input <- 
+  # df_input[-which(df_input$Protein == ""),]}
   # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
   # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
   
@@ -2378,7 +2387,8 @@ artms_generatePhSiteExtended <-
 #
 # @description Select and label the condition more abundant in a quantification
 # - If log2fc > 0 the condition on the left ('numerator') is the most abundant
-# - If log2fc < 0 the condition on the right ('denominator') is the most abundant
+# - If log2fc < 0 the condition on the right ('denominator') 
+# is the most abundant
 # @param a (char) log2fc column
 # @param b (char) comparison column
 # @return (char) One of the conditions from the comparison

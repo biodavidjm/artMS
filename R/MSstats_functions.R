@@ -449,9 +449,11 @@ artms_resultsWide <- function(results_msstats,
     p + geom_bar() + theme(axis.text.x = element_text(
       angle = 90,
       hjust = 1,
-      family = 'mono'
-    )) + ggtitle('Unique peptides per run\n after filtering') + facet_wrap( ~
-                                                                              Condition, scales = 'free', ncol = 5)  + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      family = 'mono' )) + 
+    ggtitle('Unique peptides per run\n after filtering') + 
+    facet_wrap( ~ Condition, scales = 'free', ncol = 5)  + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
   ggsave(
     filename = gsub('.txt', '-peptidecounts-perBait.pdf', config$files$output),
     plot = p,

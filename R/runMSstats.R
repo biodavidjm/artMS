@@ -56,7 +56,6 @@
       strsplit(config$msstats$normalization_reference, split = ','),
       FUN = .artms_trim
     ))
-    #mssquant = dataProcess(dmss, normalization=config$msstats$normalization_method, nameStandards=normalization_refs , fillIncompleteRows= TRUE)
     mssquant <- dataProcess(
       raw = dmss,
       normalization = config$msstats$normalization_method,
@@ -77,7 +76,7 @@
         config$msstats$normalization_method
       )
     )
-    #mssquant = dataProcess(dmss, normalization=config$msstats$normalization_method , fillIncompleteRows = FALSE, betweenRunInterferenceScore = FALSE)
+
     mssquant = dataProcess(
       raw = dmss,
       normalization = config$msstats$normalization_method,

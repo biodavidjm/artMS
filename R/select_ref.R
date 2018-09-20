@@ -79,7 +79,8 @@
   
   x.clust <- merge(tmp, tmp2, by = "Proteins")
   
-  ## annotate the data a little better for legibility in the plots add in gene names
+  ## annotate the data a little better for legibility in the plots add in 
+  ## gene names
   prots <- unique(dat[, c("Proteins", "Gene.names")])
   x.clust <- merge(x.clust, prots, by = "Proteins")
   x.clust$prot_names <-
@@ -88,7 +89,8 @@
   
   # add in bait names
   x.clust <-
-    merge(x.clust, keys[, c("RawFile", "Condition")], by.x = "variable", by.y = "RawFile")
+    merge(x.clust, keys[, c("RawFile", "Condition")], by.x = "variable", 
+          by.y = "RawFile")
   x.clust$sample_name <-
     paste(x.clust$variable, x.clust$Condition, sep = "-")
   
@@ -96,7 +98,7 @@
   
   cat("Finished CLustering!\n")
   
-  ################################### FINISHED PREPROCESSING #####################
+  #############################FINISHED PREPROCESSING #####################
   
   
   

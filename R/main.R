@@ -6,7 +6,8 @@
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
 #' @rawNamespace import(data.table, except = c(melt))
-#' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind fviz_nbclust get_dist fviz_silhouette fviz_cluster
+#' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
+#' fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
@@ -39,16 +40,19 @@
 #' @import org.Xl.eg.db
 #' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
-#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, rename, summarise, select, add_heatmap))
+#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
+#' rename, summarise, select, add_heatmap))
 #' @import plyr
 #' @import RColorBrewer
 #' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @import shiny
-#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust kmeans median order.dendrogram phyper as.dist complete.cases
+#' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust 
+#' kmeans median order.dendrogram phyper as.dist complete.cases
 #' @import stringr
 #' @importFrom tidyr unnest
-#' @importFrom utils combn read.delim write.table setTxtProgressBar txtProgressBar head globalVariables
+#' @importFrom utils combn read.delim write.table setTxtProgressBar 
+#' txtProgressBar head globalVariables
 #' @import VennDiagram
 #' @import yaml
 
@@ -226,14 +230,20 @@ artms_quantification <- function(yaml_config_file) {
         data$IsotopeLabelType = 'L'
         keys$IsotopeLabelType = 'L'
         data <-
-          artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile', 'IsotopeLabelType'))
+          artms_mergeEvidenceAndKeys(data, 
+                                     keys, 
+                                     by = c('RawFile', 'IsotopeLabelType'))
       } else{
         data <-
-          artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile', 'IsotopeLabelType'))
+          artms_mergeEvidenceAndKeys(data, 
+                                     keys, 
+                                     by = c('RawFile', 'IsotopeLabelType'))
       }
     } else{
       data <-
-        artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile', 'IsotopeLabelType'))
+        artms_mergeEvidenceAndKeys(data, 
+                                   keys, 
+                                   by = c('RawFile', 'IsotopeLabelType'))
     }
     
     ## fix for weird converted values from fread
@@ -273,6 +283,12 @@ artms_quantification <- function(yaml_config_file) {
   
   ## MSSTATS
   if (config$msstats$enabled) {
+    
+    # Read in contrast file
+    contrasts <-
+      .artms_writeContrast(config$files$contrasts, 
+                           unique(as.character(dmss$Condition)))
+    
     if (is.null(config$msstats$msstats_input)) {
       # Go through the old yaml version.
       # Before "fractions" it was called "aggregation" in the config.yaml file
@@ -291,15 +307,6 @@ artms_quantification <- function(yaml_config_file) {
                                 config$data$fractions$enabled,
                                 config$files$evidence,
                                 "sum")
-      
-      ## DEPRECATED : Make sure there are no doubles !!
-      ## doubles could arise when protein groups are being kept and the same
-      ## peptide is assigned to a unique Protein. Not sure how this is possible
-      ## but it seems to be like this in maxquant output.
-      ## A possible explanation is that these peptides have different
-      ## retention times (needs to be looked into)
-      ## dmss <- data.frame(dmss[,j=list(ProteinName=paste(ProteinName,collapse=';'),Intensity=median(Intensity, na.rm= TRUE)),by=c('PeptideSequence','ProductCharge','PrecursorCharge','FragmentIon','IsotopeLabelType','Run','BioReplicate','Condition')])
-      
     } else{
       cat(sprintf(
         "\tREADING PREPROCESSED\t%s\n",
@@ -312,16 +319,14 @@ artms_quantification <- function(yaml_config_file) {
       dmss <- data.table(dmss)
     }
     
-    # Read in contrast file
-    contrasts <-
-      .artms_writeContrast(config$files$contrasts, unique(as.character(dmss$Condition)))
     results <- .artms_runMSstats(dmss, contrasts, config)
   }
   
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
     if (!config$msstats$enabled)
-      results = read.delim(config$output_extras$msstats_output, stringsAsFactors = FALSE)
+      results = read.delim(config$output_extras$msstats_output, 
+                           stringsAsFactors = FALSE)
     .artms_writeExtras(results$ComparisonResult, config)
   }
   

@@ -47,8 +47,8 @@
       predmss <-
         aggregate(
           data = data_f,
-          Intensity ~ Proteins + PeptideSequence + Charge + IsotopeLabelType + Condition +
-            BioReplicate + Run,
+          Intensity ~ Proteins+PeptideSequence+Charge+IsotopeLabelType+
+            Condition + BioReplicate + Run,
           FUN = sum
         )
       predmss <-
@@ -74,8 +74,8 @@
     predmss_dc <-
       data.table::dcast(
         data = setDT(predmss),
-        Proteins + PeptideSequence + Charge + IsotopeLabelType ~ Condition + BioReplicate +
-          Run,
+        Proteins+PeptideSequence+Charge+IsotopeLabelType~Condition+
+          BioReplicate + Run,
         value.var = "Intensity",
         fun.aggregate = sum,
         sep = "___"
