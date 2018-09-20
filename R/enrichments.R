@@ -432,10 +432,10 @@ artms_enrichProfiler <-
 #' .artms_foldComplexEnrichment()
 .artms_foldComplexEnrichment <- function(mylist, corum, background) {
   corum$Num.Uniprot.IDs <-
-    sapply(corum$subunits.UniProt.IDs, function(x)
+    vapply(corum$subunits.UniProt.IDs, function(x)
       length(unlist(strsplit(
         as.character(x), ";"
-      ))))
+      ))), FUN.VALUE = 0)
   
   # Matches between my list and the protein complexes
   matchThis <- function(cor, mylist) {
@@ -443,8 +443,8 @@ artms_enrichProfiler <-
     length(table(mylist[mylist %in% corv]))
   }
   corum$MyListOverlap <-
-    sapply(corum$subunits.UniProt.IDs, function(x)
-      matchThis(x, mylist))
+    vapply(corum$subunits.UniProt.IDs, function(x)
+      matchThis(x, mylist), FUN.VALUE = 0)
   
   # Fold Complex Enrichment of the proteins observed in the list of proteins
   # over the expected. If it is greater than 1, it indicates that the category
