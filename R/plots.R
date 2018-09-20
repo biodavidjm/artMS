@@ -759,11 +759,10 @@ artms_plotHeatmapQuant <- function(input_file,
 #' Default: 16 (10^-16)
 #' @keywords plot, volcano
 #' @return (pdf) of a volcano plot
-#' @examples \donttest{
+#' @examples
 #' artms_volcanoPlot(mss_results = artms_data_ph_msstats_results, 
 #'                   whatPvalue = "pvalue", 
 #'                   PDF = FALSE)
-#' }
 #' @export
 artms_volcanoPlot <- function(mss_results, 
                               lfc_upper = 1, 

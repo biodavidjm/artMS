@@ -43,13 +43,21 @@ Cal33|Cal33-3|Cal33-4|HSC6|HSC6-3|HSC6-4
 }
 }
 \examples{
-\donttest{
-artms_replicatePlots(input_file = "evidence.txt", 
-                     keys_file = "keys.txt", 
-                     replicate_file = "replicates_plots.txt", 
-                     prot_exp = "PH",
-                     out_file = "ph-replicates.txt")
-}
+# First, let's make the "replicate file" (in a data.frame)
+x_names <- c("condition1", "rep1_1", "rep1_2", "condition2", "rep2_1", "rep2_2")
+x_values <- c("Cal33", "Cal33-1", "Cal33-4", "HSC6", "HSC6-2", "HSC6-3")
+replica_info <- data.frame(t(x_values))
+colnames(replica_info) <- x_names
+
+# Now let's make the plots. 
+artms_replicatePlots(input_file = artms_data_ph_evidence, 
+                     keys_file = artms_data_ph_keys, 
+                     replicate_file = replica_info, 
+                     out_file = NULL,
+                     prot_exp = "PH")
+                     
+# Remember that if you want to see the txt results and pdf file, just
+# change out_file = NULL" to out_file = 'output_file.pdf'
 }
 \keyword{evidence,}
 \keyword{plots}

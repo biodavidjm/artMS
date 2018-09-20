@@ -29,19 +29,29 @@
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
 #' @return The output file of the summary of features and intensity values
 #' @keywords evidence, replica, plots
-#' @examples \donttest{
-#' artms_replicatePlots(input_file = "evidence.txt", 
-#'                      keys_file = "keys.txt", 
-#'                      replicate_file = "replicates_plots.txt", 
-#'                      prot_exp = "PH",
-#'                      out_file = "ph-replicates.txt")
-#' }
+#' @examples
+#' # First, let's make the "replicate file" (in a data.frame)
+#' x_names <- c("condition1", "rep1_1", "rep1_2", "condition2", "rep2_1", "rep2_2")
+#' x_values <- c("Cal33", "Cal33-1", "Cal33-4", "HSC6", "HSC6-2", "HSC6-3")
+#' replica_info <- data.frame(t(x_values))
+#' colnames(replica_info) <- x_names
+#' 
+#' # Now let's make the plots. 
+#' artms_replicatePlots(input_file = artms_data_ph_evidence, 
+#'                      keys_file = artms_data_ph_keys, 
+#'                      replicate_file = replica_info, 
+#'                      out_file = NULL,
+#'                      prot_exp = "PH")
+#'                      
+#' # Remember that if you want to see the txt results and pdf file, just
+#' # change out_file = NULL" to out_file = 'output_file.pdf'
 #' @export
 artms_replicatePlots <- function(input_file, 
                                  keys_file, 
                                  replicate_file, 
                                  out_file,
                                  prot_exp  = "AB"){
+  
   cat(">> GENERATING CUSTOMIZED REPLICATE PLOTS\n")
   
   # FILTER BY PROTEOMICS EXPERIMENT
@@ -60,13 +70,16 @@ artms_replicatePlots <- function(input_file,
     }
   }
   
+  
+  
   cat("--- READING IN FILES...\n")
   # read in data
-  dat <- read.delim(input_file, stringsAsFactors= FALSE)
+  dat <- .artms_checkIfFile(input_file)
   # keys
-  keys <- read.delim(keys_file, stringsAsFactors= FALSE)
+  keys <- .artms_checkIfFile(keys_file)
+  
   # profile plot list
-  repplot <- read.delim(replicate_file, stringsAsFactors= FALSE)
+  repplot <- .artms_checkIfFile(replicate_file)
 
   # remove negatives from MaxQuant
   if( length(grep("__", dat$Proteins)) >0 ) dat <- dat[-grep("__", dat$Proteins),]
@@ -98,7 +111,9 @@ artms_replicatePlots <- function(input_file,
   x <- data.table::dcast(data=x, Proteins+Modified.sequence+Charge~Condition+BioReplicate, value.var="Intensity", max, na.rm= TRUE)
   # remove cases where -Inf  is introduced
   x[x==-Inf] <- 0   ###### May cause problems? Check.
-  write.table(x, out_file, quote= FALSE, row.names= FALSE, sep='\t')
+  if(!is.null(out_file)){
+    write.table(x, out_file, quote= FALSE, row.names= FALSE, sep='\t')
+  }
   
   # cycle through the condition pairs in the file and plot each pair
   for(i in 1:dim(repplot)[1]){
@@ -140,7 +155,6 @@ artms_replicatePlots <- function(input_file,
         #       plot(rep1, rep2, main=plot.name, xlab=repplot$rep1_1[i], ylab=repplot$rep1_2[i], xlim=x.lim, ylim=y.lim, pch=".")
         #       dev.off()
         tmp <- data.frame(rep1, rep2, stringsAsFactors= FALSE)
-        pdf_nameout <- paste( dirname(out_file), "/", gsub(" ","_",plot.name2) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i],"-",prot_exp,".pdf", sep="")
         p <- ggplot(tmp, aes(x=rep1, y=rep2)) + 
           geom_point() +
           xlim(x.lim[1],x.lim[2]) + 
@@ -148,11 +162,15 @@ artms_replicatePlots <- function(input_file,
           ggtitle(plot.name) + 
           labs(x=x.label, y=y.label)
         
-        ggsave(filename = pdf_nameout, 
-               plot=p, 
-               width = 10, 
-               height = 10)
-        cat(pdf_nameout, "\n")
+        if(!is.null(out_file)){
+          pdf_nameout <- paste( dirname(out_file), "/", gsub(" ","_",plot.name2) ,"_", repplot$rep1_1[i], "_", repplot$rep1_2[i],"-",prot_exp,".pdf", sep="")
+          ggsave(filename = pdf_nameout, 
+                 plot=p, 
+                 width = 10, 
+                 height = 10)
+          
+          cat(pdf_nameout, "\n")
+        }
       }else{
         cat("\n\n\t(!!!!!!!!!!!!!!!!!!)
         WARNING: not enough data for correlation analysis\n\n")
@@ -161,7 +179,6 @@ artms_replicatePlots <- function(input_file,
       warning("--- REPLICATE PLOT ",i," NOT MADE -- MISSING DATA FROM ", paste(" ", reps[!(reps %in% names(x))],"\n", collapse=""))
     }
   }
-  cat(">> FILE",out_file,"AVAILABLE WITH THE SUMMARY OF INTENSITY VALUES FOR EVERY FEATURE\n")
 }
 
 
