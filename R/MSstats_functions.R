@@ -606,7 +606,7 @@ artms_spectralCounts <- function(evidence_file,
     input_contrasts <- readLines(contrast_file, warn = FALSE)
     #remove empty lines
     input_contrasts <-
-      input_contrasts[sapply(input_contrasts, nchar) > 0]
+      input_contrasts[vapply(input_contrasts, nchar, FUN.VALUE = 0) > 0]
     
     # check if contrast_file is old-format (i.e the contrast_file is a matrix)
     headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
@@ -614,7 +614,8 @@ artms_spectralCounts <- function(evidence_file,
       newinput_contrasts <- c()
       for (i in 2:length(input_contrasts)) {
         newinput_contrasts <-
-          c(newinput_contrasts, unlist(strsplit(input_contrasts[i], split = "\t"))[1])
+          c(newinput_contrasts, unlist(strsplit(input_contrasts[i], 
+                                                split = "\t"))[1])
       }
       input_contrasts <- newinput_contrasts
     }
