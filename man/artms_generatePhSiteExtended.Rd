@@ -16,9 +16,9 @@ then use \code{nopathogen} (default).}
 \item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 
 \item{ptmType}{(char) Is a ptm-site quantification dataset?
-no: \code{noptm} (default),
-yes: \code{yesptmsites} (for site specific analysis),
-\code{yesptmph} (Jeff's script output evidence file).}
+no: \code{global} (default),
+yes: \code{ptmsites} (for site specific analysis),
+\code{ptmph} (Jeff's script output evidence file).}
 }
 \value{
 (data.frame) extended version of the ph-site
@@ -34,7 +34,7 @@ input files for tools as \href{http://phosfate.com/}{Phosfate} or
 \donttest{
 artms_generatePhSiteExtended(df = dfobject, 
                              specie = "mouse", 
-                             ptmType = "yesptmsites")
+                             ptmType = "ptmsites")
 }
 }
 \keyword{external,}

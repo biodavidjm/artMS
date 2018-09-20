@@ -6,7 +6,7 @@
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
   output_dir, enrich = TRUE, l2fc_thres, ipval = "adjpvalue",
-  isBackground = "nobackground", isPtm = "noptm", mnbr = 2,
+  isBackground = "nobackground", isPtm = "global", mnbr = 2,
   isFluomics = FALSE, pathogen = "nopathogen")
 }
 \arguments{
@@ -14,7 +14,7 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{modelqc_file}{(char) MSstats modelqc file location}
 
-\item{specie}{(char) Specie (human, mouse)}
+\item{specie}{(char) Main specie. Currently supported: human, mouse}
 
 \item{output_dir}{(char) Name for the folder to output the results from the
 function}
@@ -34,9 +34,9 @@ too low (for example n = 2), then \code{ipval = pvalue} is recommended.}
 \code{nobackground} (default) will use the total number of genes detected.
 Alternatively provided the file path name to the background gene list.}
 
-\item{isPtm}{(char) Is a ptm-site quantification? \code{noptm} (default),
-\code{yesptmsites}
-(for site specific analysis), \code{yesptmph} (Jeff's script output evidence file)}
+\item{isPtm}{(char) Is a ptm-site quantification? \code{global} (default),
+\code{ptmsites}
+(for site specific analysis), \code{ptmph} (Jeff's script output evidence file)}
 
 \item{mnbr}{(int) minimal number of biological replicates for imputation
 and filtering. Default: \code{mnbr = 2} (Proteins must be found in one of the
@@ -71,7 +71,7 @@ It includes:
 artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
                  modelqc_file = "ab-testing-new-results_ModelQC.txt",
                  specie = "human",
-                 isPtm = "noptm",
+                 isPtm = "global",
                  output_dir = "resultsAQ",
                  mnbr = 2,
                  l2fc_thres = 1,

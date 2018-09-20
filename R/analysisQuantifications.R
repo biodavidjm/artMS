@@ -14,7 +14,7 @@
 #'
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
-#' @param specie (char) Specie (human, mouse)
+#' @param specie (char) Main specie. Currently supported: human, mouse
 #' @param output_dir (char) Name for the folder to output the results from the 
 #' function
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
@@ -28,9 +28,9 @@
 #' @param isBackground (char) background of gene names for enrichment analysis.
 #' `nobackground` (default) will use the total number of genes detected.
 #' Alternatively provided the file path name to the background gene list.
-#' @param isPtm (char) Is a ptm-site quantification? `noptm` (default), 
-#' `yesptmsites`
-#' (for site specific analysis), `yesptmph` (Jeff's script output evidence file)
+#' @param isPtm (char) Is a ptm-site quantification? `global` (default), 
+#' `ptmsites`
+#' (for site specific analysis), `ptmph` (Jeff's script output evidence file)
 #' @param mnbr (int) minimal number of biological replicates for imputation
 #' and filtering. Default: `mnbr = 2` (Proteins must be found in one of the
 #' conditions in at least 2 of the biological replicates)
@@ -46,7 +46,7 @@
 #' artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
 #'                  modelqc_file = "ab-testing-new-results_ModelQC.txt",
 #'                  specie = "human",
-#'                  isPtm = "noptm",
+#'                  isPtm = "global",
 #'                  output_dir = "resultsAQ",
 #'                  mnbr = 2,
 #'                  l2fc_thres = 1,
@@ -61,18 +61,40 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           l2fc_thres,
                                           ipval = "adjpvalue",
                                           isBackground = "nobackground",
-                                          isPtm = "noptm",
+                                          isPtm = "global",
                                           mnbr = 2,
                                           isFluomics = FALSE,
                                           pathogen = "nopathogen") {
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
-  if (grepl("logical", class(enrich))) {
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Checking arguments
+  if (!grepl("logical", class(enrich))) {
     stop("\nArgument <enrich> must be logical (TRUE or FALSE)\n")
   }
-  
-  if (grepl("logical", class(isFluomics))) {
+
+  if (!grepl("logical", class(isFluomics))) {
     stop("\nArgument <isFluomics> must be logical (TRUE or FALSE)\n")
+  }
+
+  if (!grepl("numeric", class(l2fc_thres))) {
+    stop("\nArgument <l2fc_thres> must be numeric\n")
+  }
+  
+  if (!grepl("numeric", class(mnbr))) {
+    stop("\nArgument <mnbr> must be numeric\n")
+  }
+
+  if(!(isPtm %in% c('global', 'ptmph', 'ptmsites'))){
+    stop("The < isPtm > argument is wrong. The valid options are: global or ptmsites\n")
+  }
+  
+  if(!(ipval %in% c('pvalue', 'adjpvalue'))){
+    stop("The < ipval > argument is wrong. The valid options are: pvalue or adjpvalue\n")
+  }
+  
+  if(!(specie %in% c('human', 'mouse'))){
+    stop("The < ipval > argument is wrong. The valid options are: pvalue or adjpvalue\n")
   }
   
   if (pathogen == "nopathogen") {
@@ -123,7 +145,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if (isBackground == "nobackground") {
     # If not list of background genes is provided,
     # then extract them from the modelqc file
-    if (isPtm == "noptm") {
+    if (isPtm == "global") {
       suppressMessages(dfmq2Genes <-
                          artms_annotationUniprot(dfmq, 'PROTEIN', specie))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
@@ -131,7 +153,7 @@ artms_analysisQuantifications <- function(log2fc_file,
           numberTotalGenes,
           "\n")
       listOfGenes <- unique(dfmq2Genes$Gene)
-    } else if (grepl("yesptm", isPtm)) {
+    } else if (grepl("ptm", isPtm)) {
       dfmq2Genes <-
         dfmq[c('PROTEIN', 'GROUP_ORIGINAL')] # If you want to apply some sort of filter, do it here
       names(dfmq2Genes)[grep('PROTEIN', names(dfmq2Genes))] <- 'Protein'
@@ -644,7 +666,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   cat(">>> ANNOTATIONS\n")
   # Now get ready for annotation
   cat("--- Abundance data\n")
-  if (grepl("yesptm", isPtm)) {
+  if (grepl("ptm", isPtm)) {
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
@@ -680,7 +702,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   log2fc_file_splc <-
     .artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
   # Now get ready for annotation
-  if (grepl("yesptm", isPtm)) {
+  if (grepl("ptm", isPtm)) {
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
@@ -923,7 +945,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     l2fcol4enrichment <-
       l2fcol4enrichment[complete.cases(l2fcol4enrichment), ]
     # Now get ready for annotation
-    if (grepl("yesptm", isPtm)) {
+    if (grepl("ptm", isPtm)) {
       names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <-
         'Uniprot_PTM'
       # Take the Protein ID, but being very careful about the fluomics labeling
@@ -958,7 +980,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   if (enrich == TRUE & dim(l2fcol4enrichment)[1] > 0) {
     cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
     
-    if (grepl("yesptm", isPtm)) {
+    if (grepl("ptm", isPtm)) {
       # l2fcol4enrichment <- within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <-
@@ -1217,7 +1239,7 @@ artms_analysisQuantifications <- function(log2fc_file,
           by = 'Prey',
           all = TRUE)
   
-  if (grepl("yesptm", isPtm)) {
+  if (grepl("ptm", isPtm)) {
     names(superunified)[grep('^Prey$', names(superunified))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
@@ -1306,7 +1328,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (grepl("yesptm", isPtm)) {
+  if (grepl("ptm", isPtm)) {
     cat(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE\n")
     artms_generatePhSiteExtended(
       df = imputedDF,
@@ -1318,7 +1340,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat(">> GENERATING FINAL OUTPUT FILES\n")
-  if (grepl("yesptm", isPtm)) {
+  if (grepl("ptm", isPtm)) {
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
     # The virus labeling has to be taken into account when getting the uniprot id:
@@ -1356,7 +1378,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         fill = 0
       )
     
-  } else if (isPtm == "noptm") {
+  } else if (isPtm == "global") {
     suppressMessages(imputedDF <-
                        artms_annotationUniprot(imputedDF, 'Protein', specie))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
@@ -1381,7 +1403,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         fill = 0
       )
   } else{
-    stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: noptm, yesptmph, yesphsite\n")
+    stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: global, ptmph, yesphsite\n")
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1396,7 +1418,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   garbage <- dev.off()
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (isPtm == "noptm") {
+  if (isPtm == "global") {
     cat(">> CLUSTERING ANALYSIS OF QUANTIFICATIONS\n")
     
     # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
@@ -1731,7 +1753,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   if (enrich) {
     # But now check whether is a PTM case:
-    if (grepl("yesptm", isPtm)) {
+    if (grepl("ptm", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
@@ -1744,7 +1766,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         "enMACposCorum" = positiveComplexEnriched,
         "enMACnegCorum" = negativesComplexEnriched
       )
-    } else if (grepl("noptm", isPtm)) {
+    } else if (grepl("global", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1762,14 +1784,14 @@ artms_analysisQuantifications <- function(log2fc_file,
     }
   } else if (!enrich) {
     cat("\t\t-----+ You chose not to enrich\n")
-    if (grepl("yesptm", isPtm)) {
+    if (grepl("ptm", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "log2fcImpExt" = imputedDFext,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
         "wide_iPvalue" = imputedDF_wide_pvalue
       )
-    } else if (grepl("noptm", isPtm)) {
+    } else if (grepl("global", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
         "wide_iLog2fc" = imputedDF_wide_log2fc,
@@ -1876,20 +1898,20 @@ artms_annotateSpecie <- function(df,
 #' then use `nopathogen` (default).
 #' @param specie (char) Main organism (supported for now: `human` or `mouse`)
 #' @param ptmType (char) Is a ptm-site quantification dataset?
-#' no: `noptm` (default),
-#' yes: `yesptmsites` (for site specific analysis),
-#' `yesptmph` (Jeff's script output evidence file).
+#' no: `global` (default),
+#' yes: `ptmsites` (for site specific analysis),
+#' `ptmph` (Jeff's script output evidence file).
 #' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
 #' @examples \donttest{
 #' artms_generatePhSiteExtended(df = dfobject, 
 #'                              specie = "mouse", 
-#'                              ptmType = "yesptmsites")
+#'                              ptmType = "ptmsites")
 #' }
 #' @export
 artms_generatePhSiteExtended <-
   function(df, pathogen, specie, ptmType) {
-    if (isPtm == "yesptmph") {
+    if (isPtm == "ptmph") {
       imputedDFext <- df
       names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
         'Uniprot_PTM'
@@ -1932,7 +1954,7 @@ artms_generatePhSiteExtended <-
         row.names = FALSE,
         col.names = TRUE
       )
-    } else if (isPtm == "yesptmsites") {
+    } else if (isPtm == "ptmsites") {
       imputedDFext <- df
       #1. Change the Protein name
       names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
@@ -2133,8 +2155,8 @@ artms_generatePhSiteExtended <-
 # @description Load limited columns from abundance (modelqc) annotated
 # @param df_input (data.frame) with the raw abundance data (modelqc)
 # @param specie (char) Specie name for annotation purposes
-# @param ptmis (char) Specify whether is a PTM dataset: `noptm`, `yesptmsites`,
-# `yesptmph`
+# @param ptmis (char) Specify whether is a PTM dataset: `global`, `ptmsites`,
+# `ptmph`
 # @return annotated data.frame of abundance data
 # @keywords abundance, annotated
 .artms_loadModelQCstrict <- function (df_input, specie, ptmis) {
@@ -2165,7 +2187,7 @@ artms_generatePhSiteExtended <-
     )
   
   names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
-  if (grepl("yesptm", ptmis)) {
+  if (grepl("ptm", ptmis)) {
     # if is a PTM dataset we don't need the real gene names for now,
     # we need to use the Uniprot_ptm notation
     datadc$Gene <- datadc$Protein
