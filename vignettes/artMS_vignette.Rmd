@@ -9,8 +9,8 @@ output:
   #   toc: true
 vignette: >
     %\VignetteIndexEntry{Learn to use artMS ~30 min}
-    %\VignetteEngine{knitr::rmarkdown}
     %\usepackage[utf8]{inputenc}
+    %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, echo = FALSE}
@@ -44,31 +44,34 @@ Running a quality control of the evidence file requires two files:
 - `evidence.txt` file obtain from MaxQuant
 - `keys.txt`: a file describing the experimental design of the evidence file
 
-As an example, we will use a phosphorylation dataset available to download from the [kroganlab website](http://kroganlab.ucsf.edu/)
+As an example, we will use a REDUCED version of a phosphorylation dataset, 
+which is available in `artMS`.
 
-```{r, eval = FALSE}
-# Evidence file
-url_evidence <- '~/experiments/artms/ph/evidence.txt'
-# url_evidence <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
-# evidence.df <- read.delim(url_evidence, stringsAsFactors = F)
+- Evidence file: `artms_data_ph_evidence`
+- Keys file: `artms_data_ph_keys`
 
+The full data set (large size) can be found at these urls:
 
-# Keys file
-url_keys <- "~/experiments/artms/ph/keys.txt"
-# url_keys <- "http://kroganlab.ucsf.edu/artms/ph/keys.txt"
-# keys.df <- read.delim(url_keys, stringsAsFactors = F)
+```
+url_evidence <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
+url_keys <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
 ```
 
-Then run `artms_evidenceQC()` and specify the type of phosphoproteomics experiment (argument `prot_exp = ph`) like this:
+Then run `artms_evidenceQCbasic()` and specify the type of phosphoproteomics 
+experiment (argument `prot_exp = 'PH'`) like this:
 
 ```{r, eval = FALSE}
-artms_evidenceQC(evidence_file = url_evidence, keys_file = url_keys, prot_exp = 'ph')
+suppressMessages(library(artMS))
+artms_evidenceQCbasic(evidence_file = artms_data_ph_evidence, 
+                 keys_file = artms_data_ph_keys, 
+                 prot_exp = 'PH')
 ```
-Other proteomics experiments available are `ab` (protein abundance), `ub` (protein ubiquitination), and `apms` (Affinity Purification Mass Spectrometry)
+
+Other proteomics experiments available are `AB` (protein abundance), `UB` (protein ubiquitination), and `APMS` (Affinity Purification Mass Spectrometry)
 
 This function will use the `-evidence.txt` file name as a template name to generate the output file names.
 
-Check `artms_evidenceQC()` to find out more about this function. 
+Check `artms_evidenceQCbasic()` to find out more about this function. 
 
 # Relative quantification with MSstats
 

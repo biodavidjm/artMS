@@ -2,7 +2,7 @@
 #' 
 #' @description The configuration file in `yaml` format contains 
 #' the configuration details required to run `artms_quantification()`, which
-#' includes quality control (`artms_evidenceQC()`) 
+#' includes quality control (`artms_evidenceQCbasic()`) 
 #' 
 #' @format The configuration (`yaml`) file contains the following sections:
 #' \describe{

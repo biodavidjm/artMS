@@ -78,6 +78,6 @@ artms_config
 \description{
 The configuration file in \code{yaml} format contains
 the configuration details required to run \code{artms_quantification()}, which
-includes quality control (\code{artms_evidenceQC()})
+includes quality control (\code{artms_evidenceQCbasic()})
 }
 \keyword{datasets}

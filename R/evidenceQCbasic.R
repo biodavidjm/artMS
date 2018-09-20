@@ -17,12 +17,12 @@
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
 #' @examples
-#' artms_evidenceQC(evidence_file = artms_data_ph_evidence,
+#' artms_evidenceQCbasic(evidence_file = artms_data_ph_evidence,
 #'                  keys_file = artms_data_ph_keys,
 #'                  output_name = "qcPlots_evidence",
 #'                  prot_exp = "PH")
 #' @export
-artms_evidenceQC <- function(evidence_file,
+artms_evidenceQCbasic <- function(evidence_file,
                              keys_file,
                              prot_exp,
                              fractions = 0,

@@ -10,6 +10,7 @@
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
 #' @import getopt
+#' @import ggalt
 #' @import ggdendro
 #' @rawNamespace import(ggplot2, except = c(dcast))
 #' @import gProfileR
@@ -150,7 +151,7 @@ artms_quantification <- function(yaml_config_file) {
   
   # Quality Control
   if (config$qc$enabled) {
-    artms_evidenceQC(
+    artms_evidenceQCbasic(
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
