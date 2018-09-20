@@ -190,6 +190,10 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by = c('RawFile')) {
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
   
+  if("Experiment" %in% colnames(keys)){
+    keys <- artms_changeColumnName(keys, "Experiment", "ExperimentKeys")
+  }
+  
   # Check that the keys file is correct
   if (any(
     !c(
