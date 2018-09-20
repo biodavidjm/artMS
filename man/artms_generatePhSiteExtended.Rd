@@ -32,7 +32,9 @@ input files for tools as \href{http://phosfate.com/}{Phosfate} or
 }
 \examples{
 \donttest{
-artms_generatePhSiteExtended(df = dfobject, specie = "mouse", ptmType = "yesptmsites")
+artms_generatePhSiteExtended(df = dfobject, 
+                             specie = "mouse", 
+                             ptmType = "yesptmsites")
 }
 }
 \keyword{external,}

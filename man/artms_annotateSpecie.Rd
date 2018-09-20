@@ -10,13 +10,15 @@ artms_annotateSpecie(df, pathogen = "nopathogen", specie)
 \item{df}{(data.frame) with a \code{Protein} column (of uniprot ids)}
 
 \item{pathogen}{(char) Is there a pathogen in the dataset as well?
-if it does not, then use \code{pathogen = nopathogen} (default). Supported\code{tb} (Tuberculosis),
+if it does not, then use \code{pathogen = nopathogen} (default). Supported\code{tb}
+(Tuberculosis),
 \code{lpn} (Legionella)}
 
 \item{specie}{(char) Host organism (supported for now: \code{human} or \code{mouse})}
 }
 \value{
-(data.frame) The same data.frame but with an extra column specifying the specie
+(data.frame) The same data.frame but with an extra column
+specifying the specie
 }
 \description{
 Adding the specie name to every protein.
@@ -27,10 +29,10 @@ originally annotated as \code{INFLUENZAGENE_STRAIN}
 (strains covered \code{H1N1}, \code{H3N2}, \code{H5N1}), as for example, \code{NS1_H1N1}
 }
 \examples{
-# Adding a new column with the main specie of the data. Easy. 
+# Adding a new column with the main specie of the data. Easy.
 # But the main functionality is to add both the host-specie and a pathogen,
 # which is not illustrated in this example
-data_with_specie <- artms_annotateSpecie(df = artms_data_ph_msstats_results, 
+data_with_specie <- artms_annotateSpecie(df = artms_data_ph_msstats_results,
                                          specie = "human")
 }
 \keyword{annotation,}

@@ -16,7 +16,8 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{specie}{(char) Specie (human, mouse)}
 
-\item{output_dir}{(char) Name for the folder to output the results from the function}
+\item{output_dir}{(char) Name for the folder to output the results from the
+function}
 
 \item{enrich}{(logical) Performed enrichment analysis using GprofileR?
 \code{TRUE} (default) or \code{FALSE}}
@@ -33,7 +34,8 @@ too low (for example n = 2), then \code{ipval = pvalue} is recommended.}
 \code{nobackground} (default) will use the total number of genes detected.
 Alternatively provided the file path name to the background gene list.}
 
-\item{isPtm}{(char) Is a ptm-site quantification? \code{noptm} (default), \code{yesptmsites}
+\item{isPtm}{(char) Is a ptm-site quantification? \code{noptm} (default),
+\code{yesptmsites}
 (for site specific analysis), \code{yesptmph} (Jeff's script output evidence file)}
 
 \item{mnbr}{(int) minimal number of biological replicates for imputation
@@ -48,7 +50,8 @@ if it does not, then use \code{pathogen = nopathogen} (default).
 Pathogens available: \code{tb} (Tuberculosis), \code{lpn} (Legionella)}
 }
 \value{
-(data.frame) summary of quantifications, including annotations, enrichments, etc
+(data.frame) summary of quantifications, including annotations,
+enrichments, etc
 }
 \description{
 Analysis of the Relative Quantifications obtained by MSstats.
@@ -65,13 +68,13 @@ It includes:
 }
 \examples{
 \donttest{
-artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt", 
-                 modelqc_file = "ab-testing-new-results_ModelQC.txt", 
-                 specie = "human", 
-                 isPtm = "noptm", 
-                 output_dir = "resultsAQ", 
-                 mnbr = 2, 
-                 l2fc_thres = 1, 
+artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
+                 modelqc_file = "ab-testing-new-results_ModelQC.txt",
+                 specie = "human",
+                 isPtm = "noptm",
+                 output_dir = "resultsAQ",
+                 mnbr = 2,
+                 l2fc_thres = 1,
                  ipval = "pvalue")
 }
 }

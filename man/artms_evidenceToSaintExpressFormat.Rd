@@ -34,10 +34,10 @@ by SAINTexpress. One can choose to either use the \code{spectral counts}
 }
 \examples{
 \donttest{
-artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt", 
-             keys_file = "a549-PB1-keys.txt", 
-             ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta", 
-             quant_variable = "msint", 
+artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt",
+             keys_file = "a549-PB1-keys.txt",
+             ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta",
+             quant_variable = "msint",
              output_file = "a549-PB1-saintexpress.txt")
 }
 }

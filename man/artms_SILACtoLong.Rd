@@ -21,7 +21,7 @@ Heavy and Light label
 }
 \examples{
 \donttest{
-evidence2silac <- artms_SILACtoLong(evidence_file = "silac.evicence.txt", 
+evidence2silac <- artms_SILACtoLong(evidence_file = "silac.evicence.txt",
                                    output = "silac-evidence.txt")
 }
 }

@@ -39,8 +39,8 @@ Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 }
 \examples{
 uniprots_anno <- artms_mapUniprot2entrezGeneName(
-                       uniprotkb = unique(artms_data_ph_evidence$Proteins), 
-                       specie = "human")
+                       uniprotkb = unique(artms_data_ph_evidence$Proteins),
+                       specie = 'human')
 }
 \keyword{annotation,}
 \keyword{ids}

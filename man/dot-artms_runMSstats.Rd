@@ -7,7 +7,8 @@
 .artms_runMSstats(dmss, contrasts, config)
 }
 \arguments{
-\item{dmss}{(data.frame) Formatted and filtered evidence file (MSstats format)}
+\item{dmss}{(data.frame) Formatted and filtered evidence file
+(MSstats format)}
 
 \item{contrasts}{(data.frame) The contrast data.frame in MSstats format}
 

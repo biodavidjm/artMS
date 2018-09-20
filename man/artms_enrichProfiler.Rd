@@ -79,8 +79,8 @@ This function uses the following \code{gprofiler} arguments as default:
 \examples{
 # annotate the MSstats results to get the Gene name
 data_annotated <- artms_annotationUniprot(
-                                     data = artms_data_ph_msstats_results, 
-                                     columnid = "Protein", 
+                                     data = artms_data_ph_msstats_results,
+                                     columnid = "Protein",
                                      sps = "human")
 
 # Filter the list of genes with a log2fc > 2
@@ -88,9 +88,9 @@ filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 
 # And perform enrichment analysis
 data_annotated_enrich <- artms_enrichProfiler(
-                                   x = filtered_data, 
-                                   categorySource = c('KEGG'), 
-                                   specie = "hsapiens", 
+                                   x = filtered_data,
+                                   categorySource = c('KEGG'),
+                                   specie = "hsapiens",
                                    background = unique(data_annotated$Gene))
 }
 \keyword{enrichment}

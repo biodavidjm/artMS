@@ -49,13 +49,13 @@ x_values <- c("Cal33", "Cal33-1", "Cal33-4", "HSC6", "HSC6-2", "HSC6-3")
 replica_info <- data.frame(t(x_values))
 colnames(replica_info) <- x_names
 
-# Now let's make the plots. 
-artms_replicatePlots(input_file = artms_data_ph_evidence, 
-                     keys_file = artms_data_ph_keys, 
-                     replicate_file = replica_info, 
+# Now let's make the plots.
+artms_replicatePlots(input_file = artms_data_ph_evidence,
+                     keys_file = artms_data_ph_keys,
+                     replicate_file = replica_info,
                      out_file = NULL,
                      prot_exp = "PH")
-                     
+
 # Remember that if you want to see the txt results and pdf file, just
 # change out_file = NULL" to out_file = 'output_file.pdf'
 }

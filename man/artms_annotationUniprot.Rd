@@ -24,12 +24,12 @@ search for the gene symbol, name, and entrez based on the specie (\code{sps}
 argument) and merge the information back to the input data.frame
 }
 \examples{
-# This example adds annotations to the evidence file available in 
-# artMS, based on the column "Proteins".
+# This example adds annotations to the evidence file available in
+# artMS, based on the column 'Proteins'.
 
 evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
-                                         columnid = "Proteins", 
-                                         sps = "human")
+                                         columnid = 'Proteins',
+                                         sps = 'human')
 }
 \keyword{annotation,}
 \keyword{uniprot}

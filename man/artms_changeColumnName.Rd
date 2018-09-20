@@ -21,8 +21,8 @@ Making easier to change a column name in any data.frame
 }
 \examples{
 artms_data_ph_evidence <- artms_changeColumnName(
-                               dataset = artms_data_ph_evidence, 
-                               oldname = "Phospho..STY.", 
+                               dataset = artms_data_ph_evidence,
+                               oldname = "Phospho..STY.",
                                newname = "PH_STY")
 }
 \keyword{columns}

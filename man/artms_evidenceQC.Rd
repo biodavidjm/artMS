@@ -36,8 +36,8 @@ Quality control files and plots
 Quality Control analysis of the MaxQuant evidence file
 }
 \examples{
-artms_evidenceQC(evidence_file = artms_data_ph_evidence, 
-                 keys_file = artms_data_ph_keys, 
+artms_evidenceQC(evidence_file = artms_data_ph_evidence,
+                 keys_file = artms_data_ph_keys,
                  output_name = "qcPlots_evidence",
                  prot_exp = "PH")
 }

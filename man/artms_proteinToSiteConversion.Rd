@@ -16,7 +16,8 @@ to search the \code{evidence.txt} file with MaxQuant. It will be used to map the
 modified peptide to the protein sequence and find the site location.
 Therefore, it does NOT need the MaxQuant's \code{Phospho (STY)Sites.txt}}
 
-\item{output_file}{(char) Output file name (\code{-sites-evidence.txt} recommended)}
+\item{output_file}{(char) Output file name
+(\code{-sites-evidence.txt} recommended)}
 
 \item{mod_type}{(char) The posttranslational modification. Options:
 \itemize{
@@ -41,9 +42,9 @@ independently across conditions
 \examples{
 \donttest{
 artms_proteinToSiteConversion(
-  evidence_file = "evidence.txt", 
-  ref_proteome_file = "uniprot_canonical.fasta", 
-  output_file = "phsite_evidence.txt", 
+  evidence_file = "evidence.txt",
+  ref_proteome_file = "uniprot_canonical.fasta",
+  output_file = "phsite_evidence.txt",
   mod_type = "ph")
 }
 }

@@ -22,7 +22,7 @@ take a long time
 }
 \examples{
 \donttest{
-artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt", 
+artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt",
                output_file = "results/ab-results-mss-normalized.pdf")
 }
 }

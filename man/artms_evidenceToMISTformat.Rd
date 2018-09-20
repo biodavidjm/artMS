@@ -11,7 +11,8 @@ artms_evidenceToMISTformat(input_file, quant_variable, keys_file,
 \arguments{
 \item{input_file}{(char) MaxQuant evidence file and location}
 
-\item{quant_variable}{(char) Select the quantitative variable. Two options available:
+\item{quant_variable}{(char) Select the quantitative variable.
+Two options available:
 \itemize{
 \item \code{msint}: MS Intensity
 \item \code{msspc}: MS.MS.count (Spectral Counts)
@@ -21,7 +22,8 @@ artms_evidenceToMISTformat(input_file, quant_variable, keys_file,
 
 \item{output_file}{(char) Output file name}
 
-\item{species}{(char) Specie name. If several, used a \code{dash} symbol to separate them}
+\item{species}{(char) Specie name. If several, used a \code{dash} symbol
+to separate them}
 
 \item{uniprot_dir}{Directory with the uniprot files with the mapping
 information. Default '~/Box Sync/db/mist/'}
@@ -38,9 +40,9 @@ simply separate them by a "-". (eg. \code{HUMAN-MOUSE})
 }
 \examples{
 \donttest{
-artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
-                           keys_file = "a549-PB1-keys.txt", 
-                           quant_variable = "msint", 
+artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt",
+                           keys_file = "a549-PB1-keys.txt",
+                           quant_variable = "msint",
                            output_file = "a549-PB1-mist.txt",
                            species = "HUMAN-FLUOMICS",
                            uniprot_dir = "~/Box Sync/db/mist/")

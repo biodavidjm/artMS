@@ -47,10 +47,10 @@ pair. Any pairs without a value are assigned a value of NA.
 }
 \examples{
 \donttest{
-artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
-                prot_group_file = "proteinGroups.txt", 
-                keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
-                results_file = "results/FLU-THP1-H1N1-AB-results.txt", 
+artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
+                prot_group_file = "proteinGroups.txt",
+                keys_file = "FLU-THP1-H1N1-AB-keys.txt",
+                results_file = "results/FLU-THP1-H1N1-AB-results.txt",
                 return_df = FALSE)
 }
 }

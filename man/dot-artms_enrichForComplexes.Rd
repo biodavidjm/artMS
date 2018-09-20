@@ -12,7 +12,8 @@
 \item{backgroundNumber}{(int) Background number of genes}
 }
 \value{
-(data.frame) A text delimited data.frame with protein complex enrichment results
+(data.frame) A text delimited data.frame with protein complex
+enrichment results
 }
 \description{
 Enrich for Protein Complexes using CORUM

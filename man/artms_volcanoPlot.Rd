@@ -33,8 +33,8 @@ Default: 16 (10^-16)}
 It generates a scatter-plot used to quickly identify changes
 }
 \examples{
-artms_volcanoPlot(mss_results = artms_data_ph_msstats_results, 
-                  whatPvalue = "pvalue", 
+artms_volcanoPlot(mss_results = artms_data_ph_msstats_results,
+                  whatPvalue = "pvalue",
                   PDF = FALSE)
 }
 \keyword{plot,}
