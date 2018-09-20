@@ -83,7 +83,7 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
   cols <- readLines(evidence_file, 1)
   cols <-
     data.frame(V1 = unlist(strsplit(cols, "\t")), stringsAsFactors = FALSE)
-  cols$idx <- 1:dim(cols)[1]
+  cols$idx <- seq_len(dim(cols)[1])
   
   # get data frame of pre-recorded column names and their respective classes
   col.classes <-

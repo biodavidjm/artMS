@@ -134,7 +134,7 @@ artms_replicatePlots <- function(input_file,
   }
   
   # cycle through the condition pairs in the file and plot each pair
-  for (i in 1:dim(repplot)[1]) {
+  for (i in seq_len(dim(repplot)[1])) {
     cat("--- PLOTTING REPLICATE PLOT ", i, ": ")
     
     # check if the replicate combination exists in the plots

@@ -14,7 +14,7 @@
   
   complexEnrichmentConditions <- NULL
   
-  for (i in 1:length(listOfConditions)) {
+  for (i in seq_len(length(listOfConditions))) {
     condi <- listOfConditions[i]
     tmp <- unique(df$Protein[which(df$Comparisons == condi)])
     tmpEnrich <-

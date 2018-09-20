@@ -370,7 +370,7 @@ artms_plotHeatmapQuant <- function(input_file,
                        max = length(condi),
                        style = 3)
   
-  for (i in 1:length(condi)) {
+  for (i in seq_len(length(condi))) {
     eCondition <- condi[i]
     # Progress bar
     setTxtProgressBar(pb, i)
@@ -485,7 +485,7 @@ artms_plotHeatmapQuant <- function(input_file,
       
       to <- length(blist) - 1
       
-      for (i in 1:to) {
+      for (i in seq_len(to)) {
         j <- i + 1
         for (k in j:length(blist)) {
           br1 <- blist[i]
@@ -663,7 +663,7 @@ artms_plotHeatmapQuant <- function(input_file,
                        max = length(condi),
                        style = 3)
   
-  for (i in 1:length(condi)) {
+  for (i in seq_len(length(condi))) {
     eCondition <- condi[i]
     
     # Progress bar
@@ -746,7 +746,7 @@ artms_plotHeatmapQuant <- function(input_file,
     if (length(blist) > 1) {
       # We need at least TWO BIOLOGICAL REPLICAS
       to <- length(blist) - 1
-      for (i in 1:to) {
+      for (i in seq_len(to)) {
         j <- i + 1
         for (k in j:length(blist)) {
           br1 <- blist[i]
@@ -844,7 +844,7 @@ artms_plotHeatmapQuant <- function(input_file,
     if (length(blist) > 1) {
       # We need at least TWO CONDITIONS
       to <- length(blist) - 1
-      for (i in 1:to) {
+      for (i in seq_len(to)) {
         j <- i + 1
         for (k in j:length(blist)) {
           br1 <- blist[i]
@@ -926,7 +926,7 @@ artms_plotHeatmapQuant <- function(input_file,
     pb <- txtProgressBar(min = 0,
                          max = length(blist) - 1,
                          style = 3)
-    for (i in 1:to) {
+    for (i in seq_len(to)) {
       setTxtProgressBar(pb, i)
       j <- i + 1
       for (k in j:length(blist)) {
@@ -1036,14 +1036,14 @@ artms_plotHeatmapQuant <- function(input_file,
   pdf(out.pca02)
   barplot(
     eigenvalues[, 2],
-    names.arg = 1:nrow(eigenvalues),
+    names.arg = seq_len(nrow(eigenvalues)),
     main = "Variances",
     xlab = "Principal Components",
     ylab = "Percentage of variances",
     col = "steelblue"
   )
   lines(
-    x = 1:nrow(eigenvalues),
+    x = seq_len(nrow(eigenvalues)),
     eigenvalues[, 2],
     type = "b",
     pch = 19,

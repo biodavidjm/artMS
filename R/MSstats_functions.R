@@ -650,7 +650,7 @@ artms_spectralCounts <- function(evidence_file,
       colnames(contrast_matrix) <- conds
       rownames(contrast_matrix) <- input_contrasts
       
-      for (i in 1:nrow(mat)) {
+      for (i in seq_len(nrow(mat)) ) {
         cond1 <- mat[i, 1]
         cond2 <- mat[i, 2]
         contrast_matrix[i, cond1] <- 1

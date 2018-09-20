@@ -159,7 +159,7 @@
       preys.original <-
       data.frame(
         prey = preys,
-        idx = 1:length(preys),
+        idx = seq_len(length(preys)),
         stringsAsFactors = FALSE
       )
     # split apart all the preys and index them so we can piece them back 

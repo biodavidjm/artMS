@@ -129,7 +129,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
   mod_seqs <- c()
   
   cat("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES (it might take some time)\n")
-  for (i in 1:nrow(unique_peptides_in_data)) {
+  for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
     ## cleanup the sequence (removing all modifications) for matching the protein sequence
@@ -151,7 +151,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
           peptide_index_in_protein <-
             str_locate(protein_seq, peptide_seq_clean)[[1]][1]
           
-          for (m in 1:length(mod_sites_in_peptide)) {
+          for (m in seq_len(length(mod_sites_in_peptide))) {
             mod_site <- mod_sites_in_peptide[m]
             peptide_seq_before_site <-
               str_sub(peptide_seq, 1, mod_site - 1)
