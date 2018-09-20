@@ -83,6 +83,18 @@ save(artms_data_corum_mito_database, file = 'data/artms_data_corum_mito_database
 artms_config <- yaml.load_file("inst/extdata/artms_config.yaml")
 save(artms_config, file = 'data/artms_config.RData', compress = 'xz')
 
+# PATHOGENS
+
+cat("--- PATHOGEN IN SAMPLES: TB\n")
+artms_data_pathogen_TB <- read.delim('~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta', header = FALSE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "TB",
+names(artms_data_pathogen_TB) <- c('Entry')
+save(artms_data_pathogen_TB, file = '~/github/biodavidjm/artMS/data/artms_data_pathogen_TB.RData', compress = 'xz')
+
+cat("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
+artms_data_pathogen_LPN <- read.delim('~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt', header = TRUE, sep = "\t", quote = "", stringsAsFactors = FALSE) # pathogen.ids$Entry, "Lpn",
+artms_data_pathogen_LPN <- artms_data_pathogen_LPN[c('Entry')]
+save(artms_data_pathogen_LPN, file = '~/github/biodavidjm/artMS/data/artms_data_pathogen_LPN.RData', compress = 'xz')
+
 
 load("data/artms_config.RData")
 
@@ -183,7 +195,7 @@ artms_replicatePlots(input_file = evidence_file,
                      keys_file = keys_file, 
                      replicate_file = "reduced_replicates_plots.txt", 
                      prot_exp = "PH",
-                     out_file = "ph-replicates-summary.txt")
+                     out_file = NULL)
 
 artms_quantification("~/experiments/artms/ph/phglobalreduced/phglobal_reduced_config.yaml")
 
@@ -204,8 +216,10 @@ uniprots_anno <- artms_mapUniprot2entrezGeneName(
                   uniprotkb = unique(artms_data_ph_evidence$Proteins), 
                   specie = "human")
 
+# -----------------------------------------------------------------------------
 # annotate the MSstats results to get the Gene name
-data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results, columnid = "Protein", sps = "human")
+data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results, 
+                                          columnid = "Protein", sps = "human")
 
 # Filter the list of genes with a log2fc > 2
 filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
@@ -215,6 +229,19 @@ data_annotated_enrich <- artms_enrichProfiler(x = filtered_data,
 categorySource = c('KEGG'), 
 specie = "hsapiens", background = unique(data_annotated$Gene))
 
+# -----------------------------------------------------------------------------
+artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results, 
+                       specie = "human",
+                       output_file = NULL,
+                       whatPvalue = "pvalue", 
+                       lfc_lower = -1, 
+                       lfc_upper = 1)
+# -----------------------------------------------------------------------------
+artms_volcanoPlot(mss_results = artms_data_ph_msstats_results, 
+                  whatPvalue = "pvalue", 
+                  PDF = FALSE)
+
+# -----------------------------------------------------------------------------
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artms_annotationUniprot(
   data = artms_data_ph_msstats_results, 
@@ -231,6 +258,31 @@ dataset = data_annotated
 specie = "human"
 background = unique(data_annotated$Gene)
 heatmaps = TRUE
+
+#----------------------------------------------------------------------
+artms_isEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
+
+
+#----------------------------------------------------------------------
+# Adding a new column with the main specie of the data. Easy. 
+# But the main functionality is to add both the host-specie and a pathogen,
+# which is not illustrated in this example
+artms_annotateSpecie(df = artms_data_ph_msstats_results, specie = "human")
+
+#-------------------------------------------------------------------------------
+# First, let's make the "replicate file" (in a data.frame)
+x_names <- c("condition1", "rep1_1", "rep1_2", "condition2", "rep2_1", "rep2_2")
+x_values <- c("Cal33", "Cal33-1", "Cal33-4", "HSC6", "HSC6-2", "HSC6-3")
+replica_info <- data.frame(t(x_values))
+colnames(replica_info) <- x_names
+
+# Now let's make the plots (it is recommended to use the <out_file> option
+# and print the results to a file)
+artms_replicatePlots(input_file = artms_data_ph_evidence, 
+                     keys_file = artms_data_ph_keys, 
+                     replicate_file = replica_info, 
+                     out_file = "whatever.txt", 
+                     prot_exp = "PH")
 
 artms_analysisQuantifications(log2fc_file = "phglobal_reduced-results.txt",
                               modelqc_file = "phglobal_reduced-results_ModelQC.txt",
@@ -333,10 +385,10 @@ artms_dataPlots(input_file = "results/testing/ab-testing-new-results-mss-normali
                 output_file = "results/testing/ab-testing-new-results-mss-normalized.pdf")
 
 artms_plotHeatmapQuant(input_file = "ab-testing-new-results.txt", 
-                  output_file = "ab-testing2-new-results-heatmap.pdf", 
                   specie = "human")
 
-here <- artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
+print(here)
+artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt", 
                 prot_group_file = "proteinGroups.txt", 
                 keys_file = "FLU-THP1-H1N1-AB-keys.txt", 
                 results_file = "results/testing/ab-testing-new-results.txt", 

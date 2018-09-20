@@ -77,6 +77,19 @@
 #' }
 "artms_data_corum_mito_database"
 
+#' TB PATHOGEN: Mycobacterium tuberculosis 
+#' (strain ATCC 35801 / TMC 107 / Erdman) UNIPROTS IDS
+#'
+#' @format A data.frame of Entry IDs
+"artms_data_pathogen_TB"
+
+
+#' LPN PATHOGEN: Legionella pneumophila subsp. pneumophila 
+#' (strain Philadelphia 1 / ATCC 33152 / DSM 7513) UNIPROT IDS
+#'
+#' @format A data.frame of Entry IDs
+"artms_data_pathogen_LPN"
+
 #' Evidence file example
 #'
 #' @description Reduced version of a Evidence file from a PH experiment. Only
@@ -136,8 +149,6 @@
 #'
 #' @format A data frame resulting from running the lastest version of MSstats
 "artms_data_ph_msstats_results"
-
-
 
 
 #' Random data set
