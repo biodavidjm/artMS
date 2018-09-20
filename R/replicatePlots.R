@@ -53,9 +53,11 @@ artms_replicatePlots <- function(input_file,
     stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT\n")
   }
   
-  if(!grepl(".txt", out_file)){
-    stop("\nOPTION out_file MUST HAVE THE EXTENSION '.txt'
-Change out_file extension and try again\n")
+  if(!is.null(out_file)){
+    if(!grepl(".txt", out_file)){
+      stop("\nOPTION out_file MUST HAVE THE EXTENSION '.txt'
+           Change out_file extension and try again\n")
+    }
   }
   
   cat("--- READING IN FILES...\n")

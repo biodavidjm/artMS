@@ -37,7 +37,7 @@ Default: FALSE}
 
 \item{lfc_upper}{(int) Upper limit for the log2fc. Default: +2}
 
-\item{whatPvalue}{(char) \code{pvalue} or \code{adj.pvalue} (default)?}
+\item{whatPvalue}{(char) \code{pvalue} or \code{adj.pvalue} (default)}
 
 \item{FDR}{(int) Upper limit false discovery rate (or pvalue). Default: 0.05}
 }

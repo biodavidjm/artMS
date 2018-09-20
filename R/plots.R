@@ -154,7 +154,7 @@ artms_dataPlots <- function(input_file, output_file){
 #' Default: FALSE
 #' @param lfc_lower (int) Lower limit for the log2fc. Default: -2
 #' @param lfc_upper (int) Upper limit for the log2fc. Default: +2
-#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)? 
+#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)
 #' @param FDR (int) Upper limit false discovery rate (or pvalue). Default: 0.05
 #' @param display Metric to be displayed. Options: 
 #' - `log2fc` (default)
@@ -744,3 +744,103 @@ artms_plotHeatmapQuant <- function(input_file,
   garbage <- dev.off()
 }
 
+# ------------------------------------------------------------------------------
+#' @title Volcano plot (log2fc / pvalues)
+#' 
+#' @description It generates a scatter-plot used to quickly identify changes
+#' @param mss_results (data.frame or file) Selected MSstats results
+#' @param lfc_upper (numeric) log2fc upper threshold (positive value)
+#' @param lfc_lower (numeric) log2fc lower threshold (negative value)
+#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)
+#' @param FDR (numeric) False Discovery Rate threshold
+#' @param file_name (char) Name for the output file
+#' @param PDF (logical) Option to generate pdf format. Default: `T`
+#' @param decimal_threshold (numeric) Decimal threshold for the pvalue. 
+#' Default: 16 (10^-16)
+#' @keywords plot, volcano
+#' @return (pdf) of a volcano plot
+#' @examples \donttest{
+#' artms_volcanoPlot(mss_results = artms_data_ph_msstats_results, 
+#'                   whatPvalue = "pvalue", 
+#'                   PDF = FALSE)
+#' }
+#' @export
+artms_volcanoPlot <- function(mss_results, 
+                              lfc_upper = 1, 
+                              lfc_lower = -1, 
+                              whatPvalue = "adj.pvalue",
+                              FDR = 0.05, 
+                              PDF= TRUE, 
+                              file_name = '', 
+                              decimal_threshold=16){
+  
+  if(PDF){
+    if(!grepl("\\.pdf", file_name)){
+      stop("FILE EXTENSION '.pdf' IS MISSED for < file_name >")
+    }
+  }
+  
+  mss_results <- .artms_checkIfFile(mss_results)
+  
+  # handle cases where log2FC is Inf. There are no pvalues or other information for these cases :(
+  # Issues with extreme_val later if we have Inf/-Inf values.
+  if( sum(is.infinite(mss_results$log2FC)) > 0 ){
+    idx <- is.infinite(mss_results$log2FC)
+    mss_results$log2FC[ idx ] <- NA
+  }
+  
+  min_x <- -ceiling(max(abs(mss_results$log2FC), na.rm= TRUE))
+  max_x <-ceiling(max(abs(mss_results$log2FC), na.rm= TRUE))
+  
+  # Deal with special cases in the data where we have pvalues = Inf,NA,0
+  if(whatPvalue == "adj.pvalue"){
+    if( sum(is.na(mss_results$adj.pvalue))>0 ) mss_results <- mss_results[!is.na(mss_results$adj.pvalue),]
+    if(nrow(mss_results[mss_results$adj.pvalue == 0 | mss_results$adj.pvalue == -Inf,]) > 0) mss_results[!is.na(mss_results$adj.pvalue) & (mss_results$adj.pvalue == 0 | mss_results$adj.pvalue == -Inf),]$adj.pvalue = 10^-decimal_threshold
+    max_y = ceiling(-log10(min(mss_results[mss_results$adj.pvalue > 0,]$adj.pvalue, na.rm= TRUE))) + 1
+  }else if(whatPvalue == "pvalue"){
+    if( sum(is.na(mss_results$pvalue))>0 ) mss_results <- mss_results[!is.na(mss_results$pvalue),]
+    if(nrow(mss_results[mss_results$pvalue == 0 | mss_results$pvalue == -Inf,]) > 0) mss_results[!is.na(mss_results$pvalue) & (mss_results$pvalue == 0 | mss_results$pvalue == -Inf),]$pvalue = 10^-decimal_threshold
+    max_y = ceiling(-log10(min(mss_results[mss_results$pvalue > 0,]$pvalue, na.rm= TRUE))) + 1
+  }else{
+    stop("The whatPvalue argument is wrong. Valid options: < pvalue > or < adj.pvalue >")
+  }
+  l <-length(unique(mss_results$Label))
+  w_base <- 7
+  h_base <- 7
+  
+  if(l<=2){
+    w <- w_base*l 
+  }else{
+    w <- w_base*2
+  }
+  h <- h_base*ceiling(l/2)
+  
+  if(whatPvalue == "adj.pvalue"){
+    p <- ggplot(mss_results, aes(x=log2FC,y=-log10(adj.pvalue)))
+    p <- p + geom_point(colour='grey') + 
+            geom_point(data = mss_results[mss_results$adj.pvalue <= FDR & mss_results$log2FC>=lfc_upper,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='red', size=2) +
+            geom_point(data = mss_results[mss_results$adj.pvalue <= FDR & mss_results$log2FC<=lfc_lower,], aes(x=log2FC,y=-log10(adj.pvalue)), colour='blue', size=2) +
+            geom_vline(xintercept=c(lfc_lower,lfc_upper), lty='dashed') + 
+            geom_hline(yintercept=-log10(FDR), lty='dashed') + 
+            xlim(min_x,max_x) + 
+            ylim(0,max_y) + 
+            facet_wrap(facets = ~Label, ncol = 2, scales = 'fixed')
+  }else{
+    p <- ggplot(mss_results, aes(x=log2FC,y=-log10(pvalue)))
+    p <- p + geom_point(colour='grey') + 
+            geom_point(data = mss_results[mss_results$pvalue <= FDR & mss_results$log2FC>=lfc_upper,], aes(x=log2FC,y=-log10(pvalue)), colour='red', size=2) +
+            geom_point(data = mss_results[mss_results$pvalue <= FDR & mss_results$log2FC<=lfc_lower,], aes(x=log2FC,y=-log10(pvalue)), colour='blue', size=2) +
+            geom_vline(xintercept=c(lfc_lower,lfc_upper), lty='dashed') + 
+            geom_hline(yintercept=-log10(FDR), lty='dashed') + 
+            xlim(min_x,max_x) + 
+            ylim(0,max_y) + 
+            facet_wrap(facets = ~Label, ncol = 2, scales = 'fixed')
+  }
+  if(PDF){
+    pdf(file_name, width=w, height=h)
+      print(p)
+    dev.off()
+  }else{
+    print(p)
+  }
+}
