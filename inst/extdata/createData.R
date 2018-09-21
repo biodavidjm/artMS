@@ -11,6 +11,8 @@
 # library(getopt)
 # library(ggdendro)
 # library(ggplot2)
+# library(gplots)
+# library(ggrepel)
 # library(gProfileR)
 # library(grid)
 # library(limma)
@@ -49,7 +51,12 @@
 # library(graphics)
 # library(grDevices)
 # library(stats)
+# library(UpSetR)
 # library(utils)
+# library(formatR)
+
+
+# TESTING OPTIONS
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,6 +82,9 @@ save(artms_data_ph_keys, file = 'data/artms_data_ph_keys.RData', compress = 'xz'
 artms_data_ph_msstats_results <- read.delim("~/experiments/artms/extdata/artms_data_ph_msstats_results.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_msstats_results, file = 'data/artms_data_ph_msstats_results.RData', compress = 'xz')
 
+artms_data_ph_proteinGroups <- read.delim("~/experiments/artms/ph/proteinGroups.txt", stringsAsFactors = F)
+save(artms_data_ph_proteinGroups, file = 'data/artms_data_ph_proteinGroups.RData', compress = 'xz')
+
 # CORUM dataset
 artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", stringsAsFactors = FALSE)
 save(artms_data_corum_mito_database, file = 'data/artms_data_corum_mito_database.RData', compress = 'xz')
@@ -96,14 +106,73 @@ artms_data_pathogen_LPN <- artms_data_pathogen_LPN[c('Entry')]
 save(artms_data_pathogen_LPN, file = '~/github/biodavidjm/artMS/data/artms_data_pathogen_LPN.RData', compress = 'xz')
 
 
-load("data/artms_config.RData")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Warning testing zone
+
+x <- list(a =1, b =1:3, c =10:100)
+vapply(x, FUN = length, FUN.VALUE = 0)
+
+sapply(x, FUN = length)  
+
+#~~~~~~~~~
+# VIGNETTES
+
+artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence, 
+                                  keys_file = artms_data_ph_keys, 
+                                  prot_exp = "PH")
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Testing artMS
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# QC PLOTS EXTENDED
+setwd("~/Box Sync/tempStuff/david2alex/alex2david/2D/")
+evidence_file <- "evidence.txt"
+keys_file <- "keys.txt"
+summary_file <- "summary.txt"
+
+
+# plotPSM = TRUE
+# plotIONS = TRUE
+# plotTYPE = TRUE
+# plotPEPTIDES = TRUE
+# plotPROTEINS = TRUE
+# plotPIO = TRUE
+# plotCS = TRUE
+# plotME = TRUE
+# plotMOCD = TRUE
+# plotPEPICV = TRUE
+# plotPEPDETECT = TRUE
+# plotPROTICV = TRUE
+# plotPROTDETECT = TRUE
+# plotIDoverlap = TRUE
+# plotIC = TRUE
+# plotSP = TRUE
+
+artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt",
+                                     keys_file = "keys.txt")
+
+artms_qualityControlSummaryExtended(summary_file = "summary.txt", 
+                                    keys_file = "keys.txt")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## APMS FLUOMICS
 setwd("~/experiments/artms/apms/")
+artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt", 
+                                  keys_file = "keys.txt", 
+                                  prot_exp = "APMS")
+
+artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt", 
+                                     keys_file = "keys.txt")
+
+artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
+                             keys_file = "a549-PB1-keys.txt", 
+                             output_dir = "saintq_folder")
+
+
+setwd("~/experiments/artms/apms/old/")
 contrast_file <- 'a549-PB1-contrast.txt'
 artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
                            keys_file = "a549-PB1-keys.txt", 
@@ -135,12 +204,14 @@ artms_volcanoPlot(mss_results_sel = mss,
                   file_name = "a549-PB1-results-volcanoPlot.pdf", 
                   PDF = TRUE)
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## FRACTIONS
 setwd('~/experiments/artms/fractions/results/ab20180402/ab20180402debug/')
 evidence_file <- '~/experiments/artms/fractions/petroski-cul4-evidence.txt'
 keys_file <- '~/experiments/artms/fractions/petroski-cul4-keys.txt'
 contrast_file <- '~/experiments/artms/fractions/petroski-cul4-contrast.txt'
 yaml_config_file <- '~/experiments/artms/fractions/results/ab20180402/config-petroski-debugging.yaml'
+
 
 # Quantifications
 artms_quantification(yaml_config_file = yaml_config_file)
@@ -181,26 +252,53 @@ edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
 write.table(edfnew2, file = "~/experiments/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
+#-------------------------------------------------------------------------------
 # PH GLOBAL: 
 setwd('~/experiments/artms/ph/')
-evidence_file <- "~/experiments/artms/extdata/artms_data_ph_evidence.txt"
-keys_file <- "~/experiments/artms/extdata/artms_data_ph_keys.txt"
+# evidence_file <- "~/experiments/artms/extdata/artms_data_ph_evidence.txt"
+# keys_file <- "~/experiments/artms/extdata/artms_data_ph_keys.txt"
 contrast_file <- 'contrast.txt'
+evidence_file = "evidence.txt"
+prot_group_file = "proteinGroups.txt"
+keys_file = "keys.txt"
+contrast_file <- 'contrast.txt'
+results_file = "phglobal/phglobal-results.txt"
 
-artms_evidenceQC(evidence_file = edfnew2, 
-                 keys_file = kdfnew, 
+artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt", 
+                 keys_file = "keys.txt", 
                  prot_exp = "PH")
+
+artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt", 
+                                     keys_file = "keys.txt")
+
+artms_msstats_summary(evidence_file = "evidence.txt", 
+                      prot_group_file = "proteinGroups.txt", 
+                      keys_file = "keys.txt", 
+                      results_file = "phglobal/phglobal-results.txt")
 
 artms_replicatePlots(input_file = evidence_file, 
                      keys_file = keys_file, 
-                     replicate_file = "reduced_replicates_plots.txt", 
+                     replicate_file = "replicates_plots.txt", 
                      prot_exp = "PH",
                      out_file = NULL)
 
-artms_quantification("~/experiments/artms/ph/phglobalreduced/phglobal_reduced_config.yaml")
-
+#-------------------------------------------------------------------------------
+# PH REDUCED
 setwd('~/experiments/artms/ph/phglobalreduced/')
 
+artms_quantification("phglobal_reduced_config.yaml")
+
+artms_analysisQuantifications(log2fc_file = "ph-reduced-results.txt",
+                              modelqc_file = "ph-reduced-results_ModelQC.txt",
+                              specie = "human",
+                              isPtm = "global",
+                              enrich = TRUE,
+                              output_dir = "testingARTMS3",
+                              mnbr = 2,
+                              l2fc_thres = 1.5,
+                              ipval = "pvalue")
+
+#-------------------------------------------------------------------------------
 ph_results_wide <- artms_resultsWide(
                         results_msstats = artms_data_ph_msstats_results,
                         output_file = NULL)
@@ -216,10 +314,9 @@ uniprots_anno <- artms_mapUniprot2entrezGeneName(
                   uniprotkb = unique(artms_data_ph_evidence$Proteins), 
                   specie = "human")
 
-# -----------------------------------------------------------------------------
-# annotate the MSstats results to get the Gene name
 data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results, 
-                                          columnid = "Protein", sps = "human")
+                                          columnid = "Protein", 
+                                          sps = "human")
 
 # Filter the list of genes with a log2fc > 2
 filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
@@ -283,16 +380,6 @@ artms_replicatePlots(input_file = artms_data_ph_evidence,
                      replicate_file = replica_info, 
                      out_file = "whatever.txt", 
                      prot_exp = "PH")
-
-artms_analysisQuantifications(log2fc_file = "phglobal_reduced-results.txt",
-                              modelqc_file = "phglobal_reduced-results_ModelQC.txt",
-                              specie = "human",
-                              isPtm = "noptm",
-                              enrich = FALSE,
-                              output_dir = "testingARTMS",
-                              mnbr = 2,
-                              l2fc_thres = 1.5,
-                              ipval = "pvalue")
 
 
 # Debugging
@@ -446,7 +533,7 @@ artms_evidenceToMISTformat(quant_variable = "int",
                            uniprot_dir = '~/Box Sync/db/mist/')
 
 ## Evidence QC
-artms_evidenceQC(evidence_file = evidence_file, 
+artms_qualityControlEvidenceBasic(evidence_file = evidence_file, 
                  keys_file = keys_file, 
                  prot_exp = "ph")
 

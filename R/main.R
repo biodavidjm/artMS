@@ -10,7 +10,6 @@
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
 #' @import getopt
-#' @import ggalt
 #' @import ggdendro
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
