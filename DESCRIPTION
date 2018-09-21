@@ -1,8 +1,8 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.30
-Date: 2018-09-20
+Version: 0.99.31
+Date: 2018-09-21
 Author: David Jimenez-Morales, John Von Dollen, Alexandre Rosa Campos
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
@@ -27,9 +27,12 @@ Imports:
   data.table,
   factoextra,
   FactoMineR,
-  ggdendro,
   getopt,
+  ggalt,
+  ggdendro,
   ggplot2,
+  gplots,
+  ggrepel,
   gProfileR,
   graphics,
   grDevices,
@@ -67,6 +70,7 @@ Imports:
   shiny,
   stringr,
   tidyr,
+  UpSetR,
   utils,
   VennDiagram,
   yaml
