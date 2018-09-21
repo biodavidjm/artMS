@@ -2,8 +2,10 @@
 #' @title Quality Control analysis of the MaxQuant evidence file
 #'
 #' @description Quality Control analysis of the MaxQuant evidence file
-#' @param evidence_file (char) The evidence file path and name
-#' @param keys_file (char) The keys file path and name
+#' @param evidence_file (char or data.frame) The evidence file path and name, or
+#' data.frame
+#' @param keys_file (char or data.frame) The keys file path and name or 
+#' data.frame
 #' @param output_name (char) prefix output name (no extension).
 #' Default: "qcPlots_evidence"
 #' @param prot_exp (char) Proteomics experiment. 4 options available:
@@ -17,12 +19,12 @@
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
 #' @examples
-#' artms_evidenceQCbasic(evidence_file = artms_data_ph_evidence,
+#' artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 #'                  keys_file = artms_data_ph_keys,
 #'                  output_name = "qcPlots_evidence",
 #'                  prot_exp = "PH")
 #' @export
-artms_evidenceQCbasic <- function(evidence_file,
+artms_qualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
                              prot_exp,
                              fractions = 0,
@@ -51,17 +53,10 @@ artms_evidenceQCbasic <- function(evidence_file,
   }
   
   cat("\nQUALITY CONTROL ------------\n")
-  cat(">> LOADING THE EVIDENCE FILE\n")
-  cat("(it should take some time due to the usual large size of evidence files)\n")
-  
-  evidence <- .artms_checkIfFile(evidence_file)
-  evidence <- .artms_checkRawFileColumnName(evidence)
-  
-  keys <- .artms_checkIfFile(keys_file)
-  keys <- .artms_checkRawFileColumnName(keys)
+  cat(">> LOADING FILES\n")
   
   # EVIDENCE:
-  evidencekeys <- artms_mergeEvidenceAndKeys(evidence, keys)
+  evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
   
   ekselecta <-
     aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
