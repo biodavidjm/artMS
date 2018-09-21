@@ -168,22 +168,27 @@ artms_filterEvidenceContaminants <- function(data) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Merge evidence and keys files
+#' @title Merge evidence.txt (or summary.txt) with keys.txt files 
 #' @description Merge the evidence and keys files on the given columns
-#' @param data (data.frame or char) The evidence data, either as adata.frame or
-#' the file name (and path)
+#' @param data (data.frame or char) The evidence data, either as data.frame or
+#' the file name (and path). It also works for the summary.txt file
 #' @param keys The keys data, either as a data.frame or file name (and path)
 #' @param by (vector) specifying the columns use to merge the evidence and keys.
 #' Default: `by=c('RawFile')`
+#' @param isSummary (logical) TRUE or FALSE (default)
 #' @return (data.frame) with the evidence and keys merged
-#' @keywords merge, evidence, keys
+#' @keywords merge, evidence, summary, keys
 #' @examples
 #' evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence,
 #'                                            keys = artms_data_ph_keys)
 #' @export
-artms_mergeEvidenceAndKeys <- function(data, keys, by = c('RawFile')) {
+artms_mergeEvidenceAndKeys <- function(data, 
+                                       keys, 
+                                       by = c('RawFile'),
+                                       isSummary = FALSE) {
   cat(">> MERGING evidence AND keys FILES\n")
-  
+  cat("(It might take a long time depending on the size of the evidence file)\n")
+
   data <- .artms_checkIfFile(data)
   keys <- .artms_checkIfFile(keys)
   
@@ -192,6 +197,10 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by = c('RawFile')) {
   
   if("Experiment" %in% colnames(keys)){
     keys <- artms_changeColumnName(keys, "Experiment", "ExperimentKeys")
+  }
+  
+  if(isSummary){
+    data <- subset(data, Experiment != "")
   }
   
   # Check that the keys file is correct
@@ -233,7 +242,6 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by = c('RawFile')) {
     )
   }
   
-  ## select only required attributes from MQ format
   data <- merge(data, keys, by = by)
   return(data)
 }
@@ -255,12 +263,12 @@ artms_mergeEvidenceAndKeys <- function(data, keys, by = c('RawFile')) {
 #' }
 #' @export
 artms_SILACtoLong <- function(evidence_file, output) {
-  file = Sys.glob(evidence_file)
+  file <- Sys.glob(evidence_file)
   cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
-  tmp = fread(file, integer64 = 'double')
+  tmp <- fread(file, integer64 = 'double')
   
   # reshape the data and split the heavy and light data
-  tmp_long = reshape2::melt(tmp, measure.vars = c('Intensity L', 'Intensity H'))
+  tmp_long <- reshape2::melt(tmp, measure.vars = c('Intensity L', 'Intensity H'))
   tmp_long[, Intensity := NULL]
   setnames(tmp_long, 'value', 'Intensity')
   setnames(tmp_long, 'variable', 'IsotopeLabelType')

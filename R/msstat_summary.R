@@ -42,51 +42,45 @@ artms_msstats_summary <- function(evidence_file,
                                   results_file,
                                   return_df = FALSE) {
   # Check if passing in data or if passing in files
-  cat(">> Getting data ...\n")
-  evidence <-
-    .artms_checkIfFile(evidence_file, is.evidence = TRUE)
+  cat(">> LOADING DATA\n")
+  dat <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
+  dat <- data.table(dat)
   pg <- .artms_checkIfFile(prot_group_file)
-  keys <- .artms_checkIfFile(keys_file)
+  pg <- data.table(pg)
   results <- .artms_checkIfFile(results_file)
+  results <- data.table(results)
   
-  # add CONDITIONS to the evidence file
-  dat <-
-    merge(evidence, keys, by.x = "Raw file", by.y = "RawFile")
   # get SPECTRAL COUNTS
-  cat(">>   Summarizing Spectral Counts\n")
+  cat("--- Summarizing Spectral Counts\n")
   dat.sc <-
     data.table::dcast(
       data = dat,
       Proteins ~ BioReplicate,
-      value.var = "MS/MS Count",
+      value.var = "MS.MS.count",
       max,
       fill = NA_real_
     )
   names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
   # get INTENSITIES
-  cat(">>   Summarizing Intensities\n")
-  dat.intensity <-
-    dcast(
-      data = dat,
-      Proteins ~ BioReplicate,
-      value.var = "Intensity",
-      max,
-      fill = NA_real_
-    )
+  cat("--- Summarizing Intensities\n")
+  dat.intensity <- data.table::dcast(data = dat,
+                                     Proteins ~ BioReplicate,
+                                     value.var = "Intensity",
+                                     max,
+                                     fill = NA_real_)
   names(dat.intensity)[-1] <-
     paste0(names(dat.intensity)[-1], "_Intensity")
   
   # find the UNIQUE PEPTIDE columns
-  cat(">> Summarizing Unique Peptides\n")
-  idx <-
-    grep("Peptide counts (unique)", colnames(pg), fixed = TRUE)
+  cat("--- Summarizing Unique Peptides\n")
+  idx <- grep("Peptide.counts..unique.", colnames(pg), fixed = TRUE)
   pg.uniqPep <- pg[, c(1, idx), with = FALSE]
   # # fix names to match the rest of the data and to merge smoothly
   # names(pg.uniqPep) <- gsub("Peptide counts (unique)", "", names(pg.uniqPep))
   # names(pg.uniqPep)[-1] <- paste0(names(pg.uniqPep)[-1], "_UniqPep")
   # names(pg.uniqPep)[1] <- "Proteins"
   
-  names(pg.uniqPep)[grep("Peptide counts (unique)", 
+  names(pg.uniqPep)[grep("Peptide.counts..unique.", 
                          names(pg.uniqPep), 
                          fixed = TRUE)] <- "UniquePeptides"
   names(pg.uniqPep)[1] <- "Proteins"
@@ -98,7 +92,7 @@ artms_msstats_summary <- function(evidence_file,
                              with = FALSE], id.vars = c("Protein", "Label"))
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   results_w <-
-    dcast(Protein ~ Label + variable,
+    data.table::dcast(Protein ~ Label + variable,
           data = results_l,
           value.var = c("value"))
   names(results_w)[1] = "Proteins"

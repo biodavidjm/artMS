@@ -2,18 +2,21 @@
 % Please edit documentation in R/MSstats_functions.R
 \name{artms_mergeEvidenceAndKeys}
 \alias{artms_mergeEvidenceAndKeys}
-\title{Merge evidence and keys files}
+\title{Merge evidence.txt (or summary.txt) with keys.txt files}
 \usage{
-artms_mergeEvidenceAndKeys(data, keys, by = c("RawFile"))
+artms_mergeEvidenceAndKeys(data, keys, by = c("RawFile"),
+  isSummary = FALSE)
 }
 \arguments{
-\item{data}{(data.frame or char) The evidence data, either as adata.frame or
-the file name (and path)}
+\item{data}{(data.frame or char) The evidence data, either as data.frame or
+the file name (and path). It also works for the summary.txt file}
 
 \item{keys}{The keys data, either as a data.frame or file name (and path)}
 
 \item{by}{(vector) specifying the columns use to merge the evidence and keys.
 Default: \code{by=c('RawFile')}}
+
+\item{isSummary}{(logical) TRUE or FALSE (default)}
 }
 \value{
 (data.frame) with the evidence and keys merged
@@ -28,3 +31,4 @@ evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence,
 \keyword{evidence,}
 \keyword{keys}
 \keyword{merge,}
+\keyword{summary,}
