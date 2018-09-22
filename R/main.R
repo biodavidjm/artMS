@@ -210,6 +210,20 @@ artms_quantification <- function(yaml_config_file) {
   cat(">> LOADING CONFIGURATION FILE...\n")
   config <- yaml.load_file(yaml_config_file)
   
+  # CHECK POINT: DO THE FILES EXIST?
+  if(!file.exists(config$files$contrasts)){
+    stop("THE FILE ", config$files$contrasts, " DOES NOT EXIST!\n")
+  }
+  
+  if(!file.exists(config$files$evidence)){
+    stop("THE FILE ", config$files$evidence, " DOES NOT EXIST!\n")
+  }
+  
+  if(!file.exists(config$files$keys)){
+    stop("THE FILE ", config$files$keys, " DOES NOT EXIST!\n")
+  }
+  
+  
   # LET'S HELP THE DISTRACTED USER
   if (!(is.null(config$data$filters$modification))) {
     config$data$filters$modification <-
@@ -217,7 +231,7 @@ artms_quantification <- function(yaml_config_file) {
   }
   
   # Quality Control
-  if (config$qc$enabled) {
+  if (config$qc$basic) {
     artms_qualityControlEvidenceBasic(
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
@@ -226,9 +240,16 @@ artms_quantification <- function(yaml_config_file) {
     )
   }
   
+  if (config$qc$extended) {
+    artms_qualityControlEvidenceExtended(
+      evidence_file = config$files$evidence,
+      keys_file = config$files$keys
+    )
+  }
+  
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
-    cat(">> LOADING DATA\n")
+    cat("\nQUANTIFICATION: LOADING DATA-----------------\n")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
     ## although he provided examples)
@@ -241,41 +262,20 @@ artms_quantification <- function(yaml_config_file) {
         output <- gsub(".txt", "-silac.txt", config$files$evidence)
         data <- artms_SILACtoLong(config$files$evidence, output)
       } else{
-        data <-
-          read.delim(config$files$evidence,
-                     stringsAsFactors = FALSE,
-                     sep = '\t')
+        data <- .artms_checkIfFile(config$files$evidence)
+        data <- .artms_checkRawFileColumnName(data)
       }
     } else{
-      data <-
-        read.delim(config$files$evidence,
-                   stringsAsFactors = FALSE,
-                   sep = '\t')
+      data <- .artms_checkIfFile(config$files$evidence)
+      data <- .artms_checkRawFileColumnName(data)
     }
     
     data <- data.table(data)
-    setnames(data, colnames(data), gsub('\\s', '.', colnames(data)))
     
-    keys <-
-      read.delim(config$files$keys,
-                 stringsAsFactors = FALSE,
-                 sep = '\t')
+    keys <- .artms_checkIfFile(config$files$keys)
+    keys <- .artms_checkRawFileColumnName(keys)
+    
     keys <- data.table(keys)
-    
-    if (!any(grepl("RawFile", names(data)))) {
-      tryCatch(
-        setnames(data, 'Raw.file', 'RawFile'),
-        error = function(e)
-          cat('Raw.file not found in the evidence file\n')
-      )
-    }
-    if (!any(grepl("RawFile", names(keys)))) {
-      tryCatch(
-        setnames(keys, 'Raw.file', 'RawFile'),
-        error = function(e)
-          cat('Raw.file not found in the KEYS file (and it should crash)\n')
-      )
-    }
     
     cat('\tVERIFYING DATA AND KEYS\n')
     
@@ -315,24 +315,26 @@ artms_quantification <- function(yaml_config_file) {
     }
     
     ## fix for weird converted values from fread
-    data[Intensity < 1, ]$Intensity = NA
+    data[Intensity < 1, ]$Intensity <- NA
     
     ## FILTERING : handles Protein Groups and Modifications
-    if (config$data$filters$enabled)
+    if (config$data$filters$enabled){
       data_f <- .artms_filterData(data, config)
-    else
-      data_f = data
-    
+    }else{
+      data_f <- data
+    }
+
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if (!is.null(config$files$sequence_type)) {
       cat(
         ">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
         WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n"
       )
-      if (config$files$sequence_type == 'modified')
+      if (config$files$sequence_type == 'modified'){
         castFun = .artms_castMaxQToWidePTM
-      else
+      }else{
         castFun = .artms_castMaxQToWide
+      }
       data_w = castFun(data_f)
     } else{
       data_w = .artms_castMaxQToWidePTM(data_f)
@@ -341,7 +343,7 @@ artms_quantification <- function(yaml_config_file) {
     ## HEATMAPS
     if (!is.null(config$data$sample_plots) &&
         config$data$sample_plots) {
-      keys_in_data = keys[keys$RawFile %in% unique(data$RawFile), ]
+      keys_in_data <- keys[keys$RawFile %in% unique(data$RawFile), ]
       .artms_sampleCorrelationHeatmap(data_w = data_w,
                                       keys = keys_in_data,
                                       config = config)
@@ -351,25 +353,13 @@ artms_quantification <- function(yaml_config_file) {
   
   ## MSSTATS
   if (config$msstats$enabled) {
-    
+
     # Read in contrast file
     contrasts <-
       .artms_writeContrast(config$files$contrasts, 
-                           unique(as.character(dmss$Condition)))
+                           unique(as.character(keys$Condition)))
     
     if (is.null(config$msstats$msstats_input)) {
-      # Go through the old yaml version.
-      # Before "fractions" it was called "aggregation" in the config.yaml file
-      if (!is.null(config$aggregation$enabled)) {
-        config$data$fractions$enabled <- config$aggregation$enabled
-      }
-      
-      # DEPRECATED OPTION: in older versions the type of sequence
-      # could be selected (either modified or unmodified).
-      if (is.null(config$files$sequence_type)) {
-        config$files$sequence_type <- 'modified'
-      }
-      
       dmss <-
         .artms_getMSstatsFormat(data_f,
                                 config$data$fractions$enabled,
