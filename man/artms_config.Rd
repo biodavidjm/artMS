@@ -16,7 +16,8 @@
 
 \item{qc}{
 \itemize{
-\item \code{enabled} : 1 or 0
+\item basic: 1 # 1 = yes; 0 = no
+\item extended: 1 # 1 = yes; 0 = no
 }
 }
 
@@ -58,18 +59,24 @@
 
 \item{output_extras}{
 \itemize{
-\item enabled : 0
-\item msstats_output : # keep empty if mstats is enabled. Or provide the mstats 'results.txt' file
-\item annotate : 0 # 1|0 whether to annotate the proteins in the results or not
-\item species : HUMAN  # can use multiple species, but separate with a "-" eg. HUMAN-MOUSE-HIV-...
-\item annotation_dir : /path/to/the/files
-\item comparisons : all # or any grep expression that returns a subset of the contrasts file
-\item LFC : -2 2
+\item output_extras :
+\itemize{
+\item enabled : 1 # if 0, it wont do anything in this section
+}
+\item annotate :
+\itemize{
+\item enabled: 1 # 1|0 whether to annotate the proteins in the results or not
+}
+\item specie : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS, BOVINE, WORM, CANINE, FLY, ZEBRAFISH, ECOLI_STRAIN_K12, ECOLI_STRAIN_SAKAI, CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
+\item plots:
+\itemize{
+\item volcano: 1
+\item heatmap: 1
+\item LFC : -1.5 1.5 # Range of minimal log2fc
 \item FDR : 0.05
-\item heatmap : 1
 \item heatmap_cluster_cols : 0
-\item heatmap_display : log2FC #or pvalue
-\item volcano : 1}
+\item heatmap_display : log2FC # log2FC or pvalue}
+}
 }
 }}
 \usage{

@@ -71,18 +71,18 @@ save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData', compress = 'x
 # PH FILES
 
 # Reduced version of an Evidence file (generated below)
-artms_data_ph_evidence <- read.delim("~/experiments/artms/ph/artms_data_ph_evidence.txt", stringsAsFactors = FALSE)
+artms_data_ph_evidence <- read.delim("~/sourcecode/artms/ph/artms_data_ph_evidence.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_evidence, file = 'data/artms_data_ph_evidence.RData', compress = 'xz')
 
 # Reduced version of the Keys file (experimental design)
-artms_data_ph_keys <- read.delim("~/experiments/artms/extdata/artms_data_ph_keys.txt", stringsAsFactors = FALSE)
+artms_data_ph_keys <- read.delim("~/sourcecode/artms/extdata/artms_data_ph_keys.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_keys, file = 'data/artms_data_ph_keys.RData', compress = 'xz')
 
 # Reduced version of the results
-artms_data_ph_msstats_results <- read.delim("~/experiments/artms/extdata/artms_data_ph_msstats_results.txt", stringsAsFactors = FALSE)
+artms_data_ph_msstats_results <- read.delim("~/sourcecode/artms/extdata/artms_data_ph_msstats_results.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_msstats_results, file = 'data/artms_data_ph_msstats_results.RData', compress = 'xz')
 
-artms_data_ph_proteinGroups <- read.delim("~/experiments/artms/ph/proteinGroups.txt", stringsAsFactors = F)
+artms_data_ph_proteinGroups <- read.delim("~/sourcecode/artms/ph/proteinGroups.txt", stringsAsFactors = F)
 save(artms_data_ph_proteinGroups, file = 'data/artms_data_ph_proteinGroups.RData', compress = 'xz')
 
 # CORUM dataset
@@ -128,28 +128,10 @@ artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # QC PLOTS EXTENDED
-setwd("~/Box Sync/tempStuff/david2alex/alex2david/2D/")
+setwd("~/Box Sync/tempStuff/david2alex/alex2david/1D/")
 evidence_file <- "evidence.txt"
 keys_file <- "keys.txt"
 summary_file <- "summary.txt"
-
-
-# plotPSM = TRUE
-# plotIONS = TRUE
-# plotTYPE = TRUE
-# plotPEPTIDES = TRUE
-# plotPROTEINS = TRUE
-# plotPIO = TRUE
-# plotCS = TRUE
-# plotME = TRUE
-# plotMOCD = TRUE
-# plotPEPICV = TRUE
-# plotPEPDETECT = TRUE
-# plotPROTICV = TRUE
-# plotPROTDETECT = TRUE
-# plotIDoverlap = TRUE
-# plotIC = TRUE
-# plotSP = TRUE
 
 artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt",
                                      keys_file = "keys.txt")
@@ -157,9 +139,12 @@ artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt",
 artms_qualityControlSummaryExtended(summary_file = "summary.txt", 
                                     keys_file = "keys.txt")
 
+artms_quantification(yaml_config_file = "config.yaml")
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## APMS FLUOMICS
-setwd("~/experiments/artms/apms/")
+setwd("~/sourcecode/artms/apms/")
+
 artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt", 
                                   keys_file = "keys.txt", 
                                   prot_exp = "APMS")
@@ -167,12 +152,14 @@ artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt",
 artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt", 
                                      keys_file = "keys.txt")
 
+artms_quantification(yaml_config_file = "apms_config.yaml")
+
 artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
                              keys_file = "a549-PB1-keys.txt", 
                              output_dir = "saintq_folder")
 
 
-setwd("~/experiments/artms/apms/old/")
+setwd("~/sourcecode/artms/apms/old/")
 contrast_file <- 'a549-PB1-contrast.txt'
 artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
                            keys_file = "a549-PB1-keys.txt", 
@@ -189,7 +176,7 @@ artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt",
 
 artms_quantification(yaml_config_file = "resultsQuant/artms_apms_config.yaml")
 
-setwd("~/experiments/artms/apms/resultsQuant/")
+setwd("~/sourcecode/artms/apms/resultsQuant/")
 artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt", 
                               modelqc_file = "a549-PB1-results_ModelQC.txt", 
                               specie = "human", output_dir = "analysisQ", 
@@ -206,11 +193,11 @@ artms_volcanoPlot(mss_results_sel = mss,
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## FRACTIONS
-setwd('~/experiments/artms/fractions/results/ab20180402/ab20180402debug/')
-evidence_file <- '~/experiments/artms/fractions/petroski-cul4-evidence.txt'
-keys_file <- '~/experiments/artms/fractions/petroski-cul4-keys.txt'
-contrast_file <- '~/experiments/artms/fractions/petroski-cul4-contrast.txt'
-yaml_config_file <- '~/experiments/artms/fractions/results/ab20180402/config-petroski-debugging.yaml'
+setwd('~/sourcecode/artms/fractions/results/ab20180402/ab20180402debug/')
+evidence_file <- '~/sourcecode/artms/fractions/petroski-cul4-evidence.txt'
+keys_file <- '~/sourcecode/artms/fractions/petroski-cul4-keys.txt'
+contrast_file <- '~/sourcecode/artms/fractions/petroski-cul4-contrast.txt'
+yaml_config_file <- '~/sourcecode/artms/fractions/results/ab20180402/config-petroski-debugging.yaml'
 
 
 # Quantifications
@@ -249,14 +236,14 @@ n <- round(dim(edfnew)[1]/7)
 edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
 
 # print out evidence & keys
-write.table(edfnew2, file = "~/experiments/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(edfnew2, file = "~/sourcecode/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 #-------------------------------------------------------------------------------
 # PH GLOBAL: 
-setwd('~/experiments/artms/ph/')
-# evidence_file <- "~/experiments/artms/extdata/artms_data_ph_evidence.txt"
-# keys_file <- "~/experiments/artms/extdata/artms_data_ph_keys.txt"
+setwd('~/sourcecode/artms/ph/')
+# evidence_file <- "~/sourcecode/artms/extdata/artms_data_ph_evidence.txt"
+# keys_file <- "~/sourcecode/artms/extdata/artms_data_ph_keys.txt"
 contrast_file <- 'contrast.txt'
 evidence_file = "evidence.txt"
 prot_group_file = "proteinGroups.txt"
@@ -284,7 +271,7 @@ artms_replicatePlots(input_file = evidence_file,
 
 #-------------------------------------------------------------------------------
 # PH REDUCED
-setwd('~/experiments/artms/ph/phglobalreduced/')
+setwd('~/sourcecode/artms/ph/phglobalreduced/')
 
 artms_quantification("phglobal_reduced_config.yaml")
 
@@ -397,7 +384,7 @@ isFluomics = FALSE
 pathogen = "nopathogen"
 
 ## PHSITES
-setwd('~/experiments/artms/ph/')
+setwd('~/sourcecode/artms/ph/')
 artms_proteinToSiteConversion(
   evidence_file = "evidence.txt", 
   ref_proteome_file = "uniprot_canonical.fasta", 
@@ -408,10 +395,10 @@ artms_proteinToSiteConversion(
 # Generate the site-evidence.txt file:
 artms_proteinToSiteConversion(evidence_file = '')
 
-yaml_config_file <- '~/experiments/artms/ph/phsites/phsites_config.yaml'
+yaml_config_file <- '~/sourcecode/artms/ph/phsites/phsites_config.yaml'
 artms_main(yaml_config_file = yaml_config_file)
 
-setwd('~/experiments/artms/ph/phsites/')
+setwd('~/sourcecode/artms/ph/phsites/')
 log2fc_file = "phsites-results.txt"
 modelqc_file = "phsites-results_ModelQC.txt"
 specie = "human"
@@ -426,26 +413,26 @@ ipval = "pvalue"
 pathogen = "nopathogen"
 
 ## SILAC
-evidence_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-evidence.txt'
-keys_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-keys.txt'
-contrast_file <- '~/experiments/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-contrasts.txt'
-yaml_config_file <- '~/experiments/artms/silac/results/config-silac.yaml'
+evidence_file <- '~/sourcecode/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-evidence.txt'
+keys_file <- '~/sourcecode/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-keys.txt'
+contrast_file <- '~/sourcecode/artms/silac/RI__Endosome_Abundance_NoDrugvsDrug-contrasts.txt'
+yaml_config_file <- '~/sourcecode/artms/silac/results/config-silac.yaml'
 
 evidence2silac <- artms_SILACtoLong(evidence_file = evidence_file, output = "silac-evidence.txt")
 
 ## ABUNDANCE, technical replicates
-evidence_file <- '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt'
-keys_file <- '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt'
-contrast_file <- '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-contrasts-final.txt'
-yaml_config_file <- '~/experiments/artms/technical_replicas/configTR.yaml'
+evidence_file <- '~/sourcecode/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt'
+keys_file <- '~/sourcecode/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt'
+contrast_file <- '~/sourcecode/artms/technical_replicas/FLU-HTBE-H5N1-contrasts-final.txt'
+yaml_config_file <- '~/sourcecode/artms/technical_replicas/configTR.yaml'
 
 # Abundance, no technical replicates
-evidence_file <- '~/experiments/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-evidence.txt'
-keys_file <- '~/experiments/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-keys.txt'
-contrast_file <- '~/experiments/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-contrasts.txt'
+evidence_file <- '~/sourcecode/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-evidence.txt'
+keys_file <- '~/sourcecode/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-keys.txt'
+contrast_file <- '~/sourcecode/artms/thp1_ab_h1n1/FLU-THP1-H1N1-AB-contrasts.txt'
 
 ## ANALYSIS OF QUANTIFICATIONS
-setwd('~/experiments/artms/thp1_ab_h1n1/results/testing/')
+setwd('~/sourcecode/artms/thp1_ab_h1n1/results/testing/')
 
 artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
                               modelqc_file = "ab-testing-new-results_ModelQC.txt",
@@ -521,14 +508,14 @@ artms_main(yaml_config_file)
 
 ## Testing individual functions
 here <- artms_plotHeatmap(
-  input_file = '~/experiments/artms/technical_replicas/results/FLU-HTBE-H5N1-results.txt', 
-  output_file = '~/experiments/artms/technical_replicas/results/FLU-HTBE-H5N1-results-plotheatmap.pdf')
+  input_file = '~/sourcecode/artms/technical_replicas/results/FLU-HTBE-H5N1-results.txt', 
+  output_file = '~/sourcecode/artms/technical_replicas/results/FLU-HTBE-H5N1-results-plotheatmap.pdf')
 
 ## Evidence to MIST and MISTIN
 artms_evidenceToMISTformat(quant_variable = "int", 
-                           input_file = '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt', 
-                           output_file = '~/experiments/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence-mist-int.txt', 
-                           keys_file = '~/experiments/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt', 
+                           input_file = '~/sourcecode/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence.txt', 
+                           output_file = '~/sourcecode/artms/technical_replicas/201706-FLU-HTBE-H5N1-AB-evidence-mist-int.txt', 
+                           keys_file = '~/sourcecode/artms/technical_replicas/FLU-HTBE-H5N1-AB-keys.txt', 
                            species = 'HUMAN-FLUOMICS', 
                            uniprot_dir = '~/Box Sync/db/mist/')
 

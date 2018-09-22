@@ -13,7 +13,8 @@
 #' - `output` : /path/to/the/output/results/results.txt}
 #' 
 #' \item{qc}{
-#' - `enabled` : 1 or 0
+#' - basic: 1 # 1 = yes; 0 = no
+#' - extended: 1 # 1 = yes; 0 = no
 #' }
 #' 
 #' \item{data}{
@@ -43,18 +44,18 @@
 #' }
 #' 
 #' \item{output_extras}{
-#' - enabled : 0
-#' - msstats_output : # keep empty if mstats is enabled. Or provide the mstats 'results.txt' file
-#' - annotate : 0 # 1|0 whether to annotate the proteins in the results or not
-#' - species : HUMAN  # can use multiple species, but separate with a "-" eg. HUMAN-MOUSE-HIV-...
-#' - annotation_dir : /path/to/the/files
-#' - comparisons : all # or any grep expression that returns a subset of the contrasts file
-#' - LFC : -2 2
-#' - FDR : 0.05
-#' - heatmap : 1 
-#' - heatmap_cluster_cols : 0
-#' - heatmap_display : log2FC #or pvalue
-#' - volcano : 1}
+#' - output_extras :
+#'   - enabled : 1 # if 0, it wont do anything in this section
+#' - annotate :  
+#'   - enabled: 1 # 1|0 whether to annotate the proteins in the results or not
+#' - specie : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS, BOVINE, WORM, CANINE, FLY, ZEBRAFISH, ECOLI_STRAIN_K12, ECOLI_STRAIN_SAKAI, CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
+#' - plots:
+#'   - volcano: 1
+#'   - heatmap: 1
+#'   - LFC : -1.5 1.5 # Range of minimal log2fc
+#'   - FDR : 0.05
+#'   - heatmap_cluster_cols : 0
+#'   - heatmap_display : log2FC # log2FC or pvalue}
 #' }
 "artms_config"
 
