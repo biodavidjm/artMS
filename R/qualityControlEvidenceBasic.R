@@ -846,5 +846,5 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     garbage <- dev.off()
   }
   
-  cat("\n>> QUALITY CONTROL ANALYSIS COMPLETED!\n")
+  cat(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!\n\n")
 }

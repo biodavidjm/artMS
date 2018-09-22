@@ -50,6 +50,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                                                  plotSP = TRUE
                                                  ){
   
+  cat("EXTENDED QUALITY CONTROL ANALYSIS -----------------------------\n")
   hmcol <- colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
   
   # ----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   evidencekeys.dt <- data.table::data.table(evidencekeys)
   
   evidence2 <- plyr::ddply(evidencekeys, 
-                           c("experiment", "condition", "potential.contaminant"), 
+                           c("bioreplicate", "condition", "potential.contaminant"), 
                            plyr::summarise, #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                            PSMs = sum(ms.ms.count), 
                            Ions = length(sequence[ms.ms.count>0]), 
@@ -79,7 +80,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   
   if("fraction" %in% colnames(evidencekeys)){
     evidence2fx <- plyr::ddply(evidencekeys, 
-                               c("experiment", "condition", "potential.contaminant", "fraction"), 
+                               c("bioreplicate", "condition", "potential.contaminant", "fraction"), 
                                plyr::summarise, 
                                PSMs = sum(ms.ms.count), 
                                Ions = length(sequence[ms.ms.count>0]), 
@@ -122,39 +123,39 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   # - Oversampling
   ## Oversampling is calculated for peptides identified by MS/MS and detected 
   ## in MS1 (i.e., peptides with intensity calculated)
-  oversampling0 <- evidencekeys.dt[, .N, by=list(ms.ms.count, experiment)]
+  oversampling0 <- evidencekeys.dt[, .N, by=list(ms.ms.count, bioreplicate)]
   oversampling0$MSMS.counts <- findInterval(oversampling0$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling0 <- oversampling0[, list(N=sum(N)), by=list(MSMS.counts, experiment)]
+  oversampling0 <- oversampling0[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
   oversampling0$MSMS.counts <- paste("n=", oversampling0$MSMS.counts, sep="")
   oversampling0$MSMS.counts <- gsub("n=3", "n=3+", oversampling0$MSMS.counts)
-  oversampling0.total <- evidencekeys.dt[, .N, by=list(experiment)]
-  oversampling0 <- merge(oversampling0, oversampling0.total, by="experiment", all = T)
+  oversampling0.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
+  oversampling0 <- merge(oversampling0, oversampling0.total, by="bioreplicate", all = T)
   oversampling0$FxOverSamp <- as.numeric(format(100*(oversampling0$N.x/oversampling0$N.y), digits = 3))
   
-  oversampling1 <- evidencekeys.dt[intensity > 0, .N, by=list(ms.ms.count, experiment)]
+  oversampling1 <- evidencekeys.dt[intensity > 0, .N, by=list(ms.ms.count, bioreplicate)]
   oversampling1$MSMS.counts <- findInterval(oversampling1$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling1 <- oversampling1[, list(N=sum(N)), by=list(MSMS.counts, experiment)]
+  oversampling1 <- oversampling1[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
   oversampling1$MSMS.counts <- paste("n=", oversampling1$MSMS.counts, sep="")
   oversampling1$MSMS.counts <- gsub("n=3", "n=3+", oversampling1$MSMS.counts)
-  oversampling1.total <- evidencekeys.dt[intensity > 0, .N, by=list(experiment)]
-  oversampling1 <- merge(oversampling1, oversampling1.total, by="experiment", all = T)
+  oversampling1.total <- evidencekeys.dt[intensity > 0, .N, by=list(bioreplicate)]
+  oversampling1 <- merge(oversampling1, oversampling1.total, by="bioreplicate", all = T)
   oversampling1$FxOverSamp <- as.numeric(format(100*(oversampling1$N.x/oversampling1$N.y), digits = 3))
   
-  oversampling2 <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(ms.ms.count, experiment)]
+  oversampling2 <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(ms.ms.count, bioreplicate)]
   oversampling2$MSMS.counts <- findInterval(oversampling2$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling2 <- oversampling2[, list(N=sum(N)), by=list(MSMS.counts, experiment)]
+  oversampling2 <- oversampling2[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
   oversampling2$MSMS.counts <- paste("n=", oversampling2$MSMS.counts, sep="")
   oversampling2$MSMS.counts <- gsub("n=3", "n=3+", oversampling2$MSMS.counts)
-  oversampling2.total <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(experiment)]
-  oversampling2 <- merge(oversampling2, oversampling2.total, by="experiment", all = T)
+  oversampling2.total <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(bioreplicate)]
+  oversampling2 <- merge(oversampling2, oversampling2.total, by="bioreplicate", all = T)
   oversampling2$FxOverSamp <- as.numeric(format(100*(oversampling2$N.x/oversampling2$N.y), digits = 3))
   
   
   # Charge state
-  chargeState <- evidencekeys.dt[, .N, by=list(charge, experiment)]
+  chargeState <- evidencekeys.dt[, .N, by=list(charge, bioreplicate)]
   chargeState$charge <- paste("z=", chargeState$charge, sep="")
-  chargeState.total <- evidencekeys.dt[, .N, by=list(experiment)]
-  chargeState <- merge(chargeState, chargeState.total, by="experiment", all = T)
+  chargeState.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
+  chargeState <- merge(chargeState, chargeState.total, by="bioreplicate", all = T)
   chargeState$FxOverSamp <- as.numeric(format(100*(chargeState$N.x/chargeState$N.y), digits = 1))
   
   chargeStateCond <- evidencekeys.dt[, .N, by=list(charge, condition)]
@@ -164,16 +165,16 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   chargeStateCond$FxOverSamp <- as.numeric(format(100*(chargeStateCond$N.x/chargeStateCond$N.y), digits = 1))
   
   # Type
-  mstype <- evidencekeys.dt[, .N, by=list(type, experiment, condition)]
-  mstype.total <- evidencekeys.dt[, .N, by=list(experiment)]
-  mstype <- merge(mstype, mstype.total, by="experiment", all = T)
+  mstype <- evidencekeys.dt[, .N, by=list(type, bioreplicate, condition)]
+  mstype.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
+  mstype <- merge(mstype, mstype.total, by="bioreplicate", all = T)
   mstype$FxOverSamp <- as.numeric(format(100*(mstype$N.x/mstype$N.y), digits = 2))
   
   # ----------------------------------------------------------------------------
   # PLOTS
   cat(">> GENERATING QC PLOTS\n")
   
-  nsamples <- length(unique(evidencekeys$experiment))
+  nsamples <- length(unique(evidencekeys$bioreplicate))
   nconditions <- length(unique(evidencekeys$condition))
   
   # Check the largest number so that width and height of pdf is not too large
@@ -192,7 +193,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     pdf('QC_Plots_PSM.pdf', width=nsamples*3, height=20, onefile = TRUE)
     
     aa <- ggplot(evidence2, 
-           aes(x = experiment, y = PSMs, fill = factor(condition))) +
+           aes(x = bioreplicate, y = PSMs, fill = factor(condition))) +
           geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
           geom_text(aes(label=round(PSMs, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
           facet_wrap(~potential.contaminant, ncol=1) +
@@ -224,7 +225,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     print(ab)
     
     if("fraction" %in% colnames(evidencekeys)){
-    ac <-  ggplot(evidence2fx, aes(x = experiment, y = PSMs, fill = factor(fraction))) +
+    ac <-  ggplot(evidence2fx, aes(x = bioreplicate, y = PSMs, fill = factor(fraction))) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(PSMs, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
         facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
@@ -251,7 +252,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     pdf('QC_Plots_IONS.pdf', width=nsamples*3, height=20, onefile = TRUE)
 
     ba <- ggplot(evidence2,
-           aes(x = experiment, y = Ions, fill = factor(condition))) +
+           aes(x = bioreplicate, y = Ions, fill = factor(condition))) +
       geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
       geom_text(aes(label=round(Ions, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
       facet_wrap(~potential.contaminant, ncol=1) +
@@ -282,7 +283,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     print(bb)
 
     if("fraction" %in% colnames(evidencekeys)){
-      bc <- ggplot(evidence2fx, aes(x = experiment, y = Ions, fill = factor(fraction))) +
+      bc <- ggplot(evidence2fx, aes(x = bioreplicate, y = Ions, fill = factor(fraction))) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(Ions, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
         facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
@@ -308,7 +309,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
     pdf('QC_Plots_TYPE.pdf', width=nsamples*3, height=20, onefile = TRUE)
 
-    ca <- ggplot(mstype, aes(x = experiment, y = FxOverSamp, fill = factor(type))) +
+    ca <- ggplot(mstype, aes(x = bioreplicate, y = FxOverSamp, fill = factor(type))) +
       geom_bar(stat="identity", position = position_stack(), alpha=0.7) +
       ggrepel::geom_text_repel(aes(label=round(FxOverSamp, digits=1)), vjust=1, size = 10, position = position_stack()) +
       xlab("Experiment") + ylab("Fraction") +
@@ -335,7 +336,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
     pdf('QC_Plots_PEPTIDES.pdf', width=nsamples*3, height=20, onefile = TRUE)
 
-    da <- ggplot(evidence2, aes(x = experiment, y = Peptides, fill = factor(condition))) +
+    da <- ggplot(evidence2, aes(x = bioreplicate, y = Peptides, fill = factor(condition))) +
       geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
       geom_text(aes(label=round(Peptides, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
       facet_wrap(~potential.contaminant, ncol=1) +
@@ -366,7 +367,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     print(db)
     
     if("fraction" %in% colnames(evidencekeys)){
-      dc <- ggplot(evidence2fx, aes(x = experiment, y = Peptides, fill = factor(fraction))) +
+      dc <- ggplot(evidence2fx, aes(x = bioreplicate, y = Peptides, fill = factor(fraction))) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(Peptides, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
         facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
@@ -382,17 +383,17 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     }
 
     lst.pepExp <- list()
-    for(i in unique(evidencekeys$experiment)) {
-      lst.pepExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & experiment == i)[,c("sequence")])
+    for(i in unique(evidencekeys$bioreplicate)) {
+      lst.pepExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & bioreplicate == i)[,c("sequence")])
     }
 
     UpSetR::upset(fromList(lst.pepExp),
-                  nsets=length(unique(evidencekeys$experiment)),
+                  nsets=length(unique(evidencekeys$bioreplicate)),
                   nintersects = 50,
                   order.by = "degree")
 
     UpSetR::upset(fromList(lst.pepExp),
-                  nsets=length(unique(evidencekeys$experiment)),
+                  nsets=length(unique(evidencekeys$bioreplicate)),
                   nintersects = 50,
                   order.by = "freq")
 
@@ -419,7 +420,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
     pdf('QC_Plots_PROTEINS.pdf', width=nsamples*3, height=20, onefile = TRUE)
 
-    ea <- ggplot(evidence2, aes(x = experiment, y = Proteins, fill = factor(condition))) +
+    ea <- ggplot(evidence2, aes(x = bioreplicate, y = Proteins, fill = factor(condition))) +
       geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
       geom_text(aes(label=round(Proteins, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
       facet_wrap(~potential.contaminant, ncol=1) +
@@ -450,12 +451,12 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     print(eb)
 
     lst.protExp <- list()
-    for(i in unique(evidencekeys$experiment)) {
-      lst.protExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & experiment == i)[,c("proteins")])
+    for(i in unique(evidencekeys$bioreplicate)) {
+      lst.protExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & bioreplicate == i)[,c("proteins")])
     }
 
-    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$experiment)), nintersects = 50, order.by = "degree")
-    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$experiment)), nintersects = 50, order.by = "freq")
+    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$bioreplicate)), nintersects = 50, order.by = "degree")
+    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$bioreplicate)), nintersects = 50, order.by = "freq")
 
     lst.protCond <- list()
     for(i in unique(evidencekeys$condition)) {
@@ -476,7 +477,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Plot Ion Oversampling")
 
     pdf('QC_Plots_PepIonOversampling.pdf', width=nsamples*3, height=20, onefile = TRUE)
-    fa <- ggplot(oversampling0[with(oversampling0, order(MSMS.counts)),], aes(x = experiment, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
+    fa <- ggplot(oversampling0[with(oversampling0, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
       geom_bar(stat="identity", alpha=0.7) +
       geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
@@ -490,7 +491,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       scale_fill_brewer(palette="Set1")
     print(fa)
     
-    fb <- ggplot(oversampling1[with(oversampling1, order(MSMS.counts)),], aes(x = experiment, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
+    fb <- ggplot(oversampling1[with(oversampling1, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
       geom_bar(stat="identity", alpha=0.7) +
       geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
@@ -504,7 +505,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       scale_fill_brewer(palette="Set1")
     print(fb)
 
-    fc <- ggplot(oversampling2[with(oversampling2, order(MSMS.counts)),], aes(x = experiment, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
+    fc <- ggplot(oversampling2[with(oversampling2, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
       geom_bar(stat="identity", alpha=0.7) +
       geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
@@ -529,7 +530,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Charge State")
 
     pdf('QC_Plots_CHARGESTATE.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ga <- ggplot(chargeState[with(chargeState, order(charge)),], aes(x = experiment, y = FxOverSamp, fill = charge)) +
+      ga <- ggplot(chargeState[with(chargeState, order(charge)),], aes(x = bioreplicate, y = FxOverSamp, fill = charge)) +
         geom_bar(stat="identity", alpha=0.7) +
         ggrepel::geom_text_repel(aes(label=round(FxOverSamp, digits=1)), vjust=-0.5, size = 5, position = position_stack()) +
         xlab("Experiment") + ylab("Fraction (percentage)") +
@@ -551,9 +552,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   if(plotME){
     cat("--- Plot Mass Error")
       pdf('QC_Plots_MASSERROR.pdf', width=nsamples*3, height=20, onefile = TRUE)
-        fa <- ggplot(evidencekeys, aes(x=experiment, y=uncalibrated.mass.error..ppm.)) +
+        fa <- ggplot(evidencekeys, aes(x=bioreplicate, y=uncalibrated.mass.error..ppm.)) +
           geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-          geom_text(data = aggregate(uncalibrated.mass.error..ppm. ~ experiment, evidencekeys, median), aes(label = round(uncalibrated.mass.error..ppm., digits=1), y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm=T) + 2), size=20) +
+          geom_text(data = aggregate(uncalibrated.mass.error..ppm. ~ bioreplicate, evidencekeys, median), aes(label = round(uncalibrated.mass.error..ppm., digits=1), y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm=T) + 2), size=20) +
           xlab("Experiment") + ylab("mass error") +
           ggtitle("Precursor mass error (in ppm) distribution, global median mass error on the top") +
           theme(legend.text = element_text(size=20)) +
@@ -574,9 +575,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Mass-over-Charge distribution")
 
     pdf('QC_Plots_MZ.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ga <- ggplot(evidencekeys, aes(x=experiment, y=m.z)) +
+      ga <- ggplot(evidencekeys, aes(x=bioreplicate, y=m.z)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(m.z ~ experiment, evidencekeys, median), aes(label = round(m.z, digits=1), y = max(evidencekeys$m.z, na.rm=T) + 30), size=20) +
+        geom_text(data = aggregate(m.z ~ bioreplicate, evidencekeys, median), aes(label = round(m.z, digits=1), y = max(evidencekeys$m.z, na.rm=T) + 30), size=20) +
         xlab("Experiment") + ylab("m/z") +
         ggtitle("Precursor mass-over-charge distribution, global median m/z on the top") +
         theme(legend.text = element_text(size=20)) +
@@ -599,10 +600,10 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     pdf('QC_Plots_PEPINT.pdf', width=nsamples*3, height=20, onefile = TRUE)
       peptCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
       peptCV <- peptCV[, list(intensity=sum(intensity, na.rm=T)),
-                       by=list(condition, experiment, modified.sequence)]
+                       by=list(condition, bioreplicate, modified.sequence)]
       peptCV <- peptCV[, list(pCV = 100*(sd(intensity)/mean(intensity)),
                               sumInt=sum(intensity),
-                              pDX = length(unique(experiment))),
+                              pDX = length(unique(bioreplicate))),
                        by=list(condition, modified.sequence)]
       peptCV <- peptCV[, bin.all := .artms_qcut(sumInt, 4)]
       peptCV <- peptCV[, bin.condition := .artms_qcut(sumInt, 4),
@@ -677,8 +678,8 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Protein Intensity CV")
     pdf('QC_Plots_ProtInt.pdf', width=nsamples*3, height=20, onefile = TRUE)
       protCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
-      protCV <- protCV[, list(intensity=sum(intensity, na.rm=T)), by=list(condition, experiment, proteins)]
-      protCV <- protCV[, list(pCV = 100*(sd(intensity)/mean(intensity)), sumInt=sum(intensity), pDX = length(unique(experiment))), by=list(condition, proteins)]
+      protCV <- protCV[, list(intensity=sum(intensity, na.rm=T)), by=list(condition, bioreplicate, proteins)]
+      protCV <- protCV[, list(pCV = 100*(sd(intensity)/mean(intensity)), sumInt=sum(intensity), pDX = length(unique(bioreplicate))), by=list(condition, proteins)]
       protCV <- protCV[, bin.all := .artms_qcut(sumInt, 4)]
       protCV <- protCV[, bin.condition := .artms_qcut(sumInt, 4), by = condition]
 
@@ -738,9 +739,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
         scale_fill_brewer(palette="Set1")
       print(ka)
 
-      kb <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(experiment, log2(intensity))) +
+      kb <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
         geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-        #ggrepel::geom_text_repel(data = aggregate(intensity ~ experiment + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
+        #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
         xlab("Experiment") + ylab("Log2 Intensity") +
         ggtitle("Peptide feature intensity distribution") +
         theme(legend.text = element_text(size=20)) +
@@ -754,9 +755,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
       if("fraction" %in% colnames(evidencekeys)){
 
-        kc <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(experiment, log2(intensity))) +
+        kc <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
           geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-          #ggrepel::geom_text_repel(data = aggregate(intensity ~ experiment + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
+          #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
           xlab("Experiment") + ylab("Log2 Intensity") +
           facet_wrap(~fraction,ncol=5) +
           ggtitle("Peptide feature intensity distribution by Fraction") +
@@ -774,7 +775,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       kd <- ggplot(evidencekeys, aes(x=log2(intensity))) +
         geom_density(alpha=.5, aes(fill = type)) +
         ggtitle("Peptide feature intensity distribution by ID Type") +
-        facet_wrap(~experiment,ncol=5) +
+        facet_wrap(~bioreplicate,ncol=5) +
         theme(legend.text = element_text(size=20)) +
         theme(axis.text.x = element_text(size=20)) +
         theme(axis.text.y = element_text(size=20)) +
@@ -791,9 +792,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   if(plotIDoverlap){
     cat("--- Plot ID overlap")
     pdf('QC-ID-Overlap.pdf', width=nsamples*4, height=nsamples*4, onefile = TRUE)
-      ovlSeq <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("experiment", "sequence"))
+      ovlSeq <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "sequence"))
       ovlSeq <- unique(ovlSeq)
-      ovlSeq <- .artms_sampleOverlap(ovlSeq, sampleID='experiment', referenceID='sequence')
+      ovlSeq <- .artms_sampleOverlap(ovlSeq, sampleID='bioreplicate', referenceID='sequence')
       ovlSeqM <- ovlSeq$M
       ovlSeqM[ovlSeqM == 1] <- NA
       
@@ -817,10 +818,10 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                 dendrogram="none")
 
       if("fraction" %in% colnames(evidencekeys)){
-        ovlSeqFx <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("experiment", "fraction", "sequence"))
+        ovlSeqFx <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "fraction", "sequence"))
         ovlSeqFx <- unique(ovlSeqFx)
-        ovlSeqFx$experiment <- paste(ovlSeqFx$fraction, ovlSeqFx$experiment, sep=".")
-        ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx, sampleID='experiment', referenceID='sequence')
+        ovlSeqFx$bioreplicate <- paste(ovlSeqFx$fraction, ovlSeqFx$bioreplicate, sep=".")
+        ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx, sampleID='bioreplicate', referenceID='sequence')
         ovlSeqFxM <- ovlSeqFx$M
         ovlSeqFxM[ovlSeqFxM == 1] <- NA
         gplots::heatmap.2(ovlSeqFxM*100,
@@ -844,9 +845,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       }
 
 
-      ovlProt <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("experiment", "proteins"))
+      ovlProt <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "proteins"))
       ovlProt <- unique(ovlProt)
-      ovlProt <- .artms_sampleOverlap(ovlProt, sampleID='experiment', referenceID='proteins')
+      ovlProt <- .artms_sampleOverlap(ovlProt, sampleID='bioreplicate', referenceID='proteins')
       ovlProtM <- ovlProt$M
       ovlProtM[ovlProtM == 1] <- NA
       gplots::heatmap.2(ovlProtM*100,
@@ -874,8 +875,8 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   if(plotIC){
     cat("--- Plot Inter-Correlation")
       pdf('QC-IntCorrelation.pdf', width=nsamples*4, height=nsamples*4, onefile = TRUE)
-        peptintmtx <- subset(evidencekeys, !is.na(intensity), select=c("experiment", "sequence", "intensity"))
-        peptintmtx <- data.table::dcast(peptintmtx, sequence ~ experiment, sum, value.var = "intensity")
+        peptintmtx <- subset(evidencekeys, !is.na(intensity), select=c("bioreplicate", "sequence", "intensity"))
+        peptintmtx <- data.table::dcast(peptintmtx, sequence ~ bioreplicate, sum, value.var = "intensity")
         peptintmtx <- as.matrix(peptintmtx[,-1])
         peptintmtx <- log2(peptintmtx)
         peptintmtx[!is.finite(peptintmtx)] <- NA
@@ -885,21 +886,21 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
         mpept[is.na(mpept)] <- 0
         pept.pca <- prcomp(t(mpept))
         pept.pcax <- as.data.frame(pept.pca$x)
-        pept.pcax <- merge(unique(evidencekeys[,c("experiment", "condition")]), pept.pcax, by.x="experiment", by.y="row.names")
+        pept.pcax <- merge(unique(evidencekeys[,c("bioreplicate", "condition")]), pept.pcax, by.x="bioreplicate", by.y="row.names")
 
         ma <- ggplot(pept.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
           geom_point(alpha=.8, size=30) +
-          geom_label_repel(aes(label = experiment),
+          geom_label_repel(aes(label = bioreplicate),
                            #label.size = 10,
                            box.padding   = 0.1,
                            point.padding = 0.1,
                            segment.color = 'grey50') +
           ggtitle("Peptide Intensity Principal Component Analysis") +
-          geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+          ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
         print(ma)
 
-        protintmtx <- subset(evidencekeys, !is.na(intensity), select=c("experiment", "proteins", "intensity"))
-        protintmtx <- data.table::dcast(protintmtx, proteins ~ experiment, sum, value.var = "intensity")
+        protintmtx <- subset(evidencekeys, !is.na(intensity), select=c("bioreplicate", "proteins", "intensity"))
+        protintmtx <- data.table::dcast(protintmtx, proteins ~ bioreplicate, sum, value.var = "intensity")
         protintmtx <- as.matrix(protintmtx[,-1])
         protintmtx <- log2(protintmtx)
         protintmtx[!is.finite(protintmtx)] <- NA
@@ -909,17 +910,17 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
         mprot[is.na(mprot)] <- 0
         prot.pca <- prcomp(t(mprot))
         prot.pcax <- as.data.frame(prot.pca$x)
-        prot.pcax <- merge(unique(evidencekeys[,c("experiment", "condition")]), prot.pcax, by.x="experiment", by.y="row.names")
+        prot.pcax <- merge(unique(evidencekeys[,c("bioreplicate", "condition")]), prot.pcax, by.x="bioreplicate", by.y="row.names")
 
         mb <- ggplot(prot.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
           geom_point(alpha=.8, size=40) +
-          geom_label_repel(aes(label = experiment),
+          geom_label_repel(aes(label = bioreplicate),
                            #label.size = 10,
                            box.padding   = 0.1,
                            point.padding = 0.1,
                            segment.color = 'grey50') +
           ggtitle("Protein Intensity Principal Component Analysis") +
-          geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+          ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
         print(mb)
         
     garbage <- dev.off()
@@ -931,12 +932,12 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Sample Preparation")
     pdf('QC-SamplePrep.pdf', width=nsamples*4, height=20, onefile = TRUE)
       evidence.misscleavages <- data.table(subset(evidencekeys, ms.ms.count > 0))
-      misscleavages.tot <- evidence.misscleavages[, .N, by=list(experiment)]
-      misscleavages.dt <- evidence.misscleavages[, .N, by=list(experiment, missed.cleavages)]
-      misscleavages.dt <- merge(misscleavages.dt, misscleavages.tot, by="experiment", all=T)
+      misscleavages.tot <- evidence.misscleavages[, .N, by=list(bioreplicate)]
+      misscleavages.dt <- evidence.misscleavages[, .N, by=list(bioreplicate, missed.cleavages)]
+      misscleavages.dt <- merge(misscleavages.dt, misscleavages.tot, by="bioreplicate", all=T)
       misscleavages.dt$mc <- as.numeric(format(100*(misscleavages.dt$N.x/misscleavages.dt$N.y), digits = 5))
 
-      na <- ggplot(misscleavages.dt, aes(x = experiment, y = mc, fill = as.factor(missed.cleavages), label=mc)) +
+      na <- ggplot(misscleavages.dt, aes(x = bioreplicate, y = mc, fill = as.factor(missed.cleavages), label=mc)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(mc, digits=1)), vjust=0, size = 10, position = position_stack()) +
         xlab("Experiment") + ylab("Fraction (percentage)") +
@@ -951,12 +952,12 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       print(na)
 
 
-      oxMet.df <- plyr::ddply(evidencekeys, c("experiment", "condition"),
+      oxMet.df <- plyr::ddply(evidencekeys, c("bioreplicate", "condition"),
                               plyr::summarise,
                               pct.OxM = (length(oxidation..m.[oxidation..m.>0])/length(sequence))*100)
 
       nb <- ggplot(oxMet.df,
-             aes(x = experiment,
+             aes(x = bioreplicate,
                  y = pct.OxM,
                  fill = condition,
                  label=pct.OxM)) +

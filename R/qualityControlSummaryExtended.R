@@ -37,11 +37,11 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   }
   
   if("fraction" %in% colnames(summarykeys)){
-    summarykeys <- data.table(summarykeys[,c("condition", "experiment", "ms", "ms.ms", "ms.ms.identified....", "isotope.patterns", "isotope.patterns.sequenced..z.1.")])
+    summarykeys <- data.table(summarykeys[,c("condition", "bioreplicate", "ms", "ms.ms", "ms.ms.identified....", "isotope.patterns", "isotope.patterns.sequenced..z.1.")])
     summarykeys <- summarykeys[,list(ms=sum(ms), ms.ms=sum(ms.ms), ms.ms.identified....=mean(ms.ms.identified....), isotope.patterns=sum(isotope.patterns), isotope.patterns.sequenced..z.1.=sum(isotope.patterns.sequenced..z.1.)),
-                               by=list(condition, experiment)]
+                               by=list(condition, bioreplicate)]
   }else{
-    summarykeys <- data.table(summarykeys[,c("condition", "experiment", "ms", "ms.ms", "ms.ms.identified....", "isotope.patterns", "isotope.patterns.sequenced..z.1.")])
+    summarykeys <- data.table(summarykeys[,c("condition", "bioreplicate", "ms", "ms.ms", "ms.ms.identified....", "isotope.patterns", "isotope.patterns.sequenced..z.1.")])
   }
   
   summary2 <- plyr::ddply(summarykeys, c("condition"), 
@@ -70,7 +70,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   # PLOTS
   cat(">> GENERATING QC PLOTS\n")
   
-  nsamples <- length(unique(summarykeys$experiment))
+  nsamples <- length(unique(summarykeys$bioreplicate))
   nconditions <- length(unique(summarykeys$condition))
   
   # Check the largest number so that width and height of pdf is not too large
@@ -86,7 +86,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   if(plotMS1SCANS){
     cat("--- Plot NUMBER OF MS1 SCANS")
     pdf('QC_Plots_summary_MS1SCANS.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      aa <- ggplot(summarykeys, aes(x = experiment, y = ms, fill = condition)) +
+      aa <- ggplot(summarykeys, aes(x = bioreplicate, y = ms, fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(ms, digits=0)), vjust=1 , size = 15) +
         xlab("Experiment") + ylab("Counts") +
@@ -116,7 +116,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(ab)
       
       if(isFractions){
-        ac <- ggplot(summary2fx, aes(x = experiment, y = ms, fill = factor(fraction))) +
+        ac <- ggplot(summary2fx, aes(x = bioreplicate, y = ms, fill = factor(fraction))) +
           geom_bar(stat="identity", alpha=0.7) +
           geom_text(aes(label=round(ms, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
           xlab("Experiment") + ylab("Counts") +
@@ -138,7 +138,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   if(plotMS2){
     cat("--- Plot Number of MS2 scans")
     pdf('QC_Plots_summary_MS2.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ba <- ggplot(summarykeys, aes(x = experiment, y = ms.ms, fill = condition)) +
+      ba <- ggplot(summarykeys, aes(x = bioreplicate, y = ms.ms, fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(ms.ms, digits=0)), vjust=1 , size = 15) +
         xlab("Experiment") + ylab("Counts") +
@@ -168,7 +168,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(bb)
       
       if(isFractions){
-        bc <- ggplot(summary2fx, aes(x = experiment, y = ms.ms, fill = factor(fraction))) +
+        bc <- ggplot(summary2fx, aes(x = bioreplicate, y = ms.ms, fill = factor(fraction))) +
           geom_bar(stat="identity", alpha=0.7) +
           geom_text(aes(label=round(ms.ms, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
           xlab("Experiment") + ylab("Counts") +
@@ -183,7 +183,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       }
       
       summarykeys.scans <- melt(summarykeys[,1:4], id.vars=1:2)
-      bd <- ggplot(summarykeys.scans, aes(x = interaction(variable, experiment), y = value, fill = condition)) +
+      bd <- ggplot(summarykeys.scans, aes(x = interaction(variable, bioreplicate), y = value, fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(value, digits=0)), angle = 90, vjust=0.5 , size = 10) +
         xlab("Experiment") + ylab("Counts") +
@@ -205,7 +205,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   if(plotMSMS){
     cat("--- Plot Number of msms.identification rate")
     pdf('QC_Plots_summary_MSMS.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ca <- ggplot(summarykeys, aes(x = experiment, y = ms.ms.identified...., fill = condition)) +
+      ca <- ggplot(summarykeys, aes(x = bioreplicate, y = ms.ms.identified...., fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(ms.ms.identified...., digits=2)), vjust=1 , size = 15) +
         xlab("Experiment") + ylab("Rate") +
@@ -224,7 +224,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
         geom_errorbar(aes(ymin=pct.MS2Id.mean-pct.MS2Id.sem, ymax=pct.MS2Id.mean+pct.MS2Id.sem), width=.2, position=position_dodge(.9)) +
         geom_text(aes(label=round(pct.MS2Id.mean, digits=2)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
         xlab("Condition") + ylab("Rate") +
-        ggtitle("Mean MS2 Identification rate across experiments and fractions") +
+        ggtitle("Mean MS2 Identification rate across bioreplicates and fractions") +
         theme(legend.text = element_text(size=20)) +
         theme(axis.text.x = element_text(angle = 0, hjust = 1, size=20)) + 
         theme(axis.text.y = element_text(size=20)) + 
@@ -235,7 +235,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(cb)
       
       if(isFractions){
-        cc <- ggplot(summary2fx, aes(x = experiment, y = ms.ms.identified...., fill = factor(fraction))) +
+        cc <- ggplot(summary2fx, aes(x = bioreplicate, y = ms.ms.identified...., fill = factor(fraction))) +
           geom_bar(stat="identity", alpha=0.7) +
           geom_text(aes(label=round(ms.ms.identified...., digits=1)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
           xlab("Experiment") + ylab("Counts") +
@@ -257,7 +257,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   if(plotISOTOPE){
     cat("--- Plot Number of isotope patterns")
     pdf('QC_Plots_summary_ISOTOPE.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      da <- ggplot(summarykeys, aes(x = experiment, y = isotope.patterns, fill = condition)) +
+      da <- ggplot(summarykeys, aes(x = bioreplicate, y = isotope.patterns, fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(isotope.patterns, digits=0)), vjust=1 , size = 15) +
         xlab("Experiment") + ylab("Counts") +
@@ -287,7 +287,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(db)
       
       if(isFractions){
-        dc <- ggplot(summary2fx, aes(x = experiment, y = isotope.patterns, fill = factor(fraction))) +
+        dc <- ggplot(summary2fx, aes(x = bioreplicate, y = isotope.patterns, fill = factor(fraction))) +
           geom_bar(stat="identity", alpha=0.7) +
           geom_text(aes(label=round(isotope.patterns, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
           xlab("Experiment") + ylab("Counts") +
@@ -302,7 +302,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       }
       
       # Number of sequenced isotope patterns with charge = 2 or more
-      dd <- ggplot(summarykeys, aes(x = experiment, y = isotope.patterns.sequenced..z.1., fill = condition)) +
+      dd <- ggplot(summarykeys, aes(x = bioreplicate, y = isotope.patterns.sequenced..z.1., fill = condition)) +
         geom_bar(stat="identity", alpha=0.7) +
         geom_text(aes(label=round(isotope.patterns.sequenced..z.1., digits=0)), vjust=1 , size = 15) +
         xlab("Experiment") + ylab("Counts") +
@@ -332,7 +332,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(de)
       
       if(isFractions){
-        df <- ggplot(summary2fx, aes(x = experiment, y = isotope.patterns.sequenced..z.1., fill = factor(fraction))) +
+        df <- ggplot(summary2fx, aes(x = bioreplicate, y = isotope.patterns.sequenced..z.1., fill = factor(fraction))) +
           geom_bar(stat="identity", alpha=0.7) +
           geom_text(aes(label=round(isotope.patterns.sequenced..z.1., digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
           xlab("Experiment") + ylab("Counts") +
