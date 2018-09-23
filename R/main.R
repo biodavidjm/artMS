@@ -403,4 +403,31 @@ artms_quantification <- function(yaml_config_file) {
   cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
 }
 
+# ------------------------------------------------------------------------------
+#' @title Write out a template file of the artMS configuration file (yaml)
+#' 
+#' @description Creates a template file of the artMS configuration file, which
+#' is required to run `artms_quantification`. Check `?artms_config` and the 
+#' vignettes to find out more about the details of the structure of the file
+#' and how to fill it up
+#' @param config_file_name (char) The name for the configuration file. It must
+#' have a `.yaml` extension. If `NULL`, it returns the config as a yaml object
+#' @return A file (or yaml data object) of the artMS configuration file
+#' @keywords config, yaml
+#' @examples 
+#' config_empty <- artms_writeConfigYamlFile(config_file_name = NULL)
+#' @export
+artms_writeConfigYamlFile <- function(
+  config_file_name = "artms_config_file.yaml"){
+  if(!is.null(config_file_name)){
+    if(grepl("\\.yaml", config_file_name)){
+      write_yaml(x = artms_config, file = config_file_name )
+      cat(">> File",config_file_name,"is out\n")
+    }else{
+      stop("The <config_file_name> must have the extension .yaml")
+    }
+  }else{
+    return(artms_config)
+  }
 
+}
