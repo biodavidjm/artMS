@@ -6,7 +6,7 @@
 \usage{
 artms_volcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
   whatPvalue = "adj.pvalue", FDR = 0.05, PDF = TRUE,
-  file_name = "", decimal_threshold = 16)
+  output_name = "", decimal_threshold = 16)
 }
 \arguments{
 \item{mss_results}{(data.frame or file) Selected MSstats results}
@@ -21,7 +21,7 @@ artms_volcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
 
 \item{PDF}{(logical) Option to generate pdf format. Default: \code{T}}
 
-\item{file_name}{(char) Name for the output file}
+\item{output_name}{(char) Name for the output file}
 
 \item{decimal_threshold}{(numeric) Decimal threshold for the pvalue.
 Default: 16 (10^-16)}

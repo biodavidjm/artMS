@@ -94,11 +94,10 @@
     cat(">> PLOTTING VOLCANO PLOT\n")
     file_name <- gsub('.txt', '-volcano.pdf', config$files$output)
     artms_volcanoPlot(
-      results_ann[grep(selected_labels, results_ann$Label), ],
-      lfc_upper,
-      lfc_lower,
+      mss_results = results_ann[grep(selected_labels, results_ann$Label), ], 
+      lfc_upper = lfc_upper, lfc_lower = lfc_lower, 
       FDR = config$output_extras$plots$FDR,
-      file_name = file_name
+      output_name = file_name
     )
   }
 }

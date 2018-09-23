@@ -1098,7 +1098,7 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @param lfc_lower (numeric) log2fc lower threshold (negative value)
 #' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)
 #' @param FDR (numeric) False Discovery Rate threshold
-#' @param file_name (char) Name for the output file
+#' @param output_name (char) Name for the output file
 #' @param PDF (logical) Option to generate pdf format. Default: `T`
 #' @param decimal_threshold (numeric) Decimal threshold for the pvalue.
 #' Default: 16 (10^-16)
@@ -1115,11 +1115,13 @@ artms_volcanoPlot <- function(mss_results,
                               whatPvalue = "adj.pvalue",
                               FDR = 0.05,
                               PDF = TRUE,
-                              file_name = '',
+                              output_name = '',
                               decimal_threshold = 16) {
+  
+  cat(">> GENERATING VOLCANO PLOT FROM MSSTATS RESULTS\n")
   if (PDF) {
-    if (!grepl("\\.pdf", file_name)) {
-      stop("FILE EXTENSION '.pdf' IS MISSED for < file_name >")
+    if (!grepl("\\.pdf", output_name)) {
+      stop("FILE EXTENSION '.pdf' IS MISSED for < output_name >")
     }
   }
   
@@ -1221,9 +1223,9 @@ artms_volcanoPlot <- function(mss_results,
                  scales = 'fixed')
   }
   if (PDF) {
-    pdf(file_name, width = w, height = h)
+    pdf(output_name, width = w, height = h)
     print(p)
-    dev.off()
+    garbage <- dev.off()
   } else{
     print(p)
   }
