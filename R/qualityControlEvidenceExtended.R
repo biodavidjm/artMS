@@ -129,7 +129,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   oversampling0$MSMS.counts <- paste("n=", oversampling0$MSMS.counts, sep="")
   oversampling0$MSMS.counts <- gsub("n=3", "n=3+", oversampling0$MSMS.counts)
   oversampling0.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  oversampling0 <- merge(oversampling0, oversampling0.total, by="bioreplicate", all = T)
+  oversampling0 <- merge(oversampling0, oversampling0.total, by="bioreplicate", all = TRUE)
   oversampling0$FxOverSamp <- as.numeric(format(100*(oversampling0$N.x/oversampling0$N.y), digits = 3))
   
   oversampling1 <- evidencekeys.dt[intensity > 0, .N, by=list(ms.ms.count, bioreplicate)]
@@ -138,7 +138,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   oversampling1$MSMS.counts <- paste("n=", oversampling1$MSMS.counts, sep="")
   oversampling1$MSMS.counts <- gsub("n=3", "n=3+", oversampling1$MSMS.counts)
   oversampling1.total <- evidencekeys.dt[intensity > 0, .N, by=list(bioreplicate)]
-  oversampling1 <- merge(oversampling1, oversampling1.total, by="bioreplicate", all = T)
+  oversampling1 <- merge(oversampling1, oversampling1.total, by="bioreplicate", all = TRUE)
   oversampling1$FxOverSamp <- as.numeric(format(100*(oversampling1$N.x/oversampling1$N.y), digits = 3))
   
   oversampling2 <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(ms.ms.count, bioreplicate)]
@@ -147,7 +147,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   oversampling2$MSMS.counts <- paste("n=", oversampling2$MSMS.counts, sep="")
   oversampling2$MSMS.counts <- gsub("n=3", "n=3+", oversampling2$MSMS.counts)
   oversampling2.total <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(bioreplicate)]
-  oversampling2 <- merge(oversampling2, oversampling2.total, by="bioreplicate", all = T)
+  oversampling2 <- merge(oversampling2, oversampling2.total, by="bioreplicate", all = TRUE)
   oversampling2$FxOverSamp <- as.numeric(format(100*(oversampling2$N.x/oversampling2$N.y), digits = 3))
   
   
@@ -155,19 +155,19 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   chargeState <- evidencekeys.dt[, .N, by=list(charge, bioreplicate)]
   chargeState$charge <- paste("z=", chargeState$charge, sep="")
   chargeState.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  chargeState <- merge(chargeState, chargeState.total, by="bioreplicate", all = T)
+  chargeState <- merge(chargeState, chargeState.total, by="bioreplicate", all = TRUE)
   chargeState$FxOverSamp <- as.numeric(format(100*(chargeState$N.x/chargeState$N.y), digits = 1))
   
   chargeStateCond <- evidencekeys.dt[, .N, by=list(charge, condition)]
   chargeStateCond$charge <- paste("z=", chargeStateCond$charge, sep="")
   chargeStateCond.total <- evidencekeys.dt[, .N, by=list(condition)]
-  chargeStateCond <- merge(chargeStateCond, chargeStateCond.total, by="condition", all = T)
+  chargeStateCond <- merge(chargeStateCond, chargeStateCond.total, by="condition", all = TRUE)
   chargeStateCond$FxOverSamp <- as.numeric(format(100*(chargeStateCond$N.x/chargeStateCond$N.y), digits = 1))
   
   # Type
   mstype <- evidencekeys.dt[, .N, by=list(type, bioreplicate, condition)]
   mstype.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  mstype <- merge(mstype, mstype.total, by="bioreplicate", all = T)
+  mstype <- merge(mstype, mstype.total, by="bioreplicate", all = TRUE)
   mstype$FxOverSamp <- as.numeric(format(100*(mstype$N.x/mstype$N.y), digits = 2))
   
   # ----------------------------------------------------------------------------
@@ -554,7 +554,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       pdf('QC_Plots_MASSERROR.pdf', width=nsamples*3, height=20, onefile = TRUE)
         fa <- ggplot(evidencekeys, aes(x=bioreplicate, y=uncalibrated.mass.error..ppm.)) +
           geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-          geom_text(data = aggregate(uncalibrated.mass.error..ppm. ~ bioreplicate, evidencekeys, median), aes(label = round(uncalibrated.mass.error..ppm., digits=1), y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm=T) + 2), size=20) +
+          geom_text(data = aggregate(uncalibrated.mass.error..ppm. ~ bioreplicate, evidencekeys, median), aes(label = round(uncalibrated.mass.error..ppm., digits=1), y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm= TRUE) + 2), size=20) +
           xlab("Experiment") + ylab("mass error") +
           ggtitle("Precursor mass error (in ppm) distribution, global median mass error on the top") +
           theme(legend.text = element_text(size=20)) +
@@ -577,7 +577,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     pdf('QC_Plots_MZ.pdf', width=nsamples*3, height=20, onefile = TRUE)
       ga <- ggplot(evidencekeys, aes(x=bioreplicate, y=m.z)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(m.z ~ bioreplicate, evidencekeys, median), aes(label = round(m.z, digits=1), y = max(evidencekeys$m.z, na.rm=T) + 30), size=20) +
+        geom_text(data = aggregate(m.z ~ bioreplicate, evidencekeys, median), aes(label = round(m.z, digits=1), y = max(evidencekeys$m.z, na.rm= TRUE) + 30), size=20) +
         xlab("Experiment") + ylab("m/z") +
         ggtitle("Precursor mass-over-charge distribution, global median m/z on the top") +
         theme(legend.text = element_text(size=20)) +
@@ -599,7 +599,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Peptide Intensity CV")
     pdf('QC_Plots_PEPINT.pdf', width=nsamples*3, height=20, onefile = TRUE)
       peptCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
-      peptCV <- peptCV[, list(intensity=sum(intensity, na.rm=T)),
+      peptCV <- peptCV[, list(intensity=sum(intensity, na.rm= TRUE)),
                        by=list(condition, bioreplicate, modified.sequence)]
       peptCV <- peptCV[, list(pCV = 100*(sd(intensity)/mean(intensity)),
                               sumInt=sum(intensity),
@@ -611,7 +611,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
       ha <- ggplot(subset(peptCV, !is.na(pCV)), aes(condition, pCV)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm=T) + 1), size = 10) +
+        geom_text(data = aggregate(pCV ~ condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm= TRUE) + 1), size = 10) +
         geom_text(data = aggregate(pCV ~ condition, subset(peptCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 10) +
         xlab("Condition") + ylab("Coefficient of variance (%)") +
         ggtitle("Distribution of peptide feature intensity CV within each condition \n
@@ -627,7 +627,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       
       hb <- ggplot(subset(peptCV, !is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm=T) + 1), size = 7, angle=90) +
+        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm= TRUE) + 1), size = 7, angle=90) +
         geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(peptCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 7, angle=90) +
         xlab("Condition") + ylab("Coefficient of variance (%)") +
         ggtitle("Distribution of peptide feature intensity CV within each condition \n
@@ -678,14 +678,14 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Protein Intensity CV")
     pdf('QC_Plots_ProtInt.pdf', width=nsamples*3, height=20, onefile = TRUE)
       protCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
-      protCV <- protCV[, list(intensity=sum(intensity, na.rm=T)), by=list(condition, bioreplicate, proteins)]
+      protCV <- protCV[, list(intensity=sum(intensity, na.rm= TRUE)), by=list(condition, bioreplicate, proteins)]
       protCV <- protCV[, list(pCV = 100*(sd(intensity)/mean(intensity)), sumInt=sum(intensity), pDX = length(unique(bioreplicate))), by=list(condition, proteins)]
       protCV <- protCV[, bin.all := .artms_qcut(sumInt, 4)]
       protCV <- protCV[, bin.condition := .artms_qcut(sumInt, 4), by = condition]
 
       ja <- ggplot(subset(protCV, !is.na(pCV)), aes(condition, pCV)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm=T) + 1), size = 15) +
+        geom_text(data = aggregate(pCV ~ condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm= TRUE) + 1), size = 15) +
         xlab("Condition") + ylab("Coefficient of variance (%)") +
         ggtitle("Distribution of Protein intensity CV within each condition \n
                 Overall median CV for each condition is given on the top and number of proteins used to calculate CVs is shown on the bottom") +
@@ -700,7 +700,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
       jb <- ggplot(subset(protCV, !is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
         geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm=T) + 1), size = 7, angle=90) +
+        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm= TRUE) + 1), size = 7, angle=90) +
         geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(protCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 7, angle=90) +
         xlab("Condition") + ylab("Coefficient of variance (%)") +
         ggtitle("Distribution of Protein (summed) intensity CV within each condition \n
@@ -741,7 +741,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
       kb <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
         geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-        #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
+        #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
         xlab("Experiment") + ylab("Log2 Intensity") +
         ggtitle("Peptide feature intensity distribution") +
         theme(legend.text = element_text(size=20)) +
@@ -757,7 +757,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
         kc <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
           geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-          #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm=T))+0.5 ), size = 15) +
+          #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
           xlab("Experiment") + ylab("Log2 Intensity") +
           facet_wrap(~fraction,ncol=5) +
           ggtitle("Peptide feature intensity distribution by Fraction") +
@@ -936,7 +936,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       evidence.misscleavages <- data.table(subset(evidencekeys, ms.ms.count > 0))
       misscleavages.tot <- evidence.misscleavages[, .N, by=list(bioreplicate)]
       misscleavages.dt <- evidence.misscleavages[, .N, by=list(bioreplicate, missed.cleavages)]
-      misscleavages.dt <- merge(misscleavages.dt, misscleavages.tot, by="bioreplicate", all=T)
+      misscleavages.dt <- merge(misscleavages.dt, misscleavages.tot, by="bioreplicate", all= TRUE)
       misscleavages.dt$mc <- as.numeric(format(100*(misscleavages.dt$N.x/misscleavages.dt$N.y), digits = 5))
 
       na <- ggplot(misscleavages.dt, aes(x = bioreplicate, y = mc, fill = as.factor(missed.cleavages), label=mc)) +

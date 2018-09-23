@@ -90,6 +90,7 @@ artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.
 save(artms_data_corum_mito_database, file = 'data/artms_data_corum_mito_database.RData', compress = 'xz')
 
 # CONFIGURATION FILE
+# library(yaml)
 artms_config <- yaml.load_file("inst/extdata/artms_config.yaml")
 save(artms_config, file = 'data/artms_config.RData', compress = 'xz')
 
@@ -149,10 +150,16 @@ artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt",
                                   keys_file = "keys.txt", 
                                   prot_exp = "APMS")
 
-artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt", 
-                                     keys_file = "keys.txt")
+artms_qualityControlEvidenceExtended(evidence_file = "a549-PB1-evidence.txt", 
+                                     keys_file = "a549-PB1-keys.txt")
 
 artms_quantification(yaml_config_file = "apms_config.yaml")
+
+setwd("~/sourcecode/artms/apms/")
+artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt", 
+                              modelqc_file = "a549-PB1-results_ModelQC.txt", 
+                              specie = "HUMAN", 
+                              output_dir = "analysis")
 
 artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
                              keys_file = "a549-PB1-keys.txt", 

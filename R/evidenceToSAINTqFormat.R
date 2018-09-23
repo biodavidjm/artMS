@@ -140,7 +140,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   # data_f2$Sequence <- paste0(data_f2$Sequence,"_",data_f2$Charge)
   
   # Create the directory
-  dir.create(output_dir, showWarnings = F)
+  dir.create(output_dir, showWarnings = FALSE)
   
   # Combine all the fractions if this is a fractioning experiment by 
   # summing them up
@@ -164,11 +164,11 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   protBiorepIntensity  <- data.table::dcast(
     data=data_f2_fa[,c("Proteins","BioReplicate","Intensity")], 
     Proteins~BioReplicate, 
-    value.var = "Intensity", sum, na.rm = T, fill=0 )
+    value.var = "Intensity", sum, na.rm = TRUE, fill=0 )
   peptideBiorepIntensity <- data.table::dcast(
     data=data_f2_fa[,c("Proteins","Sequence","BioReplicate","Intensity")], 
     Proteins+Sequence~BioReplicate, 
-    value.var = "Intensity", fun.aggregate = sum, na.rm = T, fill=0 )
+    value.var = "Intensity", fun.aggregate = sum, na.rm = TRUE, fill=0 )
 
   # PROTEINS: extra step to add the information about peptides
   almost <- merge(protBiorepIntensity, protPep, by="Proteins")
@@ -186,7 +186,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   extra <- cbind(c('','','Proteins'),c('','','Sequence'))
   header <- t(cbind(extra, x))
   theader <- t(header)
-  checkthis <- data.frame(theader, row.names = NULL, stringsAsFactors = F)
+  checkthis <- data.frame(theader, row.names = NULL, stringsAsFactors = FALSE)
   names(checkthis) = checkthis[3,]
   
   # PROTEINS: ADDING HEADER, merging based on row names
@@ -198,7 +198,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   output <- paste0(output_dir,'/saintq_input_proteins.txt')
   write.table(proteinssaintqheader, 
               output, sep='\t',
-              row.names=F, col.names=F, quote=F)
+              row.names = FALSE, col.names= FALSE, quote = FALSE)
   
   outconfig_protein <- paste0(output_dir,'/config-saintq-proteins')
   cat ("
@@ -230,9 +230,9 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   write.table(sequencesaintqheader, 
               outsequences, 
               sep = '\t', 
-              row.names = F, 
-              col.names = F, 
-              quote = F)
+              row.names = FALSE, 
+              col.names = FALSE, 
+              quote = FALSE)
   
   outconfig_peptide <- paste0(output_dir,'/config-saintq-peptides')
   cat ("
