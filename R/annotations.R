@@ -22,16 +22,16 @@
 artms_annotationUniprot <- function(data, columnid, sps) {
   data <- .artms_checkIfFile(data)
   
-  theUniprots <- unique(data[[columnid]])
-  preload <-
-    artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, specie = sps)
+  theUniprots <- as.character(unique(data[[columnid]]))
+  preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, 
+                                             specie = sps)
   
-  dc_merged <-
-    merge(data,
-          preload,
-          by.x = columnid,
-          by.y = "UNIPROT",
-          all.x = TRUE)
+  dc_merged <-merge(data, 
+                    preload,
+                    by.x = columnid,
+                    by.y = "UNIPROT",
+                    all.x = TRUE)
+  
   # Move Gene name to the left:
   gene_first <- preload[, c("SYMBOL", "UNIPROT", "GENENAME")]
   dc_merged <- subset(dc_merged, select = -c(SYMBOL, GENENAME))

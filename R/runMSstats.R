@@ -209,7 +209,7 @@
   )
   
   #(2) Power calculation
-  cat(">> CALCULATING POWER OF EXPERIMENT\n")
+  cat(">> CALCULATING POWER OF EXPERIMENT")
   results.power1 <-
     designSampleSize(
       data = results$fittedmodel,
@@ -236,6 +236,6 @@
     row.names = FALSE,
     col.names = TRUE
   )
-  
+  cat(" done!\n")
   return(results)
 }

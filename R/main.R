@@ -11,6 +11,7 @@
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
+#' @import ggalt
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
 #' @import ggrepel
@@ -205,6 +206,7 @@ utils::globalVariables(
 #' }
 #' @export
 artms_quantification <- function(yaml_config_file) {
+  
   cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
   cat("============================================================\n\n")
   cat(">> LOADING CONFIGURATION FILE...\n")
@@ -236,15 +238,13 @@ artms_quantification <- function(yaml_config_file) {
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
-      fractions = config$data$fractions$enabled
-    )
+      fractions = config$data$fractions$enabled)
   }
   
   if (config$qc$extended) {
     artms_qualityControlEvidenceExtended(
       evidence_file = config$files$evidence,
-      keys_file = config$files$keys
-    )
+      keys_file = config$files$keys)
   }
   
   # process MaxQuant data, link with keys, and convert for MSStats format
@@ -276,6 +276,14 @@ artms_quantification <- function(yaml_config_file) {
     keys <- .artms_checkRawFileColumnName(keys)
     
     keys <- data.table(keys)
+    
+    # Let's make sure that the contrast file is right
+    if (config$msstats$enabled) {
+      # Read in contrast file
+      contrasts <-
+        .artms_writeContrast(config$files$contrasts, 
+                             unique(as.character(keys$Condition)))
+    }
     
     cat('\tVERIFYING DATA AND KEYS\n')
     
@@ -323,7 +331,7 @@ artms_quantification <- function(yaml_config_file) {
     }else{
       data_f <- data
     }
-
+    
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if (!is.null(config$files$sequence_type)) {
       cat(
@@ -359,13 +367,17 @@ artms_quantification <- function(yaml_config_file) {
       .artms_writeContrast(config$files$contrasts, 
                            unique(as.character(keys$Condition)))
     
+    selectedConditions <- as.character(colnames(contrasts))
+    
     if (is.null(config$msstats$msstats_input)) {
-      dmss <-
-        .artms_getMSstatsFormat(data_f,
-                                config$data$fractions$enabled,
-                                config$files$evidence,
-                                "sum")
-    } else{
+      # Check point to prevent MSstats crashed in the number of conditions
+      # in the comparisons is not the same than the one in the keys file
+      data_f <- data_f[which(data_f$Condition %in% selectedConditions),]
+      dmss <- .artms_getMSstatsFormat(data_f,
+                                      config$data$fractions$enabled,
+                                      config$files$evidence,
+                                      "sum")
+    } else {
       cat(sprintf(
         "\tREADING PREPROCESSED\t%s\n",
         config$msstats$msstats_input
@@ -376,17 +388,16 @@ artms_quantification <- function(yaml_config_file) {
                    sep = '\t')
       dmss <- data.table(dmss)
     }
-    
     results <- .artms_runMSstats(dmss, contrasts, config)
   }
   
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
-    if (!config$msstats$enabled)
-      results = read.delim(config$output_extras$msstats_output, 
-                           stringsAsFactors = FALSE)
-    .artms_writeExtras(results$ComparisonResult, config)
+    if (!config$msstats$enabled){
+      stop("msstats was not enabled, therefore output_extras cannot be done!")
+    }else{
+      .artms_writeExtras(results$ComparisonResult, config)
+    }
   }
-  
-  cat("\nANALYSIS COMPLETE! HAVE A NICE DAY :)\n")
+  cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
   }
