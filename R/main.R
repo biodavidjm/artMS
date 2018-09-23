@@ -11,6 +11,7 @@
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
+#' @import proj4
 #' @import ggalt
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
