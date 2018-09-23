@@ -8,7 +8,8 @@ artms_evidenceToSAINTqFormat(evidence_file, keys_file, output_dir,
   sc_option = "all", fractions = FALSE, quant_variable = "msint")
 }
 \arguments{
-\item{evidence_file}{(char) Maxquant evidence file}
+\item{evidence_file}{(char or data.frame) The evidence file path and name,
+or data.frame}
 
 \item{keys_file}{(char) Keys file with a SAINT column specifying
 test (\code{T}) and control (\code{C}) conditions}

@@ -4,7 +4,8 @@
 #' @description Converts the MaxQuant evidence file to the 3 required files
 #' by SAINTexpress. One can choose to either use the `spectral counts`
 #' (use `msspc`) or the `intensities` (use `msint`) for the analysis.
-#' @param evidence_file (char) Maxquant evidence file
+#' @param evidence_file (char or data.frame) The evidence file path and name, 
+#' or data.frame
 #' @param keys_file (char) Keys file with a SAINT column specifying
 #' test (`T`) and control (`C`) conditions
 #' @param output_dir (char) New directory to create ans save files

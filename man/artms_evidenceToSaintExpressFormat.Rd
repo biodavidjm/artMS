@@ -4,14 +4,15 @@
 \alias{artms_evidenceToSaintExpressFormat}
 \title{MaxQuant evidence file to SAINTexpress format}
 \usage{
-artms_evidenceToSaintExpressFormat(input_file, keys_file,
+artms_evidenceToSaintExpressFormat(evidence_file, keys_file,
   ref_proteome_file, quant_variable = "msspc", output_file)
 }
 \arguments{
-\item{input_file}{(char) Maxquant evidence file}
+\item{evidence_file}{(char) The evidence file path and name,
+or data.frame}
 
-\item{keys_file}{(char) Keys file with a SAINT column specifying
-test (\code{T}) and control (\code{C}) conditions}
+\item{keys_file}{(char) Keys file with a SAINT column
+specifying test (\code{T}) and control (\code{C}) conditions}
 
 \item{ref_proteome_file}{(char) Reference proteome path file name in
 fasta format}
@@ -22,10 +23,15 @@ fasta format}
 \item \code{msint} (MS Intensity)
 }}
 
-\item{output_file}{(char) Output file name}
+\item{output_file}{(char) Output file name (must have extension .txt)}
 }
 \value{
-The 3 required files by SAINTexpress
+The 3 required files by SAINTexpress:
+\itemize{
+\item \code{interactions.txt}
+\item \code{preys.txt}
+\item \code{baits.txt}
+}
 }
 \description{
 Converts the MaxQuant evidence file to the 3 required files
@@ -34,7 +40,7 @@ by SAINTexpress. One can choose to either use the \code{spectral counts}
 }
 \examples{
 \donttest{
-artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt",
+artms_evidenceToSaintExpressFormat(evidence_file = "a549-PB1-evidence.txt",
              keys_file = "a549-PB1-keys.txt",
              ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta",
              quant_variable = "msint",

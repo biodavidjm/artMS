@@ -70,10 +70,8 @@ artms_replicatePlots <- function(input_file,
         Change out_file extension and try again\n"
       )
     }
-    }
-  
-  
-  
+  }
+
   cat("--- READING IN FILES...\n")
   # read in data
   dat <- .artms_checkIfFile(input_file)
