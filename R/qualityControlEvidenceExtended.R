@@ -895,8 +895,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                            box.padding   = 0.1,
                            point.padding = 0.1,
                            segment.color = 'grey50') +
-          ggtitle("Peptide Intensity Principal Component Analysis") +
-          ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+          ggtitle("Peptide Intensity Principal Component Analysis") 
+        # ggalt is giving problem: it cannot be installed on linux
+        # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
         print(ma)
 
         protintmtx <- subset(evidencekeys, !is.na(intensity), select=c("bioreplicate", "proteins", "intensity"))
@@ -919,8 +920,9 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                            box.padding   = 0.1,
                            point.padding = 0.1,
                            segment.color = 'grey50') +
-          ggtitle("Protein Intensity Principal Component Analysis") +
-          ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+          ggtitle("Protein Intensity Principal Component Analysis") 
+        # ggalt is giving problem: it cannot be installed on linux
+        # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
         print(mb)
         
     garbage <- dev.off()

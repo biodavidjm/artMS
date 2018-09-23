@@ -19,18 +19,20 @@
 #' function
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
 #' `TRUE` (default) or `FALSE`
-#' @param l2fc_thres (int) log2fc cutoff for enrichment analysis
-#' @param ipval (char) specify whether `pvalue` or `adjpvalue` should use for
+#' @param l2fc_thres (int) log2fc cutoff for enrichment analysis (default,
+#' `l2fc_thres = 1.5`)
+#' @param choosePvalue (char) specify whether `pvalue` or `adjpvalue` should use for
 #' the analysis. The default option is `adjpvalue`
 #' (multiple testing correction).
 #' But if the number of biological replicates for a given experiment is
-#' too low (for example n = 2), then `ipval = pvalue` is recommended.
+#' too low (for example n = 2), then `choosePvalue = pvalue` is recommended.
 #' @param isBackground (char) background of gene names for enrichment analysis.
 #' `nobackground` (default) will use the total number of genes detected.
 #' Alternatively provided the file path name to the background gene list.
-#' @param isPtm (char) Is a ptm-site quantification? `global` (default), 
-#' `ptmsites`
-#' (for site specific analysis), `ptmph` (Jeff's script output evidence file)
+#' @param isPtm (char) Is a ptm-site quantification? 
+#' - `global` (default), 
+#' - `ptmsites` (for site specific analysis), 
+#' - `ptmph` (Jeff's script output evidence file)
 #' @param mnbr (int) minimal number of biological replicates for imputation
 #' and filtering. Default: `mnbr = 2` (Proteins must be found in one of the
 #' conditions in at least 2 of the biological replicates)
@@ -50,7 +52,7 @@
 #'                  output_dir = "resultsAQ",
 #'                  mnbr = 2,
 #'                  l2fc_thres = 1,
-#'                  ipval = "pvalue")
+#'                  choosePvalue = "pvalue")
 #' }
 #' @export
 artms_analysisQuantifications <- function(log2fc_file,
@@ -58,8 +60,8 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           specie,
                                           output_dir,
                                           enrich = TRUE,
-                                          l2fc_thres,
-                                          ipval = "adjpvalue",
+                                          l2fc_thres = 1.5,
+                                          choosePvalue = "adjpvalue",
                                           isBackground = "nobackground",
                                           isPtm = "global",
                                           mnbr = 2,
@@ -69,6 +71,16 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Checking arguments
+
+  # CHECK POINT: DO THE FILES EXIST?
+  if(!file.exists(log2fc_file)){
+    stop("THE FILE ", log2fc_file, " DOES NOT EXIST!\n")
+  }
+  
+  if(!file.exists(modelqc_file)){
+    stop("THE FILE ", modelqc_file, " DOES NOT EXIST!\n")
+  }
+  
   if (!grepl("logical", class(enrich))) {
     stop("\nArgument <enrich> must be logical (TRUE or FALSE)\n")
   }
@@ -89,12 +101,13 @@ artms_analysisQuantifications <- function(log2fc_file,
     stop("The < isPtm > argument is wrong. The valid options are: global or ptmsites\n")
   }
   
-  if(!(ipval %in% c('pvalue', 'adjpvalue'))){
-    stop("The < ipval > argument is wrong. The valid options are: pvalue or adjpvalue\n")
+  if(!(choosePvalue %in% c('pvalue', 'adjpvalue'))){
+    stop("The < choosePvalue > argument is wrong. The valid options are: pvalue or adjpvalue\n")
   }
   
+  specie <- tolower(specie)
   if(!(specie %in% c('human', 'mouse'))){
-    stop("The < ipval > argument is wrong. The valid options are: pvalue or adjpvalue\n")
+    stop("The < specie > argument is wrong. The valid options are: pvalue or adjpvalue\n")
   }
   
   if (pathogen == "nopathogen") {
@@ -111,7 +124,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     stop("\n\nThis pathogen is not supported yet\n\n")
   }
   
-  output_dir <- paste0(output_dir, "_", ipval)
+  output_dir <- paste0(output_dir, "_", choosePvalue)
   
   # create output directory if it doesn't exist
   if (!dir.exists(output_dir)) {
@@ -308,9 +321,9 @@ artms_analysisQuantifications <- function(log2fc_file,
   dflog2fcfinites$iLog2FC <- dflog2fcfinites$log2FC
   
   # Choose the pvalue or adjusted pvalue as the iPvalue
-  if (ipval == "pvalue") {
+  if (choosePvalue == "pvalue") {
     dflog2fcfinites$iPvalue <- dflog2fcfinites$pvalue
-  } else if (ipval == "adjpvalue") {
+  } else if (choosePvalue == "adjpvalue") {
     dflog2fcfinites$iPvalue <- dflog2fcfinites$adj.pvalue
   } else{
     stop("\n\n\t------> wait a minute: did you choose pvalue or adjpvalue")

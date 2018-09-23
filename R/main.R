@@ -11,8 +11,6 @@
 #' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
-#' @import proj4
-#' @import ggalt
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
 #' @import ggrepel
@@ -72,9 +70,11 @@ utils::globalVariables(
     "artms_data_corum_mito_database",
     "artms_data_pathogen_LPN",
     "artms_data_pathogen_TB",
+    "artms_config",
     "bin.all",
     "bin.condition",
     "BioReplicate",
+    "bioreplicate",
     "category",
     "charge",
     "cluster",
@@ -401,4 +401,6 @@ artms_quantification <- function(yaml_config_file) {
     }
   }
   cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
-  }
+}
+
+

@@ -5,9 +5,10 @@
 \title{Analysis of the Relative Quantification}
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
-  output_dir, enrich = TRUE, l2fc_thres, ipval = "adjpvalue",
-  isBackground = "nobackground", isPtm = "global", mnbr = 2,
-  isFluomics = FALSE, pathogen = "nopathogen")
+  output_dir, enrich = TRUE, l2fc_thres = 1.5,
+  choosePvalue = "adjpvalue", isBackground = "nobackground",
+  isPtm = "global", mnbr = 2, isFluomics = FALSE,
+  pathogen = "nopathogen")
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}
@@ -22,21 +23,25 @@ function}
 \item{enrich}{(logical) Performed enrichment analysis using GprofileR?
 \code{TRUE} (default) or \code{FALSE}}
 
-\item{l2fc_thres}{(int) log2fc cutoff for enrichment analysis}
+\item{l2fc_thres}{(int) log2fc cutoff for enrichment analysis (default,
+\code{l2fc_thres = 1.5})}
 
-\item{ipval}{(char) specify whether \code{pvalue} or \code{adjpvalue} should use for
+\item{choosePvalue}{(char) specify whether \code{pvalue} or \code{adjpvalue} should use for
 the analysis. The default option is \code{adjpvalue}
 (multiple testing correction).
 But if the number of biological replicates for a given experiment is
-too low (for example n = 2), then \code{ipval = pvalue} is recommended.}
+too low (for example n = 2), then \code{choosePvalue = pvalue} is recommended.}
 
 \item{isBackground}{(char) background of gene names for enrichment analysis.
 \code{nobackground} (default) will use the total number of genes detected.
 Alternatively provided the file path name to the background gene list.}
 
-\item{isPtm}{(char) Is a ptm-site quantification? \code{global} (default),
-\code{ptmsites}
-(for site specific analysis), \code{ptmph} (Jeff's script output evidence file)}
+\item{isPtm}{(char) Is a ptm-site quantification?
+\itemize{
+\item \code{global} (default),
+\item \code{ptmsites} (for site specific analysis),
+\item \code{ptmph} (Jeff's script output evidence file)
+}}
 
 \item{mnbr}{(int) minimal number of biological replicates for imputation
 and filtering. Default: \code{mnbr = 2} (Proteins must be found in one of the
@@ -75,7 +80,7 @@ artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
                  output_dir = "resultsAQ",
                  mnbr = 2,
                  l2fc_thres = 1,
-                 ipval = "pvalue")
+                 choosePvalue = "pvalue")
 }
 }
 \keyword{analysis,}
