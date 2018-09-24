@@ -16,9 +16,10 @@
 #' @param plotISOTOPE (logical) It plots whatever
 #' @return A number of plots from the summary file
 #' @keywords qc, summary, keys
-#' @examples \donttest{
-#' artms_qualityControlSummaryExtended(summary_file, keys_file)
-#' }
+#' @examples
+#' # Testing warning if files are not submitted
+#' test <- artms_qualityControlSummaryExtended(summary_file = NULL, 
+#' keys_file = NULL)
 #' @export
 artms_qualityControlSummaryExtended <- function(summary_file, 
                                                 keys_file,
@@ -27,6 +28,20 @@ artms_qualityControlSummaryExtended <- function(summary_file,
                                                 plotMS2 = TRUE,
                                                 plotMSMS = TRUE,
                                                 plotISOTOPE = TRUE){
+  
+  cat("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)---------------\n")
+  
+  if(is.null(summary_file) & is.null(keys_file)){
+    return("You need to provide both evidence and keys")
+  }
+  
+  if(!file.exists(summary_file)){
+    stop("THE FILE ", summary_file, " DOES NOT EXIST!\n")
+  }
+  
+  if(!file.exists(keys_file)){
+    stop("THE FILE ", keys_file, " DOES NOT EXIST!\n")
+  }
   
   # Getting data ready
   summarykeys <- artms_mergeEvidenceAndKeys(summary_file, keys_file, isSummary = TRUE)  

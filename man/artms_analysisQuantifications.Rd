@@ -72,16 +72,11 @@ It includes:
 }
 }
 \examples{
-\donttest{
-artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
-                 modelqc_file = "ab-testing-new-results_ModelQC.txt",
-                 specie = "human",
-                 isPtm = "global",
-                 output_dir = "resultsAQ",
-                 mnbr = 2,
-                 l2fc_thres = 1,
-                 choosePvalue = "pvalue")
-}
+# Testing that the files cannot be empty
+artms_analysisQuantifications(log2fc_file = NULL,
+                              modelqc_file = NULL,
+                              specie = NULL,
+                              output_dir = NULL)
 }
 \keyword{analysis,}
 \keyword{quantifications}

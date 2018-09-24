@@ -19,13 +19,10 @@
 #' - `preys.txt`
 #' - `baits.txt`
 #' @keywords SAINT, SAINTexpress, APMS
-#' @examples \donttest{
-#' artms_evidenceToSaintExpressFormat(evidence_file = "a549-PB1-evidence.txt",
-#'              keys_file = "a549-PB1-keys.txt",
-#'              ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta",
-#'              quant_variable = "msint",
-#'              output_file = "a549-PB1-saintexpress.txt")
-#' }
+#' @examples
+#' # Testing that the files cannot be empty
+#' artms_evidenceToSaintExpressFormat(evidence_file = NULL, 
+#' keys_file = NULL, ref_proteome_file = NULL)
 #' @export
 artms_evidenceToSaintExpressFormat <- function(evidence_file,
                                                keys_file,
@@ -33,6 +30,10 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
                                                quant_variable = 'msspc',
                                                output_file) {
   cat(">> CONVERTING TO SAINTexpress FORMAT\n")
+  
+  if(is.null(evidence_file) & is.null(keys_file) & is.null(ref_proteome_file)){
+    return("The evidence_file, keys_file and ref_proteome_file must not be empty")
+  }
   
   if(!file.exists(evidence_file)){
     stop("THE FILE ", evidence_file, " DOES NOT EXIST!\n")

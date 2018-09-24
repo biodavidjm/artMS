@@ -204,6 +204,7 @@ artms_dataPlots <- function(input_file, output_file) {
 #' @return (pdf or ggplot2 object) heatmap of the MSStats results using the
 #' selected metric
 #' @keywords heatmap, log2fc
+#' @examples 
 #' artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results,
 #'                        specie = "human",
 #'                        output_file = NULL,

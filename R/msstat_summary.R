@@ -28,21 +28,27 @@
 #' Regardless, the results will be written to file. Default = FALSE
 #' @return (data.frame or txt file) with the summary
 #' @keywords MaxQuant, evidence, MSStats, summary
-#' @examples \donttest{
-#' artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
-#'                 prot_group_file = "proteinGroups.txt",
-#'                 keys_file = "FLU-THP1-H1N1-AB-keys.txt",
-#'                 results_file = "results/FLU-THP1-H1N1-AB-results.txt",
-#'                 return_df = FALSE)
-#' }
+#' @examples
+#' # Testing warning if files are not submitted
+#' test <- artms_msstats_summary(evidence_file = NULL,
+#'                       prot_group_file = NULL,
+#'                       keys_file = NULL,
+#'                       results_file = NULL)
 #' @export
-artms_msstats_summary <- function(evidence_file,
-                                  prot_group_file,
-                                  keys_file,
-                                  results_file,
+artms_msstats_summary <- function(evidence_file = NULL,
+                                  prot_group_file = NULL,
+                                  keys_file = NULL,
+                                  results_file = NULL,
                                   return_df = FALSE) {
   # Check if passing in data or if passing in files
+  cat(">> GENERATING A GLOBAL SUMMARY\n")
   cat(">> LOADING DATA\n")
+  
+  if(is.null(evidence_file) & is.null(prot_group_file) & is.null(keys_file)
+     & is.null(results_file)){
+    return("Files must not be NULL")
+  }
+  
   dat <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
   dat <- data.table(dat)
   pg <- .artms_checkIfFile(prot_group_file)
@@ -52,11 +58,14 @@ artms_msstats_summary <- function(evidence_file,
   
   # get SPECTRAL COUNTS
   cat("--- Summarizing Spectral Counts\n")
+  if(grepl("MS.MS.count", dat)){
+    dat <- artms_changeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
+  }
   dat.sc <-
     data.table::dcast(
       data = dat,
       Proteins ~ BioReplicate,
-      value.var = "MS.MS.count",
+      value.var = "MS.MS.Count",
       max,
       fill = NA_real_
     )

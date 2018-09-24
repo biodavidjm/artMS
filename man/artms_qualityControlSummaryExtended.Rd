@@ -34,9 +34,9 @@ Performs quality control based on the information available in
 the MaxQuant summary.txt file.
 }
 \examples{
-\donttest{
-artms_qualityControlSummaryExtended(summary_file, keys_file)
-}
+# Testing warning if files are not submitted
+test <- artms_qualityControlSummaryExtended(summary_file = NULL, 
+keys_file = NULL)
 }
 \keyword{keys}
 \keyword{qc,}

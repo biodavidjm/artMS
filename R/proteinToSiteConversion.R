@@ -22,21 +22,26 @@
 #' @return (file) Return a new evidence file with the `Proteins` column
 #' modified by adding the sequence site location(s) + postranslational
 #' modification(s) to the uniprot entry id.
+#' 
 #' Examples: `A34890_ph3`; `Q64890_ph24_ph456`; `Q64890_ub34_ub129_ub234`;
 #' `Q64890_ac35`.
 #' @keywords evidence, convert, ptm, ph, ub, ac
-#' @examples \donttest{
-#' artms_proteinToSiteConversion(
-#'   evidence_file = "evidence.txt",
-#'   ref_proteome_file = "uniprot_canonical.fasta",
-#'   output_file = "phsite_evidence.txt",
-#'   mod_type = "ph")
-#' }
+#' @examples
+#' # Testing warning if files are not submitted
+#' artms_proteinToSiteConversion(evidence_file = NULL, ref_proteome_file = NULL, 
+#' output_file = NULL)
 #' @export
 artms_proteinToSiteConversion <- function (evidence_file,
                                            ref_proteome_file,
                                            output_file,
                                            mod_type = 'PH') {
+  
+  cat(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC\n")
+  
+  if(is.null(evidence_file) & is.null(ref_proteome_file) & is.null(output_file)){
+    return("Files must not be NULL")
+  }
+  
   if (is.null(output_file)) {
     stop("output_file MISSED!")
   }

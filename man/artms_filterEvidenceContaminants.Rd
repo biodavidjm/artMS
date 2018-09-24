@@ -17,9 +17,7 @@ Remove contaminants and erronously identified 'reverse'
 sequences by MaxQuant, in addition to empty protein ids
 }
 \examples{
-\donttest{
-evidence_filtered <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
-}
+ef <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
 }
 \keyword{cleanup,}
 \keyword{contaminants}

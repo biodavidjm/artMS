@@ -151,9 +151,8 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 #' @param data (data.frame) of the Evidence file
 #' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
-#' @examples \donttest{
-#' evidence_filtered <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
-#' }
+#' @examples
+#' ef <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
 #' @export
 artms_filterEvidenceContaminants <- function(data) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
@@ -195,7 +194,7 @@ artms_mergeEvidenceAndKeys <- function(data,
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
   
-  if("Experiment" %in% colnames(keys)){
+  if(any(grepl("Experiment", colnames(keys)))){
     keys <- artms_changeColumnName(keys, "Experiment", "ExperimentKeys")
   }
   

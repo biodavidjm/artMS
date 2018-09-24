@@ -44,16 +44,12 @@
 #' @return (data.frame) summary of quantifications, including annotations, 
 #' enrichments, etc
 #' @keywords analysis, quantifications
-#' @examples \donttest{
-#' artms_analysisQuantifications(log2fc_file = "ab-testing-new-results.txt",
-#'                  modelqc_file = "ab-testing-new-results_ModelQC.txt",
-#'                  specie = "human",
-#'                  isPtm = "global",
-#'                  output_dir = "resultsAQ",
-#'                  mnbr = 2,
-#'                  l2fc_thres = 1,
-#'                  choosePvalue = "pvalue")
-#' }
+#' @examples
+#' # Testing that the files cannot be empty
+#' artms_analysisQuantifications(log2fc_file = NULL,
+#'                               modelqc_file = NULL,
+#'                               specie = NULL,
+#'                               output_dir = NULL)
 #' @export
 artms_analysisQuantifications <- function(log2fc_file,
                                           modelqc_file,
@@ -68,6 +64,12 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           isFluomics = FALSE,
                                           pathogen = "nopathogen") {
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
+  
+  if(is.null(log2fc_file) & is.null(modelqc_file) & 
+     is.null(specie) & is.null(output_dir)){
+    return("The evidence_file, modelqc_file, specie and output_dir arguments
+must not be empty")
+  }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Checking arguments

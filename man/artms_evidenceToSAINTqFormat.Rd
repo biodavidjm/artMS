@@ -62,11 +62,10 @@ or
 \code{> saintq config-saintq-proteins}
 }
 \examples{
-\donttest{
-artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
-                             keys_file = "a549-PB1-keys.txt", 
-                             output_dir = "saintq_folder")
-}
+# Testing that the files cannot be empty
+artms_evidenceToSAINTqFormat(evidence_file = NULL, 
+                                   keys_file = NULL, 
+                                   output_dir = NULL)
 }
 \keyword{APMS}
 \keyword{SAINT,}

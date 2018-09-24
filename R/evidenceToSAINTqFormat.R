@@ -37,11 +37,11 @@
 #' 
 #' `> saintq config-saintq-proteins`
 #' @keywords SAINT, SAINTq, APMS
-#' @examples \donttest{
-#' artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
-#'                              keys_file = "a549-PB1-keys.txt", 
-#'                              output_dir = "saintq_folder")
-#' }
+#' @examples
+#' # Testing that the files cannot be empty
+#' artms_evidenceToSAINTqFormat(evidence_file = NULL, 
+#'                                    keys_file = NULL, 
+#'                                    output_dir = NULL)
 #' @export
 artms_evidenceToSAINTqFormat <- function(evidence_file,
                                          keys_file,
@@ -53,6 +53,10 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   cat(">> GENERATING A SAINTq INPUT FILE\n")
   
   cat(">> CHECKING THE keys FILE FIRST\n")
+  
+  if(is.null(evidence_file) & is.null(keys_file) & is.null(output_dir)){
+    return("The evidence_file, keys_file and output_dir must not be empty")
+  }
     
   keys <- .artms_checkIfFile(keys_file)
   keys <- .artms_checkRawFileColumnName(keys)

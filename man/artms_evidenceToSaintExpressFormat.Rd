@@ -39,13 +39,9 @@ by SAINTexpress. One can choose to either use the \code{spectral counts}
 (use \code{msspc}) or the \code{intensities} (use \code{msint}) for the analysis.
 }
 \examples{
-\donttest{
-artms_evidenceToSaintExpressFormat(evidence_file = "a549-PB1-evidence.txt",
-             keys_file = "a549-PB1-keys.txt",
-             ref_proteome_file = "fluomics-uniprot-hsa_20170516.fasta",
-             quant_variable = "msint",
-             output_file = "a549-PB1-saintexpress.txt")
-}
+# Testing that the files cannot be empty
+artms_evidenceToSaintExpressFormat(evidence_file = NULL, 
+keys_file = NULL, ref_proteome_file = NULL)
 }
 \keyword{APMS}
 \keyword{SAINT,}

@@ -48,18 +48,13 @@ selected metric
 \description{
 Heatmap of the Relative Quantifications (MSStats results)
 }
-\keyword{"human",}
-\keyword{"pvalue",}
-\keyword{-1,}
-\keyword{1)}
-\keyword{=}
-\keyword{NULL,}
-\keyword{artms_data_ph_msstats_results,}
-\keyword{artms_plotHeatmapQuant(input_file}
+\examples{
+artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results,
+                       specie = "human",
+                       output_file = NULL,
+                       whatPvalue = "pvalue",
+                       lfc_lower = -1,
+                       lfc_upper = 1)
+}
 \keyword{heatmap,}
-\keyword{lfc_lower}
-\keyword{lfc_upper}
 \keyword{log2fc}
-\keyword{output_file}
-\keyword{specie}
-\keyword{whatPvalue}

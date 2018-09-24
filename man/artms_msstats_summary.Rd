@@ -4,8 +4,8 @@
 \alias{artms_msstats_summary}
 \title{Summarize the MSStats results and data quantification}
 \usage{
-artms_msstats_summary(evidence_file, prot_group_file, keys_file,
-  results_file, return_df = FALSE)
+artms_msstats_summary(evidence_file = NULL, prot_group_file = NULL,
+  keys_file = NULL, results_file = NULL, return_df = FALSE)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
@@ -46,13 +46,11 @@ pair. Any pairs without a value are assigned a value of NA.
 }
 }
 \examples{
-\donttest{
-artms_msstats_summary(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
-                prot_group_file = "proteinGroups.txt",
-                keys_file = "FLU-THP1-H1N1-AB-keys.txt",
-                results_file = "results/FLU-THP1-H1N1-AB-results.txt",
-                return_df = FALSE)
-}
+# Testing warning if files are not submitted
+test <- artms_msstats_summary(evidence_file = NULL,
+                      prot_group_file = NULL,
+                      keys_file = NULL,
+                      results_file = NULL)
 }
 \keyword{MSStats,}
 \keyword{MaxQuant,}
