@@ -4,7 +4,7 @@
 \alias{.artms_sampleOverlap}
 \title{Sample overlap}
 \usage{
-.artms_sampleOverlap(data, sampleID = "Experiment",
+.artms_sampleOverlap(data, sampleID = "bioreplicate",
   referenceID = "Sequence")
 }
 \arguments{
