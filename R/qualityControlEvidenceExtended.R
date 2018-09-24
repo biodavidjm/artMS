@@ -57,14 +57,6 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     return("You need to provide both evidence and keys")
   }
   
-  if(!file.exists(evidence_file)){
-    stop("THE FILE ", evidence_file, " DOES NOT EXIST!\n")
-  }
-  
-  if(!file.exists(keys_file)){
-    stop("THE FILE ", keys_file, " DOES NOT EXIST!\n")
-  }
-  
   hmcol <- colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
   
   # ----------------------------------------------------------------------------

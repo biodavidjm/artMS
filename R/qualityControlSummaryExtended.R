@@ -35,14 +35,6 @@ artms_qualityControlSummaryExtended <- function(summary_file,
     return("You need to provide both evidence and keys")
   }
   
-  if(!file.exists(summary_file)){
-    stop("THE FILE ", summary_file, " DOES NOT EXIST!\n")
-  }
-  
-  if(!file.exists(keys_file)){
-    stop("THE FILE ", keys_file, " DOES NOT EXIST!\n")
-  }
-  
   # Getting data ready
   summarykeys <- artms_mergeEvidenceAndKeys(summary_file, keys_file, 
                                             isSummary = TRUE)  
