@@ -93,9 +93,11 @@
 
 #' Evidence file example
 #'
-#' @description Reduced version of a Evidence file from a PH experiment. Only
-#' two biological replicates are available, and the number of peptides was 
-#' reduced to 1/5 due to bioconductor limitations on data size.
+#' @description Evidence file from a PH experiment consisting of two 
+#' head and neck cancer cell lines ("Conditions" `"Cal33"` and `"HSC6"`). 
+#' 
+#' The number of peptides was reduced to 1/5 due 
+#' to bioconductor limitations on data size.
 #'
 #' @format A data frame with all the columns available in an evidence file
 #' generated with MaxQuant version 1.6.2.3
@@ -104,39 +106,29 @@
 
 #' Keys File Example
 #' 
-#' @description the artMS Keys file provides the details of the experimental 
-#' design  for any given proteomics experiment. 
+#' @description the `artMS` keys file provides the details of the experimental 
+#' design for any given proteomics experiment. 
 #' 
-#' To illustrate how the keys file works, the `ph_keys` data object
-#' contains the information about a time series experiment from the 
-#' [FluOMICS project](http://www.fluomics.org/). THP1 cells
-#' were infected with Influenza and data collected at different time
-#' points. in addition to the 
-#' 
-#' Data frame with the information about the experimental design.
-#' It provides the metadata of the `ph_evidence` data object also available in 
-#' this package (see `vignettes` to find out more)
-#' 
-#' Comparison of the phosphoproteome of two head and neck cancer cell lines, 
-#' Cal33 and HSC6.
-#' 
-#' 4 replicates per cell line
+#' This particular example belongs to a PH experiment consisting of two 
+#' head and neck cancer cell lines ("Conditions" `"Cal33"` and `"HSC6"`), 
+#' with 2 biological replicates each (in this reduced version)
 #' 
 #' @format Tab delimited file with the following columns:
 #' \describe{
-#' \item{Raw.file}{Raw file processed. Each one should be either a
+#' \item{Raw.file}{Raw file processed. Each one should be a unique
 #' biological (or technical) replicate}
 #' 
 #' \item{IsotopeLabelType}{Type of labeling. `L` is used for label free 
 #' experiments}
 #' 
-#' \item{Condition}{Label for conditions. Only alpha-numeric characters and 
-#' `underscore (_)` are allowed}
+#' \item{Condition}{Label for conditions. VERY IMPORTANT: Only alpha-numeric 
+#' characters and `underscore (_)` are allowed}
 #' 
-#' \item{BioReplicate}{Label for the Biological replicates. The consensus is
-#' to use the same label as the Condition, but adding a `dash (-)` corresponding
-#' to the number of biological replicate. For example, `Cal-1`, `Cal-2`, 
-#' `Cal-3`}
+#' \item{BioReplicate}{Label for the Biological replicates. VERY IMPORTANT:
+#' The consensus is to use the same labeling as the Condition, but adding a 
+#' `dash (-)` corresponding to the number of biological replicate. 
+#' For example, for `Condition` `"Cal"`, use `Cal-1`, `Cal-2`, `Cal-3`, etc 
+#' for the bioreplicates}
 #' 
 #' \item{Run}{The MS run number}
 #' }
@@ -150,7 +142,6 @@
 #'
 #' @format A data frame resulting from running the lastest version of MSstats
 "artms_data_ph_msstats_results"
-
 
 #' Random data set
 #'

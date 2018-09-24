@@ -10,8 +10,10 @@ generated with MaxQuant version 1.6.2.3}
 artms_data_ph_evidence
 }
 \description{
-Reduced version of a Evidence file from a PH experiment. Only
-two biological replicates are available, and the number of peptides was
-reduced to 1/5 due to bioconductor limitations on data size.
+Evidence file from a PH experiment consisting of two
+head and neck cancer cell lines ("Conditions" \code{"Cal33"} and \code{"HSC6"}).
+
+The number of peptides was reduced to 1/5 due
+to bioconductor limitations on data size.
 }
 \keyword{datasets}

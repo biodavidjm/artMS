@@ -6,19 +6,20 @@
 \title{Keys File Example}
 \format{Tab delimited file with the following columns:
 \describe{
-\item{Raw.file}{Raw file processed. Each one should be either a
+\item{Raw.file}{Raw file processed. Each one should be a unique
 biological (or technical) replicate}
 
 \item{IsotopeLabelType}{Type of labeling. \code{L} is used for label free
 experiments}
 
-\item{Condition}{Label for conditions. Only alpha-numeric characters and
-\code{underscore (_)} are allowed}
+\item{Condition}{Label for conditions. VERY IMPORTANT: Only alpha-numeric
+characters and \code{underscore (_)} are allowed}
 
-\item{BioReplicate}{Label for the Biological replicates. The consensus is
-to use the same label as the Condition, but adding a \code{dash (-)} corresponding
-to the number of biological replicate. For example, \code{Cal-1}, \code{Cal-2},
-\code{Cal-3}}
+\item{BioReplicate}{Label for the Biological replicates. VERY IMPORTANT:
+The consensus is to use the same labeling as the Condition, but adding a
+\code{dash (-)} corresponding to the number of biological replicate.
+For example, for \code{Condition} \code{"Cal"}, use \code{Cal-1}, \code{Cal-2}, \code{Cal-3}, etc
+for the bioreplicates}
 
 \item{Run}{The MS run number}
 }}
@@ -26,22 +27,11 @@ to the number of biological replicate. For example, \code{Cal-1}, \code{Cal-2},
 artms_data_ph_keys
 }
 \description{
-the artMS Keys file provides the details of the experimental
-design  for any given proteomics experiment.
+the \code{artMS} keys file provides the details of the experimental
+design for any given proteomics experiment.
 
-To illustrate how the keys file works, the \code{ph_keys} data object
-contains the information about a time series experiment from the
-\href{http://www.fluomics.org/}{FluOMICS project}. THP1 cells
-were infected with Influenza and data collected at different time
-points. in addition to the
-
-Data frame with the information about the experimental design.
-It provides the metadata of the \code{ph_evidence} data object also available in
-this package (see \code{vignettes} to find out more)
-
-Comparison of the phosphoproteome of two head and neck cancer cell lines,
-Cal33 and HSC6.
-
-4 replicates per cell line
+This particular example belongs to a PH experiment consisting of two
+head and neck cancer cell lines ("Conditions" \code{"Cal33"} and \code{"HSC6"}),
+with 2 biological replicates each (in this reduced version)
 }
 \keyword{datasets}
