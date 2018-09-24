@@ -44,7 +44,8 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   }
   
   # Getting data ready
-  summarykeys <- artms_mergeEvidenceAndKeys(summary_file, keys_file, isSummary = TRUE)  
+  summarykeys <- artms_mergeEvidenceAndKeys(summary_file, keys_file, 
+                                            isSummary = TRUE)  
   colnames(summarykeys) <- tolower(colnames(summarykeys))
   
   if("fraction" %in% colnames(summarykeys)){

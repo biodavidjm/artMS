@@ -185,8 +185,8 @@ artms_mergeEvidenceAndKeys <- function(data,
                                        keys, 
                                        by = c('RawFile'),
                                        isSummary = FALSE) {
-  cat(">> MERGING evidence AND keys FILES\n")
-  cat("(It might take a long time depending on the size of the evidence file)\n")
+  cat(">> MERGING FILES\n")
+  cat("\tIt might take a long time (depending on the size of the evidence file)\n")
 
   data <- .artms_checkIfFile(data)
   keys <- .artms_checkIfFile(keys)
@@ -199,7 +199,9 @@ artms_mergeEvidenceAndKeys <- function(data,
   }
   
   if(isSummary){
-    data <- subset(data, Experiment != "")
+    if(any(grepl("Experiment", colnames(data)))){
+      data <- subset(data, Experiment != "") 
+    }
   }
   
   # Check that the keys file is correct
@@ -219,26 +221,27 @@ artms_mergeEvidenceAndKeys <- function(data,
   }
   
   # Check if the number of RawFiles is the same.
-  unique_data <- unique(data$RawFile)
-  unique_keys <- unique(keys$RawFile)
+  unique_data <- sort(unique(data$RawFile))
+  unique_keys <- sort(unique(keys$RawFile))
   
   if (length(unique_keys) != length(unique_data)) {
     keys_not_found <- setdiff(unique_keys, unique_data)
     data_not_found <- setdiff(unique_data, unique_keys)
-    cat(
-      sprintf(
-        "\tkeys found: %s \n\t keys not in data file:\n%s\n",
-        length(unique_keys) - length(keys_not_found),
-        paste(keys_not_found, collapse = '\t')
+    if(length(keys_not_found) != 0){
+      cat(
+        sprintf(
+          "\tRaw data not in data file: %s\n",
+          paste(keys_not_found, collapse = '\t'))
       )
-    )
-    cat(
-      sprintf(
-        "\tdata found: %s \n\t data not in keys file:\n%s\n",
-        length(unique_data) - length(data_not_found),
-        paste(data_not_found, collapse = '\t')
+    }
+    if(length(data_not_found) != 0){
+      cat(
+        sprintf(
+          "\tRaw data not in keys file: %s\n",
+          paste(data_not_found, collapse = '\t')
+        )
       )
-    )
+    }
   }
   
   data <- merge(data, keys, by = by)

@@ -82,7 +82,7 @@ save(artms_data_ph_keys, file = 'data/artms_data_ph_keys.RData', compress = 'xz'
 artms_data_ph_msstats_results <- read.delim("~/sourcecode/artms/extdata/artms_data_ph_msstats_results.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_msstats_results, file = 'data/artms_data_ph_msstats_results.RData', compress = 'xz')
 
-artms_data_ph_proteinGroups <- read.delim("~/sourcecode/artms/ph/proteinGroups.txt", stringsAsFactors = F)
+artms_data_ph_proteinGroups <- read.delim("~/sourcecode/artms/ph/proteinGroups.txt", stringsAsFactors = FALSE)
 save(artms_data_ph_proteinGroups, file = 'data/artms_data_ph_proteinGroups.RData', compress = 'xz')
 
 # CORUM dataset
@@ -115,7 +115,7 @@ vapply(x, FUN = length, FUN.VALUE = 0)
 
 sapply(x, FUN = length)  
 
-#~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # VIGNETTES
 
 artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence, 
@@ -125,8 +125,7 @@ artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Testing artMS
-
+# TESTING artMS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # QC PLOTS EXTENDED
 setwd("~/Box Sync/tempStuff/david2alex/alex2david/1D/")
@@ -142,87 +141,76 @@ artms_qualityControlSummaryExtended(summary_file = "summary.txt",
 
 artms_quantification(yaml_config_file = "config.yaml")
 
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## APMS FLUOMICS
 setwd("~/sourcecode/artms/apms/")
 
-artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt", 
-                                  keys_file = "keys.txt", 
+artms_qualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt", 
+                                  keys_file = "a549-PB1-keys.txt", 
                                   prot_exp = "APMS")
 
 artms_qualityControlEvidenceExtended(evidence_file = "a549-PB1-evidence.txt", 
                                      keys_file = "a549-PB1-keys.txt")
 
-artms_quantification(yaml_config_file = "apms_config.yaml")
+artms_qualityControlSummaryExtended(summary_file = "summary.txt", 
+                                    keys_file = "a549-PB1-keys.txt")
 
-setwd("~/sourcecode/artms/apms/")
-artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt", 
-                              modelqc_file = "a549-PB1-results_ModelQC.txt", 
-                              specie = "HUMAN", 
-                              output_dir = "analysis")
+artms_quantification(yaml_config_file = "apms_config.yaml")
 
 artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt", 
                              keys_file = "a549-PB1-keys.txt", 
                              output_dir = "saintq_folder")
 
-
-setwd("~/sourcecode/artms/apms/old/")
-contrast_file <- 'a549-PB1-contrast.txt'
-artms_evidenceToMISTformat(input_file = "a549-PB1-evidence.txt", 
-                           keys_file = "a549-PB1-keys.txt", 
-                           quant_variable = "msint", 
-                           output_file = "a549-PB1-mist.txt",
-                           species = "HUMAN-FLUOMICS",
-                           uniprot_dir = "~/Box Sync/db/mist/")
-
-artms_evidenceToSaintExpressFormat(input_file = "a549-PB1-evidence.txt", 
+artms_evidenceToSaintExpressFormat(evidence_file = "a549-PB1-evidence.txt", 
                                    keys_file = "a549-PB1-keys.txt", 
-                                   ref_proteome_file = "~/Box Sync/db/flu/fluomics-uniprot-hsa_20170516.fasta", 
-                                   quant_variable = "msint", 
-                                   output_file = "a549-PB1-saintexpress.txt")
+                                   output_file = "a549-PB1-saintexpress.txt", 
+                                   ref_proteome_file = "~/Box Sync/db/flu/fluomics-uniprot-hsa_20170516.fasta")
 
-artms_quantification(yaml_config_file = "resultsQuant/artms_apms_config.yaml")
+artms_msstats_summary(evidence_file = "a549-PB1-evidence.txt", 
+                      keys_file = "a549-PB1-keys.txt", 
+                      prot_group_file = "proteinGroups.txt")
 
-setwd("~/sourcecode/artms/apms/resultsQuant/")
+setwd("~/sourcecode/artms/apms/results/")
 artms_analysisQuantifications(log2fc_file = "a549-PB1-results.txt", 
                               modelqc_file = "a549-PB1-results_ModelQC.txt", 
-                              specie = "human", output_dir = "analysisQ", 
-                              enrich = TRUE, l2fc_thres = 1, 
-                              ipval = "adjpvalue")
+                              specie = "HUMAN", 
+                              output_dir = "analysis")
 
-mss <- read.delim("resultsQuant/a549-PB1-results.txt", stringsAsFactors = FALSE)
-artms_volcanoPlot(mss_results_sel = mss,
+artms_volcanoPlot(mss_results = "a549-PB1-results.txt",
                   lfc_upper = 1, 
                   lfc_lower = -1, 
                   FDR = 0.05, 
-                  file_name = "a549-PB1-results-volcanoPlot.pdf", 
+                  output_name = "a549-PB1-results-volcanoPlot.pdf", 
                   PDF = TRUE)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## FRACTIONS
-setwd('~/sourcecode/artms/fractions/results/ab20180402/ab20180402debug/')
+setwd('~/sourcecode/artms/fractions/')
 evidence_file <- '~/sourcecode/artms/fractions/petroski-cul4-evidence.txt'
 keys_file <- '~/sourcecode/artms/fractions/petroski-cul4-keys.txt'
 contrast_file <- '~/sourcecode/artms/fractions/petroski-cul4-contrast.txt'
-yaml_config_file <- '~/sourcecode/artms/fractions/results/ab20180402/config-petroski-debugging.yaml'
 
+yaml_config_file <- '~/sourcecode/artms/fractions/config-petroski-debugging.yaml'
 
 # Quantifications
 artms_quantification(yaml_config_file = yaml_config_file)
 
 # Analysis of Quantifications
-artms_analysisQuantifications(log2fc_file = "petroski-cul4-debug-results.txt",
-                              modelqc_file = "petroski-cul4-debug-results_ModelQC.txt",
+
+setwd('~/sourcecode/artms/fractions/results/')
+artms_analysisQuantifications(log2fc_file = "petroski-cul4-debug2-results.txt",
+                              modelqc_file = "petroski-cul4-debug2-results_ModelQC.txt",
                               specie = "human",
-                              isPtm = "noptm",
-                              enrich = TRUE,
-                              output_dir = "testingARTMS",
-                              isFluomics = FALSE,
-                              isBackground = "nobackground",
-                              mnbr = 2,
-                              l2fc_thres = 1.5,
-                              ipval = "adjpvalue",
-                              pathogen = "nopathogen")
+                              output_dir = "analysis")
+
+setwd('~/sourcecode/artms/fractions/')
+artms_msstats_summary(evidence_file = "petroski-cul4-evidence.txt", 
+                      keys_file = "petroski-cul4-keys.txt", 
+                      prot_group_file = "proteinGroups.txt", 
+                      results_file = "results/petroski-cul4-debug2-results.txt")
+
 
 #-------------------------------------------------------------------------------
 ## CREATE THE OFFICIAL PHGLOBAL COMING WITH THE PACKAGE
@@ -243,27 +231,27 @@ n <- round(dim(edfnew)[1]/7)
 edfnew2 <- edfnew[sample(nrow(edfnew), n), ]
 
 # print out evidence & keys
-write.table(edfnew2, file = "~/sourcecode/artms/ph/artms_data_ph_evidence.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
-write.table(kdfnew, file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(edfnew2, 
+            file = "~/sourcecode/artms/ph/artms_data_ph_evidence.txt", 
+            quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(kdfnew, 
+            file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt", 
+            quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 #-------------------------------------------------------------------------------
 # PH GLOBAL: 
 setwd('~/sourcecode/artms/ph/')
-# evidence_file <- "~/sourcecode/artms/extdata/artms_data_ph_evidence.txt"
-# keys_file <- "~/sourcecode/artms/extdata/artms_data_ph_keys.txt"
 contrast_file <- 'contrast.txt'
 evidence_file = "evidence.txt"
 prot_group_file = "proteinGroups.txt"
 keys_file = "keys.txt"
 contrast_file <- 'contrast.txt'
-results_file = "phglobal/phglobal-results.txt"
 
-artms_qualityControlEvidenceBasic(evidence_file = "evidence.txt", 
-                 keys_file = "keys.txt", 
-                 prot_exp = "PH")
+artms_qualityControlSummaryExtended(summary_file = "summary.txt", keys_file = "keys.txt")
 
-artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt", 
-                                     keys_file = "keys.txt")
+artms_writeConfigYamlFile()
+
+artms_quantification("phglobal/phglobal_config.yaml")
 
 artms_msstats_summary(evidence_file = "evidence.txt", 
                       prot_group_file = "proteinGroups.txt", 

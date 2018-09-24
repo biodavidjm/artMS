@@ -805,10 +805,16 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
   if(plotIDoverlap){
     cat("--- Plot ID overlap")
-    pdf('QC-ID-Overlap.pdf', width=nsamples*4, height=nsamples*4, onefile = TRUE)
-      ovlSeq <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "sequence"))
+    pdf('QC-ID-Overlap.pdf', width=nsamples*4, 
+        height=nsamples*4, 
+        onefile = TRUE)
+      ovlSeq <- subset(evidencekeys, 
+                       !is.na(intensity) & !is.na(ms.ms.count), 
+                       select=c("bioreplicate", "sequence"))
       ovlSeq <- unique(ovlSeq)
-      ovlSeq <- .artms_sampleOverlap(ovlSeq, sampleID='bioreplicate', referenceID='sequence')
+      ovlSeq <- .artms_sampleOverlap(ovlSeq, 
+                                     sampleID='bioreplicate', 
+                                     referenceID='sequence')
       ovlSeqM <- ovlSeq$M
       ovlSeqM[ovlSeqM == 1] <- NA
       
@@ -832,10 +838,16 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                 dendrogram="none")
 
       if("fraction" %in% colnames(evidencekeys)){
-        ovlSeqFx <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "fraction", "sequence"))
+        ovlSeqFx <- subset(evidencekeys, 
+                           !is.na(intensity) & !is.na(ms.ms.count), 
+                           select=c("bioreplicate", "fraction", "sequence"))
         ovlSeqFx <- unique(ovlSeqFx)
-        ovlSeqFx$bioreplicate <- paste(ovlSeqFx$fraction, ovlSeqFx$bioreplicate, sep=".")
-        ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx, sampleID='bioreplicate', referenceID='sequence')
+        ovlSeqFx$bioreplicate <- paste(ovlSeqFx$fraction, 
+                                       ovlSeqFx$bioreplicate, 
+                                       sep=".")
+        ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx, 
+                                         sampleID='bioreplicate', 
+                                         referenceID='sequence')
         ovlSeqFxM <- ovlSeqFx$M
         ovlSeqFxM[ovlSeqFxM == 1] <- NA
         gplots::heatmap.2(ovlSeqFxM*100,
@@ -859,9 +871,13 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
       }
 
 
-      ovlProt <- subset(evidencekeys, !is.na(intensity) & !is.na(ms.ms.count), select=c("bioreplicate", "proteins"))
+      ovlProt <- subset(evidencekeys, 
+                        !is.na(intensity) & !is.na(ms.ms.count), 
+                        select=c("bioreplicate", "proteins"))
       ovlProt <- unique(ovlProt)
-      ovlProt <- .artms_sampleOverlap(ovlProt, sampleID='bioreplicate', referenceID='proteins')
+      ovlProt <- .artms_sampleOverlap(ovlProt, 
+                                      sampleID='bioreplicate', 
+                                      referenceID='proteins')
       ovlProtM <- ovlProt$M
       ovlProtM[ovlProtM == 1] <- NA
       gplots::heatmap.2(ovlProtM*100,
@@ -948,9 +964,17 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
     cat("--- Plot Sample Preparation")
     pdf('QC-SamplePrep.pdf', width=nsamples*4, height=20, onefile = TRUE)
       evidence.misscleavages <- data.table(subset(evidencekeys, ms.ms.count > 0))
+      
       misscleavages.tot <- evidence.misscleavages[, .N, by=list(bioreplicate)]
-      misscleavages.dt <- evidence.misscleavages[, .N, by=list(bioreplicate, missed.cleavages)]
-      misscleavages.dt <- merge(misscleavages.dt, misscleavages.tot, by="bioreplicate", all= TRUE)
+      
+      misscleavages.dt <- evidence.misscleavages[, .N, 
+                                                 by=list(bioreplicate, 
+                                                         missed.cleavages)]
+      misscleavages.dt <- merge(misscleavages.dt, 
+                                misscleavages.tot, 
+                                by="bioreplicate", 
+                                all= TRUE)
+      
       misscleavages.dt$mc <- as.numeric(format(100*(misscleavages.dt$N.x/misscleavages.dt$N.y), digits = 5))
 
       na <- ggplot(misscleavages.dt, aes(x = bioreplicate, y = mc, fill = as.factor(missed.cleavages), label=mc)) +
@@ -970,7 +994,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
       oxMet.df <- plyr::ddply(evidencekeys, c("bioreplicate", "condition"),
                               plyr::summarise,
-                              pct.OxM = (length(oxidation..m.[oxidation..m.>0])/length(sequence))*100)
+pct.OxM = (length(oxidation..m.[oxidation..m.>0])/length(sequence))*100)
 
       nb <- ggplot(oxMet.df,
              aes(x = bioreplicate,
@@ -978,7 +1002,11 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                  fill = condition,
                  label=pct.OxM)) +
         geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(pct.OxM, digits=1)), vjust=0, size = 15, position = position_stack()) +
+        geom_text(aes(label=round(pct.OxM, 
+                                  digits=1)), 
+                  vjust=0, 
+                  size = 15, 
+                  position = position_stack()) +
         xlab("Experiment") +
         ylab("Fraction (percentage)") +
         ggtitle("Percentage of peptides where at least 1 Methionine is oxidized") +
@@ -1022,9 +1050,15 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 #' @param referenceID (datatype) Describe
 #' @return What does it return?
 #' @keywords internal, stats
-.artms_sampleOverlap <- function(data, sampleID = 'Experiment', referenceID='Sequence'){
-  pept <- by(data,data[,sampleID],function(x) unique(as.character(x[,referenceID])))
-  pepmatch <- lapply(pept, function(x,y) { lapply(y, function(y) length(intersect(x,y))/length(union(x,y))) }, pept)
+.artms_sampleOverlap <- function(data, 
+                                 sampleID = 'bioreplicate', 
+                                 referenceID='Sequence'){
+  pept <- by(data,
+             data[,sampleID],
+             function(x) unique(as.character(x[,referenceID])))
+  pepmatch <- lapply(pept, 
+                     function(x,y) { 
+lapply(y, function(y) length(intersect(x,y))/length(union(x,y))) }, pept)
   m <- matrix(unlist(pepmatch),nrow=length(pept),ncol=length(pept),byrow=TRUE)
   colnames(m) <- rownames(m) <- names(pept)
   ans <- list(Peptides=pept,M=m)
@@ -1063,7 +1097,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 #' @keywords internal, stats
 .artms_panelHist <- function(x, ...){
   usr <- par("usr"); on.exit(par(usr))
-  par(usr = c(usr[1:2], 0, 1.5) )
+  par(usr = c(usr[seq_len(2)], 0, 1.5) )
   h <- hist(x, plot = FALSE)
   breaks <- h$breaks; nB <- length(breaks)
   y <- h$counts; y <- y/max(y)
