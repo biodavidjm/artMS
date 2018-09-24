@@ -125,7 +125,7 @@
 #' characters and `underscore (_)` are allowed}
 #' 
 #' \item{BioReplicate}{Label for the Biological replicates. VERY IMPORTANT:
-#' The consensus is to use the same labeling as the Condition, but adding a 
+#' Use the same labeling for bioreplicate as the Condition, but adding a 
 #' `dash (-)` corresponding to the number of biological replicate. 
 #' For example, for `Condition` `"Cal"`, use `Cal-1`, `Cal-2`, `Cal-3`, etc 
 #' for the bioreplicates}
