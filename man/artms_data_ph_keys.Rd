@@ -16,7 +16,7 @@ experiments}
 characters and \code{underscore (_)} are allowed}
 
 \item{BioReplicate}{Label for the Biological replicates. VERY IMPORTANT:
-The consensus is to use the same labeling as the Condition, but adding a
+Use the same labeling for bioreplicate as the Condition, but adding a
 \code{dash (-)} corresponding to the number of biological replicate.
 For example, for \code{Condition} \code{"Cal"}, use \code{Cal-1}, \code{Cal-2}, \code{Cal-3}, etc
 for the bioreplicates}
