@@ -1,5 +1,3 @@
-
-
 # ------------------------------------------------------------------------------
 #' @title Converts the `Proteins` column of the evidence file to site-specific
 #' `Uniprot_PTM` notation

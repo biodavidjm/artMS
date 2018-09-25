@@ -63,7 +63,10 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   # DATA PREPARATION
   evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
   colnames(evidencekeys) <- tolower(colnames(evidencekeys))
-  evidencekeys <- subset(evidencekeys, reverse != "+")
+  
+  if( any(grepl("+", evidencekeys$reverse)) ){
+    evidencekeys <- subset(evidencekeys, reverse != "+")  
+  }
   
   # Add potential.contaminant column in case search was performed without it
   `%ni%` <- Negate(`%in%`)
