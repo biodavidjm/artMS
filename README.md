@@ -10,11 +10,8 @@ ___Analytical R Tools for Mass Spectrometry___
 
 # Overview
 
-`artMS` is an R package that provides a set of tools for the analysis and 
-integration of large-scale proteomics (mass-spectrometry-based) datasets  
-obtained using the popular proteomics software package 
-[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). 
-The functions available at `artMS` can be grouped into 4 major categories:
+`artMS` is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
+[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). The functions available in `artMS` can be grouped into 4 major categories:
 
 - Multiple quality control (QC) functions.
 - Relative quantification using [MSstats](http://msstats.org/).
@@ -43,7 +40,7 @@ package `MaxQuant`.
 
 We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.5` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
 
-```{r, eval = FALSE}
+```
 getRversion()
 ```
 
@@ -64,7 +61,7 @@ Assuming that you have an `R (>= 3.5)` version running on your system, follow th
 
 - Install annotation packages from Bioconductor. The installation of these packages returns multiple warnings that do not affect the functionality of `artMS` but could generate problems during the installation of `artMS`.
 
-```{r, eval = FALSE}
+```
 source("https://bioconductor.org/biocLite.R")
 biocLite(c('org.Ag.eg.db', 'org.At.tair.db', 'org.Bt.eg.db', 
            'org.Ce.eg.db', 'org.Cf.eg.db', 'org.Dm.eg.db', 
@@ -77,7 +74,7 @@ biocLite(c('org.Ag.eg.db', 'org.At.tair.db', 'org.Bt.eg.db',
 
 - Install `artMS`:
 
-```{r, eval = FALSE}
+```
 install.packages("devtools")
 library(devtools)
 install_github("biodavidjm/artMS", build_vignettes=TRUE)
@@ -85,14 +82,14 @@ install_github("biodavidjm/artMS", build_vignettes=TRUE)
 
 - Check that it is up and running by checking, for example, the documentation of the qc function `artms_qualityControlEvidenceBasic`:
 
-```{r, eval = FALSE}
+```
 library(artMS)
 ?artms_qualityControlEvidenceBasic
 ```
 
 Once installed, we suggest you to do a quick test by running the quality control functions using the "evidence" (`artms_data_ph_evidence`) and "keys" (`artms_data_ph_keys`) files included in `artMS` as test datasets.
 
-```{r, eval = FALSE}
+```
 # First go to a local working directory: several pdfs will be generated
 # setwd("/path/to/your/working/directory/")
 
@@ -183,7 +180,7 @@ The configuration file (in `yaml` format) contains the configuration details for
 
 To generate a sample configuration file, go to the project folder (`setwd(/path/to/your/working/folder/)`) and execute:
 
-```{r, eval = FALSE}
+```
 artms_writeConfigYamlFile(config_file_name = "config.yaml" )
 ```
 
@@ -431,7 +428,7 @@ url_keys <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
 
 The basic quality control analysis takes as input both the `evidence.txt` and `keys.txt`. 
 
-```{r, eval = FALSE}
+```
 artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
                                   keys_file = artms_data_ph_keys,
                                   output_name = "qcPlots_evidence",
@@ -453,7 +450,7 @@ Check `?artms_evidenceQCbasic()` to find out more options about this function.
 
 It takes as input the `evidence.txt` and `keys.txt` files as follows:
 
-```{r, eval = FALSE}
+```
 artms_qualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
                                      keys_file = artms_data_ph_keys)
 ```
@@ -487,7 +484,7 @@ requires two files:
 
 Run it as follows:
 
-```{r, eval = FALSE}
+```
 artms_qualityControlSummaryExtended(summary_file = "summary.txt",
                                     keys_file = artms_data_ph_keys)
 ```
@@ -545,7 +542,7 @@ Make sure that the filter `modifications` is labeled as `AB`.
 
 Finally, run the following `artMS` function:
 
-```{r, eval = FALSE}
+```
 artms_quantification(
   yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
 ```
@@ -579,7 +576,7 @@ The remaining options can be left unmodified.
 
 Once the configuration `yaml` file is ready, run the following command:
 
-```{r, eval = FALSE}
+```
 artms_quantification(
   yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
 ```
@@ -594,7 +591,7 @@ To run a site specific analysis follow these steps:
 
 For phosphorylation
 
-```{r, eval = FALSE}
+```
 artms_proteinToSiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
@@ -604,7 +601,7 @@ artms_proteinToSiteConversion(
 
 For ubiquitination
 
-```{r, eval = FALSE}
+```
 artms_proteinToSiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
@@ -634,7 +631,7 @@ data:
 
 Once the new `yaml` file has been created, execute:
 
-```{r, eval = FALSE}
+```
 artms_quantification(
   yaml_config_file = '/path/to/config/file/phsites_config.yaml')
 ```

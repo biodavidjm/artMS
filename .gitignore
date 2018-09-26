@@ -29,4 +29,5 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .Rproj.user
-
+# The PDF is too large to be included
+inst/doc
