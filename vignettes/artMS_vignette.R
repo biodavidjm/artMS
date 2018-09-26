@@ -3,8 +3,8 @@ knitr::opts_chunk$set(
   eval=FALSE
 )
 
-## ---- eval = TRUE----------------------------------------------------------
-getRversion()
+## ---- eval = FALSE---------------------------------------------------------
+#  getRversion()
 
 ## ---- eval = FALSE---------------------------------------------------------
 #  source("https://bioconductor.org/biocLite.R")
@@ -15,31 +15,31 @@ getRversion()
 #  library(devtools)
 #  install_github("biodavidjm/artMS", build_vignettes=TRUE)
 
-## ---- eval = TRUE----------------------------------------------------------
-library(artMS)
-?artms_qualityControlEvidenceBasic
+## ---- eval = FALSE---------------------------------------------------------
+#  library(artMS)
+#  ?artms_qualityControlEvidenceBasic
 
-## ---- eval = TRUE----------------------------------------------------------
-# First go to a working directory: several pdfs will be generated
-# setwd("/path/to/your/working/directory/")
+## ---- eval = FALSE---------------------------------------------------------
+#  # First go to a local working directory: several pdfs will be generated
+#  # setwd("/path/to/your/working/directory/")
+#  
+#  # And run:
+#  artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#                                    keys_file = artms_data_ph_keys,
+#                                    prot_exp =  "PH")
 
-# And run:
-artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
-                                  keys_file = artms_data_ph_keys, 
-                                  prot_exp =  "PH")
+## ---- eval = FALSE---------------------------------------------------------
+#  artms_writeConfigYamlFile(config_file_name = "config.yaml" )
 
-## ---- eval = TRUE----------------------------------------------------------
-artms_writeConfigYamlFile(config_file_name = "config.yaml" )
+## ---- eval = FALSE---------------------------------------------------------
+#  artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#                                    keys_file = artms_data_ph_keys,
+#                                    output_name = "qcPlots_evidence",
+#                                    prot_exp = "PH")
 
-## ---- eval = TRUE----------------------------------------------------------
-artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
-                                  keys_file = artms_data_ph_keys,
-                                  output_name = "qcPlots_evidence",
-                                  prot_exp = "PH")
-
-## ---- eval = TRUE----------------------------------------------------------
-artms_qualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
-                                     keys_file = artms_data_ph_keys)
+## ---- eval = FALSE---------------------------------------------------------
+#  artms_qualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
+#                                       keys_file = artms_data_ph_keys)
 
 ## ---- eval = FALSE---------------------------------------------------------
 #  artms_qualityControlSummaryExtended(summary_file = "summary.txt",
@@ -64,13 +64,5 @@ artms_qualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
 #  artms_analysisQuantifications(log2fc_file = "ab-results.txt",
 #                                modelqc_file = "ab-results_ModelQC.txt",
 #                                specie = "human",
-#                                isPtm = "noptm",
-#                                enrich = TRUE,
-#                                l2fc_thres = 1,
-#                                ipval = "adjpvalue",
-#                                isBackground = "nobackground",
-#                                output_dir = "AnalysisQuantifications",
-#                                isFluomics = TRUE,
-#                                mnbr = 2,
-#                                pathogen = "nopathogen")
+#                                output_dir = "AnalysisQuantifications")
 

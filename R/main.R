@@ -226,6 +226,10 @@ artms_quantification <- function(yaml_config_file) {
     stop("THE FILE ", config$files$keys, " DOES NOT EXIST!\n")
   }
   
+  if(!(grepl("\\.txt$", config$files$output))){
+    stop("THE FILE ", config$files$output, " MUST HAVE EXTENSION .txt\n" )
+  }
+  
   
   # LET'S HELP THE DISTRACTED USER
   if (!(is.null(config$data$filters$modification))) {
