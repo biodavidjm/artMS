@@ -1022,26 +1022,35 @@ must not be empty")
       out.mac.allsig <-
         gsub(".txt", "-enrich-MAC-allsignificants.txt", log2fc_file)
       out.mac.allsig <- paste0(output_dir, "/", out.mac.allsig)
+      mac.allsig <- NULL
       
-      mac.allsig <-
-        artms_enrichLog2fc(
+      tryCatch(
+        mac.allsig <- artms_enrichLog2fc(
           dataset = filallsig_log2fc_long,
           output_name = out.mac.allsig,
           specie = specie,
           heatmaps = TRUE,
           background = listOfGenes
-        )
+        ), error = function(e){
+          cat("\n\n------ (!! Error): Enrichment is not possible!\n")
+          cat("                    gProfiler server is likely down\n")
+          cat("                    Just wait until is up again\n\n")
+          }
+      )
       
-      if (dim(mac.allsig)[1] > 0) {
-        write.table(
-          mac.allsig,
-          out.mac.allsig,
-          quote = FALSE,
-          sep = "\t",
-          row.names = FALSE,
-          col.names = TRUE
-        )
+      if(!is.null(mac.allsig)){
+        if (dim(mac.allsig)[1] > 0) {
+          write.table(
+            mac.allsig,
+            out.mac.allsig,
+            quote = FALSE,
+            sep = "\t",
+            row.names = FALSE,
+            col.names = TRUE
+          )
+        }
       }
+
       
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
       
@@ -1082,7 +1091,7 @@ must not be empty")
         cat("--- (-) Not enough negative corum complexes to plot\n")
       }
     } else{
-      stop("\n----(-) NOTHING is significant! Check what's going on\n\n")
+      cat("\n----(-) NOTHING is significant! Check what's going on\n\n")
       mac.allsig <- NULL
       allsigComplexEnriched <- NULL
     }
@@ -1097,23 +1106,34 @@ must not be empty")
     if (dim(filpos_log2fc_long)[1] > 0) {
       out.mac.pos <- gsub(".txt", "-enrich-MAC-positives.txt", log2fc_file)
       out.mac.pos <- paste0(output_dir, "/", out.mac.pos)
-      mac.pos <- artms_enrichLog2fc(
-        dataset = filpos_log2fc_long,
-        specie = specie,
-        heatmaps = TRUE,
-        output_name = out.mac.pos,
-        background = listOfGenes
+
+      mac.pos <- NULL
+      tryCatch(
+          mac.pos <- artms_enrichLog2fc(
+            dataset = filpos_log2fc_long,
+            specie = specie,
+            heatmaps = TRUE,
+            output_name = out.mac.pos,
+            background = listOfGenes
+          ), error = function(e){
+            cat("\n\n------ (!! Error): Enrichment is not possible!\n")
+            cat("                    gProfiler server is likely down\n")
+            cat("                    Just wait until is up again\n\n")
+            enrich = FALSE
+          }
       )
       
-      if (dim(mac.pos)[1] > 0) {
-        write.table(
-          mac.pos,
-          out.mac.pos,
-          quote = FALSE,
-          sep = "\t",
-          row.names = FALSE,
-          col.names = TRUE
-        )
+      if(!is.null(mac.pos)){
+        if (dim(mac.pos)[1] > 0) {
+          write.table(
+            mac.pos,
+            out.mac.pos,
+            quote = FALSE,
+            sep = "\t",
+            row.names = FALSE,
+            col.names = TRUE
+          )
+        }
       }
       
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
@@ -1155,7 +1175,6 @@ must not be empty")
         )
       } else{
         cat("\t----(-) Not enough positive corum complexes to plot\n")
-        
       }
     } else{
       cat("\t ------ Nothing is significant in the Positive site of things")
@@ -1173,23 +1192,32 @@ must not be empty")
     if (dim(filneg_log2fc_long)[1] > 0) {
       out.mac.neg <- gsub(".txt", "-enrich-MAC-negatives.txt", log2fc_file)
       out.mac.neg <- paste0(output_dir, "/", out.mac.neg)
-      mac.neg <- artms_enrichLog2fc(
-        dataset = filneg_log2fc_long,
-        output_name = out.mac.neg,
-        specie = specie,
-        heatmaps = TRUE,
-        background = listOfGenes
-      )
       
-      if (dim(mac.neg)[1] > 0) {
-        write.table(
-          mac.neg,
-          out.mac.neg,
-          quote = FALSE,
-          sep = "\t",
-          row.names = FALSE,
-          col.names = TRUE
-        )
+      mac.neg <- NULL
+      tryCatch(
+        mac.neg <- artms_enrichLog2fc(
+          dataset = filneg_log2fc_long,
+          output_name = out.mac.neg,
+          specie = specie,
+          heatmaps = TRUE,
+          background = listOfGenes), 
+        error = function(e){
+          cat("\n\n------ (!! Error): Enrichment is not possible!\n")
+          cat("                    gProfiler server is likely down\n")
+          cat("                    Just wait until is up again\n\n")
+        })
+      
+      if(!is.null(mac.neg)){
+        if (dim(mac.neg)[1] > 0) {
+          write.table(
+            mac.neg,
+            out.mac.neg,
+            quote = FALSE,
+            sep = "\t",
+            row.names = FALSE,
+            col.names = TRUE
+          )
+        }
       }
       
       cat("---+ Corum Protein Complex Enrichment Analysis\n")
@@ -1350,11 +1378,12 @@ must not be empty")
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (grepl("ptm", isPtm)) {
     cat(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE\n")
-    artms_generatePhSiteExtended(
+    imputedDFext <- artms_generatePhSiteExtended(
       df = imputedDF,
       pathogen = pathogen,
       specie = specie,
-      ptmType = isPtm
+      ptmType = isPtm,
+      output_name = log2fc_file
     )
   }
   
@@ -1805,7 +1834,7 @@ must not be empty")
       stop("Oh no!! This will fail if you are using UB!!\n")
     }
   } else if (!enrich) {
-    cat("\t\t-----+ You chose not to enrich\n")
+    cat("-----(-) Enrichment was not selected\n")
     if (grepl("ptm", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
@@ -1919,21 +1948,29 @@ artms_annotateSpecie <- function(df,
 #' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not,
 #' then use `nopathogen` (default).
 #' @param specie (char) Main organism (supported for now: `human` or `mouse`)
-#' @param ptmType (char) Is a ptm-site quantification dataset?
-#' no: `global` (default),
-#' yes: `ptmsites` (for site specific analysis),
+#' @param ptmType (char) It must be a ptm-site quantification dataset. Either:
+#' yes: `ptmsites` (for site specific analysis), or
 #' `ptmph` (Jeff's script output evidence file).
+#' @param output_name (char) A output file name (extension `.txt` required)
 #' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
 #' @examples \donttest{
 #' artms_generatePhSiteExtended(df = dfobject, 
 #'                              specie = "mouse", 
-#'                              ptmType = "ptmsites")
+#'                              ptmType = "ptmsites",
+#'                              output_name = log2fc_file)
 #' }
 #' @export
 artms_generatePhSiteExtended <-
-  function(df, pathogen, specie, ptmType) {
-    if (isPtm == "ptmph") {
+  function(df, 
+           pathogen = "nopathogen", 
+           specie, 
+           ptmType,
+           output_name) {
+    
+    imputedDFext <- NULL
+    
+    if (ptmType == "ptmph") {
       imputedDFext <- df
       names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
         'Uniprot_PTM'
@@ -1964,19 +2001,7 @@ artms_generatePhSiteExtended <-
       
       imputedDFext <-
         artms_annotateSpecie(imputedDFext, pathogen, specie)
-      
-      outlog2fcImputext <-
-        gsub(".txt", "-imputedL2fcExtended.txt", log2fc_file)
-      outlog2fcImputext <- paste0(output_dir, "/", outlog2fcImputext)
-      write.table(
-        imputedDFext,
-        outlog2fcImputext,
-        quote = FALSE,
-        sep = "\t",
-        row.names = FALSE,
-        col.names = TRUE
-      )
-    } else if (isPtm == "ptmsites") {
+    } else if (ptmType == "ptmsites") {
       imputedDFext <- df
       #1. Change the Protein name
       names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
@@ -2013,23 +2038,23 @@ artms_generatePhSiteExtended <-
       # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)
       imputedDFext <-
         artms_annotateSpecie(imputedDFext, pathogen, specie)
-      
-      outlog2fcImputext <-
-        gsub(".txt", "-imputedL2fcExtended.txt", log2fc_file)
-      outlog2fcImputext <- paste0(output_dir, "/", outlog2fcImputext)
-      write.table(
-        imputedDFext,
-        outlog2fcImputext,
-        quote = FALSE,
-        sep = "\t",
-        row.names = FALSE,
-        col.names = TRUE
-      )
     } else{
       stop(
-        "--- YOU SHOULD NOT SEE THIS MESSAGE. PLEASE, LET THE DEVELOPER KNOW ABOUT THIS MESSAGE\n. THANKS\n"
+        "--- (!!!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType>\n"
       )
     }
+    outlog2fcImputext <-
+      gsub(".txt", "-imputedL2fcExtended.txt", output_name)
+    outlog2fcImputext <- paste0(output_dir, "/", outlog2fcImputext)
+    write.table(
+      imputedDFext,
+      outlog2fcImputext,
+      quote = FALSE,
+      sep = "\t",
+      row.names = FALSE,
+      col.names = TRUE
+    )
+    return(imputedDFext)
     cat("--- ph-site extended version ready\n")
   }
 

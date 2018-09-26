@@ -4,7 +4,8 @@
 \alias{artms_generatePhSiteExtended}
 \title{Generate ph-site specific detailed file}
 \usage{
-artms_generatePhSiteExtended(df, pathogen, specie, ptmType)
+artms_generatePhSiteExtended(df, pathogen = "nopathogen", specie,
+  ptmType, output_name)
 }
 \arguments{
 \item{df}{(data.frame) of log2fc and imputed values}
@@ -15,10 +16,11 @@ then use \code{nopathogen} (default).}
 
 \item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 
-\item{ptmType}{(char) Is a ptm-site quantification dataset?
-no: \code{global} (default),
-yes: \code{ptmsites} (for site specific analysis),
+\item{ptmType}{(char) It must be a ptm-site quantification dataset. Either:
+yes: \code{ptmsites} (for site specific analysis), or
 \code{ptmph} (Jeff's script output evidence file).}
+
+\item{output_name}{(char) A output file name (extension \code{.txt} required)}
 }
 \value{
 (data.frame) extended version of the ph-site
@@ -34,7 +36,8 @@ input files for tools as \href{http://phosfate.com/}{Phosfate} or
 \donttest{
 artms_generatePhSiteExtended(df = dfobject, 
                              specie = "mouse", 
-                             ptmType = "ptmsites")
+                             ptmType = "ptmsites",
+                             output_name = log2fc_file)
 }
 }
 \keyword{external,}
