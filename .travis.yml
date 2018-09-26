@@ -1,7 +1,10 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
+
 sudo: required
+
+env: _R_CHECK_CRAN_INCOMING_=FALSE
 
 cache: packages
 
@@ -29,6 +32,13 @@ bioc_packages:
 - org.Rn.eg.db
 - org.Ss.eg.db
 - org.Xl.eg.db
+
+r_packages:
+  - covr
+  - devtools
+
+r_github_packages:
+  - biodavidjm/artMS
 
 r_check_args: --no-build-vignettes --no-vignettes
 
