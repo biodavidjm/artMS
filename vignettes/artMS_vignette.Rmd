@@ -55,8 +55,6 @@ package `MaxQuant`.
 
 # How to install
 
-`artMS` is currently under revision by BioConductor. Until officially accepted, the development version can be installed directly from Github.
-
 We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.5` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
 
 ```{r, eval = FALSE}
@@ -67,7 +65,16 @@ If the outcome is `>= 3.5.0`, congratulations! you can move forward
 
 *If it is not, then you need to [install the latest version of R in your system](https://www.r-project.org/)*. After updating to the latest R version, open RStudio and try again `getRversion()` to make sure it worked.
 
-Once you have the latest `R (>= 3.5)` version running on your system, follow these steps:
+Two options to install `artMS`
+
+### Official bioconductor releases
+
+`artMS` is currently under revision by BioConductor. Until officially accepted, the development version can be installed directly from Github.
+
+
+### Development version from this repo 
+
+Assuming that you have an `R (>= 3.5)` version running on your system, follow these steps:
 
 - Install annotation packages from Bioconductor. The installation of these packages returns multiple warnings that do not affect the functionality of `artMS` but could generate problems during the installation of `artMS`.
 
