@@ -8,7 +8,13 @@ knitr::opts_chunk$set(
 
 ## ---- eval = FALSE---------------------------------------------------------
 #  source("https://bioconductor.org/biocLite.R")
-#  biocLite(c('org.Ag.eg.db', 'org.At.tair.db', 'org.Bt.eg.db', 'org.Ce.eg.db', 'org.Cf.eg.db', 'org.Dm.eg.db', 'org.Dr.eg.db', 'org.EcK12.eg.db', 'org.EcSakai.eg.db', 'org.Gg.eg.db', 'org.Hs.eg.db', 'org.Mm.eg.db', 'org.Mmu.eg.db', 'org.Pf.plasmo.db', 'org.Pt.eg.db', 'org.Rn.eg.db', 'org.Sc.sgd.db', 'org.Ss.eg.db', 'org.Xl.eg.db'))
+#  biocLite(c('org.Ag.eg.db', 'org.At.tair.db', 'org.Bt.eg.db',
+#             'org.Ce.eg.db', 'org.Cf.eg.db', 'org.Dm.eg.db',
+#             'org.Dr.eg.db', 'org.EcK12.eg.db', 'org.EcSakai.eg.db',
+#             'org.Gg.eg.db', 'org.Hs.eg.db', 'org.Mm.eg.db',
+#             'org.Mmu.eg.db', 'org.Pf.plasmo.db', 'org.Pt.eg.db',
+#             'org.Rn.eg.db', 'org.Sc.sgd.db', 'org.Ss.eg.db',
+#             'org.Xl.eg.db'))
 
 ## ---- eval = FALSE---------------------------------------------------------
 #  install.packages("devtools")
@@ -46,19 +52,30 @@ knitr::opts_chunk$set(
 #                                      keys_file = artms_data_ph_keys)
 
 ## ---- eval = FALSE---------------------------------------------------------
-#  artms_quantification(yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
+#  artms_quantification(
+#    yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
 
 ## ---- eval = FALSE---------------------------------------------------------
-#  artms_quantification(yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
+#  artms_quantification(
+#    yaml_config_file = '/path/to/config/file/artms_phglobal_config.yaml')
 
 ## ---- eval = FALSE---------------------------------------------------------
-#  artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ph-sites-evidence.txt", mod_type = "PH")
+#  artms_proteinToSiteConversion(
+#    evidence_file = "/path/to/the/evidence.txt",
+#    ref_proteome_file = "/path/to/the/reference_proteome.fasta",
+#    output_file = "/path/to/the/output/ph-sites-evidence.txt",
+#    mod_type = "PH")
 
 ## ---- eval = FALSE---------------------------------------------------------
-#  artms_proteinToSiteConversion(evidence_file = "/path/to/the/evidence.txt", ref_proteome_file = "/path/to/the/reference_proteome.fasta", output_file = "/path/to/the/output/ub-sites-evidence.txt", mod_type = "UB")
+#  artms_proteinToSiteConversion(
+#    evidence_file = "/path/to/the/evidence.txt",
+#    ref_proteome_file = "/path/to/the/reference_proteome.fasta",
+#    output_file = "/path/to/the/output/ub-sites-evidence.txt",
+#    mod_type = "UB")
 
 ## ---- eval = FALSE---------------------------------------------------------
-#  artms_quantification(yaml_config_file = '/path/to/config/file/phsites_config.yaml')
+#  artms_quantification(
+#    yaml_config_file = '/path/to/config/file/phsites_config.yaml')
 
 ## ---- echo = FALSE---------------------------------------------------------
 #  artms_analysisQuantifications(log2fc_file = "ab-results.txt",

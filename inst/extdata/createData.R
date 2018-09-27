@@ -147,6 +147,8 @@ artms_quantification(yaml_config_file = "config.yaml")
 ## APMS FLUOMICS
 setwd("~/sourcecode/artms/apms/")
 
+here <- read.delim("a549-PB1-keys.txt", stringsAsFactors = F)
+
 artms_qualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt", 
                                   keys_file = "a549-PB1-keys.txt", 
                                   prot_exp = "APMS")
@@ -262,7 +264,48 @@ artms_replicatePlots(input_file = evidence_file,
                      keys_file = keys_file, 
                      replicate_file = "replicates_plots.txt", 
                      prot_exp = "PH",
-                     out_file = NULL)
+                     out_file = "replicate-plots.txt")
+
+setwd('~/sourcecode/artms/ph/phglobal/')
+
+artms_analysisQuantifications(log2fc_file = "phglobal-results.txt", 
+                              modelqc_file = "phglobal-results_ModelQC.txt", 
+                              specie = "human", output_dir = "analysis_name")
+
+#-------------------------------------------------------------------------------
+# PH SITES
+setwd('~/sourcecode/artms/ph/')
+
+artms_proteinToSiteConversion(evidence_file = "evidence.txt", 
+                              ref_proteome_file = "uniprot_canonical.fasta", 
+                              output_file = "evidence-sites.txt", 
+                              mod_type = "ph")
+
+artms_qualityControlEvidenceExtended(evidence_file = "evidence-sites.txt", 
+                                     keys_file = "keys.txt")
+
+artms_quantification(yaml_config_file = "phsites/phsites_config.yaml")
+
+setwd('~/sourcecode/artms/ph/phsites/')
+artms_analysisQuantifications(log2fc_file = "phsites-results.txt", 
+                              modelqc_file = "phsites-results_ModelQC.txt", 
+                              specie = "human", 
+                              output_dir = "analysisQuant",
+                              isPtm = "ptmph",
+                              enrich = FALSE)
+
+log2fc_file = "phsites-results.txt"
+modelqc_file = "phsites-results_ModelQC.txt"
+specie = "human"
+output_dir = "analysisQuant"
+isPtm = "ptmph"
+enrich = FALSE 
+l2fc_thres = 1.5
+choosePvalue = "adjpvalue"
+isBackground = "nobackground"
+mnbr = 2
+isFluomics = FALSE
+pathogen = "nopathogen"
 
 #-------------------------------------------------------------------------------
 # PH REDUCED
@@ -364,19 +407,6 @@ artms_replicatePlots(input_file = artms_data_ph_evidence,
                      prot_exp = "PH")
 
 
-# Debugging
-log2fc_file = "phglobal-results.txt"
-modelqc_file = "phglobal-results_ModelQC.txt"
-specie = "human"
-isPtm = "noptm"
-enrich = TRUE
-output_dir = "testingARTMS"
-mnbr = 2
-l2fc_thres = 1.5
-ipval = "adjpvalue"
-isBackground = "nobackground"
-isFluomics = FALSE
-pathogen = "nopathogen"
 
 ## PHSITES
 setwd('~/sourcecode/artms/ph/')

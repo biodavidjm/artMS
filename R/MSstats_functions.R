@@ -616,6 +616,7 @@ artms_spectralCounts <- function(evidence_file,
 #' @param all_conditions a vector with all the conditions in the keys file
 #' @return (data.frame) with the contrast file in the format required by
 #' MSstats
+#' @author Tom Nguyen, David Jimenez-Morales
 #' @keywords check, contrast
 .artms_writeContrast <-
   function(contrast_file, all_conditions = NULL) {

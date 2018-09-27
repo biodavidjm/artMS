@@ -18,5 +18,8 @@ MSstats
 \description{
 It simplifies the process of creating the contrast file
 }
+\author{
+Tom Nguyen, David Jimenez-Morales
+}
 \keyword{check,}
 \keyword{contrast}
