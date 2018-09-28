@@ -26,8 +26,8 @@ function}
 \item{l2fc_thres}{(int) log2fc cutoff for enrichment analysis (default,
 \code{l2fc_thres = 1.5})}
 
-\item{choosePvalue}{(char) specify whether \code{pvalue} or \code{adjpvalue} should use for
-the analysis. The default option is \code{adjpvalue}
+\item{choosePvalue}{(char) specify whether \code{pvalue} or \code{adjpvalue} should
+use for the analysis. The default option is \code{adjpvalue}
 (multiple testing correction).
 But if the number of biological replicates for a given experiment is
 too low (for example n = 2), then \code{choosePvalue = pvalue} is recommended.}

@@ -35,7 +35,7 @@ the MaxQuant summary.txt file.
 }
 \examples{
 # Testing warning if files are not submitted
-test <- artms_qualityControlSummaryExtended(summary_file = NULL, 
+test <- artms_qualityControlSummaryExtended(summary_file = NULL,
 keys_file = NULL)
 }
 \keyword{keys}

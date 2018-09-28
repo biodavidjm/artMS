@@ -113,7 +113,8 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
     data_f <- data
   } else{
     stop(
-      "\n\nFILTERING OPTION FOR protein_groups NOT UNDERSTOOD (OPTIONS AVAILABLE: keep OR remove\n\n"
+      "\n\nFILTERING OPTION FOR protein_groups 
+      NOT UNDERSTOOD (OPTIONS AVAILABLE: keep OR remove\n\n"
     )
   }
   
@@ -122,9 +123,11 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
     data_f <- artms_filterEvidenceContaminants(data_f)
   }
   
-  # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification COULD BE EMPTY
+  # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification 
+  # COULD BE EMPTY
   if (is.null(config$data$filters$modification)) {
-    cat("\tNO config$data$filters$modification provided. Using 'AB' as default\n")
+    cat("\tNO config$data$filters$modification provided. 
+        Using 'AB' as default\n")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
     cat(sprintf("\tPROCESSING\t%s\n", config$data$filters$modification))
@@ -186,7 +189,8 @@ artms_mergeEvidenceAndKeys <- function(data,
                                        by = c('RawFile'),
                                        isSummary = FALSE) {
   cat(">> MERGING FILES\n")
-  cat("\tIt might take a long time (depending on the size of the evidence file)\n")
+  cat("\tIt might take a long time 
+      (depending on the size of the evidence file)\n")
 
   data <- .artms_checkIfFile(data)
   keys <- .artms_checkIfFile(keys)
@@ -215,7 +219,9 @@ artms_mergeEvidenceAndKeys <- function(data,
     ) %in% colnames(keys)
   )) {
     cat(
-      '\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. One of these columns is lost:\n\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n'
+      '\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. 
+      One of these columns is lost:
+      \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n'
     ) # \tSAINT\n\tBioReplicaSaint\n\n
     stop('PLEASE, REVISE THE KEYS FILE AND TRY AGAIN')
   }
@@ -270,7 +276,8 @@ artms_SILACtoLong <- function(evidence_file, output) {
   tmp <- fread(file, integer64 = 'double')
   
   # reshape the data and split the heavy and light data
-  tmp_long <- reshape2::melt(tmp, measure.vars = c('Intensity L', 'Intensity H'))
+  tmp_long <- reshape2::melt(tmp, measure.vars = c('Intensity L', 
+                                                   'Intensity H'))
   tmp_long[, Intensity := NULL]
   setnames(tmp_long, 'value', 'Intensity')
   setnames(tmp_long, 'variable', 'IsotopeLabelType')
@@ -357,10 +364,18 @@ artms_resultsWide <- function(results_msstats,
   if (select_pvalues == "adjpvalue") {
     input_l <-
       reshape2::melt(data <-
-                       results_msstats[, c('Protein', 'Label', 'log2FC', 'adj.pvalue')], id.vars = c('Protein', 'Label'))
+                       results_msstats[, c('Protein', 
+                                           'Label', 
+                                           'log2FC', 
+                                           'adj.pvalue')], 
+                     id.vars = c('Protein', 'Label'))
   } else if (select_pvalues == "pvalue") {
     input_l <-
-      reshape2::melt(data = results_msstats[, c('Protein', 'Label', 'log2FC', 'pvalue')], id.vars = c('Protein', 'Label'))
+      reshape2::melt(data = results_msstats[, c('Protein', 
+                                                'Label', 
+                                                'log2FC', 
+                                                'pvalue')], 
+                     id.vars = c('Protein', 'Label'))
   }
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
@@ -400,7 +415,9 @@ artms_resultsWide <- function(results_msstats,
   mat = log2(data_w[, 4:ncol(data_w), with = FALSE])
   mat[is.na(mat)] = 0
   mat_cor = cor(mat, method = 'pearson', use = 'everything')
-  ordered_keys = keys[with(keys, order(RawFile)), ] ## we want to make informarive row names so order by RawFile because that's how data_w is ordered
+  ## we want to make informarive row names so order by 
+  ## RawFile because that's how data_w is ordered
+  ordered_keys = keys[with(keys, order(RawFile)), ] 
   mat_names = paste(ordered_keys$Condition,
                     ordered_keys$BioReplicate,
                     ordered_keys$Run)
@@ -436,7 +453,9 @@ artms_resultsWide <- function(results_msstats,
   # set up data into ggplot compatible format
   data_f <-
     data.table(data_f,
-               labels = paste(data_f$RawFile, data_f$Condition, data_f$BioReplicate))
+               labels = paste(data_f$RawFile, 
+                              data_f$Condition, 
+                              data_f$BioReplicate))
   data_f <- data_f[with(data_f, order(labels, decreasing = TRUE)), ]
   
   # plot the peptide counts for all the samples TOGETHER

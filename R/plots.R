@@ -311,7 +311,8 @@ artms_plotHeatmapQuant <- function(input_file,
     rev(colorRampPalette(RColorBrewer::brewer.pal("Blues", n = extreme_val /
                                                     bin_size))(signed_bins))
   colors_pos <-
-    colorRampPalette(RColorBrewer::brewer.pal("Reds", n = extreme_val / bin_size))(signed_bins)
+    colorRampPalette(RColorBrewer::brewer.pal("Reds", 
+                                    n = extreme_val / bin_size))(signed_bins)
   colors_tot <- c(colors_neg, colors_pos)
   
   if (!is.null(output_file)) {
@@ -449,7 +450,8 @@ artms_plotHeatmapQuant <- function(input_file,
         # cat("\t\tOnly one technical replica\n")
       } else{
         cat(
-          "\n>>MORE THAN TWO TECHNICAL REPLICAS IN THIS EXPERIMENTS? That is very strange.\n\n"
+          "\n>>MORE THAN TWO TECHNICAL REPLICAS IN THIS EXPERIMENTS? 
+          That is very strange.\n\n"
         )
         stop("\nPlease, Check the keys files\n")
       }
@@ -700,12 +702,14 @@ artms_plotHeatmapQuant <- function(input_file,
         # the user know:
         if (length(here) > 2) {
           cat(
-            "\n\n(-)----- WARNING: More than 2 technical replicas! make sure that this is right\n\n"
+            "\n\n(-)----- WARNING: More than 2 technical replicas! 
+            make sure that this is right\n\n"
           )
         }
         # We are expecting no more than 2 technical replicas. 
         # If there is more... it is worthy to double check
-        # cat('\t\t>>Plotting Reproducibility between technical replicas ',eBioreplica,"\n")
+        # cat('\t\t>>Plotting Reproducibility between technical replicas ',
+        # eBioreplica,"\n")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$RUN
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
@@ -740,7 +744,8 @@ artms_plotHeatmapQuant <- function(input_file,
         # plot_tr[[eBioreplica]] <- p1
       } else if (length(here) < 1) {
         cat(
-          "\n\n\t(-) ERROR: something is wrong when checking for the number of technical replicas\n\n"
+          "\n\n\t(-) ERROR: something is wrong when checking for 
+          the number of technical replicas\n\n"
         )
         stop("\nCheck the experiment\n\n")
       }
@@ -858,7 +863,9 @@ artms_plotHeatmapQuant <- function(input_file,
     # evenafter <- dim(datadc)[1]
     # datadc <- datadc[complete.cases(datadc),]
     # after <- dim(datadc)[1]
-    # cat("Total proteins before: ", before, "\nRemoving the 0s: ",evenafter, "\nTotal proteins (only complete cases): ", after, "\n\n")
+    # cat("Total proteins before: ", 
+    # before, "\nRemoving the 0s: ",evenafter, 
+    # "\nTotal proteins (only complete cases): ", after, "\n\n")
     
     blist <- unique(b$GROUP_ORIGINAL)
     if (length(blist) > 1) {

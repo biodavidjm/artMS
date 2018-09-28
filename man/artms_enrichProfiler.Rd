@@ -84,7 +84,8 @@ data_annotated <- artms_annotationUniprot(
                                      sps = "human")
 
 # Filter the list of genes with a log2fc > 2
-filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+filtered_data <- 
+unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 
 # And perform enrichment analysis
 data_annotated_enrich <- artms_enrichProfiler(

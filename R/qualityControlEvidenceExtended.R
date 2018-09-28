@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 #' @title Extended Quality Control of the MaxQuant evidence.txt file
-#' 
+#'
 #' @description Performs quality control based on the information available in
 #' the MaxQuant `evidence.txt` file.
 #' @param evidence_file (char or data.frame) The evidence file path and name, or
 #' data.frame
-#' @param keys_file (char or data.frame) The keys file path and name or 
+#' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
 #' @param plotPSM (logical) `TRUE` generates PSM plots
 #' @param plotIONS (logical) Plot a QC plot
@@ -28,7 +28,7 @@
 #' @keywords qc, evidence, keys
 #' @examples
 #' # Testing warning if files are not submitted
-#' test <- artms_qualityControlEvidenceExtended(evidence_file = NULL, 
+#' test <- artms_qualityControlEvidenceExtended(evidence_file = NULL,
 #' keys_file = NULL)
 #' @export
 artms_qualityControlEvidenceExtended <- function(evidence_file,
@@ -48,136 +48,214 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
                                                  plotPROTDETECT = TRUE,
                                                  plotIDoverlap = TRUE,
                                                  plotIC = TRUE,
-                                                 plotSP = TRUE
-                                                 ){
-  
+                                                 plotSP = TRUE) {
   cat("EXTENDED QUALITY CONTROL ANALYSIS (evidence.txt based)---------------\n")
   
-  if(is.null(evidence_file) & is.null(keys_file)){
+  if (is.null(evidence_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
   }
   
-  hmcol <- colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
+  hmcol <-
+    colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
   
   # ----------------------------------------------------------------------------
   # DATA PREPARATION
-  evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
+  evidencekeys <-
+    artms_mergeEvidenceAndKeys(evidence_file, keys_file)
   colnames(evidencekeys) <- tolower(colnames(evidencekeys))
   
-  if( any(grepl("+", evidencekeys$reverse)) ){
-    evidencekeys <- subset(evidencekeys, reverse != "+")  
+  if (any(grepl("+", evidencekeys$reverse))) {
+    evidencekeys <- subset(evidencekeys, reverse != "+")
   }
   
   # Add potential.contaminant column in case search was performed without it
   `%ni%` <- Negate(`%in%`)
-  if("potential.contaminant" %ni% colnames(evidencekeys)){
+  if ("potential.contaminant" %ni% colnames(evidencekeys)) {
     evidencekeys$potential.contaminant <- ""
   }
   
   evidencekeys.dt <- data.table::data.table(evidencekeys)
   
-  evidence2 <- plyr::ddply(evidencekeys, 
-                           c("bioreplicate", "condition", "potential.contaminant"), 
-                           plyr::summarise, #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                           PSMs = sum(ms.ms.count), 
-                           Ions = length(sequence[ms.ms.count>0]), 
-                           Peptides = length(unique(sequence[ms.ms.count>0])), 
-                           Proteins = length(unique(proteins[ms.ms.count>0])), 
-                           Intensity = as.numeric(format(sum(intensity, na.rm=TRUE), 
-                           scientific=TRUE, digits = 2)), 
-                           PeakWidth.mean = mean(retention.length, na.rm=TRUE))
+  evidence2 <- plyr::ddply(
+    evidencekeys,
+    c("bioreplicate", "condition", "potential.contaminant"),
+    plyr::summarise,
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    PSMs = sum(ms.ms.count),
+    Ions = length(sequence[ms.ms.count > 0]),
+    Peptides = length(unique(sequence[ms.ms.count >
+                                        0])),
+    Proteins = length(unique(proteins[ms.ms.count >
+                                        0])),
+    Intensity = as.numeric(format(
+      sum(intensity, na.rm = TRUE),
+      scientific = TRUE,
+      digits = 2
+    )),
+    PeakWidth.mean = mean(retention.length, na.rm =
+                            TRUE)
+  )
   
-  if("fraction" %in% colnames(evidencekeys)){
-    evidence2fx <- plyr::ddply(evidencekeys, 
-                               c("bioreplicate", "condition", "potential.contaminant", "fraction"), 
-                               plyr::summarise, 
-                               PSMs = sum(ms.ms.count), 
-                               Ions = length(sequence[ms.ms.count>0]), 
-                               Peptides = length(unique(sequence[ms.ms.count>0])), 
-                               Proteins = length(unique(proteins[ms.ms.count>0])), 
-                               Intensity = as.numeric(format(sum(intensity, na.rm=TRUE), 
-                               scientific=TRUE, 
-                               digits = 2)), 
-                               PeakWidth.mean = mean(retention.length, na.rm=TRUE))
+  if ("fraction" %in% colnames(evidencekeys)) {
+    evidence2fx <- plyr::ddply(
+      evidencekeys,
+      c(
+        "bioreplicate",
+        "condition",
+        "potential.contaminant",
+        "fraction"
+      ),
+      plyr::summarise,
+      PSMs = sum(ms.ms.count),
+      Ions = length(sequence[ms.ms.count > 0]),
+      Peptides = length(unique(sequence[ms.ms.count >
+                                          0])),
+      Proteins = length(unique(proteins[ms.ms.count >
+                                          0])),
+      Intensity = as.numeric(format(
+        sum(intensity, na.rm = TRUE),
+        scientific = TRUE,
+        digits = 2
+      )),
+      PeakWidth.mean = mean(retention.length, na.rm =
+                              TRUE)
+    )
   }
   
-  evidence3 <- plyr::ddply(evidence2, c("condition", "potential.contaminant"), 
-                           plyr::summarise, 
-                           PSMs.mean = mean(PSMs),
-                           PSMs.max = max(PSMs),
-                           PSMs.min = min(PSMs),
-                           PSMs.sem = sd(PSMs)/sqrt(length(PSMs)),
-                           Ions.mean = mean(Ions), 
-                           Ions.max = max(Ions), 
-                           Ions.min = min(Ions), 
-                           Ions.sem = sd(Ions)/sqrt(length(Ions)),
-                           Peptides.mean = mean(Peptides), 
-                           Peptides.max = max(Peptides),
-                           Peptides.min = min(Peptides), 
-                           Peptides.sem = sd(Peptides)/sqrt(length(Peptides)),
-                           Proteins.mean = mean(Proteins), 
-                           Proteins.max = max(Proteins),
-                           Proteins.min = min(Proteins),
-                           Proteins.sem = sd(Proteins)/sqrt(length(Proteins)),
-                           Intensity.mean = mean(Intensity),
-                           Intensity.max = max(Intensity),
-                           Intensity.min = min(Intensity),
-                           Intensity.sem = sd(Intensity)/sqrt(length(Intensity)),
-                           PeakWidth.mean.mean = mean(PeakWidth.mean),
-                           PeakWidth.mean.max = max(PeakWidth.mean),
-                           PeakWidth.mean.min = min(PeakWidth.mean),
-                           PeakWidth.mean.sem = sd(PeakWidth.mean)/sqrt(length(PeakWidth.mean)))
+  evidence3 <-
+    plyr::ddply(
+      evidence2,
+      c("condition", "potential.contaminant"),
+      plyr::summarise,
+      PSMs.mean = mean(PSMs),
+      PSMs.max = max(PSMs),
+      PSMs.min = min(PSMs),
+      PSMs.sem = sd(PSMs) / sqrt(length(PSMs)),
+      Ions.mean = mean(Ions),
+      Ions.max = max(Ions),
+      Ions.min = min(Ions),
+      Ions.sem = sd(Ions) / sqrt(length(Ions)),
+      Peptides.mean = mean(Peptides),
+      Peptides.max = max(Peptides),
+      Peptides.min = min(Peptides),
+      Peptides.sem = sd(Peptides) / sqrt(length(Peptides)),
+      Proteins.mean = mean(Proteins),
+      Proteins.max = max(Proteins),
+      Proteins.min = min(Proteins),
+      Proteins.sem = sd(Proteins) / sqrt(length(Proteins)),
+      Intensity.mean = mean(Intensity),
+      Intensity.max = max(Intensity),
+      Intensity.min = min(Intensity),
+      Intensity.sem = sd(Intensity) / sqrt(length(Intensity)),
+      PeakWidth.mean.mean = mean(PeakWidth.mean),
+      PeakWidth.mean.max = max(PeakWidth.mean),
+      PeakWidth.mean.min = min(PeakWidth.mean),
+      PeakWidth.mean.sem = sd(PeakWidth.mean) / sqrt(length(PeakWidth.mean))
+    )
   
   
   # - Oversampling
-  ## Oversampling is calculated for peptides identified by MS/MS and detected 
+  ## Oversampling is calculated for peptides identified by MS/MS and detected
   ## in MS1 (i.e., peptides with intensity calculated)
-  oversampling0 <- evidencekeys.dt[, .N, by=list(ms.ms.count, bioreplicate)]
-  oversampling0$MSMS.counts <- findInterval(oversampling0$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling0 <- oversampling0[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
-  oversampling0$MSMS.counts <- paste("n=", oversampling0$MSMS.counts, sep="")
-  oversampling0$MSMS.counts <- gsub("n=3", "n=3+", oversampling0$MSMS.counts)
-  oversampling0.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  oversampling0 <- merge(oversampling0, oversampling0.total, by="bioreplicate", all = TRUE)
-  oversampling0$FxOverSamp <- as.numeric(format(100*(oversampling0$N.x/oversampling0$N.y), digits = 3))
+  oversampling0 <-
+    evidencekeys.dt[, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling0$MSMS.counts <-
+    findInterval(oversampling0$ms.ms.count, seq(1, 3, by = 1))
+  oversampling0 <-
+    oversampling0[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
+  oversampling0$MSMS.counts <-
+    paste("n=", oversampling0$MSMS.counts, sep = "")
+  oversampling0$MSMS.counts <-
+    gsub("n=3", "n=3+", oversampling0$MSMS.counts)
+  oversampling0.total <-
+    evidencekeys.dt[, .N, by = list(bioreplicate)]
+  oversampling0 <-
+    merge(oversampling0,
+          oversampling0.total,
+          by = "bioreplicate",
+          all = TRUE)
+  oversampling0$FxOverSamp <-
+    as.numeric(format(100 * (oversampling0$N.x / oversampling0$N.y), digits = 3))
   
-  oversampling1 <- evidencekeys.dt[intensity > 0, .N, by=list(ms.ms.count, bioreplicate)]
-  oversampling1$MSMS.counts <- findInterval(oversampling1$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling1 <- oversampling1[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
-  oversampling1$MSMS.counts <- paste("n=", oversampling1$MSMS.counts, sep="")
-  oversampling1$MSMS.counts <- gsub("n=3", "n=3+", oversampling1$MSMS.counts)
-  oversampling1.total <- evidencekeys.dt[intensity > 0, .N, by=list(bioreplicate)]
-  oversampling1 <- merge(oversampling1, oversampling1.total, by="bioreplicate", all = TRUE)
-  oversampling1$FxOverSamp <- as.numeric(format(100*(oversampling1$N.x/oversampling1$N.y), digits = 3))
+  oversampling1 <-
+    evidencekeys.dt[intensity > 0, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling1$MSMS.counts <-
+    findInterval(oversampling1$ms.ms.count, seq(1, 3, by = 1))
+  oversampling1 <-
+    oversampling1[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
+  oversampling1$MSMS.counts <-
+    paste("n=", oversampling1$MSMS.counts, sep = "")
+  oversampling1$MSMS.counts <-
+    gsub("n=3", "n=3+", oversampling1$MSMS.counts)
+  oversampling1.total <-
+    evidencekeys.dt[intensity > 0, .N, by = list(bioreplicate)]
+  oversampling1 <-
+    merge(oversampling1,
+          oversampling1.total,
+          by = "bioreplicate",
+          all = TRUE)
+  oversampling1$FxOverSamp <-
+    as.numeric(format(100 * (oversampling1$N.x / oversampling1$N.y), digits = 3))
   
-  oversampling2 <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(ms.ms.count, bioreplicate)]
-  oversampling2$MSMS.counts <- findInterval(oversampling2$ms.ms.count, seq(1, 3, by=1)) 
-  oversampling2 <- oversampling2[, list(N=sum(N)), by=list(MSMS.counts, bioreplicate)]
-  oversampling2$MSMS.counts <- paste("n=", oversampling2$MSMS.counts, sep="")
-  oversampling2$MSMS.counts <- gsub("n=3", "n=3+", oversampling2$MSMS.counts)
-  oversampling2.total <- evidencekeys.dt[intensity > 0 & ms.ms.count > 0, .N, by=list(bioreplicate)]
-  oversampling2 <- merge(oversampling2, oversampling2.total, by="bioreplicate", all = TRUE)
-  oversampling2$FxOverSamp <- as.numeric(format(100*(oversampling2$N.x/oversampling2$N.y), digits = 3))
+  oversampling2 <-
+    evidencekeys.dt[intensity > 0 &
+                      ms.ms.count > 0, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling2$MSMS.counts <-
+    findInterval(oversampling2$ms.ms.count, seq(1, 3, by = 1))
+  oversampling2 <-
+    oversampling2[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
+  oversampling2$MSMS.counts <-
+    paste("n=", oversampling2$MSMS.counts, sep = "")
+  oversampling2$MSMS.counts <-
+    gsub("n=3", "n=3+", oversampling2$MSMS.counts)
+  oversampling2.total <-
+    evidencekeys.dt[intensity > 0 &
+                      ms.ms.count > 0, .N, by = list(bioreplicate)]
+  oversampling2 <-
+    merge(oversampling2,
+          oversampling2.total,
+          by = "bioreplicate",
+          all = TRUE)
+  oversampling2$FxOverSamp <-
+    as.numeric(format(100 * (oversampling2$N.x / oversampling2$N.y), digits = 3))
   
   
   # Charge state
-  chargeState <- evidencekeys.dt[, .N, by=list(charge, bioreplicate)]
-  chargeState$charge <- paste("z=", chargeState$charge, sep="")
-  chargeState.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  chargeState <- merge(chargeState, chargeState.total, by="bioreplicate", all = TRUE)
-  chargeState$FxOverSamp <- as.numeric(format(100*(chargeState$N.x/chargeState$N.y), digits = 1))
+  chargeState <-
+    evidencekeys.dt[, .N, by = list(charge, bioreplicate)]
+  chargeState$charge <- paste("z=", chargeState$charge, sep = "")
+  chargeState.total <- evidencekeys.dt[, .N, by = list(bioreplicate)]
+  chargeState <-
+    merge(chargeState,
+          chargeState.total,
+          by = "bioreplicate",
+          all = TRUE)
+  chargeState$FxOverSamp <-
+    as.numeric(format(100 * (chargeState$N.x / chargeState$N.y), digits = 1))
   
-  chargeStateCond <- evidencekeys.dt[, .N, by=list(charge, condition)]
-  chargeStateCond$charge <- paste("z=", chargeStateCond$charge, sep="")
-  chargeStateCond.total <- evidencekeys.dt[, .N, by=list(condition)]
-  chargeStateCond <- merge(chargeStateCond, chargeStateCond.total, by="condition", all = TRUE)
-  chargeStateCond$FxOverSamp <- as.numeric(format(100*(chargeStateCond$N.x/chargeStateCond$N.y), digits = 1))
+  chargeStateCond <-
+    evidencekeys.dt[, .N, by = list(charge, condition)]
+  chargeStateCond$charge <-
+    paste("z=", chargeStateCond$charge, sep = "")
+  chargeStateCond.total <- evidencekeys.dt[, .N, by = list(condition)]
+  chargeStateCond <-
+    merge(chargeStateCond,
+          chargeStateCond.total,
+          by = "condition",
+          all = TRUE)
+  chargeStateCond$FxOverSamp <-
+    as.numeric(format(100 * (
+      chargeStateCond$N.x / chargeStateCond$N.y
+    ), digits = 1))
   
   # Type
-  mstype <- evidencekeys.dt[, .N, by=list(type, bioreplicate, condition)]
-  mstype.total <- evidencekeys.dt[, .N, by=list(bioreplicate)]
-  mstype <- merge(mstype, mstype.total, by="bioreplicate", all = TRUE)
-  mstype$FxOverSamp <- as.numeric(format(100*(mstype$N.x/mstype$N.y), digits = 2))
+  mstype <-
+    evidencekeys.dt[, .N, by = list(type, bioreplicate, condition)]
+  mstype.total <- evidencekeys.dt[, .N, by = list(bioreplicate)]
+  mstype <-
+    merge(mstype, mstype.total, by = "bioreplicate", all = TRUE)
+  mstype$FxOverSamp <-
+    as.numeric(format(100 * (mstype$N.x / mstype$N.y), digits = 2))
   
   # ----------------------------------------------------------------------------
   # PLOTS
@@ -187,882 +265,1560 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   nconditions <- length(unique(evidencekeys$condition))
   
   # Check the largest number so that width and height of pdf is not too large
-  if(nsamples > 20){
+  if (nsamples > 20) {
     nsamples <- 20
   }
   
-  if(nconditions > 7){
+  if (nconditions > 7) {
     nconditions <- 7
   }
   
   ### PSM
-  if(plotPSM){
-    
+  if (plotPSM) {
     cat("--- Plot PSM")
-    pdf('QC_Plots_PSM.pdf', width=nsamples*3, height=20, onefile = TRUE)
+    pdf(
+      'QC_Plots_PSM.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
     
-    aa <- ggplot(evidence2, 
-           aes(x = bioreplicate, y = PSMs, fill = factor(condition))) +
-          geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-          geom_text(aes(label=round(PSMs, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
-          facet_wrap(~potential.contaminant, ncol=1) +
-          xlab("Experiment") + ylab("Counts") +
-          ggtitle("Number of PSMs: bottom = Potential contaminants; top = non-contaminants") +
-          theme(legend.text = element_text(size=20)) +
-          theme(axis.text.x = element_text(angle = 90, hjust = 0, size=20)) + 
-          theme(axis.text.y = element_text(size=20)) + 
-          theme(axis.title.x = element_text(size=30)) + 
-          theme(axis.title.y = element_text(size=30)) + 
-          theme(plot.title = element_text(size = 40)) + 
-          scale_fill_brewer(palette="Spectral")
+    aa <- ggplot(evidence2,
+                 aes(
+                   x = bioreplicate,
+                   y = PSMs,
+                   fill = factor(condition)
+                 )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_text(
+        aes(label = round(PSMs, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
+      facet_wrap( ~ potential.contaminant, ncol = 1) +
+      xlab("Experiment") + ylab("Counts") +
+      ggtitle("Number of PSMs: bottom = Potential contaminants; top = non-contaminants") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 0,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
     print(aa)
     
-    ab<- ggplot(evidence3, 
-           aes(x = condition, y = PSMs.mean, fill = factor(potential.contaminant))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_errorbar(aes(ymin=PSMs.mean-PSMs.sem, ymax=PSMs.mean+PSMs.sem), width=.2, position=position_dodge(.9)) +
-      geom_text(aes(label=round(PSMs.mean, digits=0)), hjust=0.5, vjust=-1.5, size = 10, position = position_dodge(width = 1)) +
+    ab <- ggplot(evidence3,
+                 aes(
+                   x = condition,
+                   y = PSMs.mean,
+                   fill = factor(potential.contaminant)
+                 )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_errorbar(
+        aes(ymin = PSMs.mean - PSMs.sem, ymax = PSMs.mean + PSMs.sem),
+        width = .2,
+        position = position_dodge(.9)
+      ) +
+      geom_text(
+        aes(label = round(PSMs.mean, digits = 0)),
+        hjust = 0.5,
+        vjust = -1.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Mean number of PSMs per condition for contaminants and non-contaminants, error bar= std error of the mean") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, size=20)) + 
-      theme(axis.text.y = element_text(size=20)) + 
-      theme(axis.title.x = element_text(size=30)) + 
-      theme(axis.title.y = element_text(size=30)) + 
-      theme(plot.title = element_text(size = 40)) + 
-      scale_fill_brewer(palette="Spectral")
+      ggtitle(
+        "Mean number of PSMs per condition for contaminants and non-contaminants, error bar= std error of the mean"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 0,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
     print(ab)
     
-    if("fraction" %in% colnames(evidencekeys)){
-    ac <-  ggplot(evidence2fx, aes(x = bioreplicate, y = PSMs, fill = factor(fraction))) +
-        geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(PSMs, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
-        facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
+    if ("fraction" %in% colnames(evidencekeys)) {
+      ac <-
+        ggplot(evidence2fx, aes(
+          x = bioreplicate,
+          y = PSMs,
+          fill = factor(fraction)
+        )) +
+        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_text(
+          aes(label = round(PSMs, digits = 0)),
+          hjust = 0.5,
+          vjust = 1.5,
+          size = 7,
+          position = position_stack()
+        ) +
+        facet_wrap( ~ potential.contaminant,
+                    ncol = 1,
+                    scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle("Number of PSMs per Fraction: bottom = Potential contaminants; top = non-contaminants") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 0, size=20)) + 
-        theme(axis.text.y = element_text(size=20)) + 
-        theme(axis.title.x = element_text(size=30)) + 
-        theme(axis.title.y = element_text(size=30)) + 
-        theme(plot.title = element_text(size = 40)) 
-    print(ac)
+        ggtitle(
+          "Number of PSMs per Fraction: bottom = Potential contaminants; top = non-contaminants"
+        ) +
+        theme(legend.text = element_text(size = 20)) +
+        theme(axis.text.x = element_text(
+          angle = 90,
+          hjust = 0,
+          size = 20
+        )) +
+        theme(axis.text.y = element_text(size = 20)) +
+        theme(axis.title.x = element_text(size = 30)) +
+        theme(axis.title.y = element_text(size = 30)) +
+        theme(plot.title = element_text(size = 40))
+      print(ac)
     }
     
     garbage <- dev.off()
     cat(" done\n")
   }
-
+  
   
   ### IONS
-  if(plotIONS){
+  if (plotIONS) {
     cat("--- Plot IONS")
-
-    pdf('QC_Plots_IONS.pdf', width=nsamples*3, height=20, onefile = TRUE)
-
+    
+    pdf(
+      'QC_Plots_IONS.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    
     ba <- ggplot(evidence2,
-           aes(x = bioreplicate, y = Ions, fill = factor(condition))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_text(aes(label=round(Ions, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
-      facet_wrap(~potential.contaminant, ncol=1) +
+                 aes(
+                   x = bioreplicate,
+                   y = Ions,
+                   fill = factor(condition)
+                 )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_text(
+        aes(label = round(Ions, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
+      facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      ggtitle("Number of unique Peptide Ions: bottom = Potential contaminants; top = non-contaminants") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
+      ggtitle(
+        "Number of unique Peptide Ions: bottom = Potential contaminants; top = non-contaminants"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
       theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Spectral")
+      scale_fill_brewer(palette = "Spectral")
     print(ba)
-
-    bb <- ggplot(evidence3, aes(x = condition, y = Ions.mean, fill = factor(potential.contaminant))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_errorbar(aes(ymin=Ions.mean-Ions.sem, ymax=Ions.mean+Ions.sem), width=.2, position=position_dodge(.9)) +
-      geom_text(aes(label=round(Ions.mean, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
+    
+    bb <-
+      ggplot(evidence3, aes(
+        x = condition,
+        y = Ions.mean,
+        fill = factor(potential.contaminant)
+      )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_errorbar(
+        aes(ymin = Ions.mean - Ions.sem, ymax = Ions.mean + Ions.sem),
+        width = .2,
+        position = position_dodge(.9)
+      ) +
+      geom_text(
+        aes(label = round(Ions.mean, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Mean number of unique Peptide Ions per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
+      ggtitle(
+        "Mean number of unique Peptide Ions per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 0,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
       theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
+      scale_fill_brewer(palette = "Set1")
     print(bb)
-
-    if("fraction" %in% colnames(evidencekeys)){
-      bc <- ggplot(evidence2fx, aes(x = bioreplicate, y = Ions, fill = factor(fraction))) +
-        geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(Ions, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
-        facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
+    
+    if ("fraction" %in% colnames(evidencekeys)) {
+      bc <-
+        ggplot(evidence2fx, aes(
+          x = bioreplicate,
+          y = Ions,
+          fill = factor(fraction)
+        )) +
+        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_text(
+          aes(label = round(Ions, digits = 0)),
+          hjust = 0.5,
+          vjust = 1.5,
+          size = 7,
+          position = position_stack()
+        ) +
+        facet_wrap( ~ potential.contaminant,
+                    ncol = 1,
+                    scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle("Number of unique Peptide Ions in each Fraction: bottom = Potential contaminants; top = non-contaminants") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
+        ggtitle(
+          "Number of unique Peptide Ions in each Fraction: bottom = Potential contaminants; top = non-contaminants"
+        ) +
+        theme(legend.text = element_text(size = 20)) +
+        theme(axis.text.x = element_text(
+          angle = 90,
+          hjust = 0,
+          size = 20
+        )) +
+        theme(axis.text.y = element_text(size = 20)) +
+        theme(axis.title.x = element_text(size = 30)) +
+        theme(axis.title.y = element_text(size = 30)) +
         theme(plot.title = element_text(size = 40))
       print(bc)
     }
-
+    
     garbage <- dev.off()
-
+    
     cat(" done\n")
   }
-
+  
   #### TYPE ######
-  if(plotTYPE){
+  if (plotTYPE) {
     cat("--- Plot TYPE")
-
-    pdf('QC_Plots_TYPE.pdf', width=nsamples*3, height=20, onefile = TRUE)
-
-    ca <- ggplot(mstype, aes(x = bioreplicate, y = FxOverSamp, fill = factor(type))) +
-      geom_bar(stat="identity", position = position_stack(), alpha=0.7) +
-      ggrepel::geom_text_repel(aes(label=round(FxOverSamp, digits=1)), vjust=1, size = 10, position = position_stack()) +
+    
+    pdf(
+      'QC_Plots_TYPE.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    
+    ca <-
+      ggplot(mstype, aes(
+        x = bioreplicate,
+        y = FxOverSamp,
+        fill = factor(type)
+      )) +
+      geom_bar(stat = "identity",
+               position = position_stack(),
+               alpha = 0.7) +
+      ggrepel::geom_text_repel(
+        aes(label = round(FxOverSamp, digits = 1)),
+        vjust = 1,
+        size = 10,
+        position = position_stack()
+      ) +
       xlab("Experiment") + ylab("Fraction") +
       ggtitle("Type of identification (MaxQuant type column)") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
       theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
+      scale_fill_brewer(palette = "Set1")
     print(ca)
     
     garbage <- dev.off()
-
+    
     cat(" done\n")
   }
-
-
-
+  
+  
+  
   ### PEPTIDES ###
-  if(plotPEPTIDES){
+  if (plotPEPTIDES) {
     cat("--- Plot PEPTIDES")
-
-    pdf('QC_Plots_PEPTIDES.pdf', width=nsamples*3, height=20, onefile = TRUE)
-
-    da <- ggplot(evidence2, aes(x = bioreplicate, y = Peptides, fill = factor(condition))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_text(aes(label=round(Peptides, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
-      facet_wrap(~potential.contaminant, ncol=1) +
+    
+    pdf(
+      'QC_Plots_PEPTIDES.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    
+    da <-
+      ggplot(evidence2, aes(
+        x = bioreplicate,
+        y = Peptides,
+        fill = factor(condition)
+      )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_text(
+        aes(label = round(Peptides, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
+      facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of unique Peptides: bottom = Potential contaminants; top = non-contaminants") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
       theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Spectral")
+      scale_fill_brewer(palette = "Spectral")
     print(da)
-
-    db <- ggplot(evidence3, aes(x = condition, y = Peptides.mean, fill = factor(potential.contaminant))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_errorbar(aes(ymin=Peptides.mean-Peptides.sem, ymax=Peptides.mean+Peptides.sem), width=.2, position=position_dodge(.9)) +
-      geom_text(aes(label=round(Peptides.mean, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
+    
+    db <-
+      ggplot(evidence3,
+             aes(
+               x = condition,
+               y = Peptides.mean,
+               fill = factor(potential.contaminant)
+             )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_errorbar(
+        aes(
+          ymin = Peptides.mean - Peptides.sem,
+          ymax = Peptides.mean + Peptides.sem
+        ),
+        width = .2,
+        position = position_dodge(.9)
+      ) +
+      geom_text(
+        aes(label = round(Peptides.mean, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Mean number of unique Peptides per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
+      ggtitle(
+        "Mean number of unique Peptides per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 0,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
       theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
+      scale_fill_brewer(palette = "Set1")
     print(db)
     
-    if("fraction" %in% colnames(evidencekeys)){
-      dc <- ggplot(evidence2fx, aes(x = bioreplicate, y = Peptides, fill = factor(fraction))) +
-        geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(Peptides, digits=0)), hjust=0.5, vjust=1.5, size = 7, position = position_stack()) +
-        facet_wrap(~potential.contaminant, ncol=1, scales = "free") +
+    if ("fraction" %in% colnames(evidencekeys)) {
+      dc <-
+        ggplot(evidence2fx,
+               aes(
+                 x = bioreplicate,
+                 y = Peptides,
+                 fill = factor(fraction)
+               )) +
+        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_text(
+          aes(label = round(Peptides, digits = 0)),
+          hjust = 0.5,
+          vjust = 1.5,
+          size = 7,
+          position = position_stack()
+        ) +
+        facet_wrap( ~ potential.contaminant,
+                    ncol = 1,
+                    scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle("Number of unique Peptides in each Fraction: bottom = Potential contaminants; top = non-contaminants") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
+        ggtitle(
+          "Number of unique Peptides in each Fraction: bottom = Potential contaminants; top = non-contaminants"
+        ) +
+        theme(legend.text = element_text(size = 20)) +
+        theme(axis.text.x = element_text(
+          angle = 90,
+          hjust = 0,
+          size = 20
+        )) +
+        theme(axis.text.y = element_text(size = 20)) +
+        theme(axis.title.x = element_text(size = 30)) +
+        theme(axis.title.y = element_text(size = 30)) +
         theme(plot.title = element_text(size = 40))
       print(dc)
     }
-
+    
     lst.pepExp <- list()
-    for(i in unique(evidencekeys$bioreplicate)) {
-      lst.pepExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & bioreplicate == i)[,c("sequence")])
+    for (i in unique(evidencekeys$bioreplicate)) {
+      lst.pepExp[[i]] <-
+        unique(subset(evidencekeys, ms.ms.count > 0 &
+                        bioreplicate == i)[, c("sequence")])
     }
-
-    UpSetR::upset(fromList(lst.pepExp),
-                  nsets=length(unique(evidencekeys$bioreplicate)),
-                  nintersects = 50,
-                  order.by = "degree")
-
-    UpSetR::upset(fromList(lst.pepExp),
-                  nsets=length(unique(evidencekeys$bioreplicate)),
-                  nintersects = 50,
-                  order.by = "freq")
-
+    
+    UpSetR::upset(
+      fromList(lst.pepExp),
+      nsets = length(unique(evidencekeys$bioreplicate)),
+      nintersects = 50,
+      order.by = "degree"
+    )
+    
+    UpSetR::upset(
+      fromList(lst.pepExp),
+      nsets = length(unique(evidencekeys$bioreplicate)),
+      nintersects = 50,
+      order.by = "freq"
+    )
+    
     lst.pepCond <- list()
-    for(i in unique(evidencekeys$condition)) {
+    for (i in unique(evidencekeys$condition)) {
       lst.pepCond[[i]] <- unique(subset(evidencekeys,
                                         ms.ms.count > 0 &
-                                          condition == i)[,c("sequence")])
+                                          condition == i)[, c("sequence")])
     }
-
+    
     #UpSetR::upset(fromList(lst.pepCond), nsets=length(unique(evidencekeys$condition)), nintersects = 50, order.by = "degree")
-    UpSetR::upset(fromList(lst.pepCond),
-                  nsets=length(unique(evidencekeys$condition)),
-                  nintersects = 50, order.by = "freq")
-
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-
-  ## PROTEINS
-  if(plotPROTEINS){
-    cat("--- Plot PROTEINS")
-
-    pdf('QC_Plots_PROTEINS.pdf', width=nsamples*3, height=20, onefile = TRUE)
-
-    ea <- ggplot(evidence2, aes(x = bioreplicate, y = Proteins, fill = factor(condition))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_text(aes(label=round(Proteins, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
-      facet_wrap(~potential.contaminant, ncol=1) +
-      xlab("Experiment") + ylab("Counts") +
-      ggtitle("Number of unique Protein Groups: bottom = Potential contaminants; top = non-contaminants") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Spectral")
-    print(ea)
-
-    eb <- ggplot(evidence3, aes(x = condition, y = Proteins.mean, fill = factor(potential.contaminant))) +
-      geom_bar(stat="identity", position = position_dodge(width = 1), alpha=0.7) +
-      geom_errorbar(aes(ymin=Proteins.mean-Proteins.sem, ymax=Proteins.mean+Proteins.sem), width=.2, position=position_dodge(.9)) +
-      geom_text(aes(label=round(Proteins.mean, digits=0)), hjust=0.5, vjust=-0.5, size = 10, position = position_dodge(width = 1)) +
-      xlab("Condition") + ylab("Counts") +
-      ggtitle("Mean number of unique Proteins per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
-    print(eb)
-
-    lst.protExp <- list()
-    for(i in unique(evidencekeys$bioreplicate)) {
-      lst.protExp[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & bioreplicate == i)[,c("proteins")])
-    }
-
-    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$bioreplicate)), nintersects = 50, order.by = "degree")
-    UpSetR::upset(fromList(lst.protExp), nsets=length(unique(evidencekeys$bioreplicate)), nintersects = 50, order.by = "freq")
-
-    lst.protCond <- list()
-    for(i in unique(evidencekeys$condition)) {
-      lst.protCond[[i]] <- unique(subset(evidencekeys, ms.ms.count > 0 & condition == i)[,c("proteins")])
-    }
-
-    #UpSetR::upset(fromList(lst.protCond), nsets=length(unique(evidencekeys$condition)), nintersects = 50, order.by = "degree")
-    UpSetR::upset(fromList(lst.protCond), nsets=length(unique(evidencekeys$condition)), nintersects = 50, order.by = "freq")
-
-    garbage <- dev.off()
-
-    cat(" done\n")
-  }
-
-
-  # Peptide ion oversampling
-  if(plotPIO){
-    cat("--- Plot Plot Ion Oversampling")
-
-    pdf('QC_Plots_PepIonOversampling.pdf', width=nsamples*3, height=20, onefile = TRUE)
-    fa <- ggplot(oversampling0[with(oversampling0, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
-      geom_bar(stat="identity", alpha=0.7) +
-      geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
-      xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Peptide ion oversampling, all peptides reported by MaxQuant") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
-    print(fa)
+    UpSetR::upset(
+      fromList(lst.pepCond),
+      nsets = length(unique(evidencekeys$condition)),
+      nintersects = 50,
+      order.by = "freq"
+    )
     
-    fb <- ggplot(oversampling1[with(oversampling1, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
-      geom_bar(stat="identity", alpha=0.7) +
-      geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
-      xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Peptide ion oversampling, only peptides detected (MS1 AUC calculated)") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
-    print(fb)
-
-    fc <- ggplot(oversampling2[with(oversampling2, order(MSMS.counts)),], aes(x = bioreplicate, y = FxOverSamp, fill = MSMS.counts, label=FxOverSamp)) +
-      geom_bar(stat="identity", alpha=0.7) +
-      geom_text(aes(label=round(FxOverSamp, digits=1)), vjust=1 , size = 10, position = position_stack()) +
-      xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Peptide ion oversampling, only peptides detected (MS1 AUC calculated) and identified (confidence MS/MS)") +
-      theme(legend.text = element_text(size=20)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-      theme(axis.text.y = element_text(size=20)) +
-      theme(axis.title.x = element_text(size=30)) +
-      theme(axis.title.y = element_text(size=30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette="Set1")
-    print(fc)
-    
-    garbage <- dev.off()
-
-    cat(" done\n")
-  }
-
-
-  # Charge state distribution
-  if(plotCS){
-    cat("--- Plot Charge State")
-
-    pdf('QC_Plots_CHARGESTATE.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ga <- ggplot(chargeState[with(chargeState, order(charge)),], aes(x = bioreplicate, y = FxOverSamp, fill = charge)) +
-        geom_bar(stat="identity", alpha=0.7) +
-        ggrepel::geom_text_repel(aes(label=round(FxOverSamp, digits=1)), vjust=-0.5, size = 5, position = position_stack()) +
-        xlab("Experiment") + ylab("Fraction (percentage)") +
-        ggtitle("Precursor charge state distribution") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Spectral")
-      print(ga)
-    garbage <- dev.off()
-
-    cat(" done\n")
-  }
-
-  # Mass error
-  if(plotME){
-    cat("--- Plot Mass Error")
-      pdf('QC_Plots_MASSERROR.pdf', width=nsamples*3, height=20, onefile = TRUE)
-        fa <- ggplot(evidencekeys, aes(x=bioreplicate, y=uncalibrated.mass.error..ppm.)) +
-          geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-          geom_text(data = aggregate(uncalibrated.mass.error..ppm. ~ bioreplicate, evidencekeys, median), aes(label = round(uncalibrated.mass.error..ppm., digits=1), y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm= TRUE) + 2), size=20) +
-          xlab("Experiment") + ylab("mass error") +
-          ggtitle("Precursor mass error (in ppm) distribution, global median mass error on the top") +
-          theme(legend.text = element_text(size=20)) +
-          theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-          theme(axis.text.y = element_text(size=20)) +
-          theme(axis.title.x = element_text(size=30)) +
-          theme(axis.title.y = element_text(size=30)) +
-          theme(plot.title = element_text(size = 40)) +
-          scale_fill_brewer(palette="Spectral")
-        print(fa)
-      garbage <- dev.off()
-    cat(" done\n")
-  }
-
-
-  # mass-over-charge distribution
-  if(plotMOCD){
-    cat("--- Plot Mass-over-Charge distribution")
-
-    pdf('QC_Plots_MZ.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      ga <- ggplot(evidencekeys, aes(x=bioreplicate, y=m.z)) +
-        geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(m.z ~ bioreplicate, evidencekeys, median), aes(label = round(m.z, digits=1), y = max(evidencekeys$m.z, na.rm= TRUE) + 30), size=20) +
-        xlab("Experiment") + ylab("m/z") +
-        ggtitle("Precursor mass-over-charge distribution, global median m/z on the top") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Spectral")
-      print(ga)
-    garbage <- dev.off()
-
-    cat(" done\n")
-  }
-
-
-  #m Peptide Intensity CV
-  if(plotPEPICV){
-    cat("--- Plot Peptide Intensity CV")
-    pdf('QC_Plots_PEPINT.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      peptCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
-      peptCV <- peptCV[, list(intensity=sum(intensity, na.rm= TRUE)),
-                       by=list(condition, bioreplicate, modified.sequence)]
-      peptCV <- peptCV[, list(pCV = 100*(sd(intensity)/mean(intensity)),
-                              sumInt=sum(intensity),
-                              pDX = length(unique(bioreplicate))),
-                       by=list(condition, modified.sequence)]
-      peptCV <- peptCV[, bin.all := .artms_qcut(sumInt, 4)]
-      peptCV <- peptCV[, bin.condition := .artms_qcut(sumInt, 4),
-                       by = condition]
-
-      ha <- ggplot(subset(peptCV, !is.na(pCV)), aes(condition, pCV)) +
-        geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm= TRUE) + 1), size = 10) +
-        geom_text(data = aggregate(pCV ~ condition, subset(peptCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 10) +
-        xlab("Condition") + ylab("Coefficient of variance (%)") +
-        ggtitle("Distribution of peptide feature intensity CV within each condition \n
-                Overall median CV for each condition is given on the top and number of features used to calculate CVs is shown on the bottom") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Spectral")
-      print(ha)
-      
-      hb <- ggplot(subset(peptCV, !is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
-        geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(peptCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(peptCV$pCV, na.rm= TRUE) + 1), size = 7, angle=90) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(peptCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 7, angle=90) +
-        xlab("Condition") + ylab("Coefficient of variance (%)") +
-        ggtitle("Distribution of peptide feature intensity CV within each condition \n
-                For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated, \n
-                therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides \n
-                Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 20, hjust = 0.5)) +
-        scale_fill_brewer(palette="Spectral")
-      print(hb)
-      
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-  # peptide detection (using modified.sequence)
-  if(plotPEPDETECT){
-    cat("--- Plot Peptide Detection (using modified.sequence)")
-    pdf('QC_Plots_PepDetect.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      peptDX <- peptCV[, .N, by=list(condition, pDX)]
-      peptDXT <- peptDX[, list(N.total = sum(N)), by=list(condition)]
-      peptDX <- merge(peptDX, peptDXT, by="condition")
-      peptDX$fxDx <- 100*(peptDX$N/peptDX$N.total)
-
-      ia <- ggplot(peptDX, aes(x=condition, y=fxDx, fill=factor(pDX))) +
-        geom_bar(stat="identity", alpha=0.7) +
-        ggrepel::geom_text_repel(aes(label=round(fxDx, digits=1)), vjust=1, size = 10, position = position_stack()) +
-        xlab("Condition") + ylab("Counts") +
-        ggtitle("Frequency of peptides detection across replicates within the same condition") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Set1")
-      print(ia)
-      
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-
-  #m Protein Intensity CV
-  if(plotPROTICV){
-    cat("--- Plot Protein Intensity CV")
-    pdf('QC_Plots_ProtInt.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      protCV <- data.table::data.table(subset(evidencekeys, !is.na(intensity)))
-      protCV <- protCV[, list(intensity=sum(intensity, na.rm= TRUE)), by=list(condition, bioreplicate, proteins)]
-      protCV <- protCV[, list(pCV = 100*(sd(intensity)/mean(intensity)), sumInt=sum(intensity), pDX = length(unique(bioreplicate))), by=list(condition, proteins)]
-      protCV <- protCV[, bin.all := .artms_qcut(sumInt, 4)]
-      protCV <- protCV[, bin.condition := .artms_qcut(sumInt, 4), by = condition]
-
-      ja <- ggplot(subset(protCV, !is.na(pCV)), aes(condition, pCV)) +
-        geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm= TRUE) + 1), size = 15) +
-        xlab("Condition") + ylab("Coefficient of variance (%)") +
-        ggtitle("Distribution of Protein intensity CV within each condition \n
-                Overall median CV for each condition is given on the top and number of proteins used to calculate CVs is shown on the bottom") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 20, hjust = 0.5)) +
-        scale_fill_brewer(palette="Spectral")
-      print(ja)
-
-      jb <- ggplot(subset(protCV, !is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
-        geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha=0.7) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(protCV, !is.na(pCV)), median), aes(label = round(pCV, digits=1), y = max(protCV$pCV, na.rm= TRUE) + 1), size = 7, angle=90) +
-        geom_text(data = aggregate(pCV ~ condition + bin.condition, subset(protCV, !is.na(pCV)), length), aes(label = round(pCV, digits=1), y = 0), size = 7, angle=90) +
-        xlab("Condition") + ylab("Coefficient of variance (%)") +
-        ggtitle("Distribution of Protein (summed) intensity CV within each condition \n
-                For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated, \n
-                therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins \n
-                Overall median CV within each bin/condition is shown on the top and number of protein groups used to calculate CV is given on the bottom") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 20, hjust = 0.5)) +
-        scale_fill_brewer(palette="Spectral")
-      print(jb)
-      
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-  # Protein detection
-  if(plotPROTDETECT){
-    cat("--- Plot Protein Detection")
-    pdf('QC_Plots_ProtDetect.pdf', width=nsamples*3, height=20, onefile = TRUE)
-      protDX <- protCV[, .N, by=list(condition, pDX)]
-      protDXT <- protDX[, list(N.total = sum(N)), by=list(condition)]
-      protDX <- merge(protDX, protDXT, by="condition")
-      protDX$fxDx <- 100*(protDX$N/protDX$N.total)
-      ka <- ggplot(protDX, aes(x=condition, y=fxDx, fill=factor(pDX))) +
-        geom_bar(stat="identity", alpha=0.7) +
-        ggrepel::geom_text_repel(aes(label=round(fxDx, digits=1)), vjust=1, size = 10, position = position_stack()) +
-        xlab("Condition") + ylab("Counts") +
-        ggtitle("Detection of Protein across replicates of the same condition") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 0, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        scale_fill_brewer(palette="Set1")
-      print(ka)
-
-      kb <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
-        geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-        #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
-        xlab("Experiment") + ylab("Log2 Intensity") +
-        ggtitle("Peptide feature intensity distribution") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Set1")
-      print(kb)
-
-      if("fraction" %in% colnames(evidencekeys)){
-
-        kc <- ggplot(subset(evidencekeys, !is.na(intensity)), aes(bioreplicate, log2(intensity))) +
-          geom_boxplot(varwidth = TRUE, aes(fill = potential.contaminant), alpha=0.7) +
-          #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
-          xlab("Experiment") + ylab("Log2 Intensity") +
-          facet_wrap(~fraction,ncol=5) +
-          ggtitle("Peptide feature intensity distribution by Fraction") +
-          theme(legend.text = element_text(size=20)) +
-          theme(axis.text.x = element_text(angle = 90, size=20)) +
-          theme(axis.text.y = element_text(size=20)) +
-          theme(axis.title.x = element_text(size=30)) +
-          theme(axis.title.y = element_text(size=30)) +
-          theme(plot.title = element_text(size = 40)) +
-          scale_fill_brewer(palette="Set1")
-        print(kc)
-
-      }
-
-      kd <- ggplot(evidencekeys, aes(x=log2(intensity))) +
-        geom_density(alpha=.5, aes(fill = type)) +
-        ggtitle("Peptide feature intensity distribution by ID Type") +
-        facet_wrap(~bioreplicate,ncol=5) +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Set1")
-      print(kd)
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-
-  if(plotIDoverlap){
-    cat("--- Plot ID overlap")
-    pdf('QC-ID-Overlap.pdf', width=nsamples*4, 
-        height=nsamples*4, 
-        onefile = TRUE)
-      ovlSeq <- subset(evidencekeys, 
-                       !is.na(intensity) & !is.na(ms.ms.count), 
-                       select=c("bioreplicate", "sequence"))
-      ovlSeq <- unique(ovlSeq)
-      ovlSeq <- .artms_sampleOverlap(ovlSeq, 
-                                     sampleID='bioreplicate', 
-                                     referenceID='sequence')
-      ovlSeqM <- ovlSeq$M
-      ovlSeqM[ovlSeqM == 1] <- NA
-      
-      gplots::heatmap.2(ovlSeqM*100,
-                col=hmcol, Rowv=FALSE, Colv="Rowv",
-                cexRow=5, cexCol=5,
-                margins=c(40,40),
-                cellnote=round(ovlSeqM*100,1),
-                notecex=8,
-                main="Pairwise peptide identification overlap (only peptides with at least 1 peptide detected and identified)",
-                notecol="black",
-                trace="none",
-                key = TRUE,
-                keysize=1,
-                scale="none",
-                symm=TRUE,
-                colsep=c( seq_len(length(colnames(ovlSeqM))) ),
-                rowsep=c( seq_len(length(rownames(ovlSeqM))) ),
-                sepcolor="white",
-                sepwidth=c(0.01,0.01),
-                dendrogram="none")
-
-      if("fraction" %in% colnames(evidencekeys)){
-        ovlSeqFx <- subset(evidencekeys, 
-                           !is.na(intensity) & !is.na(ms.ms.count), 
-                           select=c("bioreplicate", "fraction", "sequence"))
-        ovlSeqFx <- unique(ovlSeqFx)
-        ovlSeqFx$bioreplicate <- paste(ovlSeqFx$fraction, 
-                                       ovlSeqFx$bioreplicate, 
-                                       sep=".")
-        ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx, 
-                                         sampleID='bioreplicate', 
-                                         referenceID='sequence')
-        ovlSeqFxM <- ovlSeqFx$M
-        ovlSeqFxM[ovlSeqFxM == 1] <- NA
-        gplots::heatmap.2(ovlSeqFxM*100,
-                  col=hmcol, Rowv=FALSE, Colv="Rowv",
-                  cexRow=0.5, cexCol=0.5,
-                  margins=c(40,40),
-                  #cellnote=round(ovlSeqFxM*100,1),
-                  #notecex=3,
-                  main="Pairwise peptide identification overlap by Fraction (only peptides with at least 1 peptide detected and identified)",
-                  #notecol="black",
-                  trace="none",
-                  key = TRUE,
-                  keysize=1,
-                  scale="none",
-                  symm=TRUE,
-                  colsep=c( seq_len(length(colnames(ovlSeqFxM))) ),
-                  rowsep=c( seq_len(length(rownames(ovlSeqFxM))) ),
-                  sepcolor="white",
-                  sepwidth=c(0.0001,0.0001),
-                  dendrogram="none")
-      }
-
-
-      ovlProt <- subset(evidencekeys, 
-                        !is.na(intensity) & !is.na(ms.ms.count), 
-                        select=c("bioreplicate", "proteins"))
-      ovlProt <- unique(ovlProt)
-      ovlProt <- .artms_sampleOverlap(ovlProt, 
-                                      sampleID='bioreplicate', 
-                                      referenceID='proteins')
-      ovlProtM <- ovlProt$M
-      ovlProtM[ovlProtM == 1] <- NA
-      gplots::heatmap.2(ovlProtM*100,
-                col=hmcol, Rowv=FALSE, Colv="Rowv",
-                cexRow=5, cexCol=5,
-                margins=c(40,40),
-                cellnote=round(ovlProtM*100,1),
-                notecex=8,
-                main="Pairwise protein identification overlap (only proteins with at least 1 peptide detected and identified)",
-                notecol="black",
-                trace="none",
-                key = TRUE,
-                keysize=1,
-                scale="none",
-                symm=TRUE,
-                colsep=c( seq_len(length(colnames(ovlProtM))) ),
-                rowsep=c( seq_len(length(rownames(ovlProtM))) ),
-                sepcolor="white",
-                sepwidth=c(0.01,0.01),
-                dendrogram="none")
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-  if(plotIC){
-    cat("--- Plot Inter-Correlation")
-      pdf('QC-IntCorrelation.pdf', width=nsamples*4, height=nsamples*4, onefile = TRUE)
-        peptintmtx <- subset(evidencekeys, !is.na(intensity), select=c("bioreplicate", "sequence", "intensity"))
-        peptintmtx <- data.table::dcast(peptintmtx, sequence ~ bioreplicate, sum, value.var = "intensity")
-        peptintmtx <- as.matrix(peptintmtx[,-1])
-        peptintmtx <- log2(peptintmtx)
-        peptintmtx[!is.finite(peptintmtx)] <- NA
-        pairs(peptintmtx, upper.panel=.artms_panelCor, diag.panel=.artms_panelHist, lower.panel=panel.smooth, pch=".")
-
-        mpept <- peptintmtx
-        mpept[is.na(mpept)] <- 0
-        pept.pca <- prcomp(t(mpept))
-        pept.pcax <- as.data.frame(pept.pca$x)
-        pept.pcax <- merge(unique(evidencekeys[,c("bioreplicate", "condition")]), pept.pcax, by.x="bioreplicate", by.y="row.names")
-
-        ma <- ggplot(pept.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
-          geom_point(alpha=.8, size=30) +
-          geom_label_repel(aes(label = bioreplicate),
-                           #label.size = 10,
-                           box.padding   = 0.1,
-                           point.padding = 0.1,
-                           segment.color = 'grey50') +
-          ggtitle("Peptide Intensity Principal Component Analysis") 
-        # ggalt is giving problem: it cannot be installed on linux
-        # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
-        print(ma)
-
-        protintmtx <- subset(evidencekeys, !is.na(intensity), select=c("bioreplicate", "proteins", "intensity"))
-        protintmtx <- data.table::dcast(protintmtx, proteins ~ bioreplicate, sum, value.var = "intensity")
-        protintmtx <- as.matrix(protintmtx[,-1])
-        protintmtx <- log2(protintmtx)
-        protintmtx[!is.finite(protintmtx)] <- NA
-        pairs(protintmtx, upper.panel=.artms_panelCor, diag.panel=.artms_panelHist, lower.panel=panel.smooth, pch=".")
-
-        mprot <- protintmtx
-        mprot[is.na(mprot)] <- 0
-        prot.pca <- prcomp(t(mprot))
-        prot.pcax <- as.data.frame(prot.pca$x)
-        prot.pcax <- merge(unique(evidencekeys[,c("bioreplicate", "condition")]), prot.pcax, by.x="bioreplicate", by.y="row.names")
-
-        mb <- ggplot(prot.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
-          geom_point(alpha=.8, size=40) +
-          geom_label_repel(aes(label = bioreplicate),
-                           #label.size = 10,
-                           box.padding   = 0.1,
-                           point.padding = 0.1,
-                           segment.color = 'grey50') +
-          ggtitle("Protein Intensity Principal Component Analysis") 
-        # ggalt is giving problem: it cannot be installed on linux
-        # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
-        print(mb)
-        
-    garbage <- dev.off()
-    cat(" done\n")
-  }
-
-
-  if(plotSP){
-    cat("--- Plot Sample Preparation")
-    pdf('QC-SamplePrep.pdf', width=nsamples*4, height=20, onefile = TRUE)
-      evidence.misscleavages <- data.table(subset(evidencekeys, ms.ms.count > 0))
-      
-      misscleavages.tot <- evidence.misscleavages[, .N, by=list(bioreplicate)]
-      
-      misscleavages.dt <- evidence.misscleavages[, .N, 
-                                                 by=list(bioreplicate, 
-                                                         missed.cleavages)]
-      misscleavages.dt <- merge(misscleavages.dt, 
-                                misscleavages.tot, 
-                                by="bioreplicate", 
-                                all= TRUE)
-      
-      misscleavages.dt$mc <- as.numeric(format(100*(misscleavages.dt$N.x/misscleavages.dt$N.y), digits = 5))
-
-      na <- ggplot(misscleavages.dt, aes(x = bioreplicate, y = mc, fill = as.factor(missed.cleavages), label=mc)) +
-        geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(mc, digits=1)), vjust=0, size = 10, position = position_stack()) +
-        xlab("Experiment") + ylab("Fraction (percentage)") +
-        ggtitle("Missing cleavage stats") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Set1")
-      print(na)
-
-
-      oxMet.df <- plyr::ddply(evidencekeys, c("bioreplicate", "condition"),
-                              plyr::summarise,
-pct.OxM = (length(oxidation..m.[oxidation..m.>0])/length(sequence))*100)
-
-      nb <- ggplot(oxMet.df,
-             aes(x = bioreplicate,
-                 y = pct.OxM,
-                 fill = condition,
-                 label=pct.OxM)) +
-        geom_bar(stat="identity", alpha=0.7) +
-        geom_text(aes(label=round(pct.OxM, 
-                                  digits=1)), 
-                  vjust=0, 
-                  size = 15, 
-                  position = position_stack()) +
-        xlab("Experiment") +
-        ylab("Fraction (percentage)") +
-        ggtitle("Percentage of peptides where at least 1 Methionine is oxidized") +
-        theme(legend.text = element_text(size=20)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20)) +
-        theme(axis.text.y = element_text(size=20)) +
-        theme(axis.title.x = element_text(size=30)) +
-        theme(axis.title.y = element_text(size=30)) +
-        theme(plot.title = element_text(size = 40)) +
-        scale_fill_brewer(palette="Spectral")
-      print(nb)
     garbage <- dev.off()
     cat(" done\n")
   }
   
-
+  
+  ## PROTEINS
+  if (plotPROTEINS) {
+    cat("--- Plot PROTEINS")
+    
+    pdf(
+      'QC_Plots_PROTEINS.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    
+    ea <-
+      ggplot(evidence2, aes(
+        x = bioreplicate,
+        y = Proteins,
+        fill = factor(condition)
+      )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_text(
+        aes(label = round(Proteins, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
+      facet_wrap( ~ potential.contaminant, ncol = 1) +
+      xlab("Experiment") + ylab("Counts") +
+      ggtitle(
+        "Number of unique Protein Groups: bottom = Potential contaminants; top = non-contaminants"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(ea)
+    
+    eb <-
+      ggplot(evidence3,
+             aes(
+               x = condition,
+               y = Proteins.mean,
+               fill = factor(potential.contaminant)
+             )) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 1),
+               alpha = 0.7) +
+      geom_errorbar(
+        aes(
+          ymin = Proteins.mean - Proteins.sem,
+          ymax = Proteins.mean + Proteins.sem
+        ),
+        width = .2,
+        position = position_dodge(.9)
+      ) +
+      geom_text(
+        aes(label = round(Proteins.mean, digits = 0)),
+        hjust = 0.5,
+        vjust = -0.5,
+        size = 10,
+        position = position_dodge(width = 1)
+      ) +
+      xlab("Condition") + ylab("Counts") +
+      ggtitle(
+        "Mean number of unique Proteins per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 0,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(eb)
+    
+    lst.protExp <- list()
+    for (i in unique(evidencekeys$bioreplicate)) {
+      lst.protExp[[i]] <-
+        unique(subset(evidencekeys, ms.ms.count > 0 &
+                        bioreplicate == i)[, c("proteins")])
+    }
+    
+    UpSetR::upset(
+      fromList(lst.protExp),
+      nsets = length(unique(evidencekeys$bioreplicate)),
+      nintersects = 50,
+      order.by = "degree"
+    )
+    UpSetR::upset(
+      fromList(lst.protExp),
+      nsets = length(unique(evidencekeys$bioreplicate)),
+      nintersects = 50,
+      order.by = "freq"
+    )
+    
+    lst.protCond <- list()
+    for (i in unique(evidencekeys$condition)) {
+      lst.protCond[[i]] <-
+        unique(subset(evidencekeys, ms.ms.count > 0 &
+                        condition == i)[, c("proteins")])
+    }
+    
+    #UpSetR::upset(fromList(lst.protCond), nsets=length(unique(evidencekeys$condition)), nintersects = 50, order.by = "degree")
+    UpSetR::upset(
+      fromList(lst.protCond),
+      nsets = length(unique(evidencekeys$condition)),
+      nintersects = 50,
+      order.by = "freq"
+    )
+    
+    garbage <- dev.off()
+    
+    cat(" done\n")
+  }
+  
+  
+  # Peptide ion oversampling
+  if (plotPIO) {
+    cat("--- Plot Plot Ion Oversampling")
+    
+    pdf(
+      'QC_Plots_PepIonOversampling.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    fa <-
+      ggplot(
+        oversampling0[with(oversampling0, order(MSMS.counts)), ],
+        aes(
+          x = bioreplicate,
+          y = FxOverSamp,
+          fill = MSMS.counts,
+          label = FxOverSamp
+        )
+      ) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_text(
+        aes(label = round(FxOverSamp, digits = 1)),
+        vjust = 1 ,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Experiment") + ylab("Fraction (percentage)") +
+      ggtitle("Peptide ion oversampling, all peptides reported by MaxQuant") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(fa)
+    
+    fb <-
+      ggplot(
+        oversampling1[with(oversampling1, order(MSMS.counts)), ],
+        aes(
+          x = bioreplicate,
+          y = FxOverSamp,
+          fill = MSMS.counts,
+          label = FxOverSamp
+        )
+      ) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_text(
+        aes(label = round(FxOverSamp, digits = 1)),
+        vjust = 1 ,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Experiment") + ylab("Fraction (percentage)") +
+      ggtitle("Peptide ion oversampling, only peptides detected (MS1 AUC calculated)") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(fb)
+    
+    fc <-
+      ggplot(
+        oversampling2[with(oversampling2, order(MSMS.counts)), ],
+        aes(
+          x = bioreplicate,
+          y = FxOverSamp,
+          fill = MSMS.counts,
+          label = FxOverSamp
+        )
+      ) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_text(
+        aes(label = round(FxOverSamp, digits = 1)),
+        vjust = 1 ,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Experiment") + ylab("Fraction (percentage)") +
+      ggtitle(
+        "Peptide ion oversampling, only peptides detected (MS1 AUC calculated) and identified (confidence MS/MS)"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(fc)
+    
+    garbage <- dev.off()
+    
+    cat(" done\n")
+  }
+  
+  
+  # Charge state distribution
+  if (plotCS) {
+    cat("--- Plot Charge State")
+    
+    pdf(
+      'QC_Plots_CHARGESTATE.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    ga <-
+      ggplot(chargeState[with(chargeState, order(charge)), ],
+             aes(x = bioreplicate, y = FxOverSamp, fill = charge)) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      ggrepel::geom_text_repel(
+        aes(label = round(FxOverSamp, digits = 1)),
+        vjust = -0.5,
+        size = 5,
+        position = position_stack()
+      ) +
+      xlab("Experiment") + ylab("Fraction (percentage)") +
+      ggtitle("Precursor charge state distribution") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(ga)
+    garbage <- dev.off()
+    
+    cat(" done\n")
+  }
+  
+  # Mass error
+  if (plotME) {
+    cat("--- Plot Mass Error")
+    pdf(
+      'QC_Plots_MASSERROR.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    fa <-
+      ggplot(evidencekeys,
+             aes(x = bioreplicate, y = uncalibrated.mass.error..ppm.)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(
+          uncalibrated.mass.error..ppm. ~ bioreplicate,
+          evidencekeys,
+          median
+        ),
+        aes(
+          label = round(uncalibrated.mass.error..ppm., digits = 1),
+          y = max(evidencekeys$uncalibrated.mass.error..ppm., na.rm = TRUE) + 2
+        ),
+        size = 20
+      ) +
+      xlab("Experiment") + ylab("mass error") +
+      ggtitle("Precursor mass error (in ppm) distribution, global median mass error on the top") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(fa)
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  
+  # mass-over-charge distribution
+  if (plotMOCD) {
+    cat("--- Plot Mass-over-Charge distribution")
+    
+    pdf(
+      'QC_Plots_MZ.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    ga <- ggplot(evidencekeys, aes(x = bioreplicate, y = m.z)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(m.z ~ bioreplicate, evidencekeys, median),
+        aes(
+          label = round(m.z, digits = 1),
+          y = max(evidencekeys$m.z, na.rm = TRUE) + 30
+        ),
+        size = 20
+      ) +
+      xlab("Experiment") + ylab("m/z") +
+      ggtitle("Precursor mass-over-charge distribution, global median m/z on the top") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(ga)
+    garbage <- dev.off()
+    
+    cat(" done\n")
+  }
+  
+  
+  #m Peptide Intensity CV
+  if (plotPEPICV) {
+    cat("--- Plot Peptide Intensity CV")
+    pdf(
+      'QC_Plots_PEPINT.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    peptCV <-
+      data.table::data.table(subset(evidencekeys,!is.na(intensity)))
+    peptCV <-
+      peptCV[, list(intensity = sum(intensity, na.rm = TRUE)),
+             by = list(condition, bioreplicate, modified.sequence)]
+    peptCV <-
+      peptCV[, list(
+        pCV = 100 * (sd(intensity) / mean(intensity)),
+        sumInt = sum(intensity),
+        pDX = length(unique(bioreplicate))
+      ),
+      by = list(condition, modified.sequence)]
+    peptCV <- peptCV[, bin.all := .artms_qcut(sumInt, 4)]
+    peptCV <- peptCV[, bin.condition := .artms_qcut(sumInt, 4),
+                     by = condition]
+    
+    ha <-
+      ggplot(subset(peptCV,!is.na(pCV)), aes(condition, pCV)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(pCV ~ condition, subset(peptCV,!is.na(pCV)), median),
+        aes(
+          label = round(pCV, digits = 1),
+          y = max(peptCV$pCV, na.rm = TRUE) + 1
+        ),
+        size = 10
+      ) +
+      geom_text(
+        data = aggregate(pCV ~ condition, subset(peptCV,!is.na(pCV)), length),
+        aes(label = round(pCV, digits = 1), y = 0),
+        size = 10
+      ) +
+      xlab("Condition") + ylab("Coefficient of variance (%)") +
+      ggtitle(
+        "Distribution of peptide feature intensity CV within each condition \n
+        Overall median CV for each condition is given on the top and number of features used to calculate CVs is shown on the bottom"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 0, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(ha)
+    
+    hb <-
+      ggplot(subset(peptCV,!is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(
+          pCV ~ condition + bin.condition,
+          subset(peptCV,!is.na(pCV)),
+          median
+        ),
+        aes(
+          label = round(pCV, digits = 1),
+          y = max(peptCV$pCV, na.rm = TRUE) + 1
+        ),
+        size = 7,
+        angle = 90
+      ) +
+      geom_text(
+        data = aggregate(
+          pCV ~ condition + bin.condition,
+          subset(peptCV,!is.na(pCV)),
+          length
+        ),
+        aes(label = round(pCV, digits = 1), y = 0),
+        size = 7,
+        angle = 90
+      ) +
+      xlab("Condition") + ylab("Coefficient of variance (%)") +
+      ggtitle(
+        "Distribution of peptide feature intensity CV within each condition \n
+        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated, \n
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides \n
+        Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 90, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 20, hjust = 0.5)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(hb)
+    
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  # peptide detection (using modified.sequence)
+  if (plotPEPDETECT) {
+    cat("--- Plot Peptide Detection (using modified.sequence)")
+    pdf(
+      'QC_Plots_PepDetect.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    peptDX <- peptCV[, .N, by = list(condition, pDX)]
+    peptDXT <-
+      peptDX[, list(N.total = sum(N)), by = list(condition)]
+    peptDX <- merge(peptDX, peptDXT, by = "condition")
+    peptDX$fxDx <- 100 * (peptDX$N / peptDX$N.total)
+    
+    ia <-
+      ggplot(peptDX, aes(
+        x = condition,
+        y = fxDx,
+        fill = factor(pDX)
+      )) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      ggrepel::geom_text_repel(
+        aes(label = round(fxDx, digits = 1)),
+        vjust = 1,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Condition") + ylab("Counts") +
+      ggtitle("Frequency of peptides detection across replicates within the same condition") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 0, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(ia)
+    
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  
+  #m Protein Intensity CV
+  if (plotPROTICV) {
+    cat("--- Plot Protein Intensity CV")
+    pdf(
+      'QC_Plots_ProtInt.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    protCV <-
+      data.table::data.table(subset(evidencekeys,!is.na(intensity)))
+    protCV <-
+      protCV[, list(intensity = sum(intensity, na.rm = TRUE)), by = list(condition, bioreplicate, proteins)]
+    protCV <-
+      protCV[, list(
+        pCV = 100 * (sd(intensity) / mean(intensity)),
+        sumInt = sum(intensity),
+        pDX = length(unique(bioreplicate))
+      ), by = list(condition, proteins)]
+    protCV <- protCV[, bin.all := .artms_qcut(sumInt, 4)]
+    protCV <-
+      protCV[, bin.condition := .artms_qcut(sumInt, 4), by = condition]
+    
+    ja <-
+      ggplot(subset(protCV,!is.na(pCV)), aes(condition, pCV)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(pCV ~ condition, subset(protCV,!is.na(pCV)), median),
+        aes(
+          label = round(pCV, digits = 1),
+          y = max(protCV$pCV, na.rm = TRUE) + 1
+        ),
+        size = 15
+      ) +
+      xlab("Condition") + ylab("Coefficient of variance (%)") +
+      ggtitle(
+        "Distribution of Protein intensity CV within each condition \n
+        Overall median CV for each condition is given on the top and number of proteins used to calculate CVs is shown on the bottom"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 0, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 20, hjust = 0.5)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(ja)
+    
+    jb <-
+      ggplot(subset(protCV,!is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
+                     0.7) +
+      geom_text(
+        data = aggregate(
+          pCV ~ condition + bin.condition,
+          subset(protCV,!is.na(pCV)),
+          median
+        ),
+        aes(
+          label = round(pCV, digits = 1),
+          y = max(protCV$pCV, na.rm = TRUE) + 1
+        ),
+        size = 7,
+        angle = 90
+      ) +
+      geom_text(
+        data = aggregate(
+          pCV ~ condition + bin.condition,
+          subset(protCV,!is.na(pCV)),
+          length
+        ),
+        aes(label = round(pCV, digits = 1), y = 0),
+        size = 7,
+        angle = 90
+      ) +
+      xlab("Condition") + ylab("Coefficient of variance (%)") +
+      ggtitle(
+        "Distribution of Protein (summed) intensity CV within each condition \n
+        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated, \n
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins \n
+        Overall median CV within each bin/condition is shown on the top and number of protein groups used to calculate CV is given on the bottom"
+      ) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 90, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 20, hjust = 0.5)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(jb)
+    
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  # Protein detection
+  if (plotPROTDETECT) {
+    cat("--- Plot Protein Detection")
+    pdf(
+      'QC_Plots_ProtDetect.pdf',
+      width = nsamples * 3,
+      height = 20,
+      onefile = TRUE
+    )
+    protDX <- protCV[, .N, by = list(condition, pDX)]
+    protDXT <-
+      protDX[, list(N.total = sum(N)), by = list(condition)]
+    protDX <- merge(protDX, protDXT, by = "condition")
+    protDX$fxDx <- 100 * (protDX$N / protDX$N.total)
+    ka <-
+      ggplot(protDX, aes(
+        x = condition,
+        y = fxDx,
+        fill = factor(pDX)
+      )) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      ggrepel::geom_text_repel(
+        aes(label = round(fxDx, digits = 1)),
+        vjust = 1,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Condition") + ylab("Counts") +
+      ggtitle("Detection of Protein across replicates of the same condition") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 0, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      scale_fill_brewer(palette = "Set1")
+    print(ka)
+    
+    kb <-
+      ggplot(subset(evidencekeys,!is.na(intensity)), aes(bioreplicate, log2(intensity))) +
+      geom_boxplot(varwidth = TRUE,
+                   aes(fill = potential.contaminant),
+                   alpha = 0.7) +
+      #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
+      xlab("Experiment") + ylab("Log2 Intensity") +
+      ggtitle("Peptide feature intensity distribution") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(angle = 90, size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(kb)
+    
+    if ("fraction" %in% colnames(evidencekeys)) {
+      kc <-
+        ggplot(subset(evidencekeys,!is.na(intensity)), aes(bioreplicate, log2(intensity))) +
+        geom_boxplot(varwidth = TRUE,
+                     aes(fill = potential.contaminant),
+                     alpha = 0.7) +
+        #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
+        xlab("Experiment") + ylab("Log2 Intensity") +
+        facet_wrap( ~ fraction, ncol = 5) +
+        ggtitle("Peptide feature intensity distribution by Fraction") +
+        theme(legend.text = element_text(size = 20)) +
+        theme(axis.text.x = element_text(angle = 90, size = 20)) +
+        theme(axis.text.y = element_text(size = 20)) +
+        theme(axis.title.x = element_text(size = 30)) +
+        theme(axis.title.y = element_text(size = 30)) +
+        theme(plot.title = element_text(size = 40)) +
+        scale_fill_brewer(palette = "Set1")
+      print(kc)
+      
+    }
+    
+    kd <- ggplot(evidencekeys, aes(x = log2(intensity))) +
+      geom_density(alpha = .5, aes(fill = type)) +
+      ggtitle("Peptide feature intensity distribution by ID Type") +
+      facet_wrap( ~ bioreplicate, ncol = 5) +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(size = 20)) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(kd)
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  
+  if (plotIDoverlap) {
+    cat("--- Plot ID overlap")
+    pdf(
+      'QC-ID-Overlap.pdf',
+      width = nsamples * 4,
+      height = nsamples * 4,
+      onefile = TRUE
+    )
+    ovlSeq <- subset(
+      evidencekeys,!is.na(intensity) & !is.na(ms.ms.count),
+      select = c("bioreplicate", "sequence")
+    )
+    ovlSeq <- unique(ovlSeq)
+    ovlSeq <- .artms_sampleOverlap(ovlSeq,
+                                   sampleID = 'bioreplicate',
+                                   referenceID = 'sequence')
+    ovlSeqM <- ovlSeq$M
+    ovlSeqM[ovlSeqM == 1] <- NA
+    
+    gplots::heatmap.2(
+      ovlSeqM * 100,
+      col = hmcol,
+      Rowv = FALSE,
+      Colv = "Rowv",
+      cexRow = 5,
+      cexCol = 5,
+      margins = c(40, 40),
+      cellnote = round(ovlSeqM * 100, 1),
+      notecex = 8,
+      main = "Pairwise peptide identification overlap (only peptides with at least 1 peptide detected and identified)",
+      notecol = "black",
+      trace = "none",
+      key = TRUE,
+      keysize = 1,
+      scale = "none",
+      symm = TRUE,
+      colsep = c(seq_len(length(
+        colnames(ovlSeqM)
+      ))),
+      rowsep = c(seq_len(length(
+        rownames(ovlSeqM)
+      ))),
+      sepcolor = "white",
+      sepwidth = c(0.01, 0.01),
+      dendrogram = "none"
+    )
+    
+    if ("fraction" %in% colnames(evidencekeys)) {
+      ovlSeqFx <- subset(
+        evidencekeys,!is.na(intensity) & !is.na(ms.ms.count),
+        select = c("bioreplicate", "fraction", "sequence")
+      )
+      ovlSeqFx <- unique(ovlSeqFx)
+      ovlSeqFx$bioreplicate <- paste(ovlSeqFx$fraction,
+                                     ovlSeqFx$bioreplicate,
+                                     sep = ".")
+      ovlSeqFx <- .artms_sampleOverlap(ovlSeqFx,
+                                       sampleID = 'bioreplicate',
+                                       referenceID = 'sequence')
+      ovlSeqFxM <- ovlSeqFx$M
+      ovlSeqFxM[ovlSeqFxM == 1] <- NA
+      gplots::heatmap.2(
+        ovlSeqFxM * 100,
+        col = hmcol,
+        Rowv = FALSE,
+        Colv = "Rowv",
+        cexRow = 0.5,
+        cexCol = 0.5,
+        margins = c(40, 40),
+        #cellnote=round(ovlSeqFxM*100,1),
+        #notecex=3,
+        main = "Pairwise peptide identification overlap by Fraction (only peptides with at least 1 peptide detected and identified)",
+        #notecol="black",
+        trace = "none",
+        key = TRUE,
+        keysize = 1,
+        scale = "none",
+        symm = TRUE,
+        colsep = c(seq_len(length(
+          colnames(ovlSeqFxM)
+        ))),
+        rowsep = c(seq_len(length(
+          rownames(ovlSeqFxM)
+        ))),
+        sepcolor = "white",
+        sepwidth = c(0.0001, 0.0001),
+        dendrogram = "none"
+      )
+    }
+    
+    
+    ovlProt <- subset(
+      evidencekeys,!is.na(intensity) & !is.na(ms.ms.count),
+      select = c("bioreplicate", "proteins")
+    )
+    ovlProt <- unique(ovlProt)
+    ovlProt <- .artms_sampleOverlap(ovlProt,
+                                    sampleID = 'bioreplicate',
+                                    referenceID = 'proteins')
+    ovlProtM <- ovlProt$M
+    ovlProtM[ovlProtM == 1] <- NA
+    gplots::heatmap.2(
+      ovlProtM * 100,
+      col = hmcol,
+      Rowv = FALSE,
+      Colv = "Rowv",
+      cexRow = 5,
+      cexCol = 5,
+      margins = c(40, 40),
+      cellnote = round(ovlProtM * 100, 1),
+      notecex = 8,
+      main = "Pairwise protein identification overlap (only proteins with at least 1 peptide detected and identified)",
+      notecol = "black",
+      trace = "none",
+      key = TRUE,
+      keysize = 1,
+      scale = "none",
+      symm = TRUE,
+      colsep = c(seq_len(length(
+        colnames(ovlProtM)
+      ))),
+      rowsep = c(seq_len(length(
+        rownames(ovlProtM)
+      ))),
+      sepcolor = "white",
+      sepwidth = c(0.01, 0.01),
+      dendrogram = "none"
+    )
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  if (plotIC) {
+    cat("--- Plot Inter-Correlation")
+    pdf(
+      'QC-IntCorrelation.pdf',
+      width = nsamples * 4,
+      height = nsamples * 4,
+      onefile = TRUE
+    )
+    peptintmtx <-
+      subset(
+        evidencekeys,
+        !is.na(intensity),
+        select = c("bioreplicate", "sequence", "intensity")
+      )
+    peptintmtx <-
+      data.table::dcast(peptintmtx, sequence ~ bioreplicate, sum, value.var = "intensity")
+    peptintmtx <- as.matrix(peptintmtx[, -1])
+    peptintmtx <- log2(peptintmtx)
+    peptintmtx[!is.finite(peptintmtx)] <- NA
+    pairs(
+      peptintmtx,
+      upper.panel = .artms_panelCor,
+      diag.panel = .artms_panelHist,
+      lower.panel = panel.smooth,
+      pch = "."
+    )
+    
+    mpept <- peptintmtx
+    mpept[is.na(mpept)] <- 0
+    pept.pca <- prcomp(t(mpept))
+    pept.pcax <- as.data.frame(pept.pca$x)
+    pept.pcax <-
+      merge(unique(evidencekeys[, c("bioreplicate", "condition")]),
+            pept.pcax,
+            by.x = "bioreplicate",
+            by.y = "row.names")
+    
+    ma <-
+      ggplot(pept.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
+      geom_point(alpha = .8, size = 30) +
+      geom_label_repel(
+        aes(label = bioreplicate),
+        #label.size = 10,
+        box.padding   = 0.1,
+        point.padding = 0.1,
+        segment.color = 'grey50'
+      ) +
+      ggtitle("Peptide Intensity Principal Component Analysis")
+    # ggalt is giving problem: it cannot be installed on linux
+    # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+    print(ma)
+    
+    protintmtx <-
+      subset(
+        evidencekeys,
+        !is.na(intensity),
+        select = c("bioreplicate", "proteins", "intensity")
+      )
+    protintmtx <-
+      data.table::dcast(protintmtx, proteins ~ bioreplicate, sum, value.var = "intensity")
+    protintmtx <- as.matrix(protintmtx[, -1])
+    protintmtx <- log2(protintmtx)
+    protintmtx[!is.finite(protintmtx)] <- NA
+    pairs(
+      protintmtx,
+      upper.panel = .artms_panelCor,
+      diag.panel = .artms_panelHist,
+      lower.panel = panel.smooth,
+      pch = "."
+    )
+    
+    mprot <- protintmtx
+    mprot[is.na(mprot)] <- 0
+    prot.pca <- prcomp(t(mprot))
+    prot.pcax <- as.data.frame(prot.pca$x)
+    prot.pcax <-
+      merge(unique(evidencekeys[, c("bioreplicate", "condition")]),
+            prot.pcax,
+            by.x = "bioreplicate",
+            by.y = "row.names")
+    
+    mb <-
+      ggplot(prot.pcax, aes(PC1, PC2)) + #, color=condition, shape=condition
+      geom_point(alpha = .8, size = 40) +
+      geom_label_repel(
+        aes(label = bioreplicate),
+        #label.size = 10,
+        box.padding   = 0.1,
+        point.padding = 0.1,
+        segment.color = 'grey50'
+      ) +
+      ggtitle("Protein Intensity Principal Component Analysis")
+    # ggalt is giving problem: it cannot be installed on linux
+    # ggalt::geom_encircle(aes(group=condition, fill=condition),alpha=0.4)
+    print(mb)
+    
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  
+  if (plotSP) {
+    cat("--- Plot Sample Preparation")
+    pdf(
+      'QC-SamplePrep.pdf',
+      width = nsamples * 4,
+      height = 20,
+      onefile = TRUE
+    )
+    evidence.misscleavages <-
+      data.table(subset(evidencekeys, ms.ms.count > 0))
+    
+    misscleavages.tot <-
+      evidence.misscleavages[, .N, by = list(bioreplicate)]
+    
+    misscleavages.dt <- evidence.misscleavages[, .N,
+                                               by = list(bioreplicate,
+                                                         missed.cleavages)]
+    misscleavages.dt <- merge(misscleavages.dt,
+                              misscleavages.tot,
+                              by = "bioreplicate",
+                              all = TRUE)
+    
+    misscleavages.dt$mc <-
+      as.numeric(format(
+        100 * (misscleavages.dt$N.x / misscleavages.dt$N.y),
+        digits = 5
+      ))
+    
+    na <-
+      ggplot(misscleavages.dt,
+             aes(
+               x = bioreplicate,
+               y = mc,
+               fill = as.factor(missed.cleavages),
+               label = mc
+             )) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_text(
+        aes(label = round(mc, digits = 1)),
+        vjust = 0,
+        size = 10,
+        position = position_stack()
+      ) +
+      xlab("Experiment") + ylab("Fraction (percentage)") +
+      ggtitle("Missing cleavage stats") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Set1")
+    print(na)
+    
+    
+    oxMet.df <-
+      plyr::ddply(
+        evidencekeys,
+        c("bioreplicate", "condition"),
+        plyr::summarise,
+        pct.OxM = (length(oxidation..m.[oxidation..m. > 0]) / length(sequence)) *
+          100
+      )
+    
+    nb <- ggplot(oxMet.df,
+                 aes(
+                   x = bioreplicate,
+                   y = pct.OxM,
+                   fill = condition,
+                   label = pct.OxM
+                 )) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_text(
+        aes(label = round(pct.OxM,
+                          digits = 1)),
+        vjust = 0,
+        size = 15,
+        position = position_stack()
+      ) +
+      xlab("Experiment") +
+      ylab("Fraction (percentage)") +
+      ggtitle("Percentage of peptides where at least 1 Methionine is oxidized") +
+      theme(legend.text = element_text(size = 20)) +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        size = 20
+      )) +
+      theme(axis.text.y = element_text(size = 20)) +
+      theme(axis.title.x = element_text(size = 30)) +
+      theme(axis.title.y = element_text(size = 30)) +
+      theme(plot.title = element_text(size = 40)) +
+      scale_fill_brewer(palette = "Spectral")
+    print(nb)
+    garbage <- dev.off()
+    cat(" done\n")
+  }
+  
+  
   
 } # END OF artms_qualityControlEvidenceExtended
 
 
 # ------------------------------------------------------------------------------
 #' @title Quantiles
-#' 
+#'
 #' @description Quantiles
 #' @param x (datatype) Describe
 #' @param n (datatype) Describe
 #' @return What does it return?
 #' @keywords internal, stats
 .artms_qcut <- function(x, n) {
-  quantiles <- seq(0, 1, length.out = n+1)
+  quantiles <- seq(0, 1, length.out = n + 1)
   cutpoints <- unname(quantile(x, quantiles, na.rm = TRUE))
-  as.character(cut(x, cutpoints, labels = seq_len(n), include.lowest = TRUE))
+  as.character(cut(
+    x,
+    cutpoints,
+    labels = seq_len(n),
+    include.lowest = TRUE
+  ))
 }
 
 # ------------------------------------------------------------------------------
 #' @title Sample overlap
-#' 
+#'
 #' @description Describe
 #' @param data (datatype) Describe
 #' @param sampleID (datatype) Describe
 #' @param referenceID (datatype) Describe
 #' @return What does it return?
 #' @keywords internal, stats
-.artms_sampleOverlap <- function(data, 
-                                 sampleID = 'bioreplicate', 
-                                 referenceID='Sequence'){
+.artms_sampleOverlap <- function(data,
+                                 sampleID = 'bioreplicate',
+                                 referenceID = 'Sequence') {
   pept <- by(data,
-             data[,sampleID],
-             function(x) unique(as.character(x[,referenceID])))
-  pepmatch <- lapply(pept, 
-                     function(x,y) { 
-lapply(y, function(y) length(intersect(x,y))/length(union(x,y))) }, pept)
-  m <- matrix(unlist(pepmatch),nrow=length(pept),ncol=length(pept),byrow=TRUE)
+             data[, sampleID],
+             function(x)
+               unique(as.character(x[, referenceID])))
+  pepmatch <- lapply(pept,
+                     function(x, y) {
+                       lapply(y, function(y)
+                         length(intersect(x, y)) / length(union(x, y)))
+                     }, pept)
+  m <-
+    matrix(
+      unlist(pepmatch),
+      nrow = length(pept),
+      ncol = length(pept),
+      byrow = TRUE
+    )
   colnames(m) <- rownames(m) <- names(pept)
-  ans <- list(Peptides=pept,M=m)
+  ans <- list(Peptides = pept, M = m)
   return(ans)
 }
 
 # ------------------------------------------------------------------------------
 #' @title Panel Cor
-#' 
+#'
 #' @description Describe
 #' @param x (datatype) Describe
 #' @param y (datatype) Describe
@@ -1072,29 +1828,40 @@ lapply(y, function(y) length(intersect(x,y))/length(union(x,y))) }, pept)
 #' @param ... No idea what this does
 #' @return What does it return?
 #' @keywords internal, stats
-.artms_panelCor <- function(x, y, digits = 2, prefix = "", cex.cor, ...){
-  usr <- par("usr"); on.exit(par(usr))
-  par(usr = c(0, 1, 0, 1))
-  r <- abs(cor(x, y, use="pairwise.complete.obs", method="pearson"))
-  txt <- format(c(r, 0.123456789), digits=digits)[1]
-  txt <- paste(prefix, txt, sep="")
-  if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
-  text(0.5, 0.5, txt, cex = cex.cor * r)
-}
+.artms_panelCor <-
+  function(x,
+           y,
+           digits = 2,
+           prefix = "",
+           cex.cor,
+           ...) {
+    usr <- par("usr")
+    on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- abs(cor(x, y, use = "pairwise.complete.obs", method = "pearson"))
+    txt <- format(c(r, 0.123456789), digits = digits)[1]
+    txt <- paste(prefix, txt, sep = "")
+    if (missing(cex.cor))
+      cex.cor <- 0.8 / strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor * r)
+  }
 
 # ------------------------------------------------------------------------------
 #' @title Panel Histogram
-#' 
+#'
 #' @description Describe
 #' @param x (datatype) Describe
 #' @param ... No idea what this does
 #' @return What does it return?
 #' @keywords internal, stats
-.artms_panelHist <- function(x, ...){
-  usr <- par("usr"); on.exit(par(usr))
-  par(usr = c(usr[seq_len(2)], 0, 1.5) )
+.artms_panelHist <- function(x, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(usr[seq_len(2)], 0, 1.5))
   h <- hist(x, plot = FALSE)
-  breaks <- h$breaks; nB <- length(breaks)
-  y <- h$counts; y <- y/max(y)
-  rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
+  breaks <- h$breaks
+  nB <- length(breaks)
+  y <- h$counts
+  y <- y / max(y)
+  rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
 }

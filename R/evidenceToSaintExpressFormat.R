@@ -32,7 +32,8 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
   cat(">> CONVERTING TO SAINTexpress FORMAT\n")
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(ref_proteome_file)){
-    return("The evidence_file, keys_file and ref_proteome_file must not be empty")
+    return("The evidence_file, keys_file, and ref_proteome_file 
+           must not be empty")
   }
   
   if(!file.exists(evidence_file)){
@@ -82,13 +83,15 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     ) %in% colnames(keys)
   )) {
     stop(
-      'COLNAMES IN KEYS NOT CONFORM TO SCHEMA\n\tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
+      'COLNAMES IN KEYS NOT CONFORM TO SCHEMA
+      \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
     )
   }
   if (!'IsotopeLabelType' %in% colnames(data))
     data[, IsotopeLabelType := 'L']
   data <-
-    artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile', 'IsotopeLabelType'))
+    artms_mergeEvidenceAndKeys(data, keys, 
+                               by = c('RawFile', 'IsotopeLabelType'))
   data_f <- artms_filterEvidenceContaminants(data)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
@@ -120,7 +123,8 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
                 data = data_f_agg,
                 FUN = sum)
   } else{
-    stop("\nERROR!! Wrong value for variable to quantify. Please use 'msspc' or 'msint'")
+    stop("\nERROR!! Wrong value for variable to quantify. 
+         Please use 'msspc' or 'msint'")
   }
   
   ## IP name, bait name, prey name, and spectral counts or intensity values

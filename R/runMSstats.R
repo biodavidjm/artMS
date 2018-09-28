@@ -109,7 +109,8 @@
   if (!all(levels(mssquant$GROUP_ORIGINAL) == colnames(contrasts))) {
     stop(
       sprintf(
-        '\tERROR IN CONTRAST COMPARISON: GROUP LEVELS DIFFERENT FROM CONTRASTS FILE\n\tGROUP LEVELS\t%s\n\tCONTRASTS FILE\t%s\n',
+        '\tERROR IN CONTRAST COMPARISON: GROUP LEVELS DIFFERENT FROM 
+        CONTRASTS FILE\n\tGROUP LEVELS\t%s\n\tCONTRASTS FILE\t%s\n',
         paste(levels(mssquant$GROUP_ORIGINAL), collapse = ','),
         paste(colnames(contrasts), collapse = ',')
       )

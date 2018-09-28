@@ -12,8 +12,8 @@
 #' @param sc_option (char). Filter peptides with spectral counts only.
 #' Two options:
 #' - `msspc`: use only peptides with spectral_counts
-#' - `all` (default): all peptides detected (including the one resulting from the 
-#' MaxQuant 'Match between run' algorithm)
+#' - `all` (default): all peptides detected (including the one resulting from 
+#' the MaxQuant 'Match between run' algorithm)
 #' @param quant_variable (char) Select the quantitative variable. 
 #' Two options available:
 #' - `msint`: MS Intensity
@@ -66,16 +66,19 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
     if(any(!c('RawFile','IsotopeLabelType','Condition',
               'BioReplicate','Run', 
               'FractionKey', 'SAINT') %in% colnames(keys))){
-      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. One of these is lost\n
-          \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n\n\tFractionKey\n\n\tSAINT\n\n')
+      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. 
+One of these is lost\n
+          \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate
+          \tRun\n\n\tFractionKey\n\n\tSAINT\n\n')
       stop('Please, try again once revised\n\n')
     }
   }else{
     if(any(!c('RawFile','IsotopeLabelType',
               'Condition','BioReplicate',
               'Run','SAINT') %in% colnames(keys))){
-      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. One of these is lost\n
-          \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n\n\tSAINT\n\n')
+      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. 
+One of these is lost\n
+\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n\n\tSAINT\n')
       stop('Please, try again once revised\n\n')
     }
   }
@@ -88,12 +91,15 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   datamerged <- subset(datamerged, select = -Proteins)
   if( ('Leading.razor.protein' %in% colnames(datamerged)) ) {
     cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
-    names(datamerged)[grep('Leading.razor.protein', names(datamerged))] <- 'Proteins'
+    names(datamerged)[grep('Leading.razor.protein', names(datamerged))] <-
+      'Proteins'
   } else if('Leading.Razor.Protein' %in% colnames(datamerged) ) {
     cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
-    names(datamerged)[grep('Leading.Razor.Protein', names(datamerged))] <- 'Proteins'
+    names(datamerged)[grep('Leading.Razor.Protein', names(datamerged))] <-
+      'Proteins'
   } else{
-    stop("\n\n\n\tOH NO! THERE IS NO Leading.razor.protein COLUMN IN THIS EVIDENCE FILE!!\n\n\n")
+    stop("\n\n\n\tOH NO! THERE IS NO Leading.razor.protein COLUMN IN THIS 
+         EVIDENCE FILE!!\n\n\n")
   }
   
   datamerged$Proteins <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", datamerged$Proteins )
@@ -109,7 +115,8 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
     cat("\t+--> Before:", before,"\n")
     cat("\t+--> After:", after," (Keeping:", keepingPercent,"%)\n")
   }else if(sc_option == "all"){
-    cat("--- ALL peptides with intensities will be used to generate the saintq input file (indepependently of the number of spectral counts\n")
+    cat("--- ALL peptides with intensities will be used to generate the 
+        saintq input file (indepependently of the number of spectral counts\n")
   }else{
     cat("\n\nWAIT A MINUTE: sc_option MUST BE EITHER 'sc' or 'all'\n\n")
     stop("\n\nTRY AGAIN WHEN READY\n\n")

@@ -27,7 +27,11 @@
       predmss <-
         aggregate(
           data = data_f,
-          Intensity ~ Proteins + PeptideSequence + Charge + IsotopeLabelType + Condition +
+          Intensity ~ Proteins + 
+            PeptideSequence + 
+            Charge + 
+            IsotopeLabelType + 
+            Condition +
             BioReplicate + Run,
           FUN = funfunc
         )
@@ -83,7 +87,10 @@
     predmss_melt <-
       reshape2::melt(
         data = predmss_dc,
-        id.vars = c('Proteins', 'PeptideSequence', 'Charge', 'IsotopeLabelType'),
+        id.vars = c('Proteins', 
+                    'PeptideSequence', 
+                    'Charge', 
+                    'IsotopeLabelType'),
         value.name = "Intensity"
       )
     # And put back the condition, bioreplicate and run columns

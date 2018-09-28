@@ -267,7 +267,8 @@ artms_enrichLog2fc <- function(dataset,
 #'                                      sps = "human")
 #'
 #' # Filter the list of genes with a log2fc > 2
-#' filtered_data <- unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+#' filtered_data <- 
+#' unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 #'
 #' # And perform enrichment analysis
 #' data_annotated_enrich <- artms_enrichProfiler(
@@ -290,7 +291,7 @@ artms_enrichProfiler <-
       ordered_query = FALSE,
       significant = TRUE,
       exclude_iea = TRUE,
-      # do you want to exclude electronic annotations (IEA)? if so.. change it to 'T'
+      # do you want to exclude electronic annotations (IEA)?
       underrep = FALSE,
       evcodes = FALSE,
       region_query = FALSE,
@@ -380,14 +381,16 @@ artms_enrichProfiler <-
       LABELS = c(0, "  5E-2", "  5E-3", "< 5E-4", "")
       
       ## format stuff for heatmap
-      colors = c(colorRampPalette(brewer.pal(n = 7, name = "Purples"))(length(BREAKS) -
-                                                                         1))
+      colors = c(colorRampPalette(
+        brewer.pal(n = 7, name = "Purples"))(length(BREAKS) - 1))
       LOWER_T = BREAKS[length(BREAKS)]
       term_groups_selected_w_display = x
       term_groups_selected_w_display[term_groups_selected_w_display > LOWER_T] =
         LOWER_T
       if (length(x) > 1) {
-        #Do you need a main title: main=paste( gsub(".txt","",basename(out_file)) , "(color: -log10 p-value )"),
+        #Do you need a main title: 
+        #main=paste( gsub(".txt","",basename(out_file)) , 
+        #"(color: -log10 p-value )"),
         pheatmap(
           term_groups_selected_w_display,
           cluster_cols = FALSE,
@@ -407,7 +410,13 @@ artms_enrichProfiler <-
         )
       } else{
         cat(" [SORRY!! We currently don't support heatmaps of a single set] ")
-        #pheatmap(term_groups_selected_w_display, cluster_cols= FALSE,cluster_rows= FALSE, cellheight=10, cellwidth=10, scale="none", filename=gsub('.txt','_heatmap.pdf',out_file), fontsize=6, fontsize_row=8, fontsize_col=8, border_color=NA, color = colors, fontfamily="Helvetica")
+        #pheatmap(term_groups_selected_w_display, 
+        #cluster_cols= FALSE,cluster_rows= FALSE, 
+        #cellheight=10, cellwidth=10, scale="none", 
+        #filename=gsub('.txt','_heatmap.pdf',out_file), 
+        #fontsize=6, fontsize_row=8, fontsize_col=8,
+        # border_color=NA, color = colors, 
+        # fontfamily="Helvetica")
       }
     } else{
       cat(" [SORRY, NOT ENOUGH SIGNIFICANT TERMS FOR THIS DOMAIN] ")

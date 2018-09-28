@@ -21,8 +21,8 @@
 #' `TRUE` (default) or `FALSE`
 #' @param l2fc_thres (int) log2fc cutoff for enrichment analysis (default,
 #' `l2fc_thres = 1.5`)
-#' @param choosePvalue (char) specify whether `pvalue` or `adjpvalue` should use for
-#' the analysis. The default option is `adjpvalue`
+#' @param choosePvalue (char) specify whether `pvalue` or `adjpvalue` should 
+#' use for the analysis. The default option is `adjpvalue`
 #' (multiple testing correction).
 #' But if the number of biological replicates for a given experiment is
 #' too low (for example n = 2), then `choosePvalue = pvalue` is recommended.
@@ -100,16 +100,19 @@ must not be empty")
   }
 
   if(!(isPtm %in% c('global', 'ptmph', 'ptmsites'))){
-    stop("The < isPtm > argument is wrong. The valid options are: global or ptmsites\n")
+    stop("The < isPtm > argument is wrong. 
+         The valid options are: global or ptmsites\n")
   }
   
   if(!(choosePvalue %in% c('pvalue', 'adjpvalue'))){
-    stop("The < choosePvalue > argument is wrong. The valid options are: pvalue or adjpvalue\n")
+    stop("The < choosePvalue > argument is wrong. 
+         The valid options are: pvalue or adjpvalue\n")
   }
   
   specie <- tolower(specie)
   if(!(specie %in% c('human', 'mouse'))){
-    stop("The < specie > argument is wrong. The valid options are: pvalue or adjpvalue\n")
+    stop("The < specie > argument is wrong. 
+         The valid options are: pvalue or adjpvalue\n")
   }
   
   if (pathogen == "nopathogen") {
@@ -178,7 +181,8 @@ must not be empty")
       # And now be very careful with the Fluomics labeling, since they have an 
       # extra _ that it is not follow by the site
       cat(
-        "--- Warning! if you have UNIPROT_PTM id with more than one underscore '_' is going to be a problem\n"
+        "--- Warning! if you have UNIPROT_PTM id with more than one 
+        underscore '_' is going to be a problem\n"
       )
       dfmq2Genes$Protein <- ifelse(
         grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein),
@@ -241,19 +245,26 @@ must not be empty")
   #
   #   # WHEN A REFERENCE MOCK IS WISHED
   #   # if(specie == "human"){
-  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", dflog2fcraw$Label) & grepl("MOCK_03H", dflog2fcraw$Label) ),]
+  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
+  #   dflog2fcraw$Label) & grepl("MOCK_03H", dflog2fcraw$Label) ),]
   #   # }else if (specie == "mouse"){
-  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", dflog2fcraw$Label) | grepl("MOCK_D04", dflog2fcraw$Label) ),]
+  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
+  #   dflog2fcraw$Label) | grepl("MOCK_D04", dflog2fcraw$Label) ),]
   #   # }
   #
   #   #Choosing the match mock
-  #   flu_contrast <- c("H1N1_03H-MOCK_03H", "H1N1_06H-MOCK_06H", "H1N1_12H-MOCK_12H", "H1N1_18H-MOCK_18H", "H3N2_03H-MOCK_03H", "H3N2_06H-MOCK_06H", "H3N2_12H-MOCK_12H", "H3N2_18H-MOCK_18H", "H5N1_03H-MOCK_03H", "H5N1_06H-MOCK_06H", "H5N1_12H-MOCK_12H", "H5N1_18H-MOCK_18H")
+  #   flu_contrast <- c("H1N1_03H-MOCK_03H", "H1N1_06H-MOCK_06H", 
+  #   "H1N1_12H-MOCK_12H", "H1N1_18H-MOCK_18H", "H3N2_03H-MOCK_03H", 
+  #   "H3N2_06H-MOCK_06H", "H3N2_12H-MOCK_12H", "H3N2_18H-MOCK_18H", 
+  #   "H5N1_03H-MOCK_03H", "H5N1_06H-MOCK_06H", "H5N1_12H-MOCK_12H", 
+  #   "H5N1_18H-MOCK_18H")
   #   dflog2fcraw <- dflog2fcraw[which(dflog2fcraw$Label %in% flu_contrast),]
   #
   #   cat("LOG2FC Data Filtered by specific FLU comparisons\n")
   # }
   
-  # Let's get rid of outliers: log2fc larger than X (but we need to keep the "inf" values for imputation)
+  # Let's get rid of outliers: log2fc larger than X (but we need to keep 
+  # the "inf" values for imputation)
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC), ]
   cutofflog2fc <- 14
   cat(
@@ -415,7 +426,8 @@ must not be empty")
   hist(
     dflog2fcfinites$adj.pvalue,
     breaks = 100,
-    main = paste0("Adjusted p-values distribution\n n = ", dim(dflog2fcfinites)[1]),
+    main = paste0("Adjusted p-values distribution\n n = ", 
+                  dim(dflog2fcfinites)[1]),
     xlab = "adj.pvalues"
   )
   hist(
@@ -490,7 +502,7 @@ must not be empty")
   garbage <- dev.off()
   
   # Relationship between log2fc comparisons
-  cat(">> PLOT: CORRELATION BETWEEN ALL THE QUANTIFICATIONS (based on log2fc values\n")
+  cat(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values\n")
   if (length(unique(dflog2fc$Label)) > 1) {
     relaChanges <-
       gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
@@ -769,7 +781,7 @@ must not be empty")
   cat("--- Removing NA\n")
   imputedDF <- imputedDF[!is.na(imputedDF$log2FC), ]
   
-  cat("--- Add labeling about the condition more abundant in the quantification\n")
+  cat("--- Add labeling of condition more abundant in the quantification\n")
   imputedDF$CMA <-
     mapply(.artms_selectTheOneLog2fc,
            imputedDF$iLog2FC,
@@ -995,14 +1007,14 @@ must not be empty")
   }
   
   if (enrich == TRUE & dim(l2fcol4enrichment)[1] > 0) {
-    cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES (define by user) USING GPROFILER\n")
+    cat(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES USING GPROFILER\n")
     
     if (grepl("ptm", isPtm)) {
       # l2fcol4enrichment <- 
       # within(l2fcol4enrichment, rm(Gene,Uniprot_PTM,Protein.names))
       # Remove parties for enrichment
       l2fcol4enrichment <-
-        l2fcol4enrichment[grep(",", l2fcol4enrichment$Protein, invert = TRUE), ]
+        l2fcol4enrichment[grep(",", l2fcol4enrichment$Protein, invert = TRUE),]
       # Select the Uniprot ID, but keep in mind that some of them might
       # have many _ph54_ph446 before
       # l2fcol4enrichment$Protein <- 
@@ -1454,7 +1466,8 @@ must not be empty")
         fill = 0
       )
   } else{
-    stop("\nWRONG isPTM SELECTED. OPTIONS AVAILABLE: global, ptmph, yesphsite\n")
+    stop("\nWRONG isPTM SELECTED. 
+         OPTIONS AVAILABLE: global, ptmph, yesphsite\n")
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1537,9 +1550,9 @@ must not be empty")
         diag = TRUE
       )
       PerformanceAnalytics::chart.Correlation(venga,
-                                              histogram = TRUE,
-                                              pch = 25,
-                                              main = "Correlation between Comparisons")
+                                    histogram = TRUE,
+                                    pch = 25,
+                                    main = "Correlation between Comparisons")
       garbage <- dev.off()
       
       # BASED ON GROUPS
@@ -1682,7 +1695,8 @@ must not be empty")
       dfclusters$Gene <- gsub("(.*)(_)(.*)", "\\1", dfclusters$ids)
       dfclusters$Protein <- gsub("(.*)(_)(.*)", "\\3", dfclusters$ids)
       
-      # Making sure we have unique genes in each comparison (the PTM might bring redundancy)
+      # Making sure we have unique genes in each comparison 
+      # (the PTM might bring redundancy)
       pretmp <- dfclusters[c('Gene', 'cl_number')]
       pretmp <- unique(pretmp)
       
@@ -1709,7 +1723,12 @@ must not be empty")
         enrichgenes <-
           artms_enrichProfiler(
             tmp,
-            categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'),
+            categorySource = c('GO:BP', 
+                               'GO:MF', 
+                               'GO:CC', 
+                               'KEGG', 
+                               'REAC', 
+                               'CORUM'),
             specie = 'mmusculus',
             listOfGenes
           )
@@ -1853,9 +1872,11 @@ must not be empty")
     }
   } else{
     stop(
-      "\n\nYOU SHOULD NEVER SEE THIS MESSAGE. IF you do, dude, check the source code urgently\n\n"
+      "\n\nYOU SHOULD NEVER SEE THIS MESSAGE. 
+      IF you do, dude, check the source code urgently\n\n"
     )
-    # The script should have crashed by this point. If it gets up to here... it would be very weird
+    # The script should have crashed by this point. 
+    # If it gets up to here... it would be very weird
   }
   
   # Defining style for the header
@@ -1995,7 +2016,9 @@ artms_generatePhSiteExtended <-
       imputedDFext <-
         imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
       suppressMessages(imputedDFext <-
-                         artms_annotationUniprot(imputedDFext, 'Protein', specie))
+                         artms_annotationUniprot(imputedDFext, 
+                                                 'Protein', 
+                                                 specie))
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
@@ -2010,9 +2033,9 @@ artms_generatePhSiteExtended <-
       # 2. Make a copy of Uniprot_PTM to operate on it
       imputedDFext$PTMone <- imputedDFext$Uniprot_PTM
       
-      # 3. Create independent columns for each of them
-      imputedDFext <-
-        imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% unnest(PTMone)
+    # 3. Create independent columns for each of them
+    imputedDFext <-
+      imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% unnest(PTMone)
       
       # 4. And take the labels:
       imputedDFext$Protein <-
@@ -2034,8 +2057,11 @@ artms_generatePhSiteExtended <-
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
-      # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Protein), "Influenza", specie)
-      # imputedDFext$Specie <- ifelse(imputedDFext$Protein %in% pathogen.ids$Entry, pathogen, specie)
+      # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", 
+      # imputedDFext$Protein), "Influenza", specie)
+      # imputedDFext$Specie <- ifelse(imputedDFext$Protein 
+      # %in% pathogen.ids$Entry, pathogen, specie)
+
       imputedDFext <-
         artms_annotateSpecie(imputedDFext, pathogen, specie)
     } else{
@@ -2100,7 +2126,8 @@ artms_generatePhSiteExtended <-
               FUN = mean)
   
   # Check things that will be imputed
-  # dfdc.ni <- data.table::dcast(data=abu2imp2, Protein~BioReplicate, value.var = "Abundance")
+  # dfdc.ni <- data.table::dcast(data=abu2imp2, 
+  # Protein~BioReplicate, value.var = "Abundance")
   
   # Two possible options here.
   # 1. Select based on the bottom x%
@@ -2181,7 +2208,8 @@ artms_generatePhSiteExtended <-
       variable.name = 'Label',
       value.name = 'iLog2FC'
     )
-  # Now let's get it ready for merging with the values to be imputed at dflog2fcinfinites
+  # Now let's get it ready for merging with the values to be 
+  # imputed at dflog2fcinfinites
   imputedL2FCmelted$Label <-
     gsub("l2fc_", "", imputedL2FCmelted$Label)
   
@@ -2207,7 +2235,7 @@ artms_generatePhSiteExtended <-
 # @return annotated data.frame of abundance data
 # @keywords abundance, annotated
 .artms_loadModelQCstrict <- function (df_input, specie, ptmis) {
-  cat("--- Loading abundance values for proteins found in all biological replicas\n")
+  cat("--- Loading abundance for proteins found in all biological replicas\n")
   cat("--- With respect to the ptm: ", ptmis)
   # Remove empty entries
   if (any(df_input$PROTEIN == "")) {
@@ -2257,29 +2285,33 @@ artms_generatePhSiteExtended <-
 .artms_loadModelqcBasic <- function(data) {
   if (length(grep(";", data$PROTEIN)) > 0)
     data <-
-      data[-grep(";", data$PROTEIN), ] # NOTE!!! We lose a lot of entries this way.
+      data[-grep(";", data$PROTEIN), ]
   if ("PROTEIN" %in% colnames(data)) {
     names(data)[grep("PROTEIN", names(data))] <- 'Protein'
   } else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n")
+    cat("ERROR: you should check the abundance file
+        because something is seriously wrong!\n")
     stop("Abort mission\n!")
   }
   if ("ABUNDANCE" %in% colnames(data)) {
     names(data)[grep("ABUNDANCE", names(data))] <- 'Abundance'
   } else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n")
+    cat("ERROR: you should check the abundance file 
+        because something is seriously wrong!\n")
     stop("Abort mission\n!")
   }
   if ("GROUP_ORIGINAL" %in% colnames(data)) {
     names(data)[grep("GROUP_ORIGINAL", names(data))] <- 'Condition'
   } else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n")
+    cat("ERROR: you should check the abundance file 
+        because something is seriously wrong!\n")
     stop("Abort mission\n!")
   }
   if ("SUBJECT_ORIGINAL" %in% colnames(data)) {
     names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'BioReplicate'
   } else{
-    cat("ERROR: you should check the abundance file because something is seriously wrong!\n")
+    cat("ERROR: you should check the abundance file 
+        because something is seriously wrong!\n")
     stop("Abort mission\n!")
   }
   data <-
@@ -2308,8 +2340,8 @@ artms_generatePhSiteExtended <-
   
   # TECHNICAL REPLICAS: if there are technical replicas, 
   # this means that we will find
-  # two values for the same protein in the same bioreplica, therefore we need to
-  # aggregate first just in case:
+  # two values for the same protein in the same bioreplica, 
+  # therefore we need to aggregate first just in case:
   df_input <-
     aggregate(
       ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
@@ -2352,8 +2384,11 @@ artms_generatePhSiteExtended <-
   # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
   # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
   
-  input_melt = reshape2::melt(data = df_input[, c('Protein', 'Label', 'log2FC', 'adj.pvalue'), ], id.vars =
-                                c('Protein', 'Label'))
+  input_melt = reshape2::melt(data = df_input[, c('Protein', 
+                                                  'Label', 
+                                                  'log2FC', 
+                                                  'adj.pvalue'), ], 
+                              id.vars = c('Protein', 'Label'))
   input_dcast = data.table::dcast(Protein ~ Label + variable,
                                   data = input_melt,
                                   value.var = c('value'))

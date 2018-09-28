@@ -34,13 +34,27 @@
 #' -  enabled : 1
 #' -  msstats_input : # blank if not previous msstats input file is available
 #' -  profilePlots : none # before, after, before-after, none
-#' -  normalization_method : equalizeMedians # globalStandards (include a reference protein(s) ), equalizeMedians, quantile, 0
+#' -  normalization_method : equalizeMedians # globalStandards 
+#' (include a reference protein(s) ), equalizeMedians, quantile, 0
 #' -  normalization_reference :  #should be a value in the Protein column
-#' -  summaryMethod : TMP # "TMP"(default) means Tukey's median polish, which is robust estimation method. "linear" uses linear mixed model. "logOfSum" conducts log2 (sum of intensities) per run.
-#' -  censoredInt : NA  # Missing values are censored or at random. 'NA' (default) assumes that all 'NA's in 'Intensity' column are censored. '0' uses zero intensities as censored intensity. In this case, NA intensities are missing at random. The output from Skyline should use '0'. Null assumes that all NA intensites are randomly missing.
-#' -  cutoffCensored : minFeature  # Cutoff value for censoring. only with censoredInt='NA' or '0'. Default is 'minFeature', which uses minimum value for each feature.'minFeatureNRun' uses the smallest between minimum value of corresponding feature and minimum value of corresponding run. 'minRun' uses minumum value for each run.
-#' -  MBimpute : 1 # only for summaryMethod="TMP" and censoredInt='NA' or '0'. TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by Accelated failure model. FALSE uses the values assigned by cutoffCensored.
-#' -  feature_subset: all # all|highQuality  : highQuality seems to be buggy right now
+#' -  summaryMethod : TMP # "TMP"(default) means Tukey's median polish, 
+#' which is robust estimation method. "linear" uses linear mixed model. 
+#' "logOfSum" conducts log2 (sum of intensities) per run.
+#' -  censoredInt : NA  # Missing values are censored or at random. 'NA' 
+#' (default) assumes that all 'NA's in 'Intensity' column are censored. 
+#' '0' uses zero intensities as censored intensity. In this case, 
+#' NA intensities are missing at random. The output from Skyline 
+#' should use '0'. Null assumes that all NA intensites are randomly missing.
+#' -  cutoffCensored : minFeature  # Cutoff value for censoring. only 
+#' with censoredInt='NA' or '0'. Default is 'minFeature', which uses 
+#' minimum value for each feature.'minFeatureNRun' uses the smallest between 
+#' minimum value of corresponding feature and minimum value of corresponding
+#'  run. 'minRun' uses minumum value for each run.
+#' -  MBimpute : 1 # only for summaryMethod="TMP" and censoredInt='NA' or '0'.
+#'  TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by 
+#'  Accelated failure model. FALSE uses the values assigned by cutoffCensored.
+#' -  feature_subset: all # all|highQuality  : highQuality seems to be buggy 
+#' right now
 #' }
 #' 
 #' \item{output_extras}{
@@ -48,7 +62,9 @@
 #'   - enabled : 1 # if 0, it wont do anything in this section
 #' - annotate :  
 #'   - enabled: 1 # 1|0 whether to annotate the proteins in the results or not
-#' - specie : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS, BOVINE, WORM, CANINE, FLY, ZEBRAFISH, ECOLI_STRAIN_K12, ECOLI_STRAIN_SAKAI, CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
+#' - specie : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS, 
+#' BOVINE, WORM, CANINE, FLY, ZEBRAFISH, ECOLI_STRAIN_K12, ECOLI_STRAIN_SAKAI, 
+#' CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
 #' - plots:
 #'   - volcano: 1
 #'   - heatmap: 1

@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[//]: # (Comment: if you want to include comments, this may be the most platform independent comment syntax)
+[//]: # (Comment: this may be the most platform independent comment syntax)
 
 # Overview
 
@@ -57,7 +57,7 @@ package `MaxQuant`.
 
 We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.5` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
 
-```{r, eval = FALSE}
+```{r, }
 getRversion()
 ```
 
@@ -106,7 +106,7 @@ library(artMS)
 
 Once installed, we suggest you to do a quick test by running the quality control functions using the "evidence" (`artms_data_ph_evidence`) and "keys" (`artms_data_ph_keys`) files included in `artMS` as test datasets.
 
-```{r, eval = FALSE}
+```{r, }
 # First go to a local working directory: several pdfs will be generated
 # setwd("/path/to/your/working/directory/")
 
@@ -197,7 +197,7 @@ The configuration file (in `yaml` format) contains the configuration details for
 
 To generate a sample configuration file, go to the project folder (`setwd(/path/to/your/working/folder/)`) and execute:
 
-```{r, eval = FALSE}
+```{r, }
 artms_writeConfigYamlFile(config_file_name = "config.yaml" )
 ```
 
@@ -445,7 +445,7 @@ url_keys <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
 
 The basic quality control analysis takes as input both the `evidence.txt` and `keys.txt`. 
 
-```{r, eval = FALSE}
+```{r, }
 artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
                                   keys_file = artms_data_ph_keys,
                                   output_name = "qcPlots_evidence",
@@ -467,7 +467,7 @@ Check `?artms_evidenceQCbasic()` to find out more options about this function.
 
 It takes as input the `evidence.txt` and `keys.txt` files as follows:
 
-```{r, eval = FALSE}
+```{r, }
 artms_qualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
                                      keys_file = artms_data_ph_keys)
 ```

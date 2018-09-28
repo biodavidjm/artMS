@@ -103,7 +103,8 @@ artms_replicatePlots <- function(input_file,
     cat("--- No filtering of modified peptides\n")
   } else{
     stop(
-      "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artms_replicatePlots TO FIND OUT THE AVAILABLE OPTIONS\n"
+      "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artms_replicatePlots 
+      TO FIND OUT THE AVAILABLE OPTIONS\n"
     )
   }
   
@@ -156,7 +157,9 @@ artms_replicatePlots <- function(input_file,
                                                                   sep = "_")])
       # prep 2nd replicate comparison for plot
       rep2 <-
-        log2(x[, paste(repplot$condition1[i], repplot$rep1_2[i], sep = "_")] / x[, paste(repplot$condition2[i], repplot$rep2_2[i], sep =
+        log2(x[, 
+               paste(repplot$condition1[i], 
+                     repplot$rep1_2[i], sep = "_")] / x[, paste(repplot$condition2[i], repplot$rep2_2[i], sep =
                                                                                            "_")])
       
       # remove NA pairs

@@ -20,8 +20,8 @@ test (\code{T}) and control (\code{C}) conditions}
 Two options:
 \itemize{
 \item \code{msspc}: use only peptides with spectral_counts
-\item \code{all} (default): all peptides detected (including the one resulting from the
-MaxQuant 'Match between run' algorithm)
+\item \code{all} (default): all peptides detected (including the one resulting from
+the MaxQuant 'Match between run' algorithm)
 }}
 
 \item{fractions}{(logical) \code{TRUE} for 2D proteomics (fractions).

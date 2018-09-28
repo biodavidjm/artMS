@@ -137,14 +137,18 @@
           colour = prot_names
         )) + geom_line(aes(group = prot_names)) +
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
-      # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse='|'), tmp$Proteins),], aes(x=variable, y=(value),
-      # colour=Proteins )) + geom_line(aes(group=Proteins)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse='|'), 
+      # tmp$Proteins),], aes(x=variable, y=(value),
+      # colour=Proteins )) + geom_line(aes(group=Proteins)) + 
+      # theme(axis.text.x = element_text(angle = 45, hjust = 1))
       plotly::ggplotly(p)
     })
     
     output$plot_clusts <- plotly::renderPlotly({
-      # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse='|'), tmp$Proteins),], aes(x=variable, y=(value),
-      # colour=Proteins )) + geom_line(aes(group=Proteins)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      # p <- ggplot(data=tmp[grep(paste(input$check_proteins,collapse='|'), 
+      # tmp$Proteins),], aes(x=variable, y=(value),
+      # colour=Proteins )) + geom_line(aes(group=Proteins)) + 
+      # theme(axis.text.x = element_text(angle = 45, hjust = 1))
       idx <-
         intersect(
           grep(

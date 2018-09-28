@@ -266,9 +266,11 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
   if (length(which(is.na(cols.matched$V2))) > 0) {
     stop(
       paste0(
-        "OH NO!! YOUR EVIDENCE FILE CONTAINS A COLUMN THAT I DON'T RECOGNIZE :( PLEASE TELL THE 'col.classes' IN THE .artms_read_evidence_file' FUNCTION AND ADD IN THIS NEW COLUMN(S) CALLED \n\t",
-        paste(cols.matched$V1[which(is.na(cols.matched$V2))], collapse = "\n\t"),
-        "\n"
+        "OH NO!! YOUR EVIDENCE FILE CONTAINS A COLUMN THAT I DON'T RECOGNIZE :(
+        PLEASE TELL THE 'col.classes' IN THE .artms_read_evidence_file' 
+        FUNCTION AND ADD IN THIS NEW COLUMN(S) CALLED \n\t",
+        paste(cols.matched$V1[which(is.na(cols.matched$V2))], 
+              collapse = "\n\t"), "\n"
       )
     )
   }

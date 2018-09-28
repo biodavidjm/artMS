@@ -36,7 +36,9 @@ artms_proteinToSiteConversion <- function (evidence_file,
   
   cat(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC\n")
   
-  if(is.null(evidence_file) & is.null(ref_proteome_file) & is.null(output_file)){
+  if(is.null(evidence_file) & 
+     is.null(ref_proteome_file) & 
+     is.null(output_file)){
     return("Files must not be NULL")
   }
   
@@ -61,7 +63,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
   } else{
     cat("ERROR!!! THE MOD_TYPE <<", mod_type, ">> IS NOT SUPPORTED\n")
     stop(
-      "CHECK ?artms_proteinToSiteConversion TO GET THE LIST OF SUPPORTED POST-TRANSLATIONAL MODIFICATIONS\n"
+      "CHECK ?artms_proteinToSiteConversion TO GET 
+      THE LIST OF SUPPORTED POST-TRANSLATIONAL MODIFICATIONS\n"
     )
   }
   
@@ -92,7 +95,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
     data.table(names = p_names,
                annots = p_annots,
                seqs = p_seqs)
-  ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
+  ref_table[, 
+            uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
                                  '\\2',
                                  names)]
   
@@ -131,7 +135,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
   mod_sites <- c()
   mod_seqs <- c()
   
-  cat("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES (it might take some time)\n")
+  cat("--- EXTRACTING PTM POSITIONS FROM THE 
+      MODIFIED PEPTIDES (it might take some time)\n")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
@@ -191,7 +196,9 @@ artms_proteinToSiteConversion <- function (evidence_file,
             } else{
               cat(
                 sprintf(
-                  'MISMATCH\t%s\n\tPEPTIDE_SEQ\t%s\n\tMOD_SITE\t%s\n\tPEPTIDE_IDX_IN_PROTEIN\t%s\n\tRESIDUES_BEFORE_SITE\t%s\n\tPROTEIN_SEQ\t%s\n',
+                  'MISMATCH\t%s\n\tPEPTIDE_SEQ\t%s\n\tMOD_SITE\t%s\n\t
+                  PEPTIDE_IDX_IN_PROTEIN\t%s\n\tRESIDUES_BEFORE_SITE
+                  \t%s\n\tPROTEIN_SEQ\t%s\n',
                   mod_site_id,
                   peptide_seq,
                   mod_site,

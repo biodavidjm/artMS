@@ -46,7 +46,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     keys <- .artms_checkRawFileColumnName(keys)
     if (any(!'FractionKey' %in% colnames(keys))) {
       cat(
-        '\nERROR!!! fractions WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n'
+        '\nERROR!!! fractions WAS ACTIVATED BUT FractionKey 
+        COLUMN NOT FOUND IN THE KEYS FILE\n'
       )
       stop('Please, try again once revised\n\n')
     }
@@ -169,7 +170,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   evidencekeysclean <-
     artms_filterEvidenceContaminants(evidencekeys)
   
-  cat(">> GENERATING THE REPRODUCIBILITY PLOTS (warning: it will take some time)\n")
+  cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
+      (warning: it will take some time)\n")
   seqReproName <-
     paste0(output_name, ".qcplot.basicReproducibility.pdf")
   
@@ -210,7 +212,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   # Make sure that the Intensity is numeric
   data2matrix$Intensity <- as.numeric(data2matrix$Intensity)
   
-  # Check the number of TECHNICAL REPLICAS by checking the first technical replica
+  # Check the number of TECHNICAL REPLICAS by 
+  # checking the first technical replica
   technicalReplicas <-
     unique(data2matrix$Run[which(data2matrix$BioReplicate == data2matrix$BioReplicate[1])])
   palette.breaks <- seq(1, 3, 0.1)
@@ -514,7 +517,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       )]
     ekselectgly <-
       ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
-    # SUM UP all the peptide intensities for all the proteins: only one intensity value per protein and biological data
+    # SUM UP all the peptide intensities for all the proteins: 
+    # only one intensity value per protein and biological data
     ekselectaBioreplica <-
       aggregate(
         Intensity ~ Proteins + Condition + BioReplicate + Run,
@@ -637,7 +641,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       legend.position = "none"
     ) +
     labs(x = "BioReplicate", y = "log2(Intensity)") +
-    ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. Max intensity of TR")
+    ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. 
+            Max intensity of TR")
   
   pisf <-
     ggplot(ekselectaBioreplica2plot,
@@ -654,7 +659,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       legend.position = "none"
     ) +
     labs(x = "Condition", y = "log2(Intensity)") +
-    ggtitle("Protein Intensity in Conditions\nExcluding contaminants. Max intensity of TR")
+    ggtitle("Protein Intensity in Conditions\nExcluding contaminants. 
+            Max intensity of TR")
   
   pisg <- ggplot(ekselectaBioreplica) +
     theme(axis.text.x = element_text(
@@ -670,7 +676,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       fill = "black",
       colour = "orange"
     ) +
-    ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. Max intensity of TR")
+    ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. 
+            Max intensity of TR")
   
   pish <- ggplot(ekselectaBioreplica) +
     theme(axis.text.x = element_text(
@@ -686,7 +693,8 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       fill = "black",
       colour = "green"
     ) +
-    ggtitle("Total Intensity in Conditions\nExcluding contaminants. Max intensity of TR")
+    ggtitle("Total Intensity in Conditions\nExcluding contaminants. 
+            Max intensity of TR")
   
   pisi <- ggplot(cd, aes(x = TR, fill = Condition)) +
     geom_bar(stat = "count") +
