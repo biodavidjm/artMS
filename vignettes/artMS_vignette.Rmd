@@ -707,17 +707,156 @@ A few comments about the available options for `artms_analysisQuantifications`:
 
 `artMS` also provides a number of very handy functions.
 
-**`artms_avg_intensity_RT(evidence_file = '/path/to/the/evidence.txt)`**
+## Annotate table with Gene Symbol and Name based on Uniprot ID(s)
+
+Annotate gene name and symbol based on uniprot ids. It will take the column from your data.frame specified by the columnid argument, search for the gene symbol, name, and entrez based on the specie (sps argument) and merge the information back to the input data.frame
+
+```{r, eval = FALSE}
+# This example adds annotations to the evidence file available in
+# artMS, based on the column 'Proteins'.
+
+evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+                                         columnid = 'Proteins',
+                                         sps = 'human')
+```
+
+
+## Average Intensity, RT, CR
 
 Taking as input the evidence file location, it will summarize and report back the average intensity, average retention time, and the average caliberated retention time for each protein. If a list of proteins is provided, then only those proteins will be summarized and returned. Check `?artms_avg_intensity_RT()` to find out more options.
 
-it generates reproducibility plots, as specificied by the user. It requires an
-additional file with the following information:
 
-**condition1**|**rep1\_1**|**rep1\_2**|**condition2**|**rep2\_1**|**rep2\_2**
------|-----|-----|-----|-----|-----
-Cal33|Cal33-1|Cal33-2|HSC6|HSC6-1|HSC6-2
-Cal33|Cal33-3|Cal33-4|HSC6|HSC6-3|HSC6-4
+```
+artms_avg_intensity_RT(evidence_file = '/path/to/the/evidence.txt)
+```
+
+## Change Column Name
+
+Change a specific column name in a given data.frame
+
+```{r, eval = FALSE}
+artms_data_ph_evidence <- artms_changeColumnName(
+                               dataset = artms_data_ph_evidence,
+                               oldname = "Phospho..STY.",
+                               newname = "PH_STY")
+```
+
+## Individual abundance dot plots
+
+Protein abundance dot plots for each unique uniprot id. It can take a long time
+
+```{r, eval = FALSE}
+artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt",
+               output_file = "results/ab-results-mss-normalized.pdf")
+```
+
+## Enrichment analysis function
+
+Enrichment analysis based on a data.frame with `Gene` and `Comparison`/`Label` protein (i.e, typical MSstats results)
+
+```{r}
+# The data must be annotated (Protein and Gene columns)
+data_annotated <- artms_annotationUniprot(
+                      data = artms_data_ph_msstats_results,
+                      columnid = "Protein",
+                      sps = "human")
+# And then the enrichment
+enrich_set <- artms_enrichLog2fc(
+                   dataset = data_annotated,
+                   specie = "human",
+                   background = unique(data_annotated$Gene))
+```
+
+## Enrichment analysis using gProfileR
+
+Function that simplifies enrichment analysis using gProfileR
+
+```{r}
+# annotate the MSstats results to get the Gene name
+data_annotated <- artms_annotationUniprot(
+                                     data = artms_data_ph_msstats_results,
+                                     columnid = "Protein",
+                                     sps = "human")
+
+# Filter the list of genes with a log2fc > 2
+filtered_data <- 
+unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
+
+# And perform enrichment analysis
+data_annotated_enrich <- artms_enrichProfiler(
+                                   x = filtered_data,
+                                   categorySource = c('KEGG'),
+                                   specie = "hsapiens",
+                                   background = unique(data_annotated$Gene))
+```
+
+
+## MaxQuant evidence file to SAINTexpress format
+
+Converts the MaxQuant evidence file to the 3 required files by SAINTexpress. Choose one of the following quantitative MS metrics:
+
+- MS spectral counts (use msspc)
+- MS intensities (use msint)
+
+```{r}
+# Testing that the files cannot be empty
+artms_evidenceToSaintExpressFormat(evidence_file = NULL, 
+keys_file = NULL, ref_proteome_file = NULL)
+```
+
+
+## MaxQuant evidence file to SAINTq format
+
+Converts the MaxQuant evidence file to the required files by SAINTq. The user can filter based on either peptides with spectral counts (use `msspc`) or all the peptides (use `all`) for the analysis. The quantitative metric can be also chosen (either MS intensity or spectral counts)
+
+```{r}
+# Testing that the files cannot be empty
+artms_evidenceToSAINTqFormat(evidence_file = NULL, 
+                                   keys_file = NULL, 
+                                   output_dir = NULL)
+```
+
+
+## Remove contaminants and empty proteins from the MaxQuant evidence file
+
+Remove contaminants and erronously identified 'reverse' sequences by MaxQuant, in addition to empty protein ids
+
+```{r}
+evidencefiltered <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
+```
+
+
+## Generate ph-site specific evidence file
+
+Generate extended detailed ph-site file, where every line is a ph site instead of a peptide. Therefore, if one peptide has multiple ph sites it will be breaking down in multiple extra lines for each of the sites. 
+
+```{r}
+artms_generatePhSiteExtended(df = dfobject, 
+                             specie = "mouse", 
+                             ptmType = "ptmsites",
+                             output_name = log2fc_file)
+```
+
+
+
+
+# Testing files
+
+The artMS package provides the following testing datasets:
+
+- `artms_data_ph_evidence`
+- `artms_data_ph_keys`
+- `artms_data_ph_msstats_results`
+- `artms_data_corum_mito_database`
+- `artms_data_pathogen_LPN`
+- `artms_data_pathogen_TB`
+
+Check the individual help pages (e.g, `?artms_data_ph_evidence`) to find out more about them.
+
+
+
+
+
 
 # Help
 

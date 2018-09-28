@@ -38,9 +38,10 @@ Two options available:
 The input files requires to run SAINTq
 }
 \description{
-Converts the MaxQuant evidence file to the 3 required files
-by SAINTexpress. One can choose to either use the \code{spectral counts}
-(use \code{msspc}) or the \code{intensities} (use \code{msint}) for the analysis.
+Converts the MaxQuant evidence file to the required files
+by SAINTq. The user can choose to use either peptides with \code{spectral counts}
+(use \code{msspc}) or the all the peptides (use \code{all}) for the analysis.
+The quantitative can be also chosen (either MS Intensity or Spectral Counts)
 }
 \details{
 After running the script, the new specified folder should contain

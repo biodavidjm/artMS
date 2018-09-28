@@ -1,9 +1,10 @@
 # ------------------------------------------------------------------------------
 #' @title MaxQuant evidence file to SAINTq format
 #'
-#' @description Converts the MaxQuant evidence file to the 3 required files
-#' by SAINTexpress. One can choose to either use the `spectral counts`
-#' (use `msspc`) or the `intensities` (use `msint`) for the analysis.
+#' @description Converts the MaxQuant evidence file to the required files
+#' by SAINTq. The user can choose to use either peptides with `spectral counts`
+#' (use `msspc`) or the all the peptides (use `all`) for the analysis. 
+#' The quantitative can be also chosen (either MS Intensity or Spectral Counts)
 #' @param evidence_file (char or data.frame) The evidence file path and name, 
 #' or data.frame
 #' @param keys_file (char) Keys file with a SAINT column specifying
