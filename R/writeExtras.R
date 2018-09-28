@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
-#' @title Write extras
-#' @description Extras after MSstats, as annotations, volcano plots, heatmaps
-#' @param results MSstats results
-#' @param config The configuration object (yaml)
-#' @return Extras as selected in the yaml file, including:
-#' - volcano plot (pdf)
-#' - Adding annotations (gene symbol based on uniprot)
-#' @keywords extras, annotations, volcano
+# @title Write extras
+# @description Extras after MSstats, as annotations, volcano plots, heatmaps
+# @param results MSstats results
+# @param config The configuration object (yaml)
+# @return Extras as selected in the yaml file, including:
+# - volcano plot (pdf)
+# - Adding annotations (gene symbol based on uniprot)
+# @keywords extras, annotations, volcano
 .artms_writeExtras <- function(results, 
                                config) {
   

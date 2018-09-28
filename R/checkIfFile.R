@@ -1,15 +1,14 @@
 # ------------------------------------------------------------------------------
-#' @title Check if an input is a file or a data object
-#'
-#' @description This function is used in order to make it so a user can submit
-#'  either a path to a data file or a data object in data.frame or data.table
-#'  form.
-#' @param input_file (object or data.frame) The filepath/object to be checked.
-#' @param is.evidence (logical) Whether or not the file to be read in is an
-#' evidence file. This will assign proper classes to the evidence file
-#' when being read in.
-#' @return An R data object
-#' @keywords internal, file, evidence, input
+# @title Check if an input is a file or a data object
+# @description This function is used in order to make it so a user can submit
+#  either a path to a data file or a data object in data.frame or data.table
+#  form.
+# @param input_file (object or data.frame) The filepath/object to be checked.
+# @param is.evidence (logical) Whether or not the file to be read in is an
+# evidence file. This will assign proper classes to the evidence file
+# when being read in.
+# @return An R data object
+# @keywords internal, file, evidence, input
 .artms_checkIfFile <- function(input_file, is.evidence = FALSE) {
   # check if already a data.frame or data.table
   if (is.data.table(input_file)) {
@@ -59,16 +58,15 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
 
 
 # ------------------------------------------------------------------------------
-#' @title Read the Evidence File
-#'
-#' @description Read in a MaxQuant searched Evidence file using data.table.
-#' This function properly classes each column and so fread doesn't have
-#' to guess.
-#' @param evidence_file (char)The filepath to the MaxQuant searched data
-#' (evidence) file (txt tab delimited file).
-#' @return (data.frame) with the evidence file with defining classes
-#' @keywords internal, MaxQuant, evidence
-#' .artms_read_evidence_file()
+# @title Read the Evidence File
+#
+# @description Read in a MaxQuant searched Evidence file using data.table.
+# This function properly classes each column and so fread doesn't have
+# to guess.
+# @param evidence_file (char)The filepath to the MaxQuant searched data
+# (evidence) file (txt tab delimited file).
+# @return (data.frame) with the evidence file with defining classes
+# @keywords internal, MaxQuant, evidence
 .artms_read_evidence_file <- function(evidence_file) {
   cat("--- Reading in evidence file...\n")
   # read in the first line to get the header names
@@ -287,15 +285,14 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Unify column names
-#'
-#' @description The newer versions of MaxQuant change the letter case in the
-#' column names. This is to help keep things unified still.
-#' @param x (data.frame) Loaded evidence file.
-#' @return (data.frame) with the evidence file with defining classes and
-#' unified columns
-#' @keywords internal, MaxQuant, evidence
-#' .artms_unifyColumnNames()
+# @title Unify column names
+#
+# @description The newer versions of MaxQuant change the letter case in the
+# column names. This is to help keep things unified still.
+# @param x (data.frame) Loaded evidence file.
+# @return (data.frame) with the evidence file with defining classes and
+# unified columns
+# @keywords internal, MaxQuant, evidence
 .artms_unifyColumnNames <- function(x) {
   names(x) <-
     gsub("^Mass error \\[ppm\\]$", "Mass Error \\[ppm\\]", names(x))

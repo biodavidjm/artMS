@@ -2,14 +2,13 @@
 ## Small MSstats-related Functions
 
 # ------------------------------------------------------------------------------
-#' @title Long to Wide format using the `Sequence` column of the evidence file
-#'
-#' @description Facilitates applying the dcast function, i.e., takes long-format
-#' data and casts it into wide-format data.
-#' @param d_long (data.frame) in long format
-#' @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
-#' @keywords internal, data.frame, dcast
-#' .artms_castMaxQToWide()
+# @title Long to Wide format using the `Sequence` column of the evidence file
+#
+# @description Facilitates applying the dcast function, i.e., takes long-format
+# data and casts it into wide-format data.
+# @param d_long (data.frame) in long format
+# @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
+# @keywords internal, data.frame, dcast
 .artms_castMaxQToWide <- function(d_long) {
   data_w <-
     data.table::dcast(
@@ -23,15 +22,14 @@
 }
 
 # ------------------------------------------------------------------------------
-#' @title Long to Wide format selecting the `Modified.sequence` column of the
-#' evidence file
-#'
-#' @description Facilitates applying the dcast function, i.e., takes long-format
-#' data and casts it into wide-format data.
-#' @param d_long (data.frame) in long format
-#' @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
-#' @keywords internal, data.frame, dcast, ptm
-#' .artms_castMaxQToWidePTM()
+# @title Long to Wide format selecting the `Modified.sequence` column of the
+# evidence file
+#
+# @description Facilitates applying the dcast function, i.e., takes long-format
+# data and casts it into wide-format data.
+# @param d_long (data.frame) in long format
+# @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
+# @keywords internal, data.frame, dcast, ptm
 .artms_castMaxQToWidePTM <- function(d_long) {
   data_w <-
     data.table::dcast(
@@ -46,15 +44,14 @@
 }
 
 # ------------------------------------------------------------------------------
-#' @title Check the `Raw file` column name on the evidence or keys data.frame
-#'
-#' @description Depending on how the data is loaded, the `Raw file` column
-#' might have different format. This function check to ensure consistency in
-#' both the evidence and keys data.frames
-#' @param (data.frame) keys or evidence files
-#' @return (data.frame) with the `RawFile` column name
-#' @keywords internal rawfile, columname
-#' .artms_checkRawFileColumnName()
+# @title Check the `Raw file` column name on the evidence or keys data.frame
+#
+# @description Depending on how the data is loaded, the `Raw file` column
+# might have different format. This function check to ensure consistency in
+# both the evidence and keys data.frames
+# @param (data.frame) keys or evidence files
+# @return (data.frame) with the `RawFile` column name
+# @keywords internal rawfile, columname
 .artms_checkRawFileColumnName <- function(df) {
   if (!('RawFile' %in% colnames(df))) {
     if ("Raw.file" %in% colnames(df)) {
@@ -95,14 +92,14 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Filtering data
-#'
-#' @description Apply the filtering options, i.e., remove protein groups and/or
-#' contaminants, and/or, select posttranslational modification (if any)
-#' @param data (data.frame) Evidence file
-#' @param config (yaml.object) Configuration object (opened yaml file)
-#' @return (data.frame) filtered according to the options selected
-#' @keywords internal, filtering, remove, proteingroups, ptms
+# @title Filtering data
+#
+# @description Apply the filtering options, i.e., remove protein groups and/or
+# contaminants, and/or, select posttranslational modification (if any)
+# @param data (data.frame) Evidence file
+# @param config (yaml.object) Configuration object (opened yaml file)
+# @return (data.frame) filtered according to the options selected
+# @keywords internal, filtering, remove, proteingroups, ptms
 .artms_filterData <- function(data, config) {
   cat("\n>> FILTERING\n")
   if (config$data$filters$protein_groups == 'remove') {
@@ -298,15 +295,14 @@ artms_SILACtoLong <- function(evidence_file, output) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Pretty Labels for Heatmaps
-#'
-#' @description Generates pretty labels for the heatmaps.
-#' @param uniprot_acs (char) Uniprot accession id
-#' @param uniprot_ids (char) Uniprot entry id
-#' @param gene_names (car) Gene symbol
-#' @return Pretty labels for a heatmap
-#' @keywords internal, plots, pretty
-#' .artms_prettyPrintHeatmapLabels()
+# @title Pretty Labels for Heatmaps
+#
+# @description Generates pretty labels for the heatmaps.
+# @param uniprot_acs (char) Uniprot accession id
+# @param uniprot_ids (char) Uniprot entry id
+# @param gene_names (car) Gene symbol
+# @return Pretty labels for a heatmap
+# @keywords internal, plots, pretty
 .artms_prettyPrintHeatmapLabels <-
   function(uniprot_acs, uniprot_ids, gene_names) {
     result = paste(uniprot_acs, uniprot_ids, gene_names, sep = ' ')
@@ -314,13 +310,12 @@ artms_SILACtoLong <- function(evidence_file, output) {
   }
 
 # ------------------------------------------------------------------------------
-#' @title Remove protein groups
-#'
-#' @description Remove the group of proteins ids separated by separated by `;`
-#' @param data (data.frame) with a `Proteins` column.
-#' @return (data.frame) with the protein groups removed
-#' @keywords maxquant, remove, proteingroups
-#' .artms_removeMaxQProteinGroups()
+# @title Remove protein groups
+#
+# @description Remove the group of proteins ids separated by separated by `;`
+# @param data (data.frame) with a `Proteins` column.
+# @return (data.frame) with the protein groups removed
+# @keywords maxquant, remove, proteingroups
 .artms_removeMaxQProteinGroups <- function(data) {
   data_selected = data[grep(";", data$Proteins, invert = TRUE), ]
   return(data_selected)
@@ -402,15 +397,15 @@ artms_resultsWide <- function(results_msstats,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Correlation heatmaps of all the individual features
-#' @description Correlation heatmap using intensity values across all the
-#' conditions
-#' @param data_w (data.frame) resulting from the `.artms_castMaxQToWidePTM`
-#' function
-#' @param keys (data.frame) of the keys
-#' @param config (yaml.object) Configuration object (yaml loaded)
-#' @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
-#' @keywords internal, heatmap, intensity, comparisons
+# @title Correlation heatmaps of all the individual features
+# @description Correlation heatmap using intensity values across all the
+# conditions
+# @param data_w (data.frame) resulting from the `.artms_castMaxQToWidePTM`
+# function
+# @param keys (data.frame) of the keys
+# @param config (yaml.object) Configuration object (yaml loaded)
+# @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
+# @keywords internal, heatmap, intensity, comparisons
 .artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
   mat = log2(data_w[, 4:ncol(data_w), with = FALSE])
   mat[is.na(mat)] = 0
@@ -441,14 +436,14 @@ artms_resultsWide <- function(results_msstats,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Barplot of peptide counts per biological replicate
-#'
-#' @description Total number of unique peptide identified per biological
-#' replicate
-#' @param data_f (char) Evidence file (same structure as the original)
-#' @param config (yaml.object) Configuration object
-#' @return (pdf) Barplot of peptide counts
-#' @keywords barplot, counts, peptides
+# @title Barplot of peptide counts per biological replicate
+#
+# @description Total number of unique peptide identified per biological
+# replicate
+# @param data_f (char) Evidence file (same structure as the original)
+# @param config (yaml.object) Configuration object
+# @return (pdf) Barplot of peptide counts
+# @keywords barplot, counts, peptides
 .artms_samplePeptideBarplot <- function(data_f, config) {
   # set up data into ggplot compatible format
   data_f <-
@@ -497,19 +492,18 @@ artms_resultsWide <- function(results_msstats,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Select significant hits
-#'
-#' @description Filtered data.frame with significant values (log2fc > 2 |
-#' log2fc < -2; adj.pvalue < 0.05) from the MSstats results
-#' @param mss_results (data.frame) of MSstats results
-#' @param labels (vector) of selected labels. Default: all (`*`)
-#' @param LFC (vector, int) with the negative and positive threshold. Default:
-#' c(-2, 2)
-#' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)?
-#' @param FDR (int) false discovery rate (adj.pvalue) threshold. Default: 0.05
-#' @return (data.frame) only with significant hits
-#' @keywords internal, significant, selections
-#' .artms_significantHits()
+# @title Select significant hits
+#
+# @description Filtered data.frame with significant values (log2fc > 2 |
+# log2fc < -2; adj.pvalue < 0.05) from the MSstats results
+# @param mss_results (data.frame) of MSstats results
+# @param labels (vector) of selected labels. Default: all (`*`)
+# @param LFC (vector, int) with the negative and positive threshold. Default:
+# c(-2, 2)
+# @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)?
+# @param FDR (int) false discovery rate (adj.pvalue) threshold. Default: 0.05
+# @return (data.frame) only with significant hits
+# @keywords internal, significant, selections
 .artms_significantHits <- function(mss_results,
                                    labels = '*',
                                    LFC = c(-2, 2),
@@ -618,27 +612,26 @@ artms_spectralCounts <- function(evidence_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Remove white spaces
-#'
-#' @description Remove white spaces
-#' @param x (vector) A string
-#' @return (vector) with no white spaces
-#' @keywords internal, remove, whitespace
+# @title Remove white spaces
+#
+# @description Remove white spaces
+# @param x (vector) A string
+# @return (vector) with no white spaces
+# @keywords internal, remove, whitespace
 .artms_trim <- function (x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 
 # ------------------------------------------------------------------------------
-#' @title Generate the contrast matrix required by MSstats from a txt file
-#' @description It simplifies the process of creating the contrast file
-#' @param contrast_file The text filepath of contrasts
-#' @param all_conditions a vector with all the conditions in the keys file
-#' @return (data.frame) with the contrast file in the format required by
-#' MSstats
-#' @author Tom Nguyen, David Jimenez-Morales
-#' @keywords check, contrast
-.artms_writeContrast <-
-  function(contrast_file, all_conditions = NULL) {
+# @title Generate the contrast matrix required by MSstats from a txt file
+# @description It simplifies the process of creating the contrast file
+# @param contrast_file The text filepath of contrasts
+# @param all_conditions a vector with all the conditions in the keys file
+# @return (data.frame) with the contrast file in the format required by
+# MSstats
+# @author Tom Nguyen, David Jimenez-Morales
+# @keywords check, contrast
+.artms_writeContrast <- function(contrast_file, all_conditions = NULL) {
     input_contrasts <- readLines(contrast_file, warn = FALSE)
     #remove empty lines
     input_contrasts <-
@@ -711,4 +704,4 @@ artms_spectralCounts <- function(evidence_file,
         Please, let the developers know at <artms.help@gmail.com>'
       )
     }
-    }
+}

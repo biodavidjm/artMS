@@ -1,14 +1,14 @@
 # Everything about enrichments (including plots)
 
 # ------------------------------------------------------------------------------
-#' @title Enrich for Protein Complexes using CORUM
-#'
-#' @description Enrich for Protein Complexes using CORUM
-#' @param df (data.frame) Data.frame with columns: `Protein` and `Conditions`
-#' @param backgroundNumber (int) Background number of genes
-#' @return (data.frame) A text delimited data.frame with protein complex 
-#' enrichment results
-#' @keywords internal, enrichment, protein, complexes
+# @title Enrich for Protein Complexes using CORUM
+#
+# @description Enrich for Protein Complexes using CORUM
+# @param df (data.frame) Data.frame with columns: `Protein` and `Conditions`
+# @param backgroundNumber (int) Background number of genes
+# @return (data.frame) A text delimited data.frame with protein complex 
+# enrichment results
+# @keywords internal, enrichment, protein, complexes
 .artms_enrichForComplexes <- function(df, backgroundNumber) {
   listOfConditions <- unique(df$Comparisons)
   
@@ -140,14 +140,14 @@ artms_enrichLog2fc <- function(dataset,
 
 
 # ------------------------------------------------------------------------------
-#' @title Plot Corum Enrichment results
-#'
-#' @description Heatmap of significant enrichment
-#' @param df (data.frame) output from `artms_enrichForComplexes`
-#' @param outfile (char) output file name (must have the extenstion `.pdf`)
-#' @param theTitle (char) Plot's title
-#' @return (pdf) heatmap of the significantly enriched protein complexes
-#' @keywords internal, plot, heatmap, enrichment
+# @title Plot Corum Enrichment results
+#
+# @description Heatmap of significant enrichment
+# @param df (data.frame) output from `artms_enrichForComplexes`
+# @param outfile (char) output file name (must have the extenstion `.pdf`)
+# @param theTitle (char) Plot's title
+# @return (pdf) heatmap of the significantly enriched protein complexes
+# @keywords internal, plot, heatmap, enrichment
 .artms_plotCorumEnrichment <- function(df, outfile, theTitle) {
   checkPoint <- length(unique(df$Comparisons))
   if (checkPoint >= 1) {
@@ -316,16 +316,16 @@ artms_enrichProfiler <-
 
 # Little function to
 # ------------------------------------------------------------------------------
-#' @title Simplify the gProfiler output
-#'
-#' @description Simplify the output from `artms_enrichProfiler` resulted from
-#' running `gProfileR`
-#' @param gp (data.frame) with the results
-#' @return (data.frame) with the following columns:
-#'       'query.number', 'domain', 'p.value', 'query.size', 'overlap.size',
-#'       'term.size', 'recall', 'precision', 'term.id', 'term.name',
-#'       'intersection'
-#' @keywords internal, cleaning
+# @title Simplify the gProfiler output
+#
+# @description Simplify the output from `artms_enrichProfiler` resulted from
+# running `gProfileR`
+# @param gp (data.frame) with the results
+# @return (data.frame) with the following columns:
+#       'query.number', 'domain', 'p.value', 'query.size', 'overlap.size',
+#       'term.size', 'recall', 'precision', 'term.id', 'term.name',
+#       'intersection'
+# @keywords internal, cleaning
 .artms_cleanGPROFILER <- function(gp) {
   sendBack <- gp[c(
     'query.number',
@@ -344,14 +344,13 @@ artms_enrichProfiler <-
 }
 
 # ------------------------------------------------------------------------------
-#' @title Plot and save heatmaps of the significant enrichment results
-#'
-#' @description plot and save heatmaps of the significant enrichment results
-#' @param dat (data.frame) output from gprofiler
-#' @param out_file (char) output file name (must have `.txt` extension)
-#' @return (pdf) A heatmap of the most significant enrichments
-#' @keywords internal, plot, heatmap, enrichments
-#' .artms_EnrichmentPlotHeatmaps()
+# @title Plot and save heatmaps of the significant enrichment results
+#
+# @description plot and save heatmaps of the significant enrichment results
+# @param dat (data.frame) output from gprofiler
+# @param out_file (char) output file name (must have `.txt` extension)
+# @return (pdf) A heatmap of the most significant enrichments
+# @keywords internal, plot, heatmap, enrichments
 .artms_EnrichmentPlotHeatmaps <- function(dat, out_file) {
   # formatting data to heatmap compatible format
   x <-
@@ -426,19 +425,19 @@ artms_enrichProfiler <-
 }
 
 # ------------------------------------------------------------------------------
-#' @title Enrichment analysis of Protein Complexes (based on CORUM database)
-#'
-#' @description Enrichment analysis of Protein Complexes
-#' (based on CORUM database)
-#' @param mylist (vector) of protein ids
-#' @param corum (data.frame) The corum database (with the corum format
-#' and labels)
-#' @param background (int) Total number of proteins (number) to use as
-#' background
-#' @return (data.frame) with the list of protein complexes with a fold change
-#' larger than 1
-#' @keywords internal, enrichment, protein, complexes
-#' .artms_foldComplexEnrichment()
+# @title Enrichment analysis of Protein Complexes (based on CORUM database)
+#
+# @description Enrichment analysis of Protein Complexes
+# (based on CORUM database)
+# @param mylist (vector) of protein ids
+# @param corum (data.frame) The corum database (with the corum format
+# and labels)
+# @param background (int) Total number of proteins (number) to use as
+# background
+# @return (data.frame) with the list of protein complexes with a fold change
+# larger than 1
+# @keywords internal, enrichment, protein, complexes
+# .artms_foldComplexEnrichment()
 .artms_foldComplexEnrichment <- function(mylist, corum, background) {
   corum$Num.Uniprot.IDs <-
     vapply(corum$subunits.UniProt.IDs, function(x)

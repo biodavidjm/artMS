@@ -1,15 +1,14 @@
 # artMS PLOT FUNCTIONS
 #
 # ------------------------------------------------------------------------------
-#' @title Plot correlation distributions
-#'
-#' @description Plot correlation distributions
-#' @param MatrixCorrelations (matrix) of correlations
-#' @return A ggplot2 correlation plot
-#' @keywords plot, correlation
+# @title Plot correlation distributions
+#
+# @description Plot correlation distributions
+# @param MatrixCorrelations (matrix) of correlations
+# @return A ggplot2 correlation plot
+# @keywords plot, correlation
 .artms_plotCorrelationDistribution <- function(MatrixCorrelations) {
-  # we're only interested in one of the off-diagonals,
-  # otherwise there'd be duplicates
+
   cor.data <-
     MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]
   cor.data <- as.data.frame(cor.data)
@@ -77,23 +76,23 @@ artms_dataPlots <- function(input_file, output_file) {
 }
 
 # ------------------------------------------------------------------------------
-#' @title Heatmap of significant values
-#'
-#' @description heatmap plot to represent proteins with significant changes
-#' @param mss_F (data.frame) with the significant values (log2fc, pvalues)
-#' @param out_file (char) Name for the output
-#' @param labelOrder (vector) Vector with the particular order for the IDs
-#' (default, `NULL` no order)
-#' @param names (char) Type of ID used. Default is `Protein` (uniprot entry id).
-#' Soon will be possible to use 'Gene' name ids.
-#' @param cluster_cols (logical) Select whether to cluster the columns.
-#' Options: `T` or `F`. Default `T`.
-#' @param display (char) Value used to genarate the heatmaps. Options:
-#' - `log2FC` (default)
-#' - `adj.pvalue`
-#' - `pvalue`
-#' @return A heatmap of significant values
-#' @keywords significant, heatmap
+# @title Heatmap of significant values
+#
+# @description heatmap plot to represent proteins with significant changes
+# @param mss_F (data.frame) with the significant values (log2fc, pvalues)
+# @param out_file (char) Name for the output
+# @param labelOrder (vector) Vector with the particular order for the IDs
+# (default, `NULL` no order)
+# @param names (char) Type of ID used. Default is `Protein` (uniprot entry id).
+# Soon will be possible to use 'Gene' name ids.
+# @param cluster_cols (logical) Select whether to cluster the columns.
+# Options: `T` or `F`. Default `T`.
+# @param display (char) Value used to genarate the heatmaps. Options:
+# - `log2FC` (default)
+# - `adj.pvalue`
+# - `pvalue`
+# @return A heatmap of significant values
+# @keywords significant, heatmap
 .artms_plotHeat <-
   function(mss_F,
            out_file,
@@ -351,14 +350,14 @@ artms_plotHeatmapQuant <- function(input_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Generate reproducibility plots based on raw intentities
-#' (from the evidence file)
-#'
-#' @description Generate reproducibility plots based on raw intentities
-#' (log tranformed) from the evidence file
-#' @param data (data.frame) clean processed evidence
-#' @return (pdf) A reproducibility plot based on evidence values
-#' @keywords internal, plot, qc, quality, control
+# @title Generate reproducibility plots based on raw intentities
+# (from the evidence file)
+#
+# @description Generate reproducibility plots based on raw intentities
+# (log tranformed) from the evidence file
+# @param data (data.frame) clean processed evidence
+# @return (pdf) A reproducibility plot based on evidence values
+# @keywords internal, plot, qc, quality, control
 .artms_plotReproducibilityEvidence <- function(data) {
   data <-
     data[c('Feature',
@@ -556,12 +555,12 @@ artms_plotHeatmapQuant <- function(input_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Plot abundance boxplots
-#'
-#' @description Plot abundance boxplots
-#' @param data (data.frame) processed modelqc
-#' @return Abundacen boxplot
-#' @keywords internal, plot, abundance
+# @title Plot abundance boxplots
+#
+# @description Plot abundance boxplots
+# @param data (data.frame) processed modelqc
+# @return Abundacen boxplot
+# @keywords internal, plot, abundance
 .artms_plotAbundanceBoxplots <- function(data) {
   p1 <-
     ggplot2::ggplot(data, aes(x = SUBJECT_ORIGINAL, 
@@ -606,13 +605,13 @@ artms_plotHeatmapQuant <- function(input_file,
 
 
 # ------------------------------------------------------------------------------
-#' @title Total Number of unique proteins based on abundance data
-#'
-#' @description Total Number of unique proteins per biological replicate and
-#' conditions
-#' @param data (data.frame) modelqc
-#' @return (pdf) Barplots with the number of proteins per br / condition
-#' @keywords internal, plots, abundance, counts
+# @title Total Number of unique proteins based on abundance data
+#
+# @description Total Number of unique proteins per biological replicate and
+# conditions
+# @param data (data.frame) modelqc
+# @return (pdf) Barplots with the number of proteins per br / condition
+# @keywords internal, plots, abundance, counts
 .artms_plotNumberProteinsAbundance <- function(data) {
   x <- data[c('PROTEIN', 'SUBJECT_ORIGINAL')]
   y <- unique(x)
@@ -659,15 +658,15 @@ artms_plotHeatmapQuant <- function(input_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Generate reproducibility plots based on abundance data
-#' (normalized intensities from MSstats modelqc)
-#'
-#' @description Generate reproducibility plots based on abundance data
-#' (normalized intensities from MSstats modelqc)
-#' @param data (data.frame) Protein abundance (modelqc)
-#' @return Reproducibility plots based on abundance data 
-#' (normalized intensities)
-#' @keywords plot, reproducibility, abundance
+# @title Generate reproducibility plots based on abundance data
+# (normalized intensities from MSstats modelqc)
+#
+# @description Generate reproducibility plots based on abundance data
+# (normalized intensities from MSstats modelqc)
+# @param data (data.frame) Protein abundance (modelqc)
+# @return Reproducibility plots based on abundance data 
+# (normalized intensities)
+# @keywords plot, reproducibility, abundance
 .artms_plotReproducibilityAbundance <- function(data) {
   condi <- unique(data$GROUP_ORIGINAL)
   
@@ -820,13 +819,13 @@ artms_plotHeatmapQuant <- function(input_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Plot correlation between conditions
-#'
-#' @description Plot correlation between conditions
-#' @param data (data.frame) of Protein Abundance (MSstats modelqc)
-#' @param numberBiologicalReplicas (int) Number of biological replicates
-#' @return (ggplot.object) A correlation plot between conditions
-#' @keywords internal, plot, correlation
+# @title Plot correlation between conditions
+#
+# @description Plot correlation between conditions
+# @param data (data.frame) of Protein Abundance (MSstats modelqc)
+# @param numberBiologicalReplicas (int) Number of biological replicates
+# @return (ggplot.object) A correlation plot between conditions
+# @keywords internal, plot, correlation
 .artms_plotCorrelationConditions <-
   function(data, numberBiologicalReplicas) {
     # Before jumping to merging biological replicas:
@@ -920,14 +919,14 @@ artms_plotHeatmapQuant <- function(input_file,
   }
 
 # ------------------------------------------------------------------------------
-#' @title Plot correlation between quantifications different quantified
-#' comparisons
-#'
-#' @description Plot correlation between all quantifications, i.e., different
-#' quantified comparisons
-#' @param datai (data.frame) Processed MSstats results
-#' @return (ggplot.object) Plot correlation between quantifications and r values
-#' @keywords internal, plot, correlation, log2fc
+# @title Plot correlation between quantifications different quantified
+# comparisons
+#
+# @description Plot correlation between all quantifications, i.e., different
+# quantified comparisons
+# @param datai (data.frame) Processed MSstats results
+# @return (ggplot.object) Plot correlation between quantifications and r values
+# @keywords internal, plot, correlation, log2fc
 .artms_plotRatioLog2fc <- function(datai) {
   datadc <- dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
   before <- dim(datadc)[1]
@@ -1001,14 +1000,14 @@ artms_plotHeatmapQuant <- function(input_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Generate PCA plots based on abundance data
-#'
-#' @description Generate PCA plots based on abundance data
-#' @param data Data.frame output from `artms_loadModelQCstrict`
-#' @param filename Prefix to generate output names (WITH NO EXTENSION)
-#' @param allConditions Conditions selected to generate the plots
-#' @return PCA plots based on abundance data (pdf format)
-#' @keywords internal, plot, pca
+# @title Generate PCA plots based on abundance data
+#
+# @description Generate PCA plots based on abundance data
+# @param data Data.frame output from `artms_loadModelQCstrict`
+# @param filename Prefix to generate output names (WITH NO EXTENSION)
+# @param allConditions Conditions selected to generate the plots
+# @return PCA plots based on abundance data (pdf format)
+# @keywords internal, plot, pca
 .artms_getPCAplots <- function(data, filename, allConditions) {
   # PRINCIPAL COMPONENT ANALYSIS
   # Using the following packages:

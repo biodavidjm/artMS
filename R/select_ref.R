@@ -1,21 +1,21 @@
 # ------------------------------------------------------------------------------
-#' @title Select Reference protein(s) for normalization
-#'
-#' NEEDS TO BE FIXED
-#'
-#' @description This function creates an interactive environment where the
-#' user can select which prein(s) to use as a reference when normalizing
-#' the different samples prior to analysis. Only proteins that are present
-#' in each sample are considered. The user can remove the unnecessary/unwanted
-#' proteins by checking the box next to the protein name. One can use the
-#' general view of the proteins plotted across the samples, or at a clustering
-#'   of the proteins.
-#' @param dat_file (char) The filepath to the MaxQuant searched data (evidence)
-#' file (txt tab delimited file).
-#' @param keys_file (char) The filepath to the MSStats formatted keys file
-#' (txt tab delimited file).
-#' @return (shiny) app to choose a protein to be use for normalization
-#' @keywords internal, msstat, reference protein, normalization
+# @title Select Reference protein(s) for normalization
+#
+# NEEDS TO BE FIXED
+#
+# @description This function creates an interactive environment where the
+# user can select which prein(s) to use as a reference when normalizing
+# the different samples prior to analysis. Only proteins that are present
+# in each sample are considered. The user can remove the unnecessary/unwanted
+# proteins by checking the box next to the protein name. One can use the
+# general view of the proteins plotted across the samples, or at a clustering
+#   of the proteins.
+# @param dat_file (char) The filepath to the MaxQuant searched data (evidence)
+# file (txt tab delimited file).
+# @param keys_file (char) The filepath to the MSStats formatted keys file
+# (txt tab delimited file).
+# @return (shiny) app to choose a protein to be use for normalization
+# @keywords internal, msstat, reference protein, normalization
 .select_ref <- function(keys_file, dat_file) {
   cat("Reading in files...\n")
   keys <- read.delim(keys_file, stringsAsFactors = FALSE)

@@ -65,17 +65,16 @@
 setwd('~/github/biodavidjm/artMS/')
 
 # GENERATE RANDOM FILE
-artms_data_randomDF <-
-  data.frame(replicate(10, sample(0:1, 100, rep = TRUE)))
+artms_data_randomDF <- data.frame(replicate(10, sample(0:1, 100, rep = TRUE)))
 save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData', 
      compress = 'xz')
 
 # PH FILES
 
 # Reduced version of an Evidence file (generated below)
-artms_data_ph_evidence <-
-  read.delim("~/sourcecode/artms/ph/artms_data_ph_evidence.txt",
-             stringsAsFactors = FALSE)
+artms_data_ph_evidence <- read.delim(
+  "~/sourcecode/artms/ph/artms_data_ph_evidence.txt",
+  stringsAsFactors = FALSE)
 save(artms_data_ph_evidence, file = 'data/artms_data_ph_evidence.RData', 
      compress = 'xz')
 
@@ -186,7 +185,7 @@ artms_quantification(yaml_config_file = "config.yaml")
 ## APMS FLUOMICS
 setwd("~/sourcecode/artms/apms/")
 
-here <- read.delim("a549-PB1-keys.txt", stringsAsFactors = F)
+here <- read.delim("a549-PB1-keys.txt", stringsAsFactors = FALSE)
 
 artms_qualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt",
                                   keys_file = "a549-PB1-keys.txt",

@@ -1,19 +1,18 @@
 # ------------------------------------------------------------------------------
-#' @title Generate MSstats format object and file
-#'
-#' @description Takes as input a reduced version of the Evidence file and
-#' generates the input data.frame required by MSstats.
-#' It processes fractionated data as well.
-#' @param data_f (data.frame) of the filtered Maxquant evidence file.
-#' @param fraction (boolean) 1 or 0 option to specified whether or not
-#'  is a fractionated experiment
-#' @param datafile (char) The evidence file name (to generate the output file)
-#' @param funfunc (char) The function to use to aggregating the data if it is a
-#' fractionated experiment (default: `sum`)
-#' @return (data.frame) MSstats compatible format
-#' @keywords internal, MSstats, format, input, fractions
-.artms_getMSstatsFormat <-
-  function(data_f, fraction, datafile, funfunc = "sum") {
+# @title Generate MSstats format object and file
+#
+# @description Takes as input a reduced version of the Evidence file and
+# generates the input data.frame required by MSstats.
+# It processes fractionated data as well.
+# @param data_f (data.frame) of the filtered Maxquant evidence file.
+# @param fraction (boolean) 1 or 0 option to specified whether or not
+#  is a fractionated experiment
+# @param datafile (char) The evidence file name (to generate the output file)
+# @param funfunc (char) The function to use to aggregating the data if it is a
+# fractionated experiment (default: `sum`)
+# @return (data.frame) MSstats compatible format
+# @keywords internal, MSstats, format, input, fractions
+.artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum") {
     cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
     data_f <-
       artms_changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
@@ -144,4 +143,4 @@
       col.names = TRUE
     )
     return(dmss)
-  }
+}

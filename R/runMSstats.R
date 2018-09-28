@@ -1,24 +1,24 @@
 # ------------------------------------------------------------------------------
-#' @title Run MSstats
-#' @description Run MSstats giving a processed evidence file (MSstats format)
-#' and a contrast file. It also generates a series of summary plots before,
-#' and after normalization.
-#' @param dmss (data.frame) Formatted and filtered evidence file 
-#' (MSstats format)
-#' @param contrasts (data.frame) The contrast data.frame in MSstats format
-#' @param config (yaml object) the configation (imported yaml) object
-#' @return It generates several output files
-#' - If selected `before` and/or `after`, the `ProfilePlot` and `QCPlot` plots
-#' by the MSstats `dataProcessPlots` function are generated
-#' (in `.pdf` format)
-#' - Text file output of `quantification()` (`-mss-sampleQuant.txt`)
-#' - Text file output of `quantification(type="Group")` (`-mss-groupQuant.txt`)
-#' - MSstats `ProcessedData` normalized results (`-mss-normalized.txt`)
-#' - MSstats `ComparisonResult` results
-#' - MSstats `ModelQC` results
-#' - MSstats `designSampleSize` sample size
-#' - MSstats `designSampleSize` power experiment
-#' @keywords internal, run, MSstats, contrast, intensity, plots, QC
+# @title Run MSstats
+# @description Run MSstats giving a processed evidence file (MSstats format)
+# and a contrast file. It also generates a series of summary plots before,
+# and after normalization.
+# @param dmss (data.frame) Formatted and filtered evidence file 
+# (MSstats format)
+# @param contrasts (data.frame) The contrast data.frame in MSstats format
+# @param config (yaml object) the configation (imported yaml) object
+# @return It generates several output files
+# - If selected `before` and/or `after`, the `ProfilePlot` and `QCPlot` plots
+# by the MSstats `dataProcessPlots` function are generated
+# (in `.pdf` format)
+# - Text file output of `quantification()` (`-mss-sampleQuant.txt`)
+# - Text file output of `quantification(type="Group")` (`-mss-groupQuant.txt`)
+# - MSstats `ProcessedData` normalized results (`-mss-normalized.txt`)
+# - MSstats `ComparisonResult` results
+# - MSstats `ModelQC` results
+# - MSstats `designSampleSize` sample size
+# - MSstats `designSampleSize` power experiment
+# @keywords internal, run, MSstats, contrast, intensity, plots, QC
 .artms_runMSstats <- function(dmss, contrasts, config) {
   cat(">> MSstats STARTS RUNNING:\n")
   # plot the data BEFORE normalization

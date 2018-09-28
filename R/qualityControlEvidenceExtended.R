@@ -1765,13 +1765,13 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 
 
 # ------------------------------------------------------------------------------
-#' @title Quantiles
-#'
-#' @description Quantiles
-#' @param x (datatype) Describe
-#' @param n (datatype) Describe
-#' @return What does it return?
-#' @keywords internal, stats
+# @title Quantiles
+#
+# @description Quantiles
+# @param x (datatype) Describe
+# @param n (datatype) Describe
+# @return What does it return?
+# @keywords internal, stats
 .artms_qcut <- function(x, n) {
   quantiles <- seq(0, 1, length.out = n + 1)
   cutpoints <- unname(quantile(x, quantiles, na.rm = TRUE))
@@ -1784,14 +1784,14 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Sample overlap
-#'
-#' @description Describe
-#' @param data (datatype) Describe
-#' @param sampleID (datatype) Describe
-#' @param referenceID (datatype) Describe
-#' @return What does it return?
-#' @keywords internal, stats
+# @title Sample overlap
+#
+# @description Describe
+# @param data (datatype) Describe
+# @param sampleID (datatype) Describe
+# @param referenceID (datatype) Describe
+# @return What does it return?
+# @keywords internal, stats
 .artms_sampleOverlap <- function(data,
                                  sampleID = 'bioreplicate',
                                  referenceID = 'Sequence') {
@@ -1817,17 +1817,17 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
 }
 
 # ------------------------------------------------------------------------------
-#' @title Panel Cor
-#'
-#' @description Describe
-#' @param x (datatype) Describe
-#' @param y (datatype) Describe
-#' @param digits A number representing...
-#' @param prefix A prefix for the...
-#' @param cex.cor A Cex cor....
-#' @param ... No idea what this does
-#' @return What does it return?
-#' @keywords internal, stats
+# @title Panel Cor
+#
+# @description Describe
+# @param x (datatype) Describe
+# @param y (datatype) Describe
+# @param digits A number representing...
+# @param prefix A prefix for the...
+# @param cex.cor A Cex cor....
+# @param ... No idea what this does
+# @return What does it return?
+# @keywords internal, stats
 .artms_panelCor <-
   function(x,
            y,
@@ -1847,13 +1847,12 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   }
 
 # ------------------------------------------------------------------------------
-#' @title Panel Histogram
-#'
-#' @description Describe
-#' @param x (datatype) Describe
-#' @param ... No idea what this does
-#' @return What does it return?
-#' @keywords internal, stats
+# @title Panel Histogram
+# @description Describe
+# @param x (datatype) Describe
+# @param ... No idea what this does
+# @return What does it return?
+# @keywords internal, stats
 .artms_panelHist <- function(x, ...) {
   usr <- par("usr")
   on.exit(par(usr))
