@@ -7,22 +7,95 @@
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
-#' @param plotPSM (logical) `TRUE` generates PSM plots
-#' @param plotIONS (logical) Plot a QC plot
-#' @param plotTYPE (logical) Plot a QC plot
-#' @param plotPEPTIDES (logical) Plot a QC plot
-#' @param plotPROTEINS (logical) Plot a QC plot
-#' @param plotPIO (logical) Plot a QC plot
-#' @param plotCS (logical) Plot a QC plot
-#' @param plotME (logical) Plot a QC plot
-#' @param plotMOCD (logical) Plot a QC plot
-#' @param plotPEPICV (logical) Plot a QC plot
-#' @param plotPEPDETECT (logical) Plot a QC plot
-#' @param plotPROTICV (logical) Plot a QC plot
-#' @param plotPROTDETECT (logical) Plot a QC plot
-#' @param plotIDoverlap (logical) Plot a QC plot
-#' @param plotIC (logical) Plot a QC plot
-#' @param plotSP (logical) Plot a QC plot
+#' @param plotPSM (logical) `TRUE` generates peptide-spectrum-matches (PSMs) 
+#' statistics plot: Page 1 shows the number of PSMs confidently identified 
+#' in each BioReplicate. If replicates are present, Page 2 shows the mean 
+#' number of PSMs per condition with error bar showing the standard error 
+#' of the mean. Note that potential contaminant proteins are plotted separately. 
+#' @param plotIONS (logical) `TRUE` generates peptide ion statistics plot: 
+#' A peptide ion is defined in the context of m/z, in other words, an unique 
+#' peptide sequence may give rise to multiple ions with different charge state 
+#' and/or amino acid modification. Page 1 shows the number of ions confidently
+#'  identified in each BioReplicate . If replicates are present, Page 2 shows 
+#'  the mean number of peptide ions per condition with error bar showing the 
+#'  standard error of the mean. Note that potential contaminant proteins are 
+#'  plotted separately.  
+#' @param plotTYPE (logical) `TRUE` generates identification type statistics 
+#' plot: MaxQuant classifies each peptide identification into different 
+#' categories (e.g., MSMS, MULTI-MSMS, MULTI-SECPEP). 
+#' Page 1 shows the distribution of identification type in each BioReplicate
+#' @param plotPEPTIDES (logical) `TRUE` generates peptide statistics plot: 
+#' Page 1 shows the number of unique peptide sequences (disregard the charge 
+#' state or amino acid modifications) confidently identified in each 
+#' BioReplicate. If replicates are present, Page 2 shows the mean number of 
+#' peptides per condition with error bar showing the standard error of the 
+#' mean. Note that potential contaminant proteins are plotted separately. 
+#' Pages 3 and 4 show peptide identification intersection between 
+#' BioReplicates (the bars are ordered by degree or frequency, respectively),
+#'  and Page 4 shows the intersections across conditions instead of 
+#'  BioReplicates.
+#' @param plotPROTEINS (logical) `TRUE` generates protein statistics plot: 
+#' Page 1 shows the number of protein groups confidently identified in each 
+#' BioReplicate. If replicates are present, Page 2 shows the mean number of 
+#' protein groups per condition with error bar showing the standard error of 
+#' the mean. Note that potential contaminant proteins are plotted separately.
+#' Pages 3 and 4 show peptide identification intersection between 
+#' BioReplicates (the bars are ordered by degree or frequency, respectively), 
+#' and Page 4 shows the intersections across conditions instead of 
+#' BioReplicates.
+#' @param plotPIO (logical) `TRUE` generates oversampling statistics plot: 
+#' Page 1 shows the proportion of all peptide ions (including peptides 
+#' matched across runs) fragmented once, twice and thrice or more. 
+#' Page 2 shows the  proportion of peptide ions (with intensity detected) 
+#' fragmented once, twice and thrice or more. Page 3 shows the proportion of 
+#' peptide ions (with intensity detected and MS/MS identification) fragmented 
+#' once, twice and thrice or more
+#' @param plotCS (logical) `TRUE` generates charge state plot: Page 1 shows 
+#' the charge state distribution of PSMs confidently identified in each 
+#' BioReplicate.
+#' @param plotME (logical) `TRUE` generates precursor mass error plot: 
+#' Page 1 shows the distribution of precursor error for all PSMs confidently 
+#' identified in each BioReplicate.
+#' @param plotMOCD (logical) `TRUE` generates precursor mass-over-charge plot: 
+#' Page 1 shows the distribution of precursor mass-over-charge for all PSMs 
+#' confidently identified in each BioReplicate. 
+#' @param plotPEPICV (logical) `TRUE` generates peptide intensity coefficient 
+#' of variance (CV) plot: The CV is calculated for each feature (peptide ion) 
+#' identified in more than one replicate. Page 1 shows the distribution of 
+#' CV's for each condition, while Page 2 shows the distribution of CV's 
+#' within 4 bins of intensity (i.e., 4 quantiles of average intensity).
+#' @param plotPEPDETECT (logical) `TRUE` generates peptide detection 
+#' frequency plot: Page 1 summarizes the frequency that each peptide is 
+#' detected across BioReplicates of each condition, showing the percentage 
+#' of peptides detected once, twice, thrice, and so on (for whatever number 
+#' of replicates each condition has).
+#' @param plotPROTICV (logical) `TRUE` generates protein intensity coefficient 
+#' of variance (CV) plot: The CV is calculated for each protein (after summing 
+#' the peptide intensities) identified in more than one replicate. 
+#' Page 1 shows the distribution of CV's for each condition, while Page 2 
+#' shows the distribution of CV's within 4 bins of intensity (i.e., 4 
+#' quantiles of average intensity).
+#' @param plotPROTDETECT (logical) `TRUE` generates protein detection 
+#' frequency plot: Page 1 summarizes the frequency that each protein group 
+#' is detected across BioReplicates of each condition, showing the 
+#' percentage of proteins detected once, twice, thrice, and so on (for 
+#' whatever number of replicates each condition has). Page 2 shows the feature 
+#' (peptide ion) intensity distribution within each BioReplicate (potential 
+#' contaminant proteins are plot separately). Page 3 shows the density of 
+#' feature intensity for different feature types (i.e., MULTI-MSMS, 
+#' MULTI-SECPEP).
+#' @param plotIDoverlap (logical) `TRUE` generates pairwise identification 
+#' heatmap overlap: Pages 1 and 2 show pairwise peptide and protein overlap 
+#' between any 2 BioReplicates, respectively. 
+#' @param plotIC (logical) `TRUE` generates pairwise intensity correlation: 
+#' Page 1 and 3 show pairwise peptide and protein intensity correlation and 
+#' scatter plot between any 2 BioReplicates, respectively. Page 2 and 4 show 
+#' principal component analysis at the intensity level for both peptide and 
+#' proteins, respectively. 
+#' @param plotSP (logical)  `TRUE` generates sample quality metrics: Page 1 
+#' shows missing cleavage distribution of all peptides confidently identified 
+#' in each BioReplicate. Page 2 shows the fraction of peptides with at least 
+#' one methionine oxidized in each BioReplicate. 
 #' @details all the plots are generated by default
 #' @return A number of QC plots based on the evidence file
 #' @keywords qc, evidence, keys
