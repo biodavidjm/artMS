@@ -1395,7 +1395,7 @@ must not be empty")
       pathogen = pathogen,
       specie = specie,
       ptmType = isPtm,
-      output_name = log2fc_file
+      output_name = paste0(output_dir, "/", log2fc_file)
     )
   }
   
@@ -2015,6 +2015,7 @@ artms_generatePhSiteExtended <-
       # And create independent columns for each of them
       imputedDFext <-
         imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
+      
       suppressMessages(imputedDFext <-
                          artms_annotationUniprot(imputedDFext, 
                                                  'Protein', 
@@ -2035,7 +2036,7 @@ artms_generatePhSiteExtended <-
       
     # 3. Create independent columns for each of them
     imputedDFext <-
-      imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% unnest(PTMone)
+      imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
       
       # 4. And take the labels:
       imputedDFext$Protein <-
@@ -2061,7 +2062,6 @@ artms_generatePhSiteExtended <-
       # imputedDFext$Protein), "Influenza", specie)
       # imputedDFext$Specie <- ifelse(imputedDFext$Protein 
       # %in% pathogen.ids$Entry, pathogen, specie)
-
       imputedDFext <-
         artms_annotateSpecie(imputedDFext, pathogen, specie)
     } else{
@@ -2071,7 +2071,6 @@ artms_generatePhSiteExtended <-
     }
     outlog2fcImputext <-
       gsub(".txt", "-imputedL2fcExtended.txt", output_name)
-    outlog2fcImputext <- paste0(output_dir, "/", outlog2fcImputext)
     write.table(
       imputedDFext,
       outlog2fcImputext,
