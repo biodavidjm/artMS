@@ -371,7 +371,7 @@ artms_analysisQuantifications(
   modelqc_file = "phsites-results_ModelQC.txt",
   specie = "human",
   output_dir = "analysisQuant",
-  isPtm = "ptmph",
+  isPtm = "ptmsites",
   enrich = FALSE
 )
 
@@ -379,7 +379,7 @@ log2fc_file = "phsites-results.txt"
 modelqc_file = "phsites-results_ModelQC.txt"
 specie = "human"
 output_dir = "analysisQuant"
-isPtm = "ptmph"
+isPtm = "ptmsites"
 enrich = FALSE
 l2fc_thres = 1.5
 choosePvalue = "adjpvalue"
@@ -387,6 +387,19 @@ isBackground = "nobackground"
 mnbr = 2
 isFluomics = FALSE
 pathogen = "nopathogen"
+
+df = imputedDF
+pathogen = pathogen
+specie = specie
+ptmType = isPtm
+output_name = log2fc_file
+
+
+setwd('~/sourcecode/artms/ph/phsites/analysisQuant_adjpvalue/')
+
+filename <- "phsites-results-imputedL2fcExtended.txt"
+
+artmsPhosfateOutput(inputFile = filename)
 
 #-------------------------------------------------------------------------------
 # PH REDUCED
@@ -689,7 +702,8 @@ select(org.Hs.eg.db, symbols, c("ENTREZID", "GENENAME"), "ALIAS")
 
 # RANDOMLY SELECT KEYS FROM UNIPROT HUMANS
 uniprots <- c("Q6P996")
-uniprots <- Rkeys(org.Hs.egUNIPROT)[1:100]
+uniprots <- as.list(Rkeys(org.Hs.egUNIPROT)[5000:5050])
+
 
 ano <-
   artms_mapUniprot2entrezGeneName(uniprotkb = uniprots, specie = "human")

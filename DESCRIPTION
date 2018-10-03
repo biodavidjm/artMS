@@ -1,8 +1,8 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.62
-Date: 2018-09-30
+Version: 0.99.63
+Date: 2018-10-02
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
@@ -65,8 +65,8 @@ Imports:
   RColorBrewer,
   reshape2,
   seqinr,
-  stats,
   shiny,
+  stats,
   stringr,
   tidyr,
   UpSetR,
@@ -77,7 +77,15 @@ Suggests: BiocStyle, knitr, rmarkdown, testthat
 Encoding: UTF-8
 LazyLoad: yes
 LazyData: true
-biocViews: Proteomics, DifferentialExpression, BiomedicalInformatics, SystemsBiology, MassSpectrometry, Annotation, QualityControl, GeneSetEnrichment, Clustering
+biocViews: Proteomics, 
+  DifferentialExpression, 
+  BiomedicalInformatics, 
+  SystemsBiology, 
+  MassSpectrometry, 
+  Annotation, 
+  QualityControl, 
+  GeneSetEnrichment, 
+  Clustering
 NeedsCompilation: no
 VignetteBuilder: knitr
 RoxygenNote: 6.1.0
