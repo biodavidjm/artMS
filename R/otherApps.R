@@ -38,7 +38,7 @@ artmsPhosfateOutput <- function(inputFile){
   output_dir <- "phosfate_input_files"
   # create output directory if it doesn't exist
   if(!dir.exists(output_dir)){
-    dir.create(output_dir, recursive = T)
+    dir.create(output_dir, recursive = TRUE)
   }
   
   conditions <- unique(df$Comparison)
@@ -50,7 +50,7 @@ artmsPhosfateOutput <- function(inputFile){
     fileout <- gsub(".txt","", inputFile)
     fileout <- paste0(fileout,"-",conditions[i],".txt")
     fileout <- paste0(output_dir,"/",fileout)
-    write.table(df.out, fileout, col.names = F, row.names = F, quote = F, sep = ",")
+    write.table(df.out, fileout, col.names = FALSE, row.names = FALSE, quote = FALSE, sep = ",")
     cat("\t",fileout," is out\n")
   }
 }

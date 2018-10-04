@@ -3,10 +3,10 @@ title: "artMS:Analytical R Tools for Mass Spectrometry"
 author: "David Jimenez-Morales"
 date: "`r Sys.Date()`"
 output: 
-  # BiocStyle::html_document:
-  #   toc_float: true
-  pdf_document:
-    toc: true
+  BiocStyle::html_document:
+    toc_float: true
+  # pdf_document:
+  #   toc: true
   
 vignette: >
     %\VignetteIndexEntry{Learn to use artMS ~30 min}
@@ -94,7 +94,7 @@ biocLite(c('org.Ag.eg.db', 'org.At.tair.db', 'org.Bt.eg.db',
 ```{r, eval = FALSE}
 install.packages("devtools")
 library(devtools)
-install_github("biodavidjm/artMS", build_vignettes = TRUE)
+install_github("biodavidjm/artMS")
 ```
 
 - Check that it is up and running by checking, for example, the documentation of the qc function `artms_qualityControlEvidenceBasic`:
