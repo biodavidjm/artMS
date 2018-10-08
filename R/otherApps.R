@@ -8,6 +8,7 @@
 #' @param inputFile (char) the `imputedL2fcExtended.txt` file name and location
 #' @param outputDir (char) Name of the folder to output results 
 #' (Default: "phosfate_input_files")
+#' @param verbose (logical) `TRUE` (default) to show function messages
 #' @return Multiple output files (inputs of phosfate)
 #' @keywords generate, outputs, files
 #' @examples \donttest{
@@ -15,7 +16,8 @@
 #' }
 #' @export
 artmsPhosfateOutput <- function(inputFile, 
-                                outputDir = "phosfate_input_files"){
+                                outputDir = "phosfate_input_files",
+                                verbose = TRUE){
 
   df <- .artms_checkIfFile(inputFile)
   
@@ -23,7 +25,8 @@ artmsPhosfateOutput <- function(inputFile,
   checkColumns <- c('Protein', 'PTMsite', 'iLog2FC', 'Comparison')
   
   if (any( !checkColumns %in% colnames(df)) ) {
-    stop("One (or many) column names are not found:\n",sprintf('%s, ',checkColumns))
+    stop("One (or many) column names are not found:\n",
+         sprintf('%s, ',checkColumns))
   }
     
   # create output directory if it doesn't exist
@@ -34,14 +37,16 @@ artmsPhosfateOutput <- function(inputFile,
   conditions <- unique(df$Comparison)
   
   for ( i in seq_len(length(conditions)) ){
-    cat(i," ", conditions[i],": ")
+    if(verbose) cat("+---", i, conditions[i])
     df.select <- df[which(df$Comparison == conditions[i]),]
     df.out <- df.select[c('Protein','PTMsite','iLog2FC')]
     fileout <- gsub(".txt","", inputFile)
     fileout <- paste0(fileout,"-",conditions[i],".txt")
     fileout <- paste0(outputDir,"/",fileout)
-    write.table(df.out, fileout, col.names = FALSE, row.names = FALSE, quote = FALSE, sep = ",")
-    cat(fileout," is out\n")
+    write.table(df.out, fileout, col.names = FALSE, 
+                row.names = FALSE, 
+                quote = FALSE, sep = ",")
+    if(verbose) cat(":", fileout, " is out\n")
   }
 }
 
@@ -106,8 +111,8 @@ artmsPhotonOutput <- function(inputFile,
     fileout <- paste0("photon.",conditions[i],".csv")
     fileout <- paste0(outputDir,"/",fileout)
     write.table(df.out, fileout, 
-                col.names = T, row.names = F, 
-                quote = F, sep = ",")
+                col.names = TRUE, row.names = FALSE, 
+                quote = FALSE, sep = ",")
     if(verbose) cat(":",fileout," is out\n")
   }
 }

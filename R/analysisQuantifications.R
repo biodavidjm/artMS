@@ -2047,9 +2047,10 @@ artms_generatePhSiteExtended <-
           ) ,
           gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = TRUE)
         )
+      imputedDFext$PTMAA <-
+        gsub("(\\S+)(_[S,T,Y,K])(\\d+)", "\\2", imputedDFext$PTMone)
       imputedDFext$PTMsite <-
         gsub("(\\S+)(_[S,T,Y,K])(\\d+)", "\\3", imputedDFext$PTMone)
-      
       imputedDFext <-
         artms_annotationUniprot(imputedDFext, 'Protein', specie)
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
