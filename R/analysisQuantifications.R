@@ -2028,7 +2028,7 @@ artms_generatePhSiteExtended <-
     } else if (ptmType == "ptmsites") {
       imputedDFext <- df
       #1. Change the Protein name
-      names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
+      names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 
         'Uniprot_PTM'
       
       # 2. Make a copy of Uniprot_PTM to operate on it
@@ -2042,11 +2042,8 @@ artms_generatePhSiteExtended <-
       imputedDFext$Protein <-
         ifelse(
           grepl("_H1N1|_H3N2|_H5N1", imputedDFext$PTMone),
-          gsub(
-            "^(\\S+?_H[1,3,5]N[1,2])_.*",
-            "\\1",
-            imputedDFext$PTMone,
-            perl = TRUE
+          gsub("^(\\S+?_H[1,3,5]N[1,2])_.*", "\\1",
+               imputedDFext$PTMone, perl = TRUE
           ) ,
           gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = TRUE)
         )
