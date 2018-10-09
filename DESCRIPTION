@@ -1,7 +1,7 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.66
+Version: 0.99.67
 Date: 2018-10-08
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
@@ -25,6 +25,7 @@ Imports:
   ComplexHeatmap,
   corrplot,
   data.table,
+  dplyr,
   factoextra,
   FactoMineR,
   getopt,

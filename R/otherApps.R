@@ -96,7 +96,7 @@ artmsPhotonOutput <- function(inputFile,
     
     # Photon takes this input columns: GeneID,Amino.Acid,Position,avg,Symbol
     df.out <- df.select[c('Gene','PTMsite','iLog2FC','ENTREZID')]
-    df.out$Amino.Acid <- "S"
+    df.out$Amino.Acid <- df.select$PTMaa
     df.out <- artms_changeColumnName(df.out, "ENTREZID", "GeneID")
     df.out <- artms_changeColumnName(df.out, "PTMsite", "Position")
     df.out <- artms_changeColumnName(df.out, "iLog2FC", "avg")

@@ -5,6 +5,7 @@
 #' @importFrom cluster pam
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
+#' @importFrom dplyr mutate desc count arrange desc
 #' @rawNamespace import(data.table, except = c(melt))
 #' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
@@ -44,7 +45,7 @@
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
 #' rename, summarise, select, add_heatmap))
-#' @import plyr
+#' @importFrom plyr ddply summarise
 #' @import RColorBrewer
 #' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))

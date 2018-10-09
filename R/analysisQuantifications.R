@@ -2016,19 +2016,22 @@ artms_generatePhSiteExtended <-
         gsub("^(\\S+?)(_ph.*)", "\\2", imputedDFext$Uniprot_PTM, perl = TRUE)
       imputedDFext$PTMsite <- gsub("^(_ph)", "", imputedDFext$PTMsite)
       imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
+      
       # And create independent columns for each of them
       imputedDFext <-
         imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
       
-      suppressMessages(imputedDFext <-
-                         artms_annotationUniprot(imputedDFext, 
-                                                 'Protein', 
-                                                 specie))
+      if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
+        imputedDFext <- artms_annotationUniprot(imputedDFext, 
+                                                'Protein', 
+                                                specie)
+        )
+      
+      if( any(grepl("Label", colnames(imputedDFext))) )
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
-      imputedDFext <-
-        artms_annotateSpecie(imputedDFext, pathogen, specie)
+      imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
     } else if (ptmType == "ptmsites") {
       #1. Change the Protein name to Uniprot_PTM (if it is not there already)
       if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
@@ -2059,8 +2062,10 @@ artms_generatePhSiteExtended <-
       
       imputedDFext$PTMone <- NULL
       
-      if( !any(grepl("Gene", colnames(imputedDFext))) ) imputedDFext <-
-        artms_annotationUniprot(imputedDFext, 'Protein', specie)
+      if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
+        imputedDFext <- 
+          artms_annotationUniprot(imputedDFext, 'Protein', specie)
+      )
       
       if( any(grepl("Label", colnames(imputedDFext))) )
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
