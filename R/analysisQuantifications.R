@@ -1991,10 +1991,14 @@ artms_generatePhSiteExtended <-
     
     imputedDFext <- NULL
     
+    imputedDFext <- .artms_checkIfFile(input_file = df)
+    
     if (ptmType == "ptmph") {
-      imputedDFext <- df
-      names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <-
-        'Uniprot_PTM'
+      # Change the Protein name to Uniprot_PTM (if it is not there already)
+      if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
+        names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 
+          'Uniprot_PTM'
+      
       # Take the Protein ID, but being very careful about the fluomics labeling
       imputedDFext$Protein <- ifelse(
         grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Uniprot_PTM),
@@ -2026,9 +2030,9 @@ artms_generatePhSiteExtended <-
       imputedDFext <-
         artms_annotateSpecie(imputedDFext, pathogen, specie)
     } else if (ptmType == "ptmsites") {
-      imputedDFext <- df
-      #1. Change the Protein name
-      names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 
+      #1. Change the Protein name to Uniprot_PTM (if it is not there already)
+      if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
+        names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 
         'Uniprot_PTM'
       
       # 2. Make a copy of Uniprot_PTM to operate on it
@@ -2036,7 +2040,8 @@ artms_generatePhSiteExtended <-
       
     # 3. Create independent columns for each of them
     imputedDFext <-
-      imputedDFext %>% mutate(PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
+      imputedDFext %>% dplyr::mutate(
+        PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
       
       # 4. And take the labels:
       imputedDFext$Protein <-
@@ -2047,12 +2052,17 @@ artms_generatePhSiteExtended <-
           ) ,
           gsub("^(\\S+?)_.*", "\\1", imputedDFext$PTMone, perl = TRUE)
         )
-      imputedDFext$PTMAA <-
-        gsub("(\\S+)(_[S,T,Y,K])(\\d+)", "\\2", imputedDFext$PTMone)
+      imputedDFext$PTMaa <-
+        gsub("(\\S+)(_)([S,T,Y,K])(\\d+)", "\\3", imputedDFext$PTMone)
       imputedDFext$PTMsite <-
-        gsub("(\\S+)(_[S,T,Y,K])(\\d+)", "\\3", imputedDFext$PTMone)
-      imputedDFext <-
+        gsub("(\\S+)(_)([S,T,Y,K])(\\d+)", "\\4", imputedDFext$PTMone)
+      
+      imputedDFext$PTMone <- NULL
+      
+      if( !any(grepl("Gene", colnames(imputedDFext))) ) imputedDFext <-
         artms_annotationUniprot(imputedDFext, 'Protein', specie)
+      
+      if( any(grepl("Label", colnames(imputedDFext))) )
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
@@ -2060,11 +2070,13 @@ artms_generatePhSiteExtended <-
       # imputedDFext$Protein), "Influenza", specie)
       # imputedDFext$Specie <- ifelse(imputedDFext$Protein 
       # %in% pathogen.ids$Entry, pathogen, specie)
-      imputedDFext <-
-        artms_annotateSpecie(imputedDFext, pathogen, specie)
+      
+      if( !any(grepl("Specie", colnames(imputedDFext))) ) suppressMessages(
+        imputedDFext <-
+                      artms_annotateSpecie(imputedDFext, "Protein", specie))
     } else{
       stop(
-        "--- (!!!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType>\n"
+        "--- (!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType>\n"
       )
     }
     outlog2fcImputext <-
