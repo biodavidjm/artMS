@@ -42,9 +42,12 @@ artms_proteinToSiteConversion <- function (evidence_file,
     return("Files must not be NULL")
   }
   
-  if (is.null(output_file)) {
-    stop("output_file MISSED!")
-  }
+  if (is.null(output_file)) stop("<output_file> is missed!")
+
+  
+  if(evidence_file == output_file) 
+    stop("<output_file> cannot be the same as <evidence_file>")
+  
   cat(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS\n")
   mod_type <- toupper(mod_type)
   
