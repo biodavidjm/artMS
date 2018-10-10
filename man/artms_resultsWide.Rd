@@ -5,7 +5,7 @@
 \title{Reshape the MSstats results file from long to wide format}
 \usage{
 artms_resultsWide(results_msstats, output_file = NULL,
-  select_pvalues = "adjpvalue", specie)
+  select_pvalues = "adjpvalue", species)
 }
 \arguments{
 \item{results_msstats}{(char) Input file name and location
@@ -21,9 +21,9 @@ R object (data.frame)}
 \item \code{adjpvalue} (default)
 }}
 
-\item{specie}{(char) Specie name for annotation purposes.
+\item{species}{(char) Specie name for annotation purposes.
 Check \code{?artmsMapUniprot2Entrez} to find out more about the
-supported species (e.g \code{specie = "human"})}
+supported species (e.g \code{species = "human"})}
 }
 \value{
 (output file tab delimited) reshaped file with unique protein ids
@@ -39,7 +39,7 @@ of each comparison will be its own column.
 ph_results_wide <- artms_resultsWide(
                          results_msstats = artms_data_ph_msstats_results,
                          output_file = NULL,
-                         specie = "human")
+                         species = "human")
 }
 \keyword{msstats,}
 \keyword{reshape}

@@ -298,7 +298,7 @@ Check [MSstats documentation](http://msstats.org/) to find out more about every 
   enabled : 1 # if 0, won't process anything on this section
   annotate :  
     enabled: 1 # if 1, will generate a `-results-annotated.txt` file that including Gene and Protein.Name
-    specie : HUMAN
+    species : HUMAN
   plots:
     volcano: 1
     heatmap: 1
@@ -658,14 +658,14 @@ And then run the following function (for an "AB" experiment)
 ```{r, echo = FALSE}
 artms_analysisQuantifications(log2fc_file = "ab-results.txt",
                               modelqc_file = "ab-results_ModelQC.txt",
-                              specie = "human",
+                              species = "human",
                               output_dir = "AnalysisQuantifications")
 ```
 
 A few comments about the available options for `artms_analysisQuantifications`:
 
 - `isPTM`. For both protein abundance (`AB`), Affinity Purification-Mass Spectrometry (`APMS`), and global analysis of posttranslational modifications (`PH` and `UB`) analyses use the option `"noptm"`. For a site specific PTM analysis use `"ptmsites"`.
-- `specie`. This downstream analysis supports (for now) `"human"` and `"mouse"`
+- `species`. This downstream analysis supports (for now) `"human"` and `"mouse"`
 - `enrich`. If `TRUE`, it will perform enrichment analysis using `gProfileR`
 - `isBackground`. If `enrich = TRUE`, the user can provide a background gene list (add the file path as well)
 - `mnbr`: Minimal Number of Biological Replicates for imputation. Missing values will be imputed and this argument is set to specified the minimal number of biological replicates that are required in at least one of the conditions, but for all the proteins For example, `mnbr = 2` would mean that only proteins found in *at least* two biological replicates will be imputed. In addition, for any other protein should be identified in at least one condition in two biological replicates or it will be removed. That is, if `mnbr = 2`, if a protein was found in two conditions but only in one biological replicate (in both conditions), it will be remove.

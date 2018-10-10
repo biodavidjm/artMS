@@ -4,14 +4,14 @@
 \alias{artms_enrichLog2fc}
 \title{Enrichment of changes in protein abundance or PTMs}
 \usage{
-artms_enrichLog2fc(dataset, specie, background, heatmaps = FALSE,
+artms_enrichLog2fc(dataset, species, background, heatmaps = FALSE,
   output_name = "enrichment.txt")
 }
 \arguments{
 \item{dataset}{(data.frame) with a \code{Gene} and \code{Comparison or Label} (with
 the name of the comparisons specified in the contrast file) columns}
 
-\item{specie}{(char) Specie, only supported "human" or "mouse"}
+\item{species}{(char) Specie, only supported "human" or "mouse"}
 
 \item{background}{(vector) Background genes for the enrichment analysis.}
 
@@ -38,7 +38,7 @@ data_annotated <- artms_annotationUniprot(
 # And then the enrichment
 enrich_set <- artms_enrichLog2fc(
                    dataset = data_annotated,
-                   specie = "human",
+                   species = "human",
                    background = unique(data_annotated$Gene))
 }
 \keyword{enrichment}

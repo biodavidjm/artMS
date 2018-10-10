@@ -14,7 +14,7 @@
 #' @param output_file (char) The file name for the results
 #' (must have the extension `.txt`). If empty, then the
 #' results will be returned as an R object.
-#' @param specie (char) The specie name.
+#' @param species (char) The species name.
 #' Check `?artmsMapUniprot2Entrez`
 #' @return An R object with the results and a file with the results (if the
 #' output_file argument is provided). It contains averages of Intensity,
@@ -22,17 +22,17 @@
 #' @keywords MaxQuant, evidence, summary, intensity, retention time, caliberated
 #' @examples
 #' ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence,
-#'                                   specie = "human")
+#'                                   species = "human")
 #' @export
 artms_avg_intensity_RT <- function(evidence_file,
                                    protein_file = NULL,
                                    output_file = FALSE,
-                                   specie) {
+                                   species) {
   # read in data
   cat(">> READING IN FILES...\n")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
   suppressMessages(dat <-
-                     artms_annotationUniprot(dat, "Proteins", sps = specie))
+                     artms_annotationUniprot(dat, "Proteins", sps = species))
   
   if (!is.null(protein_file)) {
     cat(">> FILTERING OUT UNWANTED PROTEINS...\n")

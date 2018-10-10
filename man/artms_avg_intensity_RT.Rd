@@ -5,7 +5,7 @@
 \title{Summarize average intensity and retention time per protein}
 \usage{
 artms_avg_intensity_RT(evidence_file, protein_file = NULL,
-  output_file = FALSE, specie)
+  output_file = FALSE, species)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
@@ -18,7 +18,7 @@ a list of proteins of interest.}
 (must have the extension \code{.txt}). If empty, then the
 results will be returned as an R object.}
 
-\item{specie}{(char) The specie name.
+\item{species}{(char) The species name.
 Check \code{?artmsMapUniprot2Entrez}}
 }
 \value{
@@ -36,7 +36,7 @@ will be summarized and returned.
 }
 \examples{
 ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence,
-                                  specie = "human")
+                                  species = "human")
 }
 \keyword{MaxQuant,}
 \keyword{caliberated}

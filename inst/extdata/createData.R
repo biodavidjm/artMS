@@ -218,9 +218,9 @@ artms_msstats_summary(
 
 setwd("~/sourcecode/artms/apms/results/")
 artms_analysisQuantifications(
-  log2fc_file = "a549-PB1-results.txt",
-  modelqc_file = "a549-PB1-results_ModelQC.txt",
-  specie = "HUMAN",
+  # log2fc_file = "a549-PB1-results.txt",
+  # modelqc_file = "a549-PB1-results_ModelQC.txt",
+  species = "HUMAN",
   output_dir = "analysis"
 )
 
@@ -254,7 +254,7 @@ setwd('~/sourcecode/artms/fractions/results/')
 artms_analysisQuantifications(
   log2fc_file = "petroski-cul4-debug2-results.txt",
   modelqc_file = "petroski-cul4-debug2-results_ModelQC.txt",
-  specie = "human",
+  species = "human",
   output_dir = "analysis"
 )
 
@@ -345,7 +345,7 @@ setwd('~/sourcecode/artms/ph/phglobal/')
 artms_analysisQuantifications(
   log2fc_file = "phglobal-results.txt",
   modelqc_file = "phglobal-results_ModelQC.txt",
-  specie = "human",
+  species = "human",
   output_dir = "analysis_name"
 )
 
@@ -369,15 +369,15 @@ setwd('~/sourcecode/artms/ph/phsites/')
 artms_analysisQuantifications(
   log2fc_file = "phsites-results.txt",
   modelqc_file = "phsites-results_ModelQC.txt",
-  specie = "human",
-  output_dir = "analysisQuant",
+  species = "human",
+  output_dir = "analysisQuant2",
   isPtm = "ptmsites",
   enrich = FALSE
 )
 
 log2fc_file = "phsites-results.txt"
 modelqc_file = "phsites-results_ModelQC.txt"
-specie = "human"
+species = "human"
 output_dir = "analysisQuant"
 isPtm = "ptmsites"
 enrich = FALSE
@@ -390,15 +390,26 @@ pathogen = "nopathogen"
 
 df = imputedDF
 pathogen = pathogen
-specie = specie
+species = species
 ptmType = isPtm
 output_name = log2fc_file
 
 
-setwd('~/sourcecode/artms/ph/phsites/analysisQuant_adjpvalue/')
+setwd('~/sourcecode/artms/ph/phsites/analysisQuant2_adjpvalue/')
 
 filename <- "phsites-results-imputedL2fcExtended.txt"
 
+artmsPhosfateOutput(inputFile = filename)
+artmsPhotonOutput(inputFile = filename)
+
+here <- artms_generatePhSiteExtended(df = "phsites-results-abundance-long.txt", 
+                             pathogen = "nopathogen", 
+                             species = "human", 
+                             ptmType = "ptmsites", 
+                             output_name = "whatever")
+
+setwd("/Users/djm75/Box Sync/projects/FluomicsProteomics/Flu-human-exvivo/PTMs/HTBE/H1N1/ph_2017/results/20171015sites/a20180205_pvalue")
+filename <- "201710-FLU-HTBE-H1N1-PH-modacc-results-imputedL2fcExtended.txt"
 artmsPhosfateOutput(inputFile = filename)
 
 #-------------------------------------------------------------------------------
@@ -410,7 +421,7 @@ artms_quantification("phglobal_reduced_config.yaml")
 artms_analysisQuantifications(
   log2fc_file = "ph-reduced-results.txt",
   modelqc_file = "ph-reduced-results_ModelQC.txt",
-  specie = "human",
+  species = "human",
   isPtm = "global",
   enrich = TRUE,
   output_dir = "testingARTMS3",
@@ -435,7 +446,7 @@ evidence_anno <-
 
 uniprots_anno <- artms_mapUniprot2entrezGeneName(
   uniprotkb = unique(artms_data_ph_evidence$Proteins),
-  specie = "human")
+  species = "human")
 
 data_annotated <-
   artms_annotationUniprot(data = artms_data_ph_msstats_results,
@@ -450,14 +461,14 @@ filtered_data <-
 data_annotated_enrich <- artms_enrichProfiler(
   x = filtered_data,
   categorySource = c('KEGG'),
-  specie = "hsapiens",
+  species = "hsapiens",
   background = unique(data_annotated$Gene)
 )
 
 # -----------------------------------------------------------------------------
 artms_plotHeatmapQuant(
   input_file = artms_data_ph_msstats_results,
-  specie = "human",
+  species = "human",
   output_file = NULL,
   whatPvalue = "pvalue",
   lfc_lower = -1,
@@ -476,13 +487,13 @@ data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results,
 # And then the enrichment
 enrich_set <- artms_enrichLog2fc(
   dataset = data_annotated,
-  specie = "human",
+  species = "human",
   background = unique(data_annotated$Gene),
   heatmaps = TRUE
 )
 
 dataset = data_annotated
-specie = "human"
+species = "human"
 background = unique(data_annotated$Gene)
 heatmaps = TRUE
 
@@ -491,10 +502,10 @@ artms_isEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
 
 
 #----------------------------------------------------------------------
-# Adding a new column with the main specie of the data. Easy.
-# But the main functionality is to add both the host-specie and a pathogen,
+# Adding a new column with the main species of the data. Easy.
+# But the main functionality is to add both the host-species and a pathogen,
 # which is not illustrated in this example
-artms_annotateSpecie(df = artms_data_ph_msstats_results, specie = "human")
+artms_annotateSpecie(df = artms_data_ph_msstats_results, species = "human")
 
 #-------------------------------------------------------------------------------
 # First, let's make the "replicate file" (in a data.frame)
@@ -542,7 +553,7 @@ artms_main(yaml_config_file = yaml_config_file)
 setwd('~/sourcecode/artms/ph/phsites/')
 log2fc_file = "phsites-results.txt"
 modelqc_file = "phsites-results_ModelQC.txt"
-specie = "human"
+species = "human"
 enrich = "yesenrich"
 output_dir = "resultsTesting"
 isFluomics = TRUE
@@ -591,7 +602,7 @@ setwd('~/sourcecode/artms/thp1_ab_h1n1/results/testing/')
 artms_analysisQuantifications(
   log2fc_file = "ab-testing-new-results.txt",
   modelqc_file = "ab-testing-new-results_ModelQC.txt",
-  specie = "human",
+  species = "human",
   isPtm = "noptm",
   enrich = TRUE,
   output_dir = "AnalysisQuantifications",
@@ -605,7 +616,7 @@ artms_analysisQuantifications(
 
 q <- resultsHeatmap(results_file = "ab-testing-new-results.txt",
                     save_file = "whatever.pdf",
-                    specie = "human")
+                    species = "human")
 print(q)
 
 artms_resultsWide(evidence_file = "results/testing/ab-testing-new-results.txt",
@@ -616,7 +627,7 @@ artms_dataPlots(
   output_file = "results/testing/ab-testing-new-results-mss-normalized.pdf")
 
 artms_plotHeatmapQuant(input_file = "ab-testing-new-results.txt",
-                       specie = "human")
+                       species = "human")
 
 print(here)
 artms_msstats_summary(
@@ -655,7 +666,7 @@ return_results = TRUE
 
 log2fc_file = "ab-testing-new-results.txt"
 modelqc_file = "ab-testing-new-results_ModelQC.txt"
-specie = "human"
+species = "human"
 isPtm = "noptm"
 enrich = TRUE
 output_dir = "AnalysisQuantifications"
@@ -701,15 +712,18 @@ symbols <- c('JAK1', 'AATK', 'A2BP1', 'A2LD1')
 select(org.Hs.eg.db, symbols, c("ENTREZID", "GENENAME"), "ALIAS")
 
 # RANDOMLY SELECT KEYS FROM UNIPROT HUMANS
-uniprots <- c("Q6P996")
 uniprots <- as.list(Rkeys(org.Hs.egUNIPROT)[5000:5050])
 
+exampleID <- c("Q6P996", "B1N8M6")
+artmsMapUniprot2Entrez(uniprotkb = exampleID, 
+                                          species = "HUMAN")
+df_example_anno
 
 ano <-
-  artms_mapUniprot2entrezGeneName(uniprotkb = uniprots, specie = "human")
+  artms_mapUniprot2entrezGeneName(uniprotkb = uniprots, species = "human")
 
-library(org.Hs.eg.db)
-library(org.Mm.eg.db)
+# library(org.Hs.eg.db)
+# library(org.Mm.eg.db)
 
 # UNIPROT TO ENTREZ
 uni2entrez <- select(org.Hs.eg.db, uniprots, "ENTREZID", "UNIPROT")

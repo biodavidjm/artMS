@@ -6,7 +6,7 @@
 changes}
 \usage{
 artms_plotHeatmapQuant(input_file,
-  output_file = "quantifications_heatmap.pdf", specie, labels = "*",
+  output_file = "quantifications_heatmap.pdf", species, labels = "*",
   cluster_cols = FALSE, display = "log2FC", lfc_lower = -2,
   lfc_upper = 2, whatPvalue = "adj.pvalue", FDR = 0.05)
 }
@@ -17,7 +17,7 @@ data.frame of resuts)}
 \item{output_file}{(char) Output file name (pdf format) and location.
 Default:"quantifications_heatmap.pdf"}
 
-\item{specie}{(char). Specie name to be able to add the Gene name. To find
+\item{species}{(char). Specie name to be able to add the Gene name. To find
 out more about the supported species check \code{?artmsMapUniprot2Entrez}}
 
 \item{labels}{(vector) of uniprot ids if only specific labes would like to
@@ -50,7 +50,7 @@ Heatmap of the Relative Quantifications (MSStats results)
 }
 \examples{
 artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results,
-                       specie = "human",
+                       species = "human",
                        output_file = NULL,
                        whatPvalue = "pvalue",
                        lfc_lower = -1,

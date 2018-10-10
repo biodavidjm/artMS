@@ -3,11 +3,11 @@
 #'
 #' @description Annotate gene name and symbol based on uniprot ids. It will take
 #' the column from your data.frame specified by the `columnid` argument,
-#' search for the gene symbol, name, and entrez based on the specie (`sps`
+#' search for the gene symbol, name, and entrez based on the species (`sps`
 #' argument) and merge the information back to the input data.frame
 #' @param data (data.frame) to be annotated (or file path and name)
 #' @param columnid (char) The column with the uniprotkb ids
-#' @param sps (char) The specie name. Check `?artmsMapUniprot2Entrez`
+#' @param sps (char) The species name. Check `?artmsMapUniprot2Entrez`
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
@@ -24,7 +24,7 @@ artms_annotationUniprot <- function(data, columnid, sps) {
   
   theUniprots <- as.character(unique(data[[columnid]]))
   preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
-                                             specie = sps)
+                                             species = sps)
   
   dc_merged <-merge(data, 
                     preload,
@@ -62,7 +62,7 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #'
 #' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' @param uniprotkb (vector) Vector of UniprotKB IDs
-#' @param specie (char) The specie name. Species currently supported as part of 
+#' @param species (char) The species name. Species currently supported as part of 
 #' artMS:
 #' - HUMAN
 #' - MOUSE
@@ -92,12 +92,12 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #' # Load an example
 #' exampleID <- c("Q6P996", "B1N8M6")
 #' artmsMapUniprot2Entrez(uniprotkb = exampleID, 
-#'                        specie = "HUMAN")
+#'                        species = "HUMAN")
 #' @export
 artmsMapUniprot2Entrez <- function(uniprotkb, 
-                                   specie) {
+                                   species) {
   
-  specie <- toupper(specie)
+  species <- toupper(species)
   
   LongName <- c(
     "ANOPHELES", 
@@ -144,8 +144,8 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
                       "PackageName" = PackageName, 
                       stringsAsFactors = FALSE)
   
-  if(specie %in% OrgDB$LongName){
-    thePack <- OrgDB$PackageName[which(OrgDB$LongName == specie)]
+  if(species %in% OrgDB$LongName){
+    thePack <- OrgDB$PackageName[which(OrgDB$LongName == species)]
     
     if( !(thePack %in% rownames(installed.packages())) )
       stop("---(-) The package <",thePack,"> is not installed in your system.
@@ -162,7 +162,7 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
         )
     )
   }else{
-    stop("Specie ", specie, " not supported. 
+    stop("Specie ", species, " not supported. 
          Please, check help to find out more about supported species")
   }
   

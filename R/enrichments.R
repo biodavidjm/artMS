@@ -39,7 +39,7 @@
 #' @description Enrichment analysis of the selected proteins
 #' @param dataset (data.frame) with a `Gene` and `Comparison or Label` (with
 #' the name of the comparisons specified in the contrast file) columns
-#' @param specie (char) Specie, only supported "human" or "mouse"
+#' @param species (char) Specie, only supported "human" or "mouse"
 #' @param background (vector) Background genes for the enrichment analysis.
 #' @param heatmaps (logical) if `TRUE` generates heatmaps (pdf),
 #' `FALSE` (default) otherwise.
@@ -58,11 +58,11 @@
 #' # And then the enrichment
 #' enrich_set <- artms_enrichLog2fc(
 #'                    dataset = data_annotated,
-#'                    specie = "human",
+#'                    species = "human",
 #'                    background = unique(data_annotated$Gene))
 #' @export
 artms_enrichLog2fc <- function(dataset,
-                               specie,
+                               species,
                                background,
                                heatmaps = FALSE,
                                output_name = "enrichment.txt") {
@@ -89,7 +89,7 @@ artms_enrichLog2fc <- function(dataset,
   
   tmp = split(pretmp$Gene, pretmp$Comparisons, drop = TRUE)
   
-  if (specie == "human") {
+  if (species == "human") {
     enrichgenes <-
       artms_enrichProfiler(
         tmp,
@@ -103,20 +103,20 @@ artms_enrichLog2fc <- function(dataset,
           'HPA',
           'OMIM'
         ),
-        specie = 'hsapiens',
+        species = 'hsapiens',
         background
       ) # 'HP'
-  } else if (specie == "mouse") {
+  } else if (species == "mouse") {
     enrichgenes <-
       artms_enrichProfiler(
         tmp,
         categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'),
-        specie = 'mmusculus',
+        species = 'mmusculus',
         background
       )
   } else{
-    stop("\nSORRY, this specie (",
-         specie,
+    stop("\nSORRY, this species (",
+         species,
          ") is not supported in the enrichment!!\n")
   }
   
@@ -234,7 +234,7 @@ artms_enrichLog2fc <- function(dataset,
 #' - Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
 #' - Reviewed computational analysis (RCA) / Electronic annotation (IEA)
 #' - No biological data (ND) / Not annotated or not in background (NA)
-#' @param specie (char) Specie code: Organism names are constructed by
+#' @param species (char) Specie code: Organism names are constructed by
 #' concatenating the first letter of the name and the family name.
 #' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
 #' more about supported species.
@@ -274,19 +274,19 @@ artms_enrichLog2fc <- function(dataset,
 #' data_annotated_enrich <- artms_enrichProfiler(
 #'                                    x = filtered_data,
 #'                                    categorySource = c('KEGG'),
-#'                                    specie = "hsapiens",
+#'                                    species = "hsapiens",
 #'                                    background = unique(data_annotated$Gene))
 #' @export
 artms_enrichProfiler <-
   function(x,
            categorySource = c('GO'),
-           specie,
+           species,
            background = NA) {
     gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
     cat("---+ Enrichment analysis using gProfiler...")
     enrichData <- gprofiler(
       x,
-      organism = specie,
+      organism = species,
       # "scerevisiae","hsapiens", "mmusculus"
       ordered_query = FALSE,
       significant = TRUE,

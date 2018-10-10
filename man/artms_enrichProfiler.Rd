@@ -4,7 +4,7 @@
 \alias{artms_enrichProfiler}
 \title{Enrichment analysis using GprofileR}
 \usage{
-artms_enrichProfiler(x, categorySource = c("GO"), specie,
+artms_enrichProfiler(x, categorySource = c("GO"), species,
   background = NA)
 }
 \arguments{
@@ -40,7 +40,7 @@ Inferred by curator (IC)
 \item No biological data (ND) / Not annotated or not in background (NA)
 }}
 
-\item{specie}{(char) Specie code: Organism names are constructed by
+\item{species}{(char) Specie code: Organism names are constructed by
 concatenating the first letter of the name and the family name.
 Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
 more about supported species.}
@@ -91,7 +91,7 @@ unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 data_annotated_enrich <- artms_enrichProfiler(
                                    x = filtered_data,
                                    categorySource = c('KEGG'),
-                                   specie = "hsapiens",
+                                   species = "hsapiens",
                                    background = unique(data_annotated$Gene))
 }
 \keyword{enrichment}

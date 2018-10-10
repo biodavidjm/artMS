@@ -4,7 +4,7 @@
 \alias{artms_generatePhSiteExtended}
 \title{Generate ph-site specific detailed file}
 \usage{
-artms_generatePhSiteExtended(df, pathogen = "nopathogen", specie,
+artms_generatePhSiteExtended(df, pathogen = "nopathogen", species,
   ptmType, output_name)
 }
 \arguments{
@@ -14,7 +14,7 @@ artms_generatePhSiteExtended(df, pathogen = "nopathogen", specie,
 pathogens are \code{tb} (Tuberculosis), \code{lpn} (Legionella). If it is not,
 then use \code{nopathogen} (default).}
 
-\item{specie}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
+\item{species}{(char) Main organism (supported for now: \code{human} or \code{mouse})}
 
 \item{ptmType}{(char) It must be a ptm-site quantification dataset. Either:
 yes: \code{ptmsites} (for site specific analysis), or
@@ -35,7 +35,7 @@ input files for tools as \href{http://phosfate.com/}{Phosfate} or
 \examples{
 \donttest{
 artms_generatePhSiteExtended(df = dfobject, 
-                             specie = "mouse", 
+                             species = "mouse", 
                              ptmType = "ptmsites",
                              output_name = log2fc_file)
 }

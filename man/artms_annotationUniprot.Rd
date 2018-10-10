@@ -11,7 +11,7 @@ artms_annotationUniprot(data, columnid, sps)
 
 \item{columnid}{(char) The column with the uniprotkb ids}
 
-\item{sps}{(char) The specie name. Check \code{?artmsMapUniprot2Entrez}
+\item{sps}{(char) The species name. Check \code{?artmsMapUniprot2Entrez}
 to find out more about supported species.}
 }
 \value{
@@ -20,7 +20,7 @@ to find out more about supported species.}
 \description{
 Annotate gene name and symbol based on uniprot ids. It will take
 the column from your data.frame specified by the \code{columnid} argument,
-search for the gene symbol, name, and entrez based on the specie (\code{sps}
+search for the gene symbol, name, and entrez based on the species (\code{sps}
 argument) and merge the information back to the input data.frame
 }
 \examples{

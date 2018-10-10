@@ -4,12 +4,12 @@
 \alias{artmsMapUniprot2Entrez}
 \title{Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS}
 \usage{
-artmsMapUniprot2Entrez(uniprotkb, specie)
+artmsMapUniprot2Entrez(uniprotkb, species)
 }
 \arguments{
 \item{uniprotkb}{(vector) Vector of UniprotKB IDs}
 
-\item{specie}{(char) The specie name. Species currently supported as part of
+\item{species}{(char) The species name. Species currently supported as part of
 artMS:
 \itemize{
 \item HUMAN
@@ -48,7 +48,7 @@ Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 # Load an example
 exampleID <- c("Q6P996", "B1N8M6")
 artmsMapUniprot2Entrez(uniprotkb = exampleID, 
-                       specie = "HUMAN")
+                       species = "HUMAN")
 }
 \keyword{annotation,}
 \keyword{ids}

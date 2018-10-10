@@ -337,9 +337,9 @@ artms_SILACtoLong <- function(evidence_file, output) {
 #' @param select_pvalues (char) Either
 #' - `pvalue` or
 #' - `adjpvalue` (default)
-#' @param specie (char) Specie name for annotation purposes.
+#' @param species (char) Specie name for annotation purposes.
 #' Check `?artmsMapUniprot2Entrez` to find out more about the
-#' supported species (e.g `specie = "human"`)
+#' supported species (e.g `species = "human"`)
 #' @return (output file tab delimited) reshaped file with unique protein ids
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
@@ -347,12 +347,12 @@ artms_SILACtoLong <- function(evidence_file, output) {
 #' ph_results_wide <- artms_resultsWide(
 #'                          results_msstats = artms_data_ph_msstats_results,
 #'                          output_file = NULL,
-#'                          specie = "human")
+#'                          species = "human")
 #' @export
 artms_resultsWide <- function(results_msstats,
                               output_file = NULL,
                               select_pvalues = "adjpvalue",
-                              specie) {
+                              species) {
   cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
   results_msstats <- .artms_checkIfFile(results_msstats)
   
@@ -379,7 +379,7 @@ artms_resultsWide <- function(results_msstats,
                       data = input_l,
                       value.var = c('value'))
   suppressMessages(input_w <-
-                     artms_annotationUniprot(input_w, "Protein", specie))
+                     artms_annotationUniprot(input_w, "Protein", species))
   if (!is.null(output_file)) {
     write.table(
       input_w,

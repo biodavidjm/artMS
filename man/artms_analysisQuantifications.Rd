@@ -4,7 +4,7 @@
 \alias{artms_analysisQuantifications}
 \title{Analysis of the Relative Quantification}
 \usage{
-artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
+artms_analysisQuantifications(log2fc_file, modelqc_file, species,
   output_dir, enrich = TRUE, l2fc_thres = 1.5,
   choosePvalue = "adjpvalue", isBackground = "nobackground",
   isPtm = "global", mnbr = 2, isFluomics = FALSE,
@@ -15,7 +15,7 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, specie,
 
 \item{modelqc_file}{(char) MSstats modelqc file location}
 
-\item{specie}{(char) Main specie. Currently supported: human, mouse}
+\item{species}{(char) Main species. Currently supported: human, mouse}
 
 \item{output_dir}{(char) Name for the folder to output the results from the
 function}
@@ -75,7 +75,7 @@ It includes:
 # Testing that the files cannot be empty
 artms_analysisQuantifications(log2fc_file = NULL,
                               modelqc_file = NULL,
-                              specie = NULL,
+                              species = NULL,
                               output_dir = NULL)
 }
 \keyword{analysis,}

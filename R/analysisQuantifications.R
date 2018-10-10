@@ -14,7 +14,7 @@
 #'
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
-#' @param specie (char) Main specie. Currently supported: human, mouse
+#' @param species (char) Main species. Currently supported: human, mouse
 #' @param output_dir (char) Name for the folder to output the results from the 
 #' function
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
@@ -48,12 +48,12 @@
 #' # Testing that the files cannot be empty
 #' artms_analysisQuantifications(log2fc_file = NULL,
 #'                               modelqc_file = NULL,
-#'                               specie = NULL,
+#'                               species = NULL,
 #'                               output_dir = NULL)
 #' @export
 artms_analysisQuantifications <- function(log2fc_file,
                                           modelqc_file,
-                                          specie,
+                                          species,
                                           output_dir,
                                           enrich = TRUE,
                                           l2fc_thres = 1.5,
@@ -65,9 +65,14 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           pathogen = "nopathogen") {
   cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
+  if(any(missing(log2fc_file) | 
+         missing(modelqc_file) |
+         missing(species)
+         )) stop("fuck you")
+  
   if(is.null(log2fc_file) & is.null(modelqc_file) & 
-     is.null(specie) & is.null(output_dir)){
-    return("The evidence_file, modelqc_file, specie and output_dir arguments
+     is.null(species) & is.null(output_dir)){
+    return("The evidence_file, modelqc_file, species and output_dir arguments
 must not be empty")
   }
   
@@ -109,9 +114,9 @@ must not be empty")
          The valid options are: pvalue or adjpvalue\n")
   }
   
-  specie <- tolower(specie)
-  if(!(specie %in% c('human', 'mouse'))){
-    stop("The < specie > argument is wrong. 
+  species <- tolower(species)
+  if(!(species %in% c('human', 'mouse'))){
+    stop("The < species > argument is wrong. 
          The valid options are: pvalue or adjpvalue\n")
   }
   
@@ -165,7 +170,7 @@ must not be empty")
     # then extract them from the modelqc file
     if (isPtm == "global") {
       suppressMessages(dfmq2Genes <-
-                         artms_annotationUniprot(dfmq, 'PROTEIN', specie))
+                         artms_annotationUniprot(dfmq, 'PROTEIN', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",
           numberTotalGenes,
@@ -196,7 +201,7 @@ must not be empty")
       )
       dfmq2Genes <- unique(dfmq2Genes)
       suppressMessages(dfmq2Genes <-
-                         artms_annotationUniprot(dfmq2Genes, 'Protein', specie))
+                         artms_annotationUniprot(dfmq2Genes, 'Protein', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",
           numberTotalGenes,
@@ -244,10 +249,10 @@ must not be empty")
   #   cat("WARNING! selecting MOCK for humans and mice in LOG2FC raw data\n")
   #
   #   # WHEN A REFERENCE MOCK IS WISHED
-  #   # if(specie == "human"){
+  #   # if(species == "human"){
   #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
   #   dflog2fcraw$Label) & grepl("MOCK_03H", dflog2fcraw$Label) ),]
-  #   # }else if (specie == "mouse"){
+  #   # }else if (species == "mouse"){
   #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
   #   dflog2fcraw$Label) | grepl("MOCK_D04", dflog2fcraw$Label) ),]
   #   # }
@@ -679,7 +684,7 @@ must not be empty")
   cat(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
   modelqcabundance <-
     .artms_loadModelQCstrict(df_input = dfmq,
-                             specie = specie,
+                             species = species,
                              ptmis = isPtm)
   out.pca <- gsub(".txt", "-pca", log2fc_file)
   out.pca <- paste0(output_dir, "/", out.pca)
@@ -688,7 +693,7 @@ must not be empty")
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ANNOTATIONS
-  modelqc_file_splc <- .artms_mergeAbNbr(dfmq, nbr_wide, specie)
+  modelqc_file_splc <- .artms_mergeAbNbr(dfmq, nbr_wide, species)
   
   cat(">>> ANNOTATIONS\n")
   # Now get ready for annotation
@@ -715,19 +720,19 @@ must not be empty")
       )
     suppressMessages(
       modelqc_file_splc <-
-        artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
+        artms_annotationUniprot(modelqc_file_splc, 'Protein', species)
     )
   } else{
     suppressMessages(
       modelqc_file_splc <-
-        artms_annotationUniprot(modelqc_file_splc, 'Protein', specie)
+        artms_annotationUniprot(modelqc_file_splc, 'Protein', species)
     )
   }
   
   cat("--- Relative Quantifications (Log2fc)\n")
   # Prepare output of changes
   log2fc_file_splc <-
-    .artms_mergeChangesNbr(dflog2fc, nbr_wide, specie)
+    .artms_mergeChangesNbr(dflog2fc, nbr_wide, species)
   # Now get ready for annotation
   if (grepl("ptm", isPtm)) {
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <-
@@ -746,12 +751,12 @@ must not be empty")
       )
     suppressMessages(
       log2fc_file_splc <-
-        artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
+        artms_annotationUniprot(log2fc_file_splc, 'Protein', species)
     )
   } else{
     suppressMessages(
       log2fc_file_splc <-
-        artms_annotationUniprot(log2fc_file_splc, 'Protein', specie)
+        artms_annotationUniprot(log2fc_file_splc, 'Protein', species)
     )
   }
   
@@ -996,12 +1001,12 @@ must not be empty")
         )
       suppressMessages(
         l2fcol4enrichment <-
-          artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie)
+          artms_annotationUniprot(l2fcol4enrichment, 'Protein', species)
       )
     } else{
       suppressMessages(
         l2fcol4enrichment <-
-          artms_annotationUniprot(l2fcol4enrichment, 'Protein', specie)
+          artms_annotationUniprot(l2fcol4enrichment, 'Protein', species)
       )
     }
   }
@@ -1040,7 +1045,7 @@ must not be empty")
         mac.allsig <- artms_enrichLog2fc(
           dataset = filallsig_log2fc_long,
           output_name = out.mac.allsig,
-          specie = specie,
+          species = species,
           heatmaps = TRUE,
           background = listOfGenes
         ), error = function(e){
@@ -1123,7 +1128,7 @@ must not be empty")
       tryCatch(
           mac.pos <- artms_enrichLog2fc(
             dataset = filpos_log2fc_long,
-            specie = specie,
+            species = species,
             heatmaps = TRUE,
             output_name = out.mac.pos,
             background = listOfGenes
@@ -1210,7 +1215,7 @@ must not be empty")
         mac.neg <- artms_enrichLog2fc(
           dataset = filneg_log2fc_long,
           output_name = out.mac.neg,
-          specie = specie,
+          species = species,
           heatmaps = TRUE,
           background = listOfGenes), 
         error = function(e){
@@ -1316,17 +1321,17 @@ must not be empty")
   }
   
   suppressMessages(superunified <-
-                     artms_annotationUniprot(superunified, 'Prey', specie))
+                     artms_annotationUniprot(superunified, 'Prey', species))
   
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <-
     'Condition'
   
   # ANNOTATE SPECIE
-  cat("--- Annotating specie(s) in files\n")
+  cat("--- Annotating species(s) in files\n")
   superunified <-
-    artms_annotateSpecie(superunified, pathogen, specie)
-  imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
+    artms_annotateSpecie(superunified, pathogen, species)
+  imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # THE JITTER PLOTS
@@ -1351,26 +1356,26 @@ must not be empty")
       gsub(".txt", ".abundanceGrouped.pdf", log2fc_file)
     abuJittered <- paste0("plot.", abuJittered)
     abuJittered <- paste0(output_dir, "/", abuJittered)
-    # j <- ggplot(superunifiedfiltered %>% arrange(Specie), 
+    # j <- ggplot(superunifiedfiltered %>% arrange(Species), 
     # aes(Condition,AbMean))
-    # j <- j + geom_jitter(aes(colour = Specie), width = 0.3)
-    if (specie == "human") {
+    # j <- j + geom_jitter(aes(colour = Species), width = 0.3)
+    if (species == "human") {
       j <-
         ggplot(
-          superunifiedfiltered %>% arrange(desc(Specie)),
+          superunifiedfiltered %>% arrange(desc(Species)),
           aes(
             x = Condition,
             y = AbMean,
-            colour = Specie
+            colour = Species
           )
-        ) #superunifiedfiltered %>% arrange(Specie)
+        ) #superunifiedfiltered %>% arrange(Species)
       j <- j + geom_jitter(width = 0.3)
       j <- j + scale_colour_manual(values = c("red", "lightblue"))
-    } else if (specie == "mouse") {
+    } else if (species == "mouse") {
       j <-
-        ggplot(superunifiedfiltered %>% arrange(Specie),
+        ggplot(superunifiedfiltered %>% arrange(Species),
                aes(Condition, AbMean))
-      j <- j + geom_jitter(aes(colour = Specie), width = 0.3)
+      j <- j + geom_jitter(aes(colour = Species), width = 0.3)
       j <- j + scale_colour_manual(values = c("azure3", "red"))
     }
     j <- j + theme_minimal()
@@ -1393,7 +1398,7 @@ must not be empty")
     imputedDFext <- artms_generatePhSiteExtended(
       df = imputedDF,
       pathogen = pathogen,
-      specie = specie,
+      species = species,
       ptmType = isPtm,
       output_name = paste0(output_dir, "/", log2fc_file)
     )
@@ -1418,11 +1423,11 @@ must not be empty")
         gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = TRUE)
       )
     suppressMessages(imputedDF <-
-                       artms_annotationUniprot(imputedDF, 'UniprotID', specie))
+                       artms_annotationUniprot(imputedDF, 'UniprotID', species))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
-    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
+    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <-
@@ -1442,13 +1447,13 @@ must not be empty")
     
   } else if (isPtm == "global") {
     suppressMessages(imputedDF <-
-                       artms_annotationUniprot(imputedDF, 'Protein', specie))
+                       artms_annotationUniprot(imputedDF, 'Protein', species))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
-    # imputedDF$Specie <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, 
-    # pathogen, specie)
-    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, specie)
+    # imputedDF$Species <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, 
+    # pathogen, species)
+    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <-
@@ -1702,7 +1707,7 @@ must not be empty")
       
       tmp <- split(pretmp$Gene, pretmp$cl_number, drop = TRUE)
       
-      if (specie == "human") {
+      if (species == "human") {
         enrichgenes <-
           artms_enrichProfiler(
             tmp,
@@ -1716,10 +1721,10 @@ must not be empty")
               'HPA',
               'OMIM'
             ),
-            specie = 'hsapiens',
+            species = 'hsapiens',
             listOfGenes
           ) # 'HP'
-      } else if (specie == "mouse") {
+      } else if (species == "mouse") {
         enrichgenes <-
           artms_enrichProfiler(
             tmp,
@@ -1729,13 +1734,13 @@ must not be empty")
                                'KEGG', 
                                'REAC', 
                                'CORUM'),
-            specie = 'mmusculus',
+            species = 'mmusculus',
             listOfGenes
           )
       } else{
         stop(
-          "\n\n\ntOhhh no, this specie",
-          specie,
+          "\n\n\ntOhhh no, this species",
+          species,
           " is not supported in the enrichment!!\n\n\n"
         )
       }
@@ -1911,10 +1916,10 @@ must not be empty")
 
 
 # ------------------------------------------------------------------------------
-#' @title Adding a column with the specie name
+#' @title Adding a column with the species name
 #'
-#' @description Adding the specie name to every protein.
-#' This makes more sense if there are more than one specie in the dataset,
+#' @description Adding the species name to every protein.
+#' This makes more sense if there are more than one species in the dataset,
 #' which must be specified in the `pathogen` option. Influenza is a special
 #' case that it does not need to be specified, as far as the proteins were
 #' originally annotated as `INFLUENZAGENE_STRAIN`
@@ -1924,34 +1929,34 @@ must not be empty")
 #' if it does not, then use `pathogen = nopathogen` (default). Supported`tb` 
 #' (Tuberculosis),
 #' `lpn` (Legionella)
-#' @param specie (char) Host organism (supported for now: `human` or `mouse`)
+#' @param species (char) Host organism (supported for now: `human` or `mouse`)
 #' @return (data.frame) The same data.frame but with an extra column 
-#' specifying the specie
-#' @keywords annotation, specie
+#' specifying the species
+#' @keywords annotation, species
 #' @examples
-#' # Adding a new column with the main specie of the data. Easy.
-#' # But the main functionality is to add both the host-specie and a pathogen,
+#' # Adding a new column with the main species of the data. Easy.
+#' # But the main functionality is to add both the host-species and a pathogen,
 #' # which is not illustrated in this example
 #' data_with_specie <- artms_annotateSpecie(df = artms_data_ph_msstats_results,
-#'                                          specie = "human")
+#'                                          species = "human")
 #' @export
 artms_annotateSpecie <- function(df,
                                  pathogen = "nopathogen",
-                                 specie) {
+                                 species) {
   if (pathogen == "nopathogen") {
     # Influenza is treated differently
-    df$Specie <-
+    df$Species <-
       ifelse(grepl("_H1N1|_H3N2|_H5N1", df$Protein),
              "Influenza",
-             specie)
+             species)
   } else if (pathogen == "tb") {
     pathogen.ids <- artms_data_pathogen_TB
-    df$Specie <-
-      ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
+    df$Species <-
+      ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, species)
   } else if (pathogen == "lpn") {
     pathogen.ids <- artms_data_pathogen_LPN
-    df$Specie <-
-      ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, specie)
+    df$Species <-
+      ifelse(df$Protein %in% pathogen.ids$Entry, pathogen, species)
   }
   return(df)
 }
@@ -1968,7 +1973,7 @@ artms_annotateSpecie <- function(df,
 #' @param pathogen (char) Is there a pathogen in the dataset as well? Available
 #' pathogens are `tb` (Tuberculosis), `lpn` (Legionella). If it is not,
 #' then use `nopathogen` (default).
-#' @param specie (char) Main organism (supported for now: `human` or `mouse`)
+#' @param species (char) Main organism (supported for now: `human` or `mouse`)
 #' @param ptmType (char) It must be a ptm-site quantification dataset. Either:
 #' yes: `ptmsites` (for site specific analysis), or
 #' `ptmph` (Jeff's script output evidence file).
@@ -1977,7 +1982,7 @@ artms_annotateSpecie <- function(df,
 #' @keywords external, tools, phosfate
 #' @examples \donttest{
 #' artms_generatePhSiteExtended(df = dfobject, 
-#'                              specie = "mouse", 
+#'                              species = "mouse", 
 #'                              ptmType = "ptmsites",
 #'                              output_name = log2fc_file)
 #' }
@@ -1985,7 +1990,7 @@ artms_annotateSpecie <- function(df,
 artms_generatePhSiteExtended <-
   function(df, 
            pathogen = "nopathogen", 
-           specie, 
+           species, 
            ptmType,
            output_name) {
     
@@ -2024,14 +2029,14 @@ artms_generatePhSiteExtended <-
       if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
         imputedDFext <- artms_annotationUniprot(imputedDFext, 
                                                 'Protein', 
-                                                specie)
+                                                species)
         )
       
       if( any(grepl("Label", colnames(imputedDFext))) )
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
-      imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, specie)
+      imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, species)
     } else if (ptmType == "ptmsites") {
       #1. Change the Protein name to Uniprot_PTM (if it is not there already)
       if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
@@ -2064,21 +2069,21 @@ artms_generatePhSiteExtended <-
       
       if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
         imputedDFext <- 
-          artms_annotationUniprot(imputedDFext, 'Protein', specie)
+          artms_annotationUniprot(imputedDFext, 'Protein', species)
       )
       
       if( any(grepl("Label", colnames(imputedDFext))) )
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
-      # imputedDFext$Specie <- ifelse(grepl("_H1N1|_H3N2|_H5N1", 
-      # imputedDFext$Protein), "Influenza", specie)
-      # imputedDFext$Specie <- ifelse(imputedDFext$Protein 
-      # %in% pathogen.ids$Entry, pathogen, specie)
+      # imputedDFext$Species <- ifelse(grepl("_H1N1|_H3N2|_H5N1", 
+      # imputedDFext$Protein), "Influenza", species)
+      # imputedDFext$Species <- ifelse(imputedDFext$Protein 
+      # %in% pathogen.ids$Entry, pathogen, species)
       
-      if( !any(grepl("Specie", colnames(imputedDFext))) ) suppressMessages(
+      if( !any(grepl("Species", colnames(imputedDFext))) ) suppressMessages(
         imputedDFext <-
-                      artms_annotateSpecie(imputedDFext, "Protein", specie))
+                      artms_annotateSpecie(imputedDFext, "Protein", species))
     } else{
       stop(
         "--- (!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType>\n"
@@ -2243,12 +2248,12 @@ artms_generatePhSiteExtended <-
 #
 # @description Load limited columns from abundance (modelqc) annotated
 # @param df_input (data.frame) with the raw abundance data (modelqc)
-# @param specie (char) Specie name for annotation purposes
+# @param species (char) Species name for annotation purposes
 # @param ptmis (char) Specify whether is a PTM dataset: `global`, `ptmsites`,
 # `ptmph`
 # @return annotated data.frame of abundance data
 # @keywords abundance, annotated
-.artms_loadModelQCstrict <- function (df_input, specie, ptmis) {
+.artms_loadModelQCstrict <- function (df_input, species, ptmis) {
   cat("--- Loading abundance for proteins found in all biological replicas\n")
   cat("--- With respect to the ptm: ", ptmis)
   # Remove empty entries
@@ -2283,7 +2288,7 @@ artms_generatePhSiteExtended <-
     send_back <- datadc
   } else{
     suppressMessages(send_back <-
-                       artms_annotationUniprot(datadc, 'Protein', specie))
+                       artms_annotationUniprot(datadc, 'Protein', species))
   }
   return(send_back)
 }
@@ -2340,10 +2345,10 @@ artms_generatePhSiteExtended <-
 # per condition
 # @param df_input (data.frame) Abundance input file
 # @param repro (data.frame) Reproducibility data.frame
-# @param specie (char) Specie for annotation purposes
+# @param species (char) Species for annotation purposes
 # @return (data.frame) of abundance merged with reproducibility info
 # @keywords abundance, reproducibility, merging
-.artms_mergeAbNbr <- function (df_input, repro, specie) {
+.artms_mergeAbNbr <- function (df_input, repro, species) {
   # Remove empty entries
   if (any(df_input$PROTEIN == "")) {
     df_input <- df_input[-which(df_input$PROTEIN == ""), ]
@@ -2388,10 +2393,10 @@ artms_generatePhSiteExtended <-
 # with the number of biological replicates per condition
 # @param df_input Changes data.frame
 # @param repro Reproducibility data.frame
-# @param specie Specie for annotation purposes
+# @param species Species for annotation purposes
 # @return Merged data.frame of changes and reproducibility information
 # @keywords changes, log2fc, reproducibility, merging
-.artms_mergeChangesNbr <- function (df_input, repro, specie) {
+.artms_mergeChangesNbr <- function (df_input, repro, species) {
   # # Remove the weird empty proteins
   # if(any(df_input$Protein == "")){ df_input <- 
   # df_input[-which(df_input$Protein == ""),]}

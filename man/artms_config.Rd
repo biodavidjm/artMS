@@ -81,7 +81,7 @@ right now
 \itemize{
 \item enabled: 1 # 1|0 whether to annotate the proteins in the results or not
 }
-\item specie : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS,
+\item species : HUMAN  # Supported species: HUMAN, MOUSE, ANOPHELES, ARABIDOPSIS,
 BOVINE, WORM, CANINE, FLY, ZEBRAFISH, ECOLI_STRAIN_K12, ECOLI_STRAIN_SAKAI,
 CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
 \item plots:

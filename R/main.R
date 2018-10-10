@@ -155,7 +155,7 @@ utils::globalVariables(
     "reverse",
     "sample_name",
     "Specie",
-    "specie",
+    "species",
     "strwidth",
     "SUBJECT_ORIGINAL",
     "sumInt",
