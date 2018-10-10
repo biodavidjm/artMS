@@ -44,7 +44,6 @@
 # library(RColorBrewer)
 # library(reshape2)
 # library(seqinr)
-# library(shiny)
 # library(stringr)
 # library(VennDiagram)
 # library(yaml)

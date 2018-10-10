@@ -67,8 +67,10 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   if(any(missing(log2fc_file) | 
          missing(modelqc_file) |
-         missing(species)
-         )) stop("fuck you")
+         missing(species) | 
+         missing(output_dir)
+         )) stop("One (or many) of the mandatory arguments is missed. 
+        Please, check the help for this function to find out more")
   
   if(is.null(log2fc_file) & is.null(modelqc_file) & 
      is.null(species) & is.null(output_dir)){

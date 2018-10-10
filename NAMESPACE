@@ -54,7 +54,6 @@ import(pheatmap)
 import(plotly, except = c(last_plot, mutate, arrange, 
 rename, summarise, select, add_heatmap))
 import(seqinr, except = c(zscore, count, a))
-import(shiny)
 import(stringr)
 import(yaml)
 importFrom(FactoMineR,PCA)

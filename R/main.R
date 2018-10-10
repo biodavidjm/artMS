@@ -32,7 +32,6 @@
 #' @import RColorBrewer
 #' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
-#' @import shiny
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
 #' kmeans median order.dendrogram phyper as.dist complete.cases
 #' @import stringr
@@ -154,7 +153,7 @@ utils::globalVariables(
     "retention.length",
     "reverse",
     "sample_name",
-    "Specie",
+    "Species",
     "species",
     "strwidth",
     "SUBJECT_ORIGINAL",
