@@ -11,7 +11,7 @@ artms_annotationUniprot(data, columnid, sps)
 
 \item{columnid}{(char) The column with the uniprotkb ids}
 
-\item{sps}{(char) The specie name. Check \code{?artms_mapUniprot2entrezGeneName}
+\item{sps}{(char) The specie name. Check \code{?artmsMapUniprot2Entrez}
 to find out more about supported species.}
 }
 \value{

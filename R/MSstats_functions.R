@@ -338,7 +338,7 @@ artms_SILACtoLong <- function(evidence_file, output) {
 #' - `pvalue` or
 #' - `adjpvalue` (default)
 #' @param specie (char) Specie name for annotation purposes.
-#' Check `?artms_mapUniprot2entrezGeneName` to find out more about the
+#' Check `?artmsMapUniprot2Entrez` to find out more about the
 #' supported species (e.g `specie = "human"`)
 #' @return (output file tab delimited) reshaped file with unique protein ids
 #' and as many columns log2fc and adj.pvalues as comparisons available

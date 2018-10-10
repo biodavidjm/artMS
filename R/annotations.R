@@ -7,7 +7,7 @@
 #' argument) and merge the information back to the input data.frame
 #' @param data (data.frame) to be annotated (or file path and name)
 #' @param columnid (char) The column with the uniprotkb ids
-#' @param sps (char) The specie name. Check `?artms_mapUniprot2entrezGeneName`
+#' @param sps (char) The specie name. Check `?artmsMapUniprot2Entrez`
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
@@ -23,7 +23,7 @@ artms_annotationUniprot <- function(data, columnid, sps) {
   data <- .artms_checkIfFile(data)
   
   theUniprots <- as.character(unique(data[[columnid]]))
-  preload <- artms_mapUniprot2entrezGeneName(uniprotkb = theUniprots, 
+  preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
                                              specie = sps)
   
   dc_merged <-merge(data, 
@@ -62,251 +62,113 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #'
 #' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' @param uniprotkb (vector) Vector of UniprotKB IDs
-#' @param specie (char) The specie name. Currently supporting:
-#' - ANOPHELES
-#' - ARABIDOPSIS
-#' - BOVINE
-#' - WORM
-#' - CANINE
-#' - FLY
-#' - ZEBRAFISH
-#' - ECOLI_STRAIN_K12
-#' - ECOLI_STRAIN_SAKAI
-#' - CHICKEN
+#' @param specie (char) The specie name. Species currently supported as part of 
+#' artMS:
 #' - HUMAN
 #' - MOUSE
-#' - RHESUS
-#' - MALARIA
-#' - CHIMP
-#' - RAT
-#' - PIG
-#' - XENOPUS
+#' 
+#' And the following species can be used as well, but the user needs to 
+#' install the corresponding org.db package:
+#' - ANOPHELES (`install.packages(org.Ag.eg.db)`)
+#' - ARABIDOPSIS (`install.packages(org.At.tair.db)`)
+#' - BOVINE (`install.packages(org.Bt.eg.db)`)
+#' - WORM (`install.packages(org.Ce.eg.db)`)
+#' - CANINE (`install.packages(org.Cf.eg.db)`)
+#' - FLY (`install.packages(org.Dm.eg.db)`)
+#' - ZEBRAFISH (`install.packages(org.Dr.eg.db)`)
+#' - ECOLI_STRAIN_K12 (`install.packages(org.EcK12.eg.db)`)
+#' - ECOLI_STRAIN_SAKAI (`install.packages(org.EcSakai.eg.db)`)
+#' - CHICKEN (`install.packages(org.Gg.eg.db)`)
+#' - RHESUS (`install.packages(org.Mmu.eg.db)`)
+#' - MALARIA (`install.packages(org.Pf.plasmo.db)`)
+#' - CHIMP (`install.packages(org.Pt.eg.db)`)
+#' - RAT (`install.packages(org.Rn.eg.db)`)
+#' - YEAST (`install.packages(org.Sc.sgd.db)`)
+#' - PIG (`install.packages(org.Ss.eg.db)`)
+#' - XENOPUS (`install.packages(org.Xl.eg.db)`)
 #' @return (data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
 #' @keywords annotation, ids
 #' @examples
-#' uniprots_anno <- artms_mapUniprot2entrezGeneName(
-#'                        uniprotkb = unique(artms_data_ph_evidence$Proteins),
-#'                        specie = 'human')
+#' # Load an example
+#' exampleID <- c("Q6P996", "B1N8M6")
+#' artmsMapUniprot2Entrez(uniprotkb = exampleID, 
+#'                        specie = "HUMAN")
 #' @export
-artms_mapUniprot2entrezGeneName <- function(uniprotkb, specie) {
+artmsMapUniprot2Entrez <- function(uniprotkb, 
+                                   specie) {
+  
   specie <- toupper(specie)
   
-  if (specie == "ANOPHELES") {
+  LongName <- c(
+    "ANOPHELES", 
+    "ARABIDOPSIS",
+    "BOVINE",
+    "WORM",
+    "CANINE",
+    "FLY",
+    "ZEBRAFISH",
+    "ECOLI_STRAIN_K12",
+    "ECOLI_STRAIN_SAKAI",
+    "CHICKEN",
+    "HUMAN",
+    "MOUSE",
+    "RHESUS",
+    "MALARIA",
+    "CHIMP",
+    "RAT",
+    "YEAST",
+    "PIG",
+    "XENOPUS")
+  PackageName <- c(
+    "org.Ag.eg.db", 
+    "org.At.tair.db",
+    "org.Bt.eg.db",
+    "org.Ce.eg.db",
+    "org.Cf.eg.db",
+    "org.Dm.eg.db",
+    "org.Dr.eg.db",
+    "org.EcK12.eg.db",
+    "org.EcSakai.eg.db",
+    "org.Gg.eg.db",
+    "org.Hs.eg.db",
+    "org.Mm.eg.db",
+    "org.Mmu.eg.db",
+    "org.Pf.plasmo.db",
+    "org.Pt.eg.db",
+    "org.Rn.eg.db",
+    "org.Sc.sgd.db",
+    "org.Ss.eg.db",
+    "org.Xl.eg.db")
+  
+  OrgDB <- data.frame("LongName" = LongName, 
+                      "PackageName" = PackageName, 
+                      stringsAsFactors = FALSE)
+  
+  if(specie %in% OrgDB$LongName){
+    thePack <- OrgDB$PackageName[which(OrgDB$LongName == specie)]
+    
+    if( !(thePack %in% rownames(installed.packages())) )
+      stop("---(-) The package <",thePack,"> is not installed in your system.
+           Just run: install.packages('",thePack,"') and try again")
+    
     suppressMessages(
       mappings <-
         AnnotationDbi::select(
-          org.Ag.eg.db,
+          eval(as.symbol(thePack)),
           uniprotkb,
           c("UNIPROT", "SYMBOL",
             "GENENAME", "ENTREZID"),
           keytype = "UNIPROT"
         )
     )
-  } else if (specie == "ARABIDOPSIS") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.At.tair.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "BOVINE") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Bt.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "WORM") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Ce.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "CANINE") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Cf.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "FLY") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Dm.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "ZEBRAFISH") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Dr.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "ECOLI_STRAIN_K12") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.EcK12.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "ECOLI_STRAIN_SAKAI") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.EcSakai.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "CHICKEN") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Gg.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "HUMAN") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Hs.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "MOUSE") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Mm.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "RHESUS") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Mmu.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "MALARIA") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Pf.plasmo.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "CHIMP") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Pt.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "RAT") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Rn.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "YEAST") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Sc.sgd.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "PIG") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Ss.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else if (specie == "XENOPUS") {
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          org.Xl.eg.db,
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
-  } else {
-    cat("\nERROR: Specie not supported.")
-    stop("PLEASE, CHECK HELP TO FIND OUT MORE ABOUT SUPPORTED SPECIES")
+  }else{
+    stop("Specie ", specie, " not supported. 
+         Please, check help to find out more about supported species")
   }
+  
   mappings <- unique(mappings)
-  # It migth come with 1 uniprot to many gene names: take the first one, which 
-  # should be the main gene name
+  # It migth come with 1 uniprot to many gene names: 
+  # take the first one, which should be the main gene name
   mappings <- mappings[!duplicated(mappings$UNIPROT),]
   return(mappings)
 }

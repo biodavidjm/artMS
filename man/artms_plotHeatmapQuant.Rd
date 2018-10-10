@@ -18,7 +18,7 @@ data.frame of resuts)}
 Default:"quantifications_heatmap.pdf"}
 
 \item{specie}{(char). Specie name to be able to add the Gene name. To find
-out more about the supported species check \code{?artms_mapUniprot2entrezGeneName}}
+out more about the supported species check \code{?artmsMapUniprot2Entrez}}
 
 \item{labels}{(vector) of uniprot ids if only specific labes would like to
 be plotted. Default: all labels}

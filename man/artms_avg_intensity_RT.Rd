@@ -19,7 +19,7 @@ a list of proteins of interest.}
 results will be returned as an R object.}
 
 \item{specie}{(char) The specie name.
-Check \code{?artms_mapUniprot2entrezGeneName}}
+Check \code{?artmsMapUniprot2Entrez}}
 }
 \value{
 An R object with the results and a file with the results (if the

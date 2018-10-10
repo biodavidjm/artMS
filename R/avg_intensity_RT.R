@@ -15,7 +15,7 @@
 #' (must have the extension `.txt`). If empty, then the
 #' results will be returned as an R object.
 #' @param specie (char) The specie name.
-#' Check `?artms_mapUniprot2entrezGeneName`
+#' Check `?artmsMapUniprot2Entrez`
 #' @return An R object with the results and a file with the results (if the
 #' output_file argument is provided). It contains averages of Intensity,
 #' Retention Time, Caliberated Retention Time

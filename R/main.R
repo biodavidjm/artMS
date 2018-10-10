@@ -22,25 +22,8 @@
 #' @import limma
 #' @import MSstats
 #' @import openxlsx
-#' @import org.Ag.eg.db
-#' @import org.At.tair.db
-#' @import org.Bt.eg.db
-#' @import org.Ce.eg.db
-#' @import org.Cf.eg.db
-#' @import org.Dm.eg.db
-#' @import org.Dr.eg.db
-#' @import org.EcK12.eg.db
-#' @import org.EcSakai.eg.db
-#' @import org.Gg.eg.db
 #' @import org.Hs.eg.db
 #' @import org.Mm.eg.db
-#' @import org.Mmu.eg.db
-#' @import org.Pf.plasmo.db
-#' @import org.Pt.eg.db
-#' @import org.Rn.eg.db
-#' @import org.Sc.sgd.db
-#' @import org.Ss.eg.db
-#' @import org.Xl.eg.db
 #' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
@@ -96,6 +79,7 @@ utils::globalVariables(
     "GROUP_ORIGINAL",
     "iLog2FC",
     "imputedDFext",
+    "installed.packages",
     "intensity",
     "Intensity",
     "Ions",

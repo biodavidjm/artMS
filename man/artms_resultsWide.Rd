@@ -22,7 +22,7 @@ R object (data.frame)}
 }}
 
 \item{specie}{(char) Specie name for annotation purposes.
-Check \code{?artms_mapUniprot2entrezGeneName} to find out more about the
+Check \code{?artmsMapUniprot2Entrez} to find out more about the
 supported species (e.g \code{specie = "human"})}
 }
 \value{

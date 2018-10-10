@@ -1,8 +1,8 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.68
-Date: 2018-10-08
+Version: 0.99.69
+Date: 2018-10-09
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
@@ -40,25 +40,8 @@ Imports:
   limma,
   MSstats,
   openxlsx,
-  org.Ag.eg.db,
-  org.At.tair.db,
-  org.Bt.eg.db,
-  org.Ce.eg.db,
-  org.Cf.eg.db,
-  org.Dm.eg.db,
-  org.Dr.eg.db,
-  org.EcK12.eg.db,
-  org.EcSakai.eg.db,
-  org.Gg.eg.db,
   org.Hs.eg.db,
   org.Mm.eg.db,
-  org.Mmu.eg.db,
-  org.Pf.plasmo.db,
-  org.Pt.eg.db,
-  org.Rn.eg.db,
-  org.Sc.sgd.db,
-  org.Ss.eg.db,
-  org.Xl.eg.db,
   PerformanceAnalytics,
   pheatmap,
   plotly,
@@ -74,7 +57,27 @@ Imports:
   utils,
   VennDiagram,
   yaml
-Suggests: BiocStyle, knitr, rmarkdown, testthat
+Suggests: BiocStyle, 
+  knitr, 
+  rmarkdown, 
+  testthat,
+  org.Ag.eg.db,
+  org.At.tair.db,
+  org.Bt.eg.db,
+  org.Ce.eg.db,
+  org.Cf.eg.db,
+  org.Dm.eg.db,
+  org.Dr.eg.db,
+  org.EcK12.eg.db,
+  org.EcSakai.eg.db,
+  org.Gg.eg.db,
+  org.Mmu.eg.db,
+  org.Pf.plasmo.db,
+  org.Pt.eg.db,
+  org.Rn.eg.db,
+  org.Sc.sgd.db,
+  org.Ss.eg.db,
+  org.Xl.eg.db,
 Encoding: UTF-8
 LazyLoad: yes
 LazyData: true

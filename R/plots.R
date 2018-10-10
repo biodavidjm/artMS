@@ -187,7 +187,7 @@ artms_dataPlots <- function(input_file, output_file) {
 #' @param output_file (char) Output file name (pdf format) and location.
 #' Default:"quantifications_heatmap.pdf"
 #' @param specie (char). Specie name to be able to add the Gene name. To find
-#' out more about the supported species check `?artms_mapUniprot2entrezGeneName`
+#' out more about the supported species check `?artmsMapUniprot2Entrez`
 #' @param labels (vector) of uniprot ids if only specific labes would like to
 #' be plotted. Default: all labels
 #' @param cluster_cols (boolean) `True` or `False` to cluster columns.
