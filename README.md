@@ -52,7 +52,7 @@ Two options to install `artMS`
 
 ### Official bioconductor releases
 
-`artMS` is currently under revision by BioConductor. Until officially accepted, the development version can be installed directly from Github.
+`artMS` is currently under revision by [BioConductor](https://www.bioconductor.org/). Why Bioconductor? [Here you can find a nice summary of good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor). Until officially accepted, the development version can be installed directly from Github. 
 
 
 ### Development version from this repo 
@@ -63,7 +63,7 @@ Assuming that you have an `R (>= 3.5)` version running on your system, follow th
 ```
 install.packages("devtools")
 library(devtools)
-install_github("biodavidjm/artMS", build_vignettes=TRUE)
+install_github("biodavidjm/artMS")
 ```
 
 - Check that it is up and running by checking, for example, the documentation of the qc function `artms_qualityControlEvidenceBasic`:

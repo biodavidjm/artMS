@@ -68,8 +68,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   if(any(missing(log2fc_file) | 
          missing(modelqc_file) |
          missing(species) | 
-         missing(output_dir)
-         )) stop("One (or many) of the mandatory arguments is missed. 
+         missing(output_dir)))
+   stop("One (or many) of the required arguments missed. 
         Please, check the help for this function to find out more")
   
   if(is.null(log2fc_file) & is.null(modelqc_file) & 
@@ -1945,6 +1945,11 @@ must not be empty")
 artms_annotateSpecie <- function(df,
                                  pathogen = "nopathogen",
                                  species) {
+  
+  if(any(missing(df) | missing(species)))
+    stop("Missed (one or many) required argument(s).
+         Please, check the help of this function to find out more")
+  
   if (pathogen == "nopathogen") {
     # Influenza is treated differently
     df$Species <-
@@ -1989,12 +1994,18 @@ artms_annotateSpecie <- function(df,
 #'                              output_name = log2fc_file)
 #' }
 #' @export
-artms_generatePhSiteExtended <-
-  function(df, 
-           pathogen = "nopathogen", 
-           species, 
-           ptmType,
-           output_name) {
+artms_generatePhSiteExtended <- function(df, 
+                                         pathogen = "nopathogen", 
+                                         species, 
+                                         ptmType,
+                                         output_name) {
+  
+  if(any(missing(df) | 
+         missing(species) | 
+         missing(ptmType) | 
+         missing(output_name)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
     
     imputedDFext <- NULL
     
@@ -2131,7 +2142,9 @@ artms_generatePhSiteExtended <-
 # reproducibility
 # @return Imputed missing values
 # @keywords internal, imputation, log2fc, quantifications, missing values
-.artms_imputeMissingValues <- function(dflog2fcinfinites, dfmq) {
+.artms_imputeMissingValues <- function(dflog2fcinfinites, 
+                                       dfmq) {
+  
   # The comparsions
   contrast <- unique(dflog2fcinfinites$Label)
   
