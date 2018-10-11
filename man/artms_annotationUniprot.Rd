@@ -4,10 +4,10 @@
 \alias{artms_annotationUniprot}
 \title{Annotate table with Gene Symbol and Name based on Uniprot ID(s)}
 \usage{
-artms_annotationUniprot(data, columnid, sps)
+artms_annotationUniprot(x, columnid, sps)
 }
 \arguments{
-\item{data}{(data.frame) to be annotated (or file path and name)}
+\item{x}{(data.frame) to be annotated (or file path and name)}
 
 \item{columnid}{(char) The column with the uniprotkb ids}
 
@@ -27,7 +27,7 @@ argument) and merge the information back to the input data.frame
 # This example adds annotations to the evidence file available in
 # artMS, based on the column 'Proteins'.
 
-evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+evidence_anno <- artms_annotationUniprot(x = artms_data_ph_evidence,
                                          columnid = 'Proteins',
                                          sps = 'human')
 }

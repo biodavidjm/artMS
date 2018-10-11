@@ -9,8 +9,8 @@ artmsMapUniprot2Entrez(uniprotkb, species)
 \arguments{
 \item{uniprotkb}{(vector) Vector of UniprotKB IDs}
 
-\item{species}{(char) The species name. Species currently supported as part of
-artMS:
+\item{species}{(char) The species name. Species currently supported
+as part of artMS:
 \itemize{
 \item HUMAN
 \item MOUSE

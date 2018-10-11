@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 #' @title Annotate table with Gene Symbol and Name based on Uniprot ID(s)
 #'
-#' @description Annotate gene name and symbol based on uniprot ids. It will take
-#' the column from your data.frame specified by the `columnid` argument,
+#' @description Annotate gene name and symbol based on uniprot ids. It will 
+#' take the column from your data.frame specified by the `columnid` argument,
 #' search for the gene symbol, name, and entrez based on the species (`sps`
 #' argument) and merge the information back to the input data.frame
-#' @param data (data.frame) to be annotated (or file path and name)
+#' @param x (data.frame) to be annotated (or file path and name)
 #' @param columnid (char) The column with the uniprotkb ids
 #' @param sps (char) The species name. Check `?artmsMapUniprot2Entrez`
 #' to find out more about supported species.
@@ -15,18 +15,30 @@
 #' # This example adds annotations to the evidence file available in
 #' # artMS, based on the column 'Proteins'.
 #'
-#' evidence_anno <- artms_annotationUniprot(data = artms_data_ph_evidence,
+#' evidence_anno <- artms_annotationUniprot(x = artms_data_ph_evidence,
 #'                                          columnid = 'Proteins',
 #'                                          sps = 'human')
 #' @export
-artms_annotationUniprot <- function(data, columnid, sps) {
-  data <- .artms_checkIfFile(data)
+artms_annotationUniprot <- function(x, columnid, sps) {
   
-  theUniprots <- as.character(unique(data[[columnid]]))
+  if(any(missing(x) | 
+         missing(columnid) |
+         missing(sps)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  if(!is.data.frame(x)) stop("Argument x must be a data.frame")
+  if(!is.character(columnid)) stop("Argument 'columnid' must be a character")
+  if(!is.character(sps)) stop("Argument <sps> must be a character")
+  
+  x <- .artms_checkIfFile(x)
+  
+  theUniprots <- as.character(unique(x[[columnid]]))
+  
   preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
                                              species = sps)
   
-  dc_merged <-merge(data, 
+  dc_merged <-merge(x, 
                     preload,
                     by.x = columnid,
                     by.y = "UNIPROT",
@@ -43,14 +55,11 @@ artms_annotationUniprot <- function(data, columnid, sps) {
       by.y = columnid,
       all.y = TRUE
     )
-  names(send_back)[grep("^UNIPROT$", names(send_back))] <-
-    "Protein"
+  names(send_back)[grep("^UNIPROT$", names(send_back))] <- "Protein"
   names(send_back)[grep("^SYMBOL$", names(send_back))] <- "Gene"
-  names(send_back)[grep("^GENENAME$", names(send_back))] <-
-    "Protein.names"
-  # Some uniprot entries might not have yet a gene name, which will be an empty
-  #  value. Replace with Entry
-  # name:
+  names(send_back)[grep("^GENENAME$", names(send_back))] <- "Protein.names"
+  # Some uniprot entries might not have yet a gene name, 
+  # which will be an empty value. Replace with Entry name:
   send_back$Gene[which(send_back$Gene == "")] <- NA
   send_back$Gene[is.na(send_back$Gene)] <-
     send_back$Protein[is.na(send_back$Gene)]
@@ -62,8 +71,8 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #'
 #' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' @param uniprotkb (vector) Vector of UniprotKB IDs
-#' @param species (char) The species name. Species currently supported as part of 
-#' artMS:
+#' @param species (char) The species name. Species currently supported 
+#' as part of artMS:
 #' - HUMAN
 #' - MOUSE
 #' 
@@ -96,6 +105,14 @@ artms_annotationUniprot <- function(data, columnid, sps) {
 #' @export
 artmsMapUniprot2Entrez <- function(uniprotkb, 
                                    species) {
+  
+  if(any(missing(uniprotkb) | 
+         missing(species)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  if(!is.vector(uniprotkb)) stop("Argument <uniprotkb> is not a vector")
+  if(!is.character(species)) stop("Argument <species> is not a vector")
   
   species <- toupper(species)
   
