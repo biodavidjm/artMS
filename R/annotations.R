@@ -27,7 +27,6 @@ artms_annotationUniprot <- function(x, columnid, sps) {
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  if(!is.data.frame(x)) stop("Argument x must be a data.frame")
   if(!is.character(columnid)) stop("Argument 'columnid' must be a character")
   if(!is.character(sps)) stop("Argument <sps> must be a character")
   

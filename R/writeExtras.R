@@ -16,7 +16,7 @@
   
   # Annotation
   if (config$output_extras$annotate$enabled) {
-    results_ann <- artms_annotationUniprot(data = results, 
+    results_ann <- artms_annotationUniprot(x = results, 
                                 columnid = 'Protein', 
                                 sps = config$output_extras$annotate$species)
     output_annotated_file <- gsub(".txt", "-annotated.txt", config$files$output)

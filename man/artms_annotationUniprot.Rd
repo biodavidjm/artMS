@@ -18,8 +18,8 @@ to find out more about supported species.}
 (data.frame) with two new columns: \code{Gene} and \code{Protein.name}
 }
 \description{
-Annotate gene name and symbol based on uniprot ids. It will take
-the column from your data.frame specified by the \code{columnid} argument,
+Annotate gene name and symbol based on uniprot ids. It will
+take the column from your data.frame specified by the \code{columnid} argument,
 search for the gene symbol, name, and entrez based on the species (\code{sps}
 argument) and merge the information back to the input data.frame
 }

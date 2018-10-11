@@ -251,7 +251,7 @@ artms_plotHeatmapQuant <- function(input_file,
   
   suppressMessages(
     sign_hits <- artms_annotationUniprot(
-      data = sign_hits,
+      x = sign_hits,
       columnid = "Protein",
       sps = species
     )
