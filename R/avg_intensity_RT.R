@@ -16,6 +16,7 @@
 #' results will be returned as an R object.
 #' @param species (char) The species name.
 #' Check `?artmsMapUniprot2Entrez`
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return An R object with the results and a file with the results (if the
 #' output_file argument is provided). It contains averages of Intensity,
 #' Retention Time, Caliberated Retention Time
@@ -27,15 +28,24 @@
 artms_avg_intensity_RT <- function(evidence_file,
                                    protein_file = NULL,
                                    output_file = FALSE,
-                                   species) {
+                                   species,
+                                   verbose = TRUE) {
+  
+  if(any(missing(evidence_file) | 
+         missing(species)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  if(!is.character(species)) stop("Argument <species> must be a character")
+  
   # read in data
-  cat(">> READING IN FILES...\n")
+  if(verbose) cat(">> READING IN FILES...\n")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
   suppressMessages(dat <-
                      artms_annotationUniprot(dat, "Proteins", sps = species))
   
   if (!is.null(protein_file)) {
-    cat(">> FILTERING OUT UNWANTED PROTEINS...\n")
+    if(verbose) cat(">> FILTERING OUT UNWANTED PROTEINS...\n")
     proteins <- .artms_checkIfFile(protein_file)
     
     # pull out only cases where the proteins appear
@@ -44,7 +54,7 @@ artms_avg_intensity_RT <- function(evidence_file,
     dat <- dat[idx,]
   }
   
-  cat(">> COMPUTING AVERAGES...\n")
+  if(verbose) cat(">> COMPUTING AVERAGES...\n")
   # Compute the average Intensity
   dat.avg <-
     aggregate(data = dat[, c("Protein",
@@ -72,7 +82,7 @@ artms_avg_intensity_RT <- function(evidence_file,
               mean,
               na.rm = TRUE)
   
-  cat(">> MERGING RESULTS...\n")
+  if(verbose) cat(">> MERGING RESULTS...\n")
   results <-
     merge(
       dat.avg,
@@ -90,11 +100,11 @@ artms_avg_intensity_RT <- function(evidence_file,
   # add 'Avg' to names
   names(results)[5:7] = paste0("Avg_", names(results)[5:7])
   
-  cat(">> SUMMARIZATION COMPLETE!!\n")
+  if(verbose) cat(">> SUMMARIZATION COMPLETE!!\n")
   
   if (output_file) {
     # write out results
-    cat("--- WRITING OUT RESULTS TO ", output_file, "\n")
+    if(verbose) cat("--- WRITING OUT RESULTS TO ", output_file, "\n")
     write.table(
       results,
       output_file,

@@ -5,7 +5,7 @@
 \title{Summarize average intensity and retention time per protein}
 \usage{
 artms_avg_intensity_RT(evidence_file, protein_file = NULL,
-  output_file = FALSE, species)
+  output_file = FALSE, species, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
@@ -20,6 +20,8 @@ results will be returned as an R object.}
 
 \item{species}{(char) The species name.
 Check \code{?artmsMapUniprot2Entrez}}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 An R object with the results and a file with the results (if the

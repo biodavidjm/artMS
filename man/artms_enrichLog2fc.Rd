@@ -32,7 +32,7 @@ Enrichment analysis of the selected proteins
 \examples{
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artms_annotationUniprot(
-                      data = artms_data_ph_msstats_results,
+                      x = artms_data_ph_msstats_results,
                       columnid = "Protein",
                       sps = "human")
 # And then the enrichment

@@ -52,7 +52,7 @@
 #' @examples
 #' # The data must be annotated (Protein and Gene columns)
 #' data_annotated <- artms_annotationUniprot(
-#'                       data = artms_data_ph_msstats_results,
+#'                       x = artms_data_ph_msstats_results,
 #'                       columnid = "Protein",
 #'                       sps = "human")
 #' # And then the enrichment
@@ -262,7 +262,7 @@ artms_enrichLog2fc <- function(dataset,
 #' @examples
 #' # annotate the MSstats results to get the Gene name
 #' data_annotated <- artms_annotationUniprot(
-#'                                      data = artms_data_ph_msstats_results,
+#'                                      x = artms_data_ph_msstats_results,
 #'                                      columnid = "Protein",
 #'                                      sps = "human")
 #'

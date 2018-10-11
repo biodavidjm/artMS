@@ -439,7 +439,7 @@ summary_spectral_counts <-
                        keys_file = artms_data_ph_keys)
 
 evidence_anno <-
-  artms_annotationUniprot(data = artms_data_ph_evidence,
+  artms_annotationUniprot(x = artms_data_ph_evidence,
                           columnid = "Proteins",
                           sps = "human")
 
@@ -448,7 +448,7 @@ uniprots_anno <- artms_mapUniprot2entrezGeneName(
   species = "human")
 
 data_annotated <-
-  artms_annotationUniprot(data = artms_data_ph_msstats_results,
+  artms_annotationUniprot(x = artms_data_ph_msstats_results,
                           columnid = "Protein",
                           sps = "human")
 
@@ -480,7 +480,7 @@ artms_volcanoPlot(mss_results = artms_data_ph_msstats_results,
 
 # -----------------------------------------------------------------------------
 # The data must be annotated (Protein and Gene columns)
-data_annotated <- artms_annotationUniprot(data = artms_data_ph_msstats_results,
+data_annotated <- artms_annotationUniprot(x = artms_data_ph_msstats_results,
                                           columnid = "Protein",
                                           sps = "human")
 # And then the enrichment
