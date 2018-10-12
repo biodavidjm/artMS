@@ -5,7 +5,7 @@
 \title{Enrichment analysis using GprofileR}
 \usage{
 artms_enrichProfiler(x, categorySource = c("GO"), species,
-  background = NA)
+  background = NA, verbose = TRUE)
 }
 \arguments{
 \item{x}{(list, data.frame) List of protein ids. It can be anything:
@@ -47,6 +47,8 @@ more about supported species.}
 
 \item{background}{(vector) gene list to use as background for the enrichment
 analysis. Default: \code{NA}}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 The enrichment results as provided by gprofiler

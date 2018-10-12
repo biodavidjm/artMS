@@ -5,7 +5,7 @@
 \title{Enrichment of changes in protein abundance or PTMs}
 \usage{
 artms_enrichLog2fc(dataset, species, background, heatmaps = FALSE,
-  output_name = "enrichment.txt")
+  output_name = "enrichment.txt", verbose = TRUE)
 }
 \arguments{
 \item{dataset}{(data.frame) with a \code{Gene} and \code{Comparison or Label} (with
@@ -21,6 +21,8 @@ the name of the comparisons specified in the contrast file) columns}
 \item{output_name}{(char) Name of the annotation files, which will be used
 as well for the heatmaps (if \code{heatmaps} is selected)
 Default \code{output_name = "enrichment.txt"}}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame) Results from the enrichment analysis using Gprofiler

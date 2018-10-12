@@ -9,7 +9,13 @@
 # @return (data.frame) A text delimited data.frame with protein complex 
 # enrichment results
 # @keywords internal, enrichment, protein, complexes
-.artms_enrichForComplexes <- function(df, backgroundNumber) {
+.artms_enrichForComplexes <- function(df, 
+                                      backgroundNumber) {
+  
+  if(any(missing(df) | missing(backgroundNumber)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
   listOfConditions <- unique(df$Comparisons)
   
   complexEnrichmentConditions <- NULL
@@ -46,6 +52,7 @@
 #' @param output_name (char) Name of the annotation files, which will be used
 #' as well for the heatmaps (if `heatmaps` is selected)
 #' Default `output_name = "enrichment.txt"`
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) Results from the enrichment analysis using Gprofiler
 #' and heatmaps (if selected)
 #' @keywords enrichment
@@ -65,11 +72,18 @@ artms_enrichLog2fc <- function(dataset,
                                species,
                                background,
                                heatmaps = FALSE,
-                               output_name = "enrichment.txt") {
-  # Check point
+                               output_name = "enrichment.txt",
+                               verbose = TRUE) {
+  
+  if(any(missing(dataset) | 
+         missing(species) |
+         missing(background)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+
   if (heatmaps) {
     if (!grepl("\\.txt", output_name)) {
-      stop("WRONG output_name VALUE: DOES NOT HAVE EXTENSION .txt)")
+      stop("The <output_name> argument does not have extension '.txt'")
     }
   }
   
@@ -79,7 +93,7 @@ artms_enrichLog2fc <- function(dataset,
     if (any(grepl("Label", colnames(dataset)))) {
       dataset <- artms_changeColumnName(dataset, "Label", "Comparisons")
     } else{
-      stop("THE DATASET DOES NOT HAVE A <Label> or <Comparisons> column")
+      stop("This dataset does not have a <Label> or <Comparisons> column")
     }
   }
   
@@ -115,23 +129,23 @@ artms_enrichLog2fc <- function(dataset,
         background
       )
   } else{
-    stop("\nSORRY, this species (",
+    stop("\nThe species (",
          species,
-         ") is not supported in the enrichment!!\n")
+         ") not supported for the enrichment analysis!!\n")
   }
   
   if (dim(enrichgenes)[1] == 0) {
-    cat("--- NO SIGNIFICANT RESULTS from the ENRICHMENT ANALYSIS\n")
+    cat("--- No significant results from the enrichment analysis\n")
   } else{
     if (is.null(heatmaps)) {
       enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500), ]
       for (i in unique(enrichgenes2plot$domain)) {
-        cat("\t--- Plotting '", i, "' annotations... ")
+        if(verbose) cat("\t--- Plotting '", i, "' annotations... ")
         tmp <-
           enrichgenes2plot[which(enrichgenes2plot$domain == i), ]
         outfile <- gsub(".txt", paste0("_", i, ".txt"), output_name)
         .artms_EnrichmentPlotHeatmaps(tmp, outfile)
-        cat("out!\n")
+        if(verbose) cat("out!\n")
       }
     }
   }
@@ -143,38 +157,47 @@ artms_enrichLog2fc <- function(dataset,
 # @title Plot Corum Enrichment results
 #
 # @description Heatmap of significant enrichment
-# @param df (data.frame) output from `artms_enrichForComplexes`
+# @param x (data.frame) output from `artms_enrichForComplexes`
 # @param outfile (char) output file name (must have the extenstion `.pdf`)
 # @param theTitle (char) Plot's title
 # @return (pdf) heatmap of the significantly enriched protein complexes
 # @keywords internal, plot, heatmap, enrichment
-.artms_plotCorumEnrichment <- function(df, outfile, theTitle) {
-  checkPoint <- length(unique(df$Comparisons))
+.artms_plotCorumEnrichment <- function(x, 
+                                       outfile, 
+                                       theTitle) {
+  
+  if(any(missing(x) | 
+         missing(outfile) |
+         missing(theTitle)))
+    stop("Missed (one or many) required argument(s)
+        Please, check the help of this function to find out more")
+  
+  checkPoint <- length(unique(x$Comparisons))
+  
   if (checkPoint >= 1) {
     # Dealing with the smallest pvalues (pvalue = 0)
-    dftemp <- df[-which(df$pvalue == 0), ]
+    dftemp <- x[-which(x$pvalue == 0), ]
     if (dim(dftemp)[1] > 0) {
       theMinimal <- min(dftemp$pvalue) / 10
       # Make the value replacement
-      df$p_value <- df$pvalue
-      df$p_value[df$p_value == 0] <- theMinimal
+      x$p_value <- x$pvalue
+      x$p_value[x$p_value == 0] <- theMinimal
     } else{
-      df$p_value <- df$pvalue
+      x$p_value <- x$pvalue
     }
     
-    df$p_value <- -log10(df$p_value)
+    x$p_value <- -log10(x$p_value)
     
-    toplot <-
-      data.table::dcast(
-        data = df,
-        ComplexName ~ Comparisons,
-        value.var = "p_value",
-        fun.aggregate = sum,
-        fill = 0
-      )
+    toplot <- data.table::dcast(data = x,
+                                ComplexName ~ Comparisons,
+                                value.var = "p_value",
+                                fun.aggregate = sum,
+                                fill = 0)
+    
     rownames(toplot) <- toplot$ComplexName
     toplotmatrix <- subset(toplot, select = -c(ComplexName))
     x <- data.matrix(toplotmatrix)
+    
     # HEATMAP
     palette.breaks <- seq(1, 3, 0.1)
     color.palette  <-
@@ -257,6 +280,7 @@ artms_enrichLog2fc <- function(dataset,
 #' - numeric_ns = ""
 #' - png_fn = NULL
 #' - include_graph = TRUE
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The enrichment results as provided by gprofiler
 #' @keywords enrichment
 #' @examples
@@ -277,42 +301,47 @@ artms_enrichLog2fc <- function(dataset,
 #'                                    species = "hsapiens",
 #'                                    background = unique(data_annotated$Gene))
 #' @export
-artms_enrichProfiler <-
-  function(x,
-           categorySource = c('GO'),
-           species,
-           background = NA) {
-    gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
-    cat("---+ Enrichment analysis using gProfiler...")
-    enrichData <- gprofiler(
-      x,
-      organism = species,
-      # "scerevisiae","hsapiens", "mmusculus"
-      ordered_query = FALSE,
-      significant = TRUE,
-      exclude_iea = TRUE,
-      # do you want to exclude electronic annotations (IEA)?
-      underrep = FALSE,
-      evcodes = FALSE,
-      region_query = FALSE,
-      max_p_value = 0.05,
-      min_set_size = 0,
-      max_set_size = 0,
-      min_isect_size = 0,
-      correction_method = "analytical",
-      #Options: "gSCS", "fdr", "bonferroni"
-      hier_filtering = "none",
-      domain_size = "known",
-      # annotated or known
-      custom_bg = background,
-      numeric_ns = "",
-      png_fn = NULL,
-      include_graph = TRUE,
-      src_filter = categorySource
-    )
-    cat("done!\n")
-    return(enrichData)
-  }
+artms_enrichProfiler <- function(x,
+                                 categorySource = c('GO'),
+                                 species,
+                                 background = NA,
+                                 verbose = TRUE) {
+    
+  if(any(missing(x) | missing(species)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
+  if(verbose) cat("---+ Enrichment analysis using gProfiler...")
+  enrichData <- gprofiler(
+    x,
+    organism = species,
+    # "scerevisiae","hsapiens", "mmusculus"
+    ordered_query = FALSE,
+    significant = TRUE,
+    exclude_iea = TRUE,
+    # do you want to exclude electronic annotations (IEA)?
+    underrep = FALSE,
+    evcodes = FALSE,
+    region_query = FALSE,
+    max_p_value = 0.05,
+    min_set_size = 0,
+    max_set_size = 0,
+    min_isect_size = 0,
+    correction_method = "analytical",
+    #Options: "gSCS", "fdr", "bonferroni"
+    hier_filtering = "none",
+    domain_size = "known",
+    # annotated or known
+    custom_bg = background,
+    numeric_ns = "",
+    png_fn = NULL,
+    include_graph = TRUE,
+    src_filter = categorySource
+  )
+  if(verbose) cat("done!\n")
+  return(enrichData)
+}
 
 # Little function to
 # ------------------------------------------------------------------------------
@@ -351,7 +380,8 @@ artms_enrichProfiler <-
 # @param out_file (char) output file name (must have `.txt` extension)
 # @return (pdf) A heatmap of the most significant enrichments
 # @keywords internal, plot, heatmap, enrichments
-.artms_EnrichmentPlotHeatmaps <- function(dat, out_file) {
+.artms_EnrichmentPlotHeatmaps <- function(dat, 
+                                          out_file) {
   # formatting data to heatmap compatible format
   x <-
     dcast(dat,
@@ -361,7 +391,7 @@ artms_enrichProfiler <-
           fill = 1)
   # Let's stop this thing if there is not enough terms (we need at least 2)
   if (dim(x)[1] < 2) {
-    return(cat(" NOT ENOUGH TERMS FOR THIS DOMAIN "))
+    return(cat(" Not enough terms in this domain "))
   } else{
     row.names(x) = x$term.name
     x$term.name = c()
@@ -408,7 +438,7 @@ artms_enrichProfiler <-
           fontfamily = "Helvetica"
         )
       } else{
-        cat(" [SORRY!! We currently don't support heatmaps of a single set] ")
+        cat(" [artMS currently doesn't support heatmaps of a single set] ")
         #pheatmap(term_groups_selected_w_display, 
         #cluster_cols= FALSE,cluster_rows= FALSE, 
         #cellheight=10, cellwidth=10, scale="none", 
@@ -418,7 +448,7 @@ artms_enrichProfiler <-
         # fontfamily="Helvetica")
       }
     } else{
-      cat(" [SORRY, NOT ENOUGH SIGNIFICANT TERMS FOR THIS DOMAIN] ")
+      cat(" [Not enough significant terms for this domain] ")
     }
   }
   
@@ -438,7 +468,9 @@ artms_enrichProfiler <-
 # larger than 1
 # @keywords internal, enrichment, protein, complexes
 # .artms_foldComplexEnrichment()
-.artms_foldComplexEnrichment <- function(mylist, corum, background) {
+.artms_foldComplexEnrichment <- function(mylist, 
+                                         corum, 
+                                         background) {
   corum$Num.Uniprot.IDs <-
     vapply(corum$subunits.UniProt.IDs, function(x)
       length(unlist(strsplit(
