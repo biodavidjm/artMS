@@ -14,6 +14,7 @@
 #' @param quant_variable (char) choose either
 #' - `msspc` (spectral counts, default) or
 #' - `msint` (MS Intensity)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The 3 required files by SAINTexpress:
 #' - `interactions.txt`
 #' - `preys.txt`
@@ -28,26 +29,25 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
                                                keys_file,
                                                ref_proteome_file,
                                                quant_variable = 'msspc',
-                                               output_file) {
-  cat(">> CONVERTING TO SAINTexpress FORMAT\n")
+                                               output_file, 
+                                               verbose = TRUE) {
+  if(verbose) cat(">> CONVERTING TO SAINTexpress FORMAT\n")
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(ref_proteome_file)){
     return("The evidence_file, keys_file, and ref_proteome_file 
            must not be empty")
   }
-  
-  if(!file.exists(evidence_file)){
-    stop("THE FILE ", evidence_file, " DOES NOT EXIST!\n")
-  }
-  
-  if(!file.exists(keys_file)){
-    stop("THE FILE ", keys_file, " DOES NOT EXIST!\n")
-  }
 
+  if(any(missing(evidence_file) | 
+         missing(keys_file) |
+         missing(ref_proteome_file) | 
+         missing(output_file)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+    
   if (!grepl(".txt", output_file)) {
     stop(
-      "\nOPTION output_file MUST HAVE THE EXTENSION '.txt'
-      Change output_file extension and try again\n"
+      "Argument <output_file> must have the extension '.txt'"
     )
   }
   
@@ -71,7 +71,7 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
   
-  cat('>> VERIFYING DATA AND KEYS\n')
+  if(verbose) cat('>> VERIFYING DATA AND KEYS\n')
   if (any(
     !c(
       'RawFile',
@@ -95,7 +95,7 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
   data_f <- artms_filterEvidenceContaminants(data)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
-  cat(">> AGGREGATING ON", quant_variable, "VALUES...\n")
+  if(verbose) cat(">> AGGREGATING ON", quant_variable, "VALUES...\n")
   ## aggregate over technical replicates if necessary
   if (quant_variable == 'msspc') {
     setnames(data_f, 'MS/MS Count', 'spectral_counts')
@@ -164,12 +164,11 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
   missing_lengths <- nrow(saint_preys[is.na(saint_preys$uniprot_id), ])
   saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_id = saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_ac
   if (missing_lengths > 0) {
-    cat(
+    if(verbose)     
+      cat(
       sprintf(
         "--- WARNING! COMPUTING %s MISSING LENGTHS WITH THE MEDIAN LENGTH FROM THE DATASET\n",
-        missing_lengths
-      )
-    )
+        missing_lengths))
     saint_preys[is.na(saint_preys$lengths), ]$lengths = median(saint_preys$lengths, na.rm = TRUE)
   }
   
@@ -201,9 +200,10 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     row.names = FALSE,
     col.names = FALSE
   )
-  cat(">> OUTPUT FILES:\n")
-  cat("--- ", gsub('.txt', '-saint-baits.txt', output_file), "\n")
-  cat("--- ", gsub('.txt', '-saint-preys.txt', output_file), "\n")
-  cat("--- ",
-      gsub('.txt', '-saint-interactions.txt', output_file, "\n"))
+  if(verbose){
+    cat(">> OUTPUT FILES:\n")
+    cat("--- ", gsub('.txt', '-saint-baits.txt', output_file), "\n")
+    cat("--- ", gsub('.txt', '-saint-preys.txt', output_file), "\n")
+    cat("--- ", gsub('.txt', '-saint-interactions.txt', output_file, "\n"))
+  }
 }

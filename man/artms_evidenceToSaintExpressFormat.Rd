@@ -5,7 +5,8 @@
 \title{MaxQuant evidence file to SAINTexpress format}
 \usage{
 artms_evidenceToSaintExpressFormat(evidence_file, keys_file,
-  ref_proteome_file, quant_variable = "msspc", output_file)
+  ref_proteome_file, quant_variable = "msspc", output_file,
+  verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char) The evidence file path and name,
@@ -24,6 +25,8 @@ fasta format}
 }}
 
 \item{output_file}{(char) Output file name (must have extension .txt)}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 The 3 required files by SAINTexpress:
