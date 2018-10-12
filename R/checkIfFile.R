@@ -9,7 +9,8 @@
 # when being read in.
 # @return An R data object
 # @keywords internal, file, evidence, input
-.artms_checkIfFile <- function(input_file, is.evidence = FALSE) {
+.artms_checkIfFile <- function(input_file, 
+                               is.evidence = FALSE) {
   # check if already a data.frame or data.table
   if (is.data.table(input_file)) {
     x <- data.table(input_file)
@@ -65,10 +66,12 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
 # to guess.
 # @param evidence_file (char)The filepath to the MaxQuant searched data
 # (evidence) file (txt tab delimited file).
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) with the evidence file with defining classes
 # @keywords internal, MaxQuant, evidence
-.artms_read_evidence_file <- function(evidence_file) {
-  cat("--- Reading in evidence file...\n")
+.artms_read_evidence_file <- function(evidence_file,
+                                      verbose = TRUE) {
+  if(verbose) cat("--- Reading in evidence file...\n")
   # read in the first line to get the header names
   cols <- readLines(evidence_file, 1)
   cols <-
@@ -262,22 +265,17 @@ artms_isEvidenceNewVersion <- function(evidence_file) {
   
   # Stop if there is an issue
   if (length(which(is.na(cols.matched$V2))) > 0) {
-    stop(
-      paste0(
-        "OH NO!! YOUR EVIDENCE FILE CONTAINS A COLUMN THAT I DON'T RECOGNIZE :(
-        PLEASE TELL THE 'col.classes' IN THE .artms_read_evidence_file' 
-        FUNCTION AND ADD IN THIS NEW COLUMN(S) CALLED \n\t",
-        paste(cols.matched$V1[which(is.na(cols.matched$V2))], 
-              collapse = "\n\t"), "\n"
-      )
+    stop("The evidence file contains columns that are not recognize.
+        If they are new columns, add them to 'col.classes' of
+        function <.artms_read_evidence_file>",
+        paste(cols.matched$V1[which(is.na(cols.matched$V2))],"\n")
     )
   }
   
   # read in the evidence file with their classes
-  x <-
-    fread(evidence_file,
-          integer64 = "double",
-          colClasses = cols.matched$V2)
+  x <- fread(evidence_file, 
+             integer64 = "double",
+             colClasses = cols.matched$V2)
   # make sure all the column names are the same as supporting analytical
   # functions are looking for
   x <- .artms_unifyColumnNames(x)
