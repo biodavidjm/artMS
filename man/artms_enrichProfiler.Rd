@@ -83,7 +83,7 @@ This function uses the following \code{gprofiler} arguments as default:
 data_annotated <- artms_annotationUniprot(
                                      x = artms_data_ph_msstats_results,
                                      columnid = "Protein",
-                                     sps = "human")
+                                     species = "human")
 
 # Filter the list of genes with a log2fc > 2
 filtered_data <- 

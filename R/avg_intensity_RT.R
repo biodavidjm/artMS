@@ -15,7 +15,7 @@
 #' (must have the extension `.txt`). If empty, then the
 #' results will be returned as an R object.
 #' @param species (char) The species name.
-#' Check `?artmsMapUniprot2Entrez`
+#' Check `?artmsMapUniprot2Entrez` for supported species
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return An R object with the results and a file with the results (if the
 #' output_file argument is provided). It contains averages of Intensity,
@@ -42,7 +42,8 @@ artms_avg_intensity_RT <- function(evidence_file,
   if(verbose) cat(">> READING IN FILES...\n")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
   suppressMessages(dat <-
-                     artms_annotationUniprot(dat, "Proteins", sps = species))
+                     artms_annotationUniprot(dat, "Proteins", 
+                                             species = species))
   
   if (!is.null(protein_file)) {
     if(verbose) cat(">> FILTERING OUT UNWANTED PROTEINS...\n")

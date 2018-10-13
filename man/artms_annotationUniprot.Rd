@@ -4,14 +4,14 @@
 \alias{artms_annotationUniprot}
 \title{Annotate table with Gene Symbol and Name based on Uniprot ID(s)}
 \usage{
-artms_annotationUniprot(x, columnid, sps)
+artms_annotationUniprot(x, columnid, species)
 }
 \arguments{
 \item{x}{(data.frame) to be annotated (or file path and name)}
 
 \item{columnid}{(char) The column with the uniprotkb ids}
 
-\item{sps}{(char) The species name. Check \code{?artmsMapUniprot2Entrez}
+\item{species}{(char) The species name. Check \code{?artmsMapUniprot2Entrez}
 to find out more about supported species.}
 }
 \value{
@@ -20,7 +20,7 @@ to find out more about supported species.}
 \description{
 Annotate gene name and symbol based on uniprot ids. It will
 take the column from your data.frame specified by the \code{columnid} argument,
-search for the gene symbol, name, and entrez based on the species (\code{sps}
+search for the gene symbol, name, and entrez based on the species (\code{species}
 argument) and merge the information back to the input data.frame
 }
 \examples{
@@ -29,7 +29,7 @@ argument) and merge the information back to the input data.frame
 
 evidence_anno <- artms_annotationUniprot(x = artms_data_ph_evidence,
                                          columnid = 'Proteins',
-                                         sps = 'human')
+                                         species = 'human')
 }
 \keyword{annotation,}
 \keyword{uniprot}

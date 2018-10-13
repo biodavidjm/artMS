@@ -3,11 +3,11 @@
 #'
 #' @description Annotate gene name and symbol based on uniprot ids. It will 
 #' take the column from your data.frame specified by the `columnid` argument,
-#' search for the gene symbol, name, and entrez based on the species (`sps`
+#' search for the gene symbol, name, and entrez based on the species (`species`
 #' argument) and merge the information back to the input data.frame
 #' @param x (data.frame) to be annotated (or file path and name)
 #' @param columnid (char) The column with the uniprotkb ids
-#' @param sps (char) The species name. Check `?artmsMapUniprot2Entrez`
+#' @param species (char) The species name. Check `?artmsMapUniprot2Entrez`
 #' to find out more about supported species.
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
@@ -17,25 +17,25 @@
 #'
 #' evidence_anno <- artms_annotationUniprot(x = artms_data_ph_evidence,
 #'                                          columnid = 'Proteins',
-#'                                          sps = 'human')
+#'                                          species = 'human')
 #' @export
-artms_annotationUniprot <- function(x, columnid, sps) {
+artms_annotationUniprot <- function(x, columnid, species) {
   
   if(any(missing(x) | 
          missing(columnid) |
-         missing(sps)))
+         missing(species)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
   if(!is.character(columnid)) stop("Argument 'columnid' must be a character")
-  if(!is.character(sps)) stop("Argument <sps> must be a character")
+  if(!is.character(species)) stop("Argument <species> must be a character")
   
   x <- .artms_checkIfFile(x)
   
   theUniprots <- as.character(unique(x[[columnid]]))
   
   preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
-                                             species = sps)
+                                             species = species)
   
   dc_merged <-merge(x, 
                     preload,

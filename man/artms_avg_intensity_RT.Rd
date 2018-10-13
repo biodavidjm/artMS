@@ -19,7 +19,7 @@ a list of proteins of interest.}
 results will be returned as an R object.}
 
 \item{species}{(char) The species name.
-Check \code{?artmsMapUniprot2Entrez}}
+Check \code{?artmsMapUniprot2Entrez} for supported species}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

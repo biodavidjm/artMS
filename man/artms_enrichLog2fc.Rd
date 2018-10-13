@@ -36,7 +36,7 @@ Enrichment analysis of the selected proteins
 data_annotated <- artms_annotationUniprot(
                       x = artms_data_ph_msstats_results,
                       columnid = "Protein",
-                      sps = "human")
+                      species = "human")
 # And then the enrichment
 enrich_set <- artms_enrichLog2fc(
                    dataset = data_annotated,
