@@ -4,8 +4,7 @@
 #' @description Converts the MaxQuant evidence file to the 3 required files
 #' by SAINTexpress. One can choose to either use the `spectral counts`
 #' (use `msspc`) or the `intensities` (use `msint`) for the analysis.
-#' @param evidence_file (char) The evidence file path and name, 
-#' or data.frame
+#' @param evidence_file (char) The evidence file path and name
 #' @param keys_file (char) Keys file with a SAINT column 
 #' specifying test (`T`) and control (`C`) conditions
 #' @param output_file (char) Output file name (must have extension .txt)
@@ -26,11 +25,11 @@
 #' keys_file = NULL, ref_proteome_file = NULL)
 #' @export
 artms_evidenceToSaintExpressFormat <- function(evidence_file,
-                                               keys_file,
-                                               ref_proteome_file,
-                                               quant_variable = 'msspc',
-                                               output_file, 
-                                               verbose = TRUE) {
+                                           keys_file,
+                                           ref_proteome_file,
+                                           quant_variable = c('msspc','msint'),
+                                           output_file, 
+                                           verbose = TRUE) {
   if(verbose) cat(">> CONVERTING TO SAINTexpress FORMAT\n")
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(ref_proteome_file)){
@@ -50,26 +49,18 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
       "Argument <output_file> must have the extension '.txt'"
     )
   }
+
+  if(!file.exists(ref_proteome_file)){
+    stop("The file ", ref_proteome_file, " does not exist\n")
+  }
   
   data <- fread(evidence_file, integer64 = 'double')
   keys <- fread(keys_file, integer64 = 'double')
   
-  ## write baits in format
-  ## hIP101-10       PV_2C_co_uni    T
-  
-  saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
-  
-  ## write interactions in format
-  ## hIP101-10       PV_2C_co_uni    Q9NTG7  1
-  
-  # tryCatch(
-  #   setnames(data, 'Raw file', 'RawFile'),
-  #   error = function(e)
-  #     cat("--- 'Raw file' not found\n")
-  # )
-  
   data <- .artms_checkRawFileColumnName(data)
   keys <- .artms_checkRawFileColumnName(keys)
+  
+  saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
   
   if(verbose) cat('>> VERIFYING DATA AND KEYS\n')
   if (any(
@@ -87,14 +78,14 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
       \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
     )
   }
-  if (!'IsotopeLabelType' %in% colnames(data))
-    data[, IsotopeLabelType := 'L']
   data <-
-    artms_mergeEvidenceAndKeys(data, keys, 
-                               by = c('RawFile', 'IsotopeLabelType'))
+    artms_mergeEvidenceAndKeys(data, 
+                               keys, 
+                               by = c('RawFile'))
   data_f <- artms_filterEvidenceContaminants(data)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
+  quant_variable <- match.arg(quant_variable)
   if(verbose) cat(">> AGGREGATING ON", quant_variable, "VALUES...\n")
   ## aggregate over technical replicates if necessary
   if (quant_variable == 'msspc') {
@@ -126,13 +117,7 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     stop("\nERROR!! Wrong value for variable to quantify. 
          Please use 'msspc' or 'msint'")
   }
-  
-  ## IP name, bait name, prey name, and spectral counts or intensity values
-  saint_interactions <- data_f_agg
-  
-  ## write preys in format
-  ## Q9NTG7  43573.5 Q9NTG7
-  
+
   ref_proteome <- read.fasta(
     file = ref_proteome_file,
     seqtype = "AA",

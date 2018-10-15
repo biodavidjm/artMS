@@ -5,12 +5,11 @@
 \title{MaxQuant evidence file to SAINTexpress format}
 \usage{
 artms_evidenceToSaintExpressFormat(evidence_file, keys_file,
-  ref_proteome_file, quant_variable = "msspc", output_file,
+  ref_proteome_file, quant_variable = c("msspc", "msint"), output_file,
   verbose = TRUE)
 }
 \arguments{
-\item{evidence_file}{(char) The evidence file path and name,
-or data.frame}
+\item{evidence_file}{(char) The evidence file path and name}
 
 \item{keys_file}{(char) Keys file with a SAINT column
 specifying test (\code{T}) and control (\code{C}) conditions}
