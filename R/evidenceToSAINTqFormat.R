@@ -17,10 +17,11 @@
 #' the MaxQuant 'Match between run' algorithm)
 #' @param quant_variable (char) Select the quantitative variable. 
 #' Two options available:
-#' - `msint`: MS Intensity
+#' - `msint`: MS Intensity (default)
 #' - `msspc`: MS.MS.count (Spectral Counts)
 #' @param fractions (logical) `TRUE` for 2D proteomics (fractions). 
 #' Default: `FALSE`
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The input files requires to run SAINTq
 #' @details After running the script, the new specified folder should contain
 #' the folling files:
@@ -47,96 +48,102 @@
 artms_evidenceToSAINTqFormat <- function(evidence_file,
                                          keys_file,
                                          output_dir,
-                                         sc_option = "all",
+                                         sc_option = c("all", "msspc"),
                                          fractions = FALSE,
-                                         quant_variable = "msint"){
-  
-  cat(">> GENERATING A SAINTq INPUT FILE\n")
-  
-  cat(">> CHECKING THE keys FILE FIRST\n")
+                                         quant_variable = c('msint','msspc'),
+                                         verbose = TRUE){
+
+  if(verbose){
+    cat(">> GENERATING A SAINTq INPUT FILE\n")
+    cat(">> CHECKING THE keys FILE FIRST\n")
+  }  
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(output_dir)){
-    return("The evidence_file, keys_file and output_dir must not be empty")
+    return("The evidence_file, keys_file and output_dir must not be NULL")
   }
-    
+  
+  if(any(missing(evidence_file) | 
+         missing(keys_file) |
+         missing(output_dir)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
   keys <- .artms_checkIfFile(keys_file)
   keys <- .artms_checkRawFileColumnName(keys)
   
   if(fractions){
-    cat("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE\n")
-    if(any(!c('RawFile','IsotopeLabelType','Condition',
-              'BioReplicate','Run', 
-              'FractionKey', 'SAINT') %in% colnames(keys))){
-      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. 
-One of these is lost\n
-          \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate
-          \tRun\n\n\tFractionKey\n\n\tSAINT\n\n')
-      stop('Please, try again once revised\n\n')
-    }
+    if(verbose) cat("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE\n")
+    requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
+                         'BioReplicate','Run', 
+                         'FractionKey', 'SAINT')
+    if(any(! requiredColumns %in% colnames(keys)))
+      stop('Column names in keys not conform to schema. Required columns:', 
+           sprintf('\t%s\n',requiredColumns))
   }else{
-    if(any(!c('RawFile','IsotopeLabelType',
-              'Condition','BioReplicate',
-              'Run','SAINT') %in% colnames(keys))){
-      cat('\nERROR: COLUMN NAMES IN KEYS NOT CONFORM TO SCHEMA. 
-One of these is lost\n
-\tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n\n\tSAINT\n')
-      stop('Please, try again once revised\n\n')
-    }
+    requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
+                         'BioReplicate','Run', 'SAINT')
+    if(any(! requiredColumns %in% colnames(keys)))
+      stop('Column names in keys not conform to schema. Required columns:', 
+           sprintf('\t%s\n', requiredColumns))
   }
   
   # EVIDENCE:
-  datamerged <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
+  datamerged <- artms_mergeEvidenceAndKeys(evidence_file, 
+                                           keys_file,
+                                           verbose = verbose)
   
   # SELECTING THE Leading.razor.protein
   
   datamerged <- subset(datamerged, select = -Proteins)
   if( ('Leading.razor.protein' %in% colnames(datamerged)) ) {
-    cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
-    names(datamerged)[grep('Leading.razor.protein', names(datamerged))] <-
-      'Proteins'
+    if(verbose) cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
+    names(datamerged)[grep('Leading.razor.protein', 
+                           names(datamerged))] <- 'Proteins'
   } else if('Leading.Razor.Protein' %in% colnames(datamerged) ) {
-    cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
+    if(verbose) cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
     names(datamerged)[grep('Leading.Razor.Protein', names(datamerged))] <-
       'Proteins'
   } else{
-    stop("\n\n\n\tOH NO! THERE IS NO Leading.razor.protein COLUMN IN THIS 
-         EVIDENCE FILE!!\n\n\n")
+    stop("THERE IS NO Leading.razor.protein COLUMN IN THIS EVIDENCE FILE.")
   }
   
   datamerged$Proteins <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", datamerged$Proteins )
 
   ## ONLY VALUES WITH SPECTRAL COUNTS
-  
+  sc_option <- match.arg(sc_option)
   if(sc_option == "msspc"){
-    cat("--- Selecting peptides with spectral count only\n")
+    if(verbose) cat("--- Selecting peptides with spectral count only\n")
     before <- dim(datamerged)[1]
     datamerged <- datamerged[which(datamerged$MS.MS.Count > 0),]
     after <- dim(datamerged)[1]
     keepingPercent <- (after*100)/before
-    cat("\t+--> Before:", before,"\n")
-    cat("\t+--> After:", after," (Keeping:", keepingPercent,"%)\n")
+    if(verbose){
+      cat("\t+--> Before:", before,"\n")
+      cat("\t+--> After:", after," (Keeping:", keepingPercent,"%)\n")
+    }
   }else if(sc_option == "all"){
-    cat("--- ALL peptides with intensities will be used to generate the 
-        saintq input file (indepependently of the number of spectral counts\n")
-  }else{
-    cat("\n\nWAIT A MINUTE: sc_option MUST BE EITHER 'sc' or 'all'\n\n")
-    stop("\n\nTRY AGAIN WHEN READY\n\n")
+    if(verbose)
+      cat("--- ALL peptides with intensities will be used to generate the 
+      saintq input file (indepependently of the number of spectral counts\n")
+  }else{stop("<sc_option> argument must be either 'sc' or 'all'")
   }
 
   # Remove empty proteins
-  cat("--- Removing empty protein ids (if any)\n")
+  if(verbose) cat("--- Removing empty protein ids (if any)\n")
   if(length(which(datamerged$Proteins==""))>0){
     datamerged <- datamerged[-which(datamerged$Proteins==""),]
   }
   
   # Remove protein groups
-  cat("--- Removing Protein Groups (if any)\n")
+  if(verbose) cat("--- Removing Protein Groups (if any)\n")
   datamerged <- .artms_removeMaxQProteinGroups(datamerged)
   
   # Removing Contaminants
-  cat("--- Removing contaminants")
-  data_f2 <- artms_filterEvidenceContaminants(datamerged)
+  if(verbose) cat("--- Removing contaminants")
+  data_f2 <- artms_filterEvidenceContaminants(datamerged,
+                                              verbose = verbose)
   
+  quant_variable <- match.arg(quant_variable)
   if(quant_variable == "msint"){
     # Set the intensity as numeric to avoid overflow problems
     data_f2$Intensity = as.numeric(data_f2$Intensity)
@@ -278,14 +285,16 @@ One of these is lost\n
        
        ", file=outconfig_peptide)
 
-  cat(">> FOLDER <",output_dir,"> SHOULD CONTAIN 4 FILES:\n")
-  cat("\t- saintq-config-peptides\n")
-  cat("\t- saintq-config-proteins\n")
-  cat("\t- saintq_input_peptides.txt\n")
-  cat("\t- saintq_input_proteins.txt\n\n")
-  cat("--- Now get into the folder and run either:
-> saintq config-saintq-peptides
-or
-> saintq config-saintq-proteins\n")
-  cat(">> DONE!\n")
+  if(verbose){
+    cat(">> FOLDER <",output_dir,"> SHOULD CONTAIN 4 FILES:\n")
+    cat("\t- saintq-config-peptides\n")
+    cat("\t- saintq-config-proteins\n")
+    cat("\t- saintq_input_peptides.txt\n")
+    cat("\t- saintq_input_proteins.txt\n\n")
+    cat("--- Now get into the folder and run either:
+        > saintq config-saintq-peptides
+        or
+        > saintq config-saintq-proteins\n")
+    cat(">> DONE!\n")
+  }
 }

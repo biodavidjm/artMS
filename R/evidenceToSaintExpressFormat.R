@@ -117,7 +117,10 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     stop("\nERROR!! Wrong value for variable to quantify. 
          Please use 'msspc' or 'msint'")
   }
-
+  
+  ## IP name, bait name, prey name, and spectral counts or intensity values
+  saint_interactions <- data_f_agg
+  
   ref_proteome <- read.fasta(
     file = ref_proteome_file,
     seqtype = "AA",

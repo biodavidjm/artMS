@@ -149,12 +149,14 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 #' @description Remove contaminants and erronously identified 'reverse'
 #' sequences by MaxQuant, in addition to empty protein ids
 #' @param data (data.frame) of the Evidence file
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
 #' @examples
 #' ef <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
 #' @export
-artms_filterEvidenceContaminants <- function(data) {
+artms_filterEvidenceContaminants <- function(data,
+                                             verbose = TRUE) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
   data_selected <-
     data[grep("CON__|REV__", data$Proteins, invert = TRUE), ]
@@ -162,7 +164,7 @@ artms_filterEvidenceContaminants <- function(data) {
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)
     data_selected = data_selected[-blank.idx, ]
-  cat(">> CONTAMINANTS CON__|REV__ REMOVED\n")
+  if(verbose) cat(">> CONTAMINANTS CON__|REV__ REMOVED\n")
   return(data_selected)
 }
 
@@ -175,6 +177,7 @@ artms_filterEvidenceContaminants <- function(data) {
 #' @param by (vector) specifying the columns use to merge the evidence and keys.
 #' Default: `by=c('RawFile')`
 #' @param isSummary (logical) TRUE or FALSE (default)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with the evidence and keys merged
 #' @keywords merge, evidence, summary, keys
 #' @examples
@@ -184,10 +187,14 @@ artms_filterEvidenceContaminants <- function(data) {
 artms_mergeEvidenceAndKeys <- function(data, 
                                        keys, 
                                        by = c('RawFile'),
-                                       isSummary = FALSE) {
-  cat(">> MERGING FILES\n")
-  cat("\tIt might take a long time 
-      (depending on the size of the evidence file)\n")
+                                       isSummary = FALSE,
+                                       verbose = TRUE) {
+
+  if(verbose){
+    cat(">> MERGING FILES\n")
+    cat("\tIt might take a long time 
+        (depending on the size of the evidence file)\n")
+  }
 
   data <- .artms_checkIfFile(data)
   keys <- .artms_checkIfFile(keys)
@@ -205,22 +212,15 @@ artms_mergeEvidenceAndKeys <- function(data,
     }
   }
   
+  requiredColumns <- c('RawFile',
+                   'IsotopeLabelType',
+                   'Condition',
+                   'BioReplicate', 
+                   'Run')
   # Check that the keys file is correct
-  if (any(
-    !c(
-      'RawFile',
-      'IsotopeLabelType',
-      'Condition',
-      'BioReplicate',
-      'Run'
-    ) %in% colnames(keys)
-  )) {
-    cat(
-      '\nERROR!!! COLUMN NAMES IN keys NOT CONFORM TO SCHEMA. 
-      One of these columns is lost:
-      \tRawFile\n\tIsotopeLabelType\n\tCondition\n\tBioReplicate\n\tRun\n'
-    ) # \tSAINT\n\tBioReplicaSaint\n\n
-    stop('PLEASE, REVISE THE KEYS FILE AND TRY AGAIN')
+  if (any(!requiredColumns %in% colnames(keys))) {
+    stop('Column names in keys not conform to schema. Required columns:\n', 
+           sprintf('\t%s\n', requiredColumns))
   }
   
   # Check if the number of RawFiles is the same.

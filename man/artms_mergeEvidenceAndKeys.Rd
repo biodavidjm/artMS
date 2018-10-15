@@ -5,7 +5,7 @@
 \title{Merge evidence.txt (or summary.txt) with keys.txt files}
 \usage{
 artms_mergeEvidenceAndKeys(data, keys, by = c("RawFile"),
-  isSummary = FALSE)
+  isSummary = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{data}{(data.frame or char) The evidence data, either as data.frame or
@@ -17,6 +17,8 @@ the file name (and path). It also works for the summary.txt file}
 Default: \code{by=c('RawFile')}}
 
 \item{isSummary}{(logical) TRUE or FALSE (default)}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame) with the evidence and keys merged

@@ -4,10 +4,12 @@
 \alias{artms_filterEvidenceContaminants}
 \title{Remove contaminants and empty proteins from the MaxQuant evidence file}
 \usage{
-artms_filterEvidenceContaminants(data)
+artms_filterEvidenceContaminants(data, verbose = TRUE)
 }
 \arguments{
 \item{data}{(data.frame) of the Evidence file}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame) without REV__ and CON__ Protein ids

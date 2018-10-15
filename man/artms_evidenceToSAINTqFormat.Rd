@@ -5,8 +5,8 @@
 \title{MaxQuant evidence file to SAINTq format}
 \usage{
 artms_evidenceToSAINTqFormat(evidence_file, keys_file, output_dir,
-  sc_option = "all", fractions = FALSE, quant_variable = "msint",
-  verbose = TRUE)
+  sc_option = c("all", "msspc"), fractions = FALSE,
+  quant_variable = c("msint", "msspc"), verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name,
@@ -31,7 +31,7 @@ Default: \code{FALSE}}
 \item{quant_variable}{(char) Select the quantitative variable.
 Two options available:
 \itemize{
-\item \code{msint}: MS Intensity
+\item \code{msint}: MS Intensity (default)
 \item \code{msspc}: MS.MS.count (Spectral Counts)
 }}
 
