@@ -13,6 +13,8 @@ artms_spectralCounts(evidence_file, keys_file, output_file = NULL)
 
 \item{output_file}{(char) Output file name (add \code{.txt} extension).
 If \code{NULL} (default) it returns a data.frame object}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 A txt file with biological replicates, protein id, and spectral

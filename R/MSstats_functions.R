@@ -59,7 +59,7 @@
     } else if ("Raw file" %in% colnames(df)) {
       df <- artms_changeColumnName(df, 'Raw file', 'RawFile')
     } else{
-      stop("\tERROR: CANNOT FIND THE Raw.file COLUMN\nPlease, revise it")
+      stop("CANNOT FIND THE Raw.file COLUMN\nPlease, revise it")
     }
   }
   return(df)
@@ -98,47 +98,47 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 # contaminants, and/or, select posttranslational modification (if any)
 # @param data (data.frame) Evidence file
 # @param config (yaml.object) Configuration object (opened yaml file)
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) filtered according to the options selected
 # @keywords internal, filtering, remove, proteingroups, ptms
-.artms_filterData <- function(data, config) {
-  cat("\n>> FILTERING\n")
+.artms_filterData <- function(data, 
+                              config,
+                              verbose = TRUE) {
+  if(verbose) cat("\n>> FILTERING\n")
   if (config$data$filters$protein_groups == 'remove') {
-    cat("\tPROTEIN GROUPS\tREMOVE\n")
+    if(verbose) cat("\tPROTEIN GROUPS\tREMOVE\n")
     data_f <- .artms_removeMaxQProteinGroups(data)
   } else if (config$data$filters$protein_groups == 'keep') {
-    cat("\tPROTEIN GROUPS\tIGNORE\n")
+    if(verbose) cat("\tPROTEIN GROUPS\tIGNORE\n")
     data_f <- data
   } else{
     stop(
-      "\n\nFILTERING OPTION FOR protein_groups 
-      NOT UNDERSTOOD (OPTIONS AVAILABLE: keep OR remove\n\n"
+      "FILTERING OPTION FOR protein_groups NOT UNDERSTOOD 
+      (OPTIONS AVAILABLE: keep OR remove)"
     )
   }
   
   if (config$data$filters$contaminants) {
-    cat("\tCONTAMINANTS\tREMOVE\n")
+    if(verbose) cat("\tCONTAMINANTS\tREMOVE\n")
     data_f <- artms_filterEvidenceContaminants(data_f)
   }
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification 
   # COULD BE EMPTY
   if (is.null(config$data$filters$modification)) {
-    cat("\tNO config$data$filters$modification provided. 
+    if(verbose) cat("--- NO config$data$filters$modification provided. 
         Using 'AB' as default\n")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
-    cat(sprintf("\tPROCESSING\t%s\n", config$data$filters$modification))
+    if(verbose) cat(sprintf("\tPROCESSING\t%s\n", 
+                            config$data$filters$modification))
   } else if (config$data$filters$modification == 'UB') {
     data_f = data_f[Modifications %like% 'GlyGly']
   } else if (config$data$filters$modification == 'PH') {
     data_f = data_f[Modifications %like% 'Phospho']
   } else{
-    cat(
-      "\nERROR!!!! <<<",
-      config$data$filters$modification,
-      ">>> IS NOT A VALID config$data$filters$modification OPTION\n"
-    )
-    stop("CHECK HELP FOR VALID OPTIONS")
+    stop("The config > data > filters > modification ",
+         config$data$filters$modification," is not valid option")
   }
   return(data_f)
 }
@@ -260,6 +260,7 @@ artms_mergeEvidenceAndKeys <- function(data,
 #' Heavy and Light label
 #' @param evidence_file (char) Text filepath to the evidence file
 #' @param output (char) Text filepath of the output name
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with SILAC data processed for MSstats (and output file)
 #' @keywords convert, silac, evidence
 #' @examples \donttest{
@@ -267,9 +268,11 @@ artms_mergeEvidenceAndKeys <- function(data,
 #'                                    output = "silac-evidence.txt")
 #' }
 #' @export
-artms_SILACtoLong <- function(evidence_file, output) {
+artms_SILACtoLong <- function(evidence_file, 
+                              output,
+                              verbose = TRUE) {
   file <- Sys.glob(evidence_file)
-  cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
+  if(verbose) cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
   tmp <- fread(file, integer64 = 'double')
   
   # reshape the data and split the heavy and light data
@@ -290,7 +293,7 @@ artms_SILACtoLong <- function(evidence_file, output) {
     row.names = FALSE,
     col.names = TRUE
   )
-  cat("--- File ", output, " is ready\n")
+  if(verbose) cat("--- File ", output, " is ready\n")
   return(tmp_long)
 }
 
@@ -340,6 +343,7 @@ artms_SILACtoLong <- function(evidence_file, output) {
 #' @param species (char) Specie name for annotation purposes.
 #' Check `?artmsMapUniprot2Entrez` to find out more about the
 #' supported species (e.g `species = "human"`)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (output file tab delimited) reshaped file with unique protein ids
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
@@ -352,8 +356,9 @@ artms_SILACtoLong <- function(evidence_file, output) {
 artms_resultsWide <- function(results_msstats,
                               output_file = NULL,
                               select_pvalues = "adjpvalue",
-                              species) {
-  cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
+                              species,
+                              verbose = TRUE) {
+  if(verbose) cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
   results_msstats <- .artms_checkIfFile(results_msstats)
   
   if (select_pvalues == "adjpvalue") {
@@ -374,12 +379,12 @@ artms_resultsWide <- function(results_msstats,
   }
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w <-
-    data.table::dcast(Protein ~ Label + variable,
-                      data = input_l,
-                      value.var = c('value'))
-  suppressMessages(input_w <-
-                     artms_annotationUniprot(input_w, "Protein", species))
+  input_w <- data.table::dcast(Protein ~ Label + variable,
+                               data = input_l,
+                               value.var = c('value'))
+  suppressMessages(input_w <- artms_annotationUniprot(input_w, 
+                                                      "Protein", 
+                                                      species))
   if (!is.null(output_file)) {
     write.table(
       input_w,
@@ -390,7 +395,7 @@ artms_resultsWide <- function(results_msstats,
       row.names = FALSE,
       col.names = TRUE
     )
-    cat("--- Results wide are out!\n")
+    if(verbose) cat("--- Results wide are out!\n")
   } else{
     return(input_w)
   }
@@ -432,7 +437,6 @@ artms_resultsWide <- function(results_msstats,
     breaks = seq(from = -1, to = 1, by = .1),
     fontfamily = "mono"
   )
-  
 }
 
 # ------------------------------------------------------------------------------
@@ -549,6 +553,7 @@ artms_resultsWide <- function(results_msstats,
 #' @param keys_file (char) Keys file with the experimental design or data object
 #' @param output_file (char) Output file name (add `.txt` extension).
 #' If `NULL` (default) it returns a data.frame object
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A txt file with biological replicates, protein id, and spectral
 #' count columns
 #' @keywords spectral_counts, evidence
@@ -560,7 +565,7 @@ artms_resultsWide <- function(results_msstats,
 artms_spectralCounts <- function(evidence_file,
                                  keys_file,
                                  output_file = NULL) {
-  cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
+  if(verbose) cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
   
   data <- .artms_checkIfFile(evidence_file)
   keys <- .artms_checkIfFile(keys_file)
@@ -605,7 +610,7 @@ artms_spectralCounts <- function(evidence_file,
       row.names = FALSE,
       col.names = TRUE
     )
-    cat(">> OUTPUT FILE <", output_file, "> is ready\n")
+    if(verbose) cat(">> OUTPUT FILE <", output_file, "> is ready\n")
   } else{
     return(data_sel)
   }
@@ -631,7 +636,8 @@ artms_spectralCounts <- function(evidence_file,
 # MSstats
 # @author Tom Nguyen, David Jimenez-Morales
 # @keywords check, contrast
-.artms_writeContrast <- function(contrast_file, all_conditions = NULL) {
+.artms_writeContrast <- function(contrast_file, 
+                                 all_conditions = NULL) {
     input_contrasts <- readLines(contrast_file, warn = FALSE)
     #remove empty lines
     input_contrasts <-

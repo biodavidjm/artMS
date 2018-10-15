@@ -5,7 +5,7 @@
 \title{Reshape the MSstats results file from long to wide format}
 \usage{
 artms_resultsWide(results_msstats, output_file = NULL,
-  select_pvalues = "adjpvalue", species)
+  select_pvalues = "adjpvalue", species, verbose = TRUE)
 }
 \arguments{
 \item{results_msstats}{(char) Input file name and location
@@ -24,6 +24,8 @@ R object (data.frame)}
 \item{species}{(char) Specie name for annotation purposes.
 Check \code{?artmsMapUniprot2Entrez} to find out more about the
 supported species (e.g \code{species = "human"})}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (output file tab delimited) reshaped file with unique protein ids
