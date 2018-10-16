@@ -58,7 +58,7 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           output_dir,
                                           enrich = TRUE,
                                           l2fc_thres = 1.5,
-                                          choosePvalue = "adjpvalue",
+                                          choosePvalue = c("adjpvalue","pvalue"),
                                           isBackground = "nobackground",
                                           isPtm = "global",
                                           mnbr = 2,
@@ -112,6 +112,7 @@ artms_analysisQuantifications <- function(log2fc_file,
          The valid options are: <global> or <ptmsites>\n")
   }
   
+  choosePvalue <- match.arg(choosePvalue)
   if(!(choosePvalue %in% c('pvalue', 'adjpvalue'))){
     stop("The < choosePvalue > argument is wrong. 
          The valid options are: <pvalue> or <adjpvalue>\n")

@@ -6,9 +6,9 @@
 \usage{
 artms_analysisQuantifications(log2fc_file, modelqc_file, species,
   output_dir, enrich = TRUE, l2fc_thres = 1.5,
-  choosePvalue = "adjpvalue", isBackground = "nobackground",
-  isPtm = "global", mnbr = 2, isFluomics = FALSE,
-  pathogen = "nopathogen", verbose = TRUE)
+  choosePvalue = c("adjpvalue", "pvalue"),
+  isBackground = "nobackground", isPtm = "global", mnbr = 2,
+  isFluomics = FALSE, pathogen = "nopathogen", verbose = TRUE)
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}

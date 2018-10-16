@@ -355,27 +355,23 @@ artms_SILACtoLong <- function(evidence_file,
 #' @export
 artms_resultsWide <- function(results_msstats,
                               output_file = NULL,
-                              select_pvalues = "adjpvalue",
+                              select_pvalues = c("adjpvalue", "pvalue"),
                               species,
                               verbose = TRUE) {
+  
+  if(any(missing(results_msstats) | 
+         missing(species)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
   if(verbose) cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
   results_msstats <- .artms_checkIfFile(results_msstats)
   
-  if (select_pvalues == "adjpvalue") {
-    input_l <-
-      reshape2::melt(data = results_msstats[, c('Protein', 
-                                                'Label', 
-                                                'log2FC', 
-                                                'adj.pvalue')], 
-                     id.vars = c('Protein', 'Label'))
-  } else if (select_pvalues == "pvalue") {
-    input_l <-
-      reshape2::melt(data = results_msstats[, c('Protein', 
-                                                'Label', 
-                                                'log2FC', 
-                                                'pvalue')], 
-                     id.vars = c('Protein', 'Label'))
-  }
+  select_pvalues <- match.arg(select_pvalues)
+  pvals <- if(select_pvalues == "adjpvalue") "adj.pvalue" else "pvalue"
+  selectedColumns <- c('Protein', 'Label', 'log2FC', pvals)
+  input_l <- reshape2::melt(data = results_msstats[,selectedColumns], 
+                            id.vars = c('Protein', 'Label'))
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   input_w <- data.table::dcast(Protein ~ Label + variable,
