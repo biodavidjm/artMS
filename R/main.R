@@ -396,7 +396,7 @@ artms_quantification <- function(yaml_config_file,
       .artms_writeExtras(results$ComparisonResult, config)
     }
   }
-  if(verbose) cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
+  if(verbose) cat("\nANALYSIS COMPLETED\n")
 }
 
 # ------------------------------------------------------------------------------

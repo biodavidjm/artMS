@@ -8,7 +8,7 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, species,
   output_dir, enrich = TRUE, l2fc_thres = 1.5,
   choosePvalue = "adjpvalue", isBackground = "nobackground",
   isPtm = "global", mnbr = 2, isFluomics = FALSE,
-  pathogen = "nopathogen")
+  pathogen = "nopathogen", verbose = TRUE)
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}
@@ -53,6 +53,8 @@ conditions in at least 2 of the biological replicates)}
 \item{pathogen}{(char) Is there a pathogen in the dataset as well?
 if it does not, then use \code{pathogen = nopathogen} (default).
 Pathogens available: \code{tb} (Tuberculosis), \code{lpn} (Legionella)}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame) summary of quantifications, including annotations,
