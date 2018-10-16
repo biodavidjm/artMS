@@ -7,6 +7,7 @@
 # (MSstats format)
 # @param contrasts (data.frame) The contrast data.frame in MSstats format
 # @param config (yaml object) the configation (imported yaml) object
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return It generates several output files
 # - If selected `before` and/or `after`, the `ProfilePlot` and `QCPlot` plots
 # by the MSstats `dataProcessPlots` function are generated
@@ -19,8 +20,11 @@
 # - MSstats `designSampleSize` sample size
 # - MSstats `designSampleSize` power experiment
 # @keywords internal, run, MSstats, contrast, intensity, plots, QC
-.artms_runMSstats <- function(dmss, contrasts, config) {
-  cat(">> MSstats STARTS RUNNING:\n")
+.artms_runMSstats <- function(dmss, 
+                              contrasts, 
+                              config,
+                              verbose = TRUE) {
+  if(verbose) cat(">> MSstats STARTS RUNNING:\n")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
     mssquant = dataProcess(
@@ -70,7 +74,7 @@
       featureSubset = config$msstats$feature_subset
     )
   } else{
-    cat(
+    if(verbose) cat(
       sprintf(
         '\n--- NORMALIZATION METHOD: %s\n',
         config$msstats$normalization_method
@@ -137,7 +141,7 @@
     col.names = TRUE
   )
   
-  cat(sprintf(
+  if(verbose) cat(sprintf(
     '\tFITTING CONTRASTS:\t%s\n',
     paste(rownames(contrasts), collapse = ',')
   ))
@@ -170,10 +174,10 @@
     row.names = FALSE,
     col.names = TRUE
   )
-  cat(">> MSstats IS DONE!\n")
+  if(verbose) cat(">> MSstats IS DONE!\n")
   
   #(1) Minimal number of biological replicates per condition
-  cat(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS\n")
+  if(verbose) cat(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS\n")
   results.ss1 <-
     designSampleSize(
       data = results$fittedmodel,
@@ -210,7 +214,7 @@
   )
   
   #(2) Power calculation
-  cat(">> CALCULATING POWER OF EXPERIMENT")
+  if(verbose) cat(">> CALCULATING POWER OF EXPERIMENT")
   results.power1 <-
     designSampleSize(
       data = results$fittedmodel,
@@ -237,6 +241,6 @@
     row.names = FALSE,
     col.names = TRUE
   )
-  cat(" done!\n")
+  if(verbose) cat(" done!\n")
   return(results)
 }

@@ -14,9 +14,10 @@
 #' @param output_file (char) Output file name 
 #' (`-sites-evidence.txt` recommended)
 #' @param mod_type (char) The posttranslational modification. Options:
-#' - `ub`: Protein Ubiquitination
-#' - `ph`: Protein Phosphorylation
-#' - `ac`: Protein Acetylation
+#' - `UB`: Protein Ubiquitination
+#' - `PH`: Protein Phosphorylation
+#' - `AC`: Protein Acetylation
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the `Proteins` column
 #' modified by adding the sequence site location(s) + postranslational
 #' modification(s) to the uniprot entry id.
@@ -32,46 +33,53 @@
 artms_proteinToSiteConversion <- function (evidence_file,
                                            ref_proteome_file,
                                            output_file,
-                                           mod_type = 'PH') {
-  
-  cat(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC\n")
-  
+                                           mod_type,
+                                           verbose = TRUE) {
   if(is.null(evidence_file) & 
      is.null(ref_proteome_file) & 
      is.null(output_file)){
     return("Files must not be NULL")
   }
   
-  if (is.null(output_file)) stop("<output_file> is missed!")
-
+  if(any(missing(evidence_file) | 
+         missing(ref_proteome_file) |
+         missing(output_file) | 
+         missing(mod_type)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
   
+  mod_type <- toupper(mod_type)
+  if(mod_type %in% c("PH", "UB", "AC"))
+    stop("the mod_type ", mod_type, " is not supported")
+  
+  if(verbose) cat(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC\n")
+
   if(evidence_file == output_file) 
     stop("<output_file> cannot be the same as <evidence_file>")
   
-  cat(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS\n")
-  mod_type <- toupper(mod_type)
+  if(verbose)
+    cat(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS\n")
   
   if (mod_type == 'UB') {
-    cat('--- SELECTING << UB >> MODIFIED PEPTIDES\n')
+    if(verbose) cat('--- SELECTING << UB >> MODIFIED PEPTIDES\n')
     maxq_mod_residue = 'K\\(gl\\)'
     mod_residue = 'K'
   } else if (mod_type == 'PH') {
-    cat('--- SELECTING << PH >> MODIFIED PEPTIDES\n')
+    if(verbose) cat('--- SELECTING << PH >> MODIFIED PEPTIDES\n')
     maxq_mod_residue = '(S|T|Y)\\(ph\\)'
     mod_residue = 'S|T|Y'
   } else if (mod_type == 'AC') {
-    cat('--- SELECTING << AC >> MODIFIED PEPTIDES\n')
+    if(verbose) cat('--- SELECTING << AC >> MODIFIED PEPTIDES\n')
     maxq_mod_residue = 'K\\(ac\\)'
     mod_residue = 'K'
   } else{
-    cat("ERROR!!! THE MOD_TYPE <<", mod_type, ">> IS NOT SUPPORTED\n")
     stop(
-      "CHECK ?artms_proteinToSiteConversion TO GET 
-      THE LIST OF SUPPORTED POST-TRANSLATIONAL MODIFICATIONS\n"
+      mod_type, " is not supported. 
+      Check help to get the list of supported PTMs"
     )
   }
   
-  cat("--- READING REFERENCE PROTEOME\n")
+  if(verbose) cat("--- READING REFERENCE PROTEOME\n")
   ## read in reference proteome
   ref_proteome <- read.fasta(
     file = ref_proteome_file,
@@ -99,9 +107,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
                annots = p_annots,
                seqs = p_seqs)
   ref_table[, 
-            uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
-                                 '\\2',
-                                 names)]
+  uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
+                       '\\2', names)]
   
   # get all indicies/locations of the mod_residue S|T|Y
   indices <-
@@ -125,7 +132,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
     )
   
   ## map mod sites in data to index
-  cat("--- OPENING EVIDENCE FILE\n")
+  if(verbose) cat("--- OPENING EVIDENCE FILE\n")
   ## read in maxq. data
   maxq_data <- fread(evidence_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
@@ -138,8 +145,8 @@ artms_proteinToSiteConversion <- function (evidence_file,
   mod_sites <- c()
   mod_seqs <- c()
   
-  cat("--- EXTRACTING PTM POSITIONS FROM THE 
-      MODIFIED PEPTIDES (it might take some time)\n")
+  if(verbose) cat("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
+      (it might take some time)\n")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
@@ -233,10 +240,10 @@ artms_proteinToSiteConversion <- function (evidence_file,
   unmapped_mod_seqs <-
     unique(unmapped_mod_seqs[, c('mod_seqs', 'Proteins'), with = FALSE])
   if (dim(unmapped_mod_seqs)[1] > 0) {
-    cat('>> UNABLE TO MAP\n\t')
-    print(unmapped_mod_seqs)
+    if(verbose) cat('>> UNABLE TO MAP\n\t')
+    if(verbose) print(unmapped_mod_seqs)
   } else{
-    cat(">> ALL SEQUENCES MAPPED\n")
+    if(verbose) cat(">> ALL SEQUENCES MAPPED\n")
   }
   
   final_data <-
@@ -275,7 +282,7 @@ artms_proteinToSiteConversion <- function (evidence_file,
     col.names = TRUE
   )
   
-  cat(
+  if(verbose) cat(
     ">> FILES OUT:\n",
     "\t---New evidence-site file: ",
     output_file,
@@ -284,5 +291,5 @@ artms_proteinToSiteConversion <- function (evidence_file,
     gsub('.txt', '-mapping.txt', output_file),
     "\n"
   )
-  cat(">> CONVERSION COMPLETED\n\n")
+  if(verbose) cat(">> CONVERSION COMPLETED\n\n")
 }

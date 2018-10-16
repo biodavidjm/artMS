@@ -564,7 +564,8 @@ artms_resultsWide <- function(results_msstats,
 #' @export
 artms_spectralCounts <- function(evidence_file,
                                  keys_file,
-                                 output_file = NULL) {
+                                 output_file = NULL,
+                                 verbose = TRUE) {
   if(verbose) cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
   
   data <- .artms_checkIfFile(evidence_file)
@@ -574,7 +575,10 @@ artms_spectralCounts <- function(evidence_file,
   keys <- .artms_checkRawFileColumnName(keys)
   
   
-  data <- artms_mergeEvidenceAndKeys(data, keys, by = c('RawFile'))
+  data <- artms_mergeEvidenceAndKeys(data, 
+                                     keys, 
+                                     by = c('RawFile'),
+                                     verbose = verbose)
   data_sel <-
     data[, c('Proteins',
              'Condition',

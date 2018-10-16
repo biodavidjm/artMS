@@ -6,7 +6,7 @@
 the replicate plot file}
 \usage{
 artms_replicatePlots(input_file, keys_file, replicate_file, out_file,
-  prot_exp = "AB")
+  prot_exp = c("AB", "PH", "UB", "APMS"), verbose = TRUE)
 }
 \arguments{
 \item{input_file}{(char) MaxQuant evidence file and location}
@@ -25,6 +25,8 @@ feature}
 \item \code{PH}: protein phosphorylation
 \item \code{UB}: protein ubiquitination (aka ubiquitylation)
 }}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 The output file of the summary of features and intensity values

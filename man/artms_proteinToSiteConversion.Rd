@@ -6,7 +6,7 @@
 \code{Uniprot_PTM} notation}
 \usage{
 artms_proteinToSiteConversion(evidence_file, ref_proteome_file,
-  output_file, mod_type = "PH")
+  output_file, mod_type, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char) The evidence file name and location}
@@ -21,10 +21,12 @@ Therefore, it does NOT need the MaxQuant's \code{Phospho (STY)Sites.txt}}
 
 \item{mod_type}{(char) The posttranslational modification. Options:
 \itemize{
-\item \code{ub}: Protein Ubiquitination
-\item \code{ph}: Protein Phosphorylation
-\item \code{ac}: Protein Acetylation
+\item \code{UB}: Protein Ubiquitination
+\item \code{PH}: Protein Phosphorylation
+\item \code{AC}: Protein Acetylation
 }}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (file) Return a new evidence file with the \code{Proteins} column

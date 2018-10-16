@@ -9,7 +9,8 @@ artms_qualityControlEvidenceExtended(evidence_file, keys_file,
   plotPEPTIDES = TRUE, plotPROTEINS = TRUE, plotPIO = TRUE,
   plotCS = TRUE, plotME = TRUE, plotMOCD = TRUE, plotPEPICV = TRUE,
   plotPEPDETECT = TRUE, plotPROTICV = TRUE, plotPROTDETECT = TRUE,
-  plotIDoverlap = TRUE, plotIC = TRUE, plotSP = TRUE)
+  plotIDoverlap = TRUE, plotIC = TRUE, plotSP = TRUE,
+  verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -122,6 +123,8 @@ proteins, respectively.}
 shows missing cleavage distribution of all peptides confidently identified
 in each BioReplicate. Page 2 shows the fraction of peptides with at least
 one methionine oxidized in each BioReplicate.}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 A number of QC plots based on the evidence file

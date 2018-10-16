@@ -16,6 +16,7 @@
 #' @param fractions (binary) Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
 #' @examples
@@ -26,18 +27,23 @@
 #' @export
 artms_qualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
-                             prot_exp,
+                             prot_exp = c('AB', 'PH', 'UB', 'APMS'),
                              fractions = 0,
-                             output_name = "qcPlots_evidence") {
-  # evidence_file <- Sys.glob(evidence_file)
-  # keys_file <- Sys.glob(keys_file)
+                             output_name = "qcPlots_evidence",
+                             verbose = TRUE) {
   
+  if(any(missing(evidence_file) | missing(keys_file)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+
   prot_exp <- toupper(prot_exp)
+  prot_exp <- match.arg(prot_exp)
+  supportedExperiments <- c('AB', 'PH', 'UB', 'APMS')
   
-  if (any(!prot_exp %in% c('AB', 'PH', 'UB', 'APMS'))) {
-    cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
-    cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- AB\n\t- PH\n\t- UB\n\t- APMS\n")
-    stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT")
+  if (any(!prot_exp %in% supportedExperiments)) {
+    stop(prot_exp, " is currently not supported.
+The experiments supported are:\n",
+         sprintf('\t%s\n', supportedExperiments))
   }
   
   if (fractions) {
@@ -45,19 +51,16 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     keys <- .artms_checkIfFile(keys_file)
     keys <- .artms_checkRawFileColumnName(keys)
     if (any(!'FractionKey' %in% colnames(keys))) {
-      cat(
-        '\nERROR!!! fractions WAS ACTIVATED BUT FractionKey 
-        COLUMN NOT FOUND IN THE KEYS FILE\n'
-      )
-      stop('Please, try again once revised\n\n')
+      stop('\n<fractions> WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
     }
   }
   
-  cat("\nQUALITY CONTROL ------------\n")
-  cat(">> LOADING FILES\n")
+  if(verbose) cat("\nQUALITY CONTROL -------------------\n>> LOADING FILES\n")
   
   # EVIDENCE:
-  evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, keys_file)
+  evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, 
+                                             keys_file,
+                                             verbose = verbose)
   
   ekselecta <-
     aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
@@ -92,13 +95,13 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       vjust = 0.5
     ))
   
-  cat(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS\n")
+  if(verbose) cat(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS\n")
   intDistribution <-
     paste0(output_name, ".qcplot.IntensityDistributions.pdf")
   
   pdf(intDistribution)
-  plot(j)
-  plot(k)
+    plot(j)
+    plot(k)
   garbage <- dev.off()
   
   # Feature generation: Combine Sequence and Charge.
@@ -168,10 +171,10 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
   evidencekeysclean <-
-    artms_filterEvidenceContaminants(evidencekeys)
+    artms_filterEvidenceContaminants(data = evidencekeys, verbose = verbose)
   
-  cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
-      (warning: it will take some time)\n")
+  if(verbose) cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
+      (Warning: it might take some time)\n")
   seqReproName <-
     paste0(output_name, ".qcplot.basicReproducibility.pdf")
   
@@ -204,7 +207,7 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   }
   
   pdf(seqReproName)
-  .artms_plotReproducibilityEvidence(evidencekeysclean)
+  .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
   garbage <- dev.off()
   
   # Create matrix of reproducibility TECHNICAL REPLICAS
@@ -220,7 +223,7 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   color.palette  <-
     colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
-  cat(">> GENERATING CORRELATION MATRICES\n")
+  if(verbose) cat(">> GENERATING CORRELATION MATRICES\n")
   if (length(technicalReplicas) > 1) {
     # First aggregate at the protein level by summing up everything
     biorepliaggregated <-
@@ -244,7 +247,7 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
       .artms_plotCorrelationDistribution(Mtechnicalrep)
     
     # And now for clustering
-    cat("--- By Technical replicates\n")
+    if(verbose) cat("--- By Technical replicates\n")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
     
@@ -279,7 +282,7 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     print(theTechCorDis)
     garbage <- dev.off()
   } else{
-    cat("--- NO Technical Replicates detected\n")
+    if(verbose) cat("--- NO Technical Replicates detected\n")
   }
   
   # biological replicates
@@ -321,7 +324,7 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   
   theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
   
-  cat("--- By Biological replicates\n")
+  if(verbose) cat("--- By Biological replicates\n")
   matrixCorrelationBioreplicas <-
     paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
   pdf(matrixCorrelationBioreplicas,
@@ -397,47 +400,46 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
   
   theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
   
-  cat("--- By Conditions\n")
+  if(verbose) cat("--- By Conditions\n")
   matrixCorrelationCond <-
     paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
   pdf(matrixCorrelationCond)
-  corrplot(
-    Mcond,
-    method = "square",
-    addCoef.col = "white",
-    number.cex = 0.6,
-    tl.col = "black",
-    title = "Matrix Correlation based on protein Intensities"
-  )
-  pheatmap(
-    Mcond,
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    cellheight = 10,
-    cellwidth = 25,
-    main = "Clustering Conditions",
-    fontsize = 6,
-    fontsize_row = 8,
-    fontsize_col = 12,
-    border_color = 'black',
-    fontfamily = "Helvetica",
-    treeheight_row = FALSE,
-    treeheight_col = FALSE,
-    color = color.palette
-  )
-  print(theCondCorDis)
+    corrplot(
+      Mcond,
+      method = "square",
+      addCoef.col = "white",
+      number.cex = 0.6,
+      tl.col = "black",
+      title = "Matrix Correlation based on protein Intensities"
+    )
+    pheatmap(
+      Mcond,
+      cluster_rows = TRUE,
+      cluster_cols = TRUE,
+      cellheight = 10,
+      cellwidth = 25,
+      main = "Clustering Conditions",
+      fontsize = 6,
+      fontsize_row = 8,
+      fontsize_col = 12,
+      border_color = 'black',
+      fontfamily = "Helvetica",
+      treeheight_row = FALSE,
+      treeheight_col = FALSE,
+      color = color.palette
+    )
+    print(theCondCorDis)
   garbage <- dev.off()
   
   # DETAILS
-  cat(">> GENERATING INTENSITY STATS PLOTS\n")
+  if(verbose) cat(">> GENERATING INTENSITY STATS PLOTS\n")
   if (prot_exp == "APMS" | prot_exp == "AB") {
-    ekselect <-
-      evidencekeysclean[c('Feature',
-                          'Proteins',
-                          'Intensity',
-                          'Condition',
-                          'BioReplicate',
-                          'Run')]
+    ekselect <- evidencekeysclean[c('Feature',
+                                    'Proteins',
+                                    'Intensity',
+                                    'Condition',
+                                    'BioReplicate',
+                                    'Run')]
     # Aggregate the technical replicas
     ekselecta <-
       aggregate(
@@ -548,10 +550,10 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
              "ph",
              "other")
   } else {
-    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED (prot_exp SHOULD BE APMS, AB, UB, or PH)\n")
+    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED\n")
   }
   
-  cat("--- ", prot_exp, " PROCESSED\n")
+  if(verbose) cat("--- ", prot_exp, " PROCESSED\n")
   reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
   
   #QC: SUM of intensities per biological replica (peptides vs contaminant)
@@ -751,21 +753,21 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     ggtitle("Unique Features in Condition")
   
   pdf(reproName)
-  print(pisa)
-  print(pisb)
-  print(pisc)
-  print(pisd)
-  print(pise)
-  print(pisf)
-  print(pisg)
-  print(pish)
-  print(pisi)
-  print(pisj)
-  print(pisk)
+    print(pisa)
+    print(pisb)
+    print(pisc)
+    print(pisd)
+    print(pise)
+    print(pisf)
+    print(pisg)
+    print(pish)
+    print(pisi)
+    print(pisj)
+    print(pisk)
   garbage <- dev.off()
   
   if (prot_exp == "PH" | prot_exp == "UB") {
-    cat(">> GENERATING PTM ", prot_exp, " STATS\n")
+    if(verbose) cat(">> GENERATING PTM ", prot_exp, " STATS\n")
     modName <- paste0(output_name, "qcplot.ptmStats.pdf")
     
     x <-
@@ -854,5 +856,5 @@ artms_qualityControlEvidenceBasic <- function(evidence_file,
     garbage <- dev.off()
   }
   
-  cat(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!\n\n")
+  if(verbose) cat(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!\n\n")
 }

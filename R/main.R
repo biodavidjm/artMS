@@ -182,6 +182,7 @@ utils::globalVariables(
 #' - quantifications (log2fc, pvalues, etc)
 #' - normalized abundance values
 #' @param yaml_config_file (char) The yaml file name and location
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The relative quantification of the conditions and comparisons
 #' specified in the keys/contrast file resulting from running MSstats, in
 #' addition to quality control plots (if selected)
@@ -190,11 +191,15 @@ utils::globalVariables(
 #' artms_quantification("artms-ab-config.yaml")
 #' }
 #' @export
-artms_quantification <- function(yaml_config_file) {
+artms_quantification <- function(yaml_config_file,
+                                 verbose = TRUE) {
   
-  cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
-  cat("============================================================\n\n")
-  cat(">> LOADING CONFIGURATION FILE...\n")
+  if(verbose){
+    cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
+    cat("============================================================\n\n")
+    cat(">> LOADING CONFIGURATION FILE...\n")
+  }
+  
   config <- yaml.load_file(yaml_config_file)
   
   # CHECK POINT: DO THE FILES EXIST?
@@ -238,7 +243,8 @@ artms_quantification <- function(yaml_config_file) {
   
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
-    cat("\nQUANTIFICATION: LOADING DATA-----------------\n")
+    if(verbose)
+      cat("\nQUANTIFICATION: LOADING DATA-----------------\n")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
     ## although he provided examples)
@@ -249,7 +255,9 @@ artms_quantification <- function(yaml_config_file) {
     if (!is.null(config$data$silac$enabled)) {
       if (config$data$silac$enabled) {
         output <- gsub(".txt", "-silac.txt", config$files$evidence)
-        data <- artms_SILACtoLong(config$files$evidence, output)
+        data <- artms_SILACtoLong(config$files$evidence,
+                                  output,
+                                  verbose = verbose)
       } else{
         data <- .artms_checkIfFile(config$files$evidence)
         data <- .artms_checkRawFileColumnName(data)
@@ -273,11 +281,10 @@ artms_quantification <- function(yaml_config_file) {
         .artms_writeContrast(config$files$contrasts, 
                              unique(as.character(keys$Condition)))
     }
-    
-    cat('\tVERIFYING DATA AND KEYS\n')
+    if(verbose) cat('\tVERIFYING DATA AND KEYS\n')
     
     if (!'IsotopeLabelType' %in% colnames(data)) {
-      cat(
+      if(verbose) cat(
         "------- + IsotopeLabelType not detected in evidence file!
         It will be assumed that this is a label-free experiment
         (adding IsotopeLabelType column with L value)\n"
@@ -297,18 +304,21 @@ artms_quantification <- function(yaml_config_file) {
         data <-
           artms_mergeEvidenceAndKeys(data, 
                                      keys, 
-                                     by = c('RawFile', 'IsotopeLabelType'))
+                                     by = c('RawFile', 'IsotopeLabelType'),
+                                     verbose = verbose)
       } else{
         data <-
           artms_mergeEvidenceAndKeys(data, 
                                      keys, 
-                                     by = c('RawFile', 'IsotopeLabelType'))
+                                     by = c('RawFile', 'IsotopeLabelType'),
+                                     verbose = verbose)
       }
     } else{
       data <-
         artms_mergeEvidenceAndKeys(data, 
                                    keys, 
-                                   by = c('RawFile', 'IsotopeLabelType'))
+                                   by = c('RawFile', 'IsotopeLabelType'),
+                                   verbose = verbose)
     }
     
     ## fix for weird converted values from fread
@@ -316,17 +326,17 @@ artms_quantification <- function(yaml_config_file) {
     
     ## FILTERING : handles Protein Groups and Modifications
     if (config$data$filters$enabled){
-      data_f <- .artms_filterData(data, config)
+      data_f <- .artms_filterData(data = data, config = config, 
+                                  verbose = verbose)
     }else{
       data_f <- data
     }
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if (!is.null(config$files$sequence_type)) {
-      cat(
-        ">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
-        WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n"
-      )
+      if(verbose)
+      cat(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
+        WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n")
       if (config$files$sequence_type == 'modified'){
         castFun = .artms_castMaxQToWidePTM
       }else{
@@ -362,33 +372,31 @@ artms_quantification <- function(yaml_config_file) {
       # Check point to prevent MSstats crashed in the number of conditions
       # in the comparisons is not the same than the one in the keys file
       data_f <- data_f[which(data_f$Condition %in% selectedConditions),]
-      dmss <- .artms_getMSstatsFormat(data_f,
-                                      config$data$fractions$enabled,
-                                      config$files$evidence,
-                                      "sum")
+      dmss <- .artms_getMSstatsFormat(data_f = data_f,
+                                      fraction = config$data$fractions$enabled,
+                                      output_name = config$files$evidence,
+                                      funfunc = "sum")
     } else {
-      cat(sprintf(
-        "\tREADING PREPROCESSED\t%s\n",
-        config$msstats$msstats_input
-      ))
-      dmss <-
-        read.delim(config$msstats$msstats_input,
-                   stringsAsFactors = FALSE,
-                   sep = '\t')
+      if(verbose) cat(sprintf("\tREADING PREPROCESSED\t%s\n",
+        config$msstats$msstats_input))
+      dmss <- read.delim(config$msstats$msstats_input,
+                         stringsAsFactors = FALSE,
+                         sep = '\t')
       dmss <- data.table(dmss)
     }
-    results <- .artms_runMSstats(dmss, contrasts, config)
+    results <- .artms_runMSstats(dmss, contrasts, config,
+                                 verbose = verbose)
   }
   
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
     if (!config$msstats$enabled){
-      stop("msstats was not enabled, therefore output_extras cannot be done!")
+      stop("MSstats was not enabled, therefore <output_extras> cannot be done!")
     }else{
       .artms_writeExtras(results$ComparisonResult, config)
     }
   }
-  cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
+  if(verbose) cat("\nANALYSIS COMPLETE! ENJOY ALL THE OUTPUTS! :)\n")
 }
 
 # ------------------------------------------------------------------------------
@@ -400,17 +408,20 @@ artms_quantification <- function(yaml_config_file) {
 #' and how to fill it up
 #' @param config_file_name (char) The name for the configuration file. It must
 #' have a `.yaml` extension. If `NULL`, it returns the config as a yaml object
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A file (or yaml data object) of the artMS configuration file
 #' @keywords config, yaml
 #' @examples 
 #' config_empty <- artms_writeConfigYamlFile(config_file_name = NULL)
 #' @export
 artms_writeConfigYamlFile <- function(
-  config_file_name = "artms_config_file.yaml"){
+  config_file_name = "artms_config_file.yaml",
+  verbose = TRUE){
+  
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){
       write_yaml(x = artms_config, file = config_file_name )
-      cat(">> File",config_file_name,"is out\n")
+      if(verbose) cat(">> File",config_file_name,"is out\n")
     }else{
       stop("The <config_file_name> must have the extension .yaml")
     }

@@ -4,13 +4,15 @@
 \alias{artms_dataPlots}
 \title{Individual Normalized abundance dot plots for every protein}
 \usage{
-artms_dataPlots(input_file, output_file)
+artms_dataPlots(input_file, output_file, verbose = TRUE)
 }
 \arguments{
 \item{input_file}{(char) File path and name to the \code{-normalized.txt} output
 file from MSstats}
 
 \item{output_file}{(char) Output file (path) name (add the \code{.pdf} extension)}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (pdf) file with each individual protein abundance plot for each

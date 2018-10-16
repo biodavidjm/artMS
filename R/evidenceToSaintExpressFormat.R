@@ -81,8 +81,9 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
   data <-
     artms_mergeEvidenceAndKeys(data, 
                                keys, 
-                               by = c('RawFile'))
-  data_f <- artms_filterEvidenceContaminants(data)
+                               by = c('RawFile'),
+                               verbose = verbose)
+  data_f <- artms_filterEvidenceContaminants(data = data, verbose = verbose)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
   quant_variable <- match.arg(quant_variable)

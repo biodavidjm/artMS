@@ -4,8 +4,9 @@
 \alias{artms_qualityControlEvidenceBasic}
 \title{Quality Control analysis of the MaxQuant evidence file}
 \usage{
-artms_qualityControlEvidenceBasic(evidence_file, keys_file, prot_exp,
-  fractions = 0, output_name = "qcPlots_evidence")
+artms_qualityControlEvidenceBasic(evidence_file, keys_file,
+  prot_exp = c("AB", "PH", "UB", "APMS"), fractions = 0,
+  output_name = "qcPlots_evidence", verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -30,6 +31,8 @@ data.frame}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcPlots_evidence"}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 Quality control files and plots

@@ -27,6 +27,7 @@
 #' - `APMS`: affinity purification mass spectrometry
 #' - `PH`: protein phosphorylation
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The output file of the summary of features and intensity values
 #' @keywords evidence, replica, plots
 #' @examples
@@ -51,28 +52,37 @@ artms_replicatePlots <- function(input_file,
                                  keys_file,
                                  replicate_file,
                                  out_file,
-                                 prot_exp  = "AB") {
-  cat(">> GENERATING CUSTOMIZED REPLICATE PLOTS\n")
+                                 prot_exp  = c("AB", "PH", "UB", "APMS"),
+                                 verbose = TRUE) {
+  if(verbose) cat(">> GENERATING CUSTOMIZED REPLICATE PLOTS\n")
+  
+  if(any(missing(input_file) | 
+         missing(keys_file) |
+         missing(replicate_file) | 
+         missing(out_file)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
   
   # FILTER BY PROTEOMICS EXPERIMENT
   prot_exp <- toupper(prot_exp)
+  prot_exp <- match.arg(prot_exp)
+  supportedExperiments <- c('AB', 'PH', 'UB', 'APMS')
   
-  if (any(!prot_exp %in% c('AB', 'PH', 'UB', 'APMS'))) {
-    cat("\nERROR!!!\nTHE prot_exp ARGUMENT IS NOT CORRECT.\n")
-    cat("IT MUST BE ONE OF THE FOLLOWINGS:\n\t- AB\n\t- PH\n\t- UB\n\t- APMS\n")
-    stop("PLEASE, PROVIDE A CORRECT prot_exp ARGUMENT\n")
+  if (any(!prot_exp %in% supportedExperiments)) {
+    stop(prot_exp, " is currently not supported.
+         The experiments supported are:\n",
+         sprintf('\t%s\n', supportedExperiments))
   }
   
   if (!is.null(out_file)) {
     if (!grepl(".txt", out_file)) {
-      stop(
-        "\nOPTION out_file MUST HAVE THE EXTENSION '.txt'
+      stop("<out_file> MUST HAVE THE EXTENSION '.txt'
         Change out_file extension and try again\n"
       )
     }
   }
 
-  cat("--- READING IN FILES...\n")
+  if(verbose) cat("--- READING IN FILES...\n")
   # read in data
   dat <- .artms_checkIfFile(input_file)
   # keys
@@ -92,15 +102,15 @@ artms_replicatePlots <- function(input_file,
   
   if (prot_exp == "UB") {
     dat <- dat[grep("(gl)", dat$Modified.sequence), ]
-    cat("--- Selecting only UB modified peptides\n")
+    if(verbose) cat("--- Selecting only UB modified peptides\n")
   } else if (prot_exp == "PH") {
     dat <- dat[grep("(ph)", dat$Modified.sequence), ]
-    cat("--- Selecting only PH modified peptides\n")
+    if(verbose) cat("--- Selecting only PH modified peptides\n")
   } else if (prot_exp == "AC") {
     dat <- dat[grep("K\\(ac\\)", dat$Modified.sequence), ]
-    cat("--- Selecting only AC modified peptides\n")
+    if(verbose) cat("--- Selecting only AC modified peptides\n")
   } else if (prot_exp == "AB" | prot_exp == "APMS") {
-    cat("--- No filtering of modified peptides\n")
+    if(verbose) cat("--- No filtering of modified peptides\n")
   } else{
     stop(
       "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artms_replicatePlots 
@@ -136,7 +146,7 @@ artms_replicatePlots <- function(input_file,
   
   # cycle through the condition pairs in the file and plot each pair
   for (i in seq_len(dim(repplot)[1])) {
-    cat("--- PLOTTING REPLICATE PLOT ", i, ": ")
+    if(verbose) cat("--- PLOTTING REPLICATE PLOT ", i, ": ")
     
     # check if the replicate combination exists in the plots
     rep1_1 <-
@@ -249,12 +259,11 @@ artms_replicatePlots <- function(input_file,
             height = 10
           )
           
-          cat(pdf_nameout, "\n")
+          if(verbose) cat(pdf_nameout, "\n")
         }
       } else{
-        cat(
-          "\n\n\t(!!!!!!!!!!!!!!!!!!)
-          WARNING: not enough data for correlation analysis\n\n"
+        if(verbose) cat(
+          "WARNING: not enough data for correlation analysis\n"
         )
       }
       } else{

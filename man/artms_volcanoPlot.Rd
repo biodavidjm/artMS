@@ -6,7 +6,7 @@
 \usage{
 artms_volcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
   whatPvalue = "adj.pvalue", FDR = 0.05, PDF = TRUE,
-  output_name = "", decimal_threshold = 16)
+  output_name = "", decimal_threshold = 16, verbose = TRUE)
 }
 \arguments{
 \item{mss_results}{(data.frame or file) Selected MSstats results}
@@ -25,6 +25,8 @@ artms_volcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
 
 \item{decimal_threshold}{(numeric) Decimal threshold for the pvalue.
 Default: 16 (10^-16)}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (pdf) of a volcano plot

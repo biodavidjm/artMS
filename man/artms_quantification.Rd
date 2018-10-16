@@ -4,10 +4,12 @@
 \alias{artms_quantification}
 \title{Relative quantification using MSstats}
 \usage{
-artms_quantification(yaml_config_file)
+artms_quantification(yaml_config_file, verbose = TRUE)
 }
 \arguments{
 \item{yaml_config_file}{(char) The yaml file name and location}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 The relative quantification of the conditions and comparisons

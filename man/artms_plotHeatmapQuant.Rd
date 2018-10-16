@@ -8,7 +8,8 @@ changes}
 artms_plotHeatmapQuant(input_file,
   output_file = "quantifications_heatmap.pdf", species, labels = "*",
   cluster_cols = FALSE, display = "log2FC", lfc_lower = -2,
-  lfc_upper = 2, whatPvalue = "adj.pvalue", FDR = 0.05)
+  lfc_upper = 2, whatPvalue = "adj.pvalue", FDR = 0.05,
+  verbose = TRUE)
 }
 \arguments{
 \item{input_file}{(char) MSstats \code{results.txt} file and location (or
@@ -40,6 +41,8 @@ Default: FALSE}
 \item{whatPvalue}{(char) \code{pvalue} or \code{adj.pvalue} (default)}
 
 \item{FDR}{(int) Upper limit false discovery rate (or pvalue). Default: 0.05}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (pdf or ggplot2 object) heatmap of the MSStats results using the

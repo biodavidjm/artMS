@@ -34,6 +34,7 @@
 #' @param input_file (char) File path and name to the `-normalized.txt` output
 #' file from MSstats
 #' @param output_file (char) Output file (path) name (add the `.pdf` extension)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (pdf) file with each individual protein abundance plot for each
 #' conditions
 #' @keywords abundance, dotplots, plot
@@ -42,7 +43,16 @@
 #'                output_file = "results/ab-results-mss-normalized.pdf")
 #' }
 #' @export
-artms_dataPlots <- function(input_file, output_file) {
+artms_dataPlots <- function(input_file, 
+                            output_file,
+                            verbose = TRUE) {
+  
+  if(any(missing(input_file) | 
+         missing(output_file)))
+    stop("Missed (one or many) required argument(s)
+        Please, check the help of this function to find out more")
+  
+  
   data_mss = fread(input_file, integer64 = 'double')
   unique_subjects <- unique(data_mss$PROTEIN)
   condition_length <- length(unique(data_mss$GROUP_ORIGINAL))
@@ -50,10 +60,10 @@ artms_dataPlots <- function(input_file, output_file) {
   max_abu <- max(data_mss$ABUNDANCE, na.rm = TRUE)
   
   pdf(output_file, width = condition_length * 1.5, height = 3)
-  cat('>> PRINTING CONDITION PLOTS for every protein\n')
+  if(verbose) cat('>> PRINTING CONDITION PLOTS for every protein\n')
   for (subject in unique_subjects) {
     subject_data <- data_mss[PROTEIN == subject, ]
-    cat(sprintf('%s ', subject))
+    if(verbose) cat(sprintf('%s ', subject))
     p <-
       ggplot(data = subject_data,
              aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, colour = FEATURE))
@@ -71,7 +81,7 @@ artms_dataPlots <- function(input_file, output_file) {
       ggtitle(subject)
     print(p)
   }
-  cat("--- Done!\n")
+  if(verbose) cat("--- Done!\n")
   garbarge <- dev.off()
 }
 
@@ -91,91 +101,94 @@ artms_dataPlots <- function(input_file, output_file) {
 # - `log2FC` (default)
 # - `adj.pvalue`
 # - `pvalue`
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return A heatmap of significant values
 # @keywords significant, heatmap
-.artms_plotHeat <-
-  function(mss_F,
-           out_file,
-           labelOrder = NULL,
-           names = 'Protein',
-           cluster_cols = FALSE,
-           display = 'log2FC') {
-    heat_data = data.frame(mss_F, names = names)
+.artms_plotHeat <- function(mss_F,
+                            out_file,
+                            labelOrder = NULL,
+                            names = 'Protein',
+                            cluster_cols = FALSE,
+                            display = c('log2FC', 'adj.pvalue', 'pvalue'),
+                            verbose = TRUE) {
+
+  heat_data <- data.frame(mss_F, names = names)
     
-    ## create matrix from log2FC or p-value as user defined
-    if (display == 'log2FC') {
-      # Issues with extreme_val later if we have Inf/-Inf values.
-      if (sum(is.infinite(heat_data$log2FC)) > 0) {
-        idx <- is.infinite(heat_data$log2FC)
-        heat_data$log2FC[idx] <- NA
-      }
-      heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
-    } else if (display == 'adj.pvalue') {
-      heat_data$adj.pvalue = -log10(heat_data$adj.pvalue + 10 ^ -16)
-      heat_data_w = dcast(names ~ Label, 
-                          data = heat_data, value.var = 'adj.pvalue')
-    } else if (display == 'pvalue') {
-      heat_data$pvalue = -log10(heat_data$pvalue + 10 ^ -16)
-      heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
+  ## create matrix from log2FC or p-value as user defined
+  display <- match.arg(display)
+  if (display == 'log2FC') {
+    # Issues with extreme_val later if we have Inf/-Inf values.
+    if (sum(is.infinite(heat_data$log2FC)) > 0) {
+      idx <- is.infinite(heat_data$log2FC)
+      heat_data$log2FC[idx] <- NA
     }
-    
-    ## try
-    #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
-    rownames(heat_data_w) = heat_data_w$names
-    heat_data_w = heat_data_w[, -1]
-    heat_data_w[is.na(heat_data_w)] = 0
-    max_val = ceiling(max(heat_data_w))
-    min_val = floor(min(heat_data_w))
-    extreme_val = max(max_val, abs(min_val))
-    if (extreme_val %% 2 != 0)
-      extreme_val = extreme_val + 1
-    bin_size = 2
-    signed_bins = (extreme_val / bin_size)
-    colors_neg = rev(colorRampPalette(brewer.pal("Blues", n = extreme_val /
-                                                   bin_size))(signed_bins))
-    colors_pos = colorRampPalette(
-      brewer.pal("Reds", n = extreme_val / bin_size))(signed_bins)
-    colors_tot = c(colors_neg, colors_pos)
-    
-    if (is.null(labelOrder)) {
-      pheatmap(
-        heat_data_w,
-        scale = "none",
-        cellheight = 10,
-        cellwidth = 10,
-        filename = out_file,
-        color = colors_tot,
-        breaks = seq(
-          from = -extreme_val,
-          to = extreme_val,
-          by = bin_size
-        ),
-        cluster_cols = cluster_cols,
-        fontfamily = "mono"
-      )
-      cat("--- Heatmap is out\n")
-    } else{
-      heat_data_w <- heat_data_w[, labelOrder]
-      pheatmap(
-        heat_data_w,
-        scale = "none",
-        cellheight = 10,
-        cellwidth = 10,
-        filename = out_file,
-        color = colors_tot,
-        breaks = seq(
-          from = -extreme_val,
-          to = extreme_val,
-          by = bin_size
-        ),
-        cluster_cols = cluster_cols,
-        fontfamily = "mono"
-      )
-      cat("--- Heatmap is out\n")
-    }
-    
-    return(heat_data_w)
+    heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
+  } else if (display == 'adj.pvalue') {
+    heat_data$adj.pvalue = -log10(heat_data$adj.pvalue + 10 ^ -16)
+    heat_data_w = dcast(names ~ Label, 
+                        data = heat_data, value.var = 'adj.pvalue')
+  } else if (display == 'pvalue') {
+    heat_data$pvalue = -log10(heat_data$pvalue + 10 ^ -16)
+    heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
   }
+  
+  ## try
+  #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
+  rownames(heat_data_w) = heat_data_w$names
+  heat_data_w = heat_data_w[, -1]
+  heat_data_w[is.na(heat_data_w)] = 0
+  max_val = ceiling(max(heat_data_w))
+  min_val = floor(min(heat_data_w))
+  extreme_val = max(max_val, abs(min_val))
+  if (extreme_val %% 2 != 0)
+    extreme_val = extreme_val + 1
+  bin_size = 2
+  signed_bins = (extreme_val / bin_size)
+  colors_neg = rev(colorRampPalette(brewer.pal("Blues", n = extreme_val /
+                                                 bin_size))(signed_bins))
+  colors_pos = colorRampPalette(
+    brewer.pal("Reds", n = extreme_val / bin_size))(signed_bins)
+  colors_tot = c(colors_neg, colors_pos)
+  
+  if (is.null(labelOrder)) {
+    pheatmap(
+      heat_data_w,
+      scale = "none",
+      cellheight = 10,
+      cellwidth = 10,
+      filename = out_file,
+      color = colors_tot,
+      breaks = seq(
+        from = -extreme_val,
+        to = extreme_val,
+        by = bin_size
+      ),
+      cluster_cols = cluster_cols,
+      fontfamily = "mono"
+    )
+    if(verbose) cat("--- Heatmap is out\n")
+  } else{
+    heat_data_w <- heat_data_w[, labelOrder]
+    pheatmap(
+      heat_data_w,
+      scale = "none",
+      cellheight = 10,
+      cellwidth = 10,
+      filename = out_file,
+      color = colors_tot,
+      breaks = seq(
+        from = -extreme_val,
+        to = extreme_val,
+        by = bin_size
+      ),
+      cluster_cols = cluster_cols,
+      fontfamily = "mono"
+    )
+    if(verbose) cat("--- Heatmap is out\n")
+  }
+  
+  return(heat_data_w)
+}
 
 # ------------------------------------------------------------------------------
 #' @title Outputs a heatmap of the MSStats results created using the log2fold
@@ -200,6 +213,7 @@ artms_dataPlots <- function(input_file, output_file) {
 #' - `log2fc` (default)
 #' - `adj.pvalue`
 #' - `pvalue`
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (pdf or ggplot2 object) heatmap of the MSStats results using the
 #' selected metric
 #' @keywords heatmap, log2fc
@@ -220,7 +234,14 @@ artms_plotHeatmapQuant <- function(input_file,
                                    lfc_lower = -2,
                                    lfc_upper = 2,
                                    whatPvalue = "adj.pvalue",
-                                   FDR = 0.05) {
+                                   FDR = 0.05,
+                                   verbose = TRUE) {
+  
+  if(any(missing(input_file) | 
+         missing(species)))
+    stop("Missed (one or many) required argument(s)
+        Please, check the help of this function to find out more")
+  
   input <- .artms_checkIfFile(input_file)
   
   ## select data points  by LFC & FDR criterium in single condition and
@@ -239,7 +260,7 @@ artms_plotHeatmapQuant <- function(input_file,
   }
   
   sign_labels <- unique(sign_hits$Label)
-  cat(
+  if(verbose) cat(
     sprintf(
       ">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s\n",
       lfc_lower,
@@ -330,7 +351,7 @@ artms_plotHeatmapQuant <- function(input_file,
       cluster_cols = cluster_cols,
       fontfamily = "mono"
     )
-    cat("--- Heatmap done\n")
+    if(verbose) cat("--- Heatmap done\n")
   } else{
     pheatmap(
       heat_data_w,
@@ -356,9 +377,11 @@ artms_plotHeatmapQuant <- function(input_file,
 # @description Generate reproducibility plots based on raw intentities
 # (log tranformed) from the evidence file
 # @param data (data.frame) clean processed evidence
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return (pdf) A reproducibility plot based on evidence values
 # @keywords internal, plot, qc, quality, control
-.artms_plotReproducibilityEvidence <- function(data) {
+.artms_plotReproducibilityEvidence <- function(data,
+                                               verbose = TRUE) {
   data <-
     data[c('Feature',
            'Proteins',
@@ -369,18 +392,14 @@ artms_plotHeatmapQuant <- function(input_file,
   condi <- unique(data$Condition)
   
   # Progress bar
-  pb <- txtProgressBar(min = 0,
+  if(verbose) pb <- txtProgressBar(min = 0,
                        max = length(condi),
                        style = 3)
   
   for (i in seq_len(length(condi))) {
     eCondition <- condi[i]
     # Progress bar
-    setTxtProgressBar(pb, i)
-    
-    # cat("\n\nCONDITION: ",eCondition,"\n##################\n")
-    # cat("TECHNICAL REPLICAS\n---------------------------\n")
-    # cat("- ", eCondition,"\n")
+    if(verbose) setTxtProgressBar(pb, i)
     
     conditionOne <- data[which(data$Condition == eCondition), ]
     
@@ -448,11 +467,8 @@ artms_plotHeatmapQuant <- function(input_file,
       } else if (length(here) == 1) {
         # cat("\t\tOnly one technical replica\n")
       } else{
-        cat(
-          "\n>>MORE THAN TWO TECHNICAL REPLICAS IN THIS EXPERIMENTS? 
-          That is very strange.\n\n"
-        )
-        stop("\nPlease, Check the keys files\n")
+        stop("More than 2 technical replicates found. This is very unusual.
+        Please, revise it and if correct contact artms developers")
       }
     } # Checking the reproducibility between Technical Replicas
     
@@ -460,8 +476,6 @@ artms_plotHeatmapQuant <- function(input_file,
     # NOW BETWEEN BIOREPLICAS
     # Before comparing the different biological replicas, 
     # aggregate the technical replicas
-    # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
-    #
     # First choose the maximum for the technical replicas as before, 
     # but first check whether there are more than one
     if (length(here) > 1) {
@@ -551,7 +565,7 @@ artms_plotHeatmapQuant <- function(input_file,
     }
   } # all the conditions
   # Close Progress bar
-  close(pb)
+  if(verbose) close(pb)
 }
 
 # ------------------------------------------------------------------------------
@@ -667,11 +681,12 @@ artms_plotHeatmapQuant <- function(input_file,
 # @return Reproducibility plots based on abundance data 
 # (normalized intensities)
 # @keywords plot, reproducibility, abundance
-.artms_plotReproducibilityAbundance <- function(data) {
+.artms_plotReproducibilityAbundance <- function(data,
+                                                verbose = verbose) {
   condi <- unique(data$GROUP_ORIGINAL)
   
   # Progress bar
-  pb <- txtProgressBar(min = 0,
+  if(verbose) pb <- txtProgressBar(min = 0,
                        max = length(condi),
                        style = 3)
   
@@ -679,7 +694,7 @@ artms_plotHeatmapQuant <- function(input_file,
     eCondition <- condi[i]
     
     # Progress bar
-    setTxtProgressBar(pb, i)
+    if(verbose) setTxtProgressBar(pb, i)
     
     # cat("\n##################\nCONDITION: ",eCondition,"\n###############\n")
     # cat("TECHNICAL REPLICAS\n---------------------------\n")
@@ -701,7 +716,7 @@ artms_plotHeatmapQuant <- function(input_file,
         # the user know:
         if (length(here) > 2) {
           cat(
-            "\n\n(-)----- WARNING: More than 2 technical replicas! 
+            "(-)----- WARNING: More than 2 technical replicas! 
             make sure that this is right\n\n"
           )
         }
@@ -742,11 +757,8 @@ artms_plotHeatmapQuant <- function(input_file,
         print(p1)
         # plot_tr[[eBioreplica]] <- p1
       } else if (length(here) < 1) {
-        cat(
-          "\n\n\t(-) ERROR: something is wrong when checking for 
-          the number of technical replicas\n\n"
-        )
-        stop("\nCheck the experiment\n\n")
+        stop("More than 2 technical replicates found. This is very unusual.
+             Please, revise it and contact artMS developers if right")
       }
     } # Checking the reproducibility between Technical Replicas
     
@@ -809,13 +821,13 @@ artms_plotHeatmapQuant <- function(input_file,
           print(p2)
         }
       }
-      cat("\n")
+      if(verbose) cat("\n")
     } else{
-      cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+      if(verbose) cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
     }
   } # all the conditions
   
-  close(pb)
+  if(verbose) close(pb)
 }
 
 # ------------------------------------------------------------------------------
@@ -925,9 +937,11 @@ artms_plotHeatmapQuant <- function(input_file,
 # @description Plot correlation between all quantifications, i.e., different
 # quantified comparisons
 # @param datai (data.frame) Processed MSstats results
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return (ggplot.object) Plot correlation between quantifications and r values
 # @keywords internal, plot, correlation, log2fc
-.artms_plotRatioLog2fc <- function(datai) {
+.artms_plotRatioLog2fc <- function(datai,
+                                   verbose = TRUE) {
   datadc <- dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
   before <- dim(datadc)[1]
   l <- dim(datadc)[2]
@@ -936,13 +950,11 @@ artms_plotHeatmapQuant <- function(input_file,
       replace(x, is.infinite(x), NA)))
   datadc <- datadc[complete.cases(datadc), ]
   after <- dim(datadc)[1]
-  cat(
-    "---Total unique identifiers before: ",
+  if(verbose) cat("---Total unique identifiers before: ",
     before,
     "\n---Total unique identifiers (only complete cases): ",
     after,
-    "\n\n"
-  )
+    "\n\n")
   
   blist <- unique(datai$Label)
   blist <- gsub("-", ".", blist)
@@ -1109,6 +1121,7 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @param PDF (logical) Option to generate pdf format. Default: `T`
 #' @param decimal_threshold (numeric) Decimal threshold for the pvalue.
 #' Default: 16 (10^-16)
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @keywords plot, volcano
 #' @return (pdf) of a volcano plot
 #' @examples
@@ -1123,9 +1136,10 @@ artms_volcanoPlot <- function(mss_results,
                               FDR = 0.05,
                               PDF = TRUE,
                               output_name = '',
-                              decimal_threshold = 16) {
+                              decimal_threshold = 16,
+                              verbose = TRUE) {
   
-  cat(">> GENERATING VOLCANO PLOT FROM MSSTATS RESULTS\n")
+  if(verbose) cat(">> GENERATING VOLCANO PLOT FROM MSSTATS RESULTS\n")
   if (PDF) {
     if (!grepl("\\.pdf", output_name)) {
       stop("FILE EXTENSION '.pdf' IS MISSED for < output_name >")

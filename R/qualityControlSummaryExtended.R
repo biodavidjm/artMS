@@ -15,6 +15,7 @@
 #' @param plotMS2 (logical) It plots whatever
 #' @param plotMSMS (logical) It plots whatever
 #' @param plotISOTOPE (logical) It plots whatever
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A number of plots from the summary file
 #' @keywords qc, summary, keys
 #' @examples
@@ -28,17 +29,23 @@ artms_qualityControlSummaryExtended <- function(summary_file,
                                                 plotMS1SCANS = TRUE,
                                                 plotMS2 = TRUE,
                                                 plotMSMS = TRUE,
-                                                plotISOTOPE = TRUE) {
-  cat("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)---------------\n")
+                                                plotISOTOPE = TRUE,
+                                                verbose = TRUE) {
+  if(verbose) cat("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)---------------\n")
   
   if (is.null(summary_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
   }
   
+  if(any(missing(summary_file) | missing(keys_file)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
   # Getting data ready
   summarykeys <-
     artms_mergeEvidenceAndKeys(summary_file, keys_file,
-                               isSummary = TRUE)
+                               isSummary = TRUE,
+                               verbose = verbose)
   colnames(summarykeys) <- tolower(colnames(summarykeys))
   
   if ("fraction" %in% colnames(summarykeys)) {
@@ -106,7 +113,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   )
   
   # PLOTS
-  cat(">> GENERATING QC PLOTS\n")
+  if(verbose) cat(">> GENERATING QC PLOTS\n")
   
   nsamples <- length(unique(summarykeys$bioreplicate))
   nconditions <- length(unique(summarykeys$condition))
@@ -122,7 +129,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
-    cat("--- Plot NUMBER OF MS1 SCANS")
+    if(verbose) cat("--- Plot NUMBER OF MS1 SCANS")
     pdf(
       'QC_Plots_summary_MS1SCANS.pdf',
       width = nsamples * 3,
@@ -218,13 +225,13 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(ac)
     }
     garbage <- dev.off()
-    cat(" done\n")
+    if(verbose) cat(" done\n")
   }
   
   
   ## Number of MS2 scans
   if (plotMS2) {
-    cat("--- Plot Number of MS2 scans")
+    if(verbose) cat("--- Plot Number of MS2 scans")
     pdf(
       'QC_Plots_summary_MS2.pdf',
       width = nsamples * 3,
@@ -349,13 +356,13 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       scale_fill_brewer(palette = "Spectral")
     print(bd)
     garbage <- dev.off()
-    cat(" done\n")
+    if(verbose) cat(" done\n")
   }
   
   
   # Number of msms.identification rate
   if (plotMSMS) {
-    cat("--- Plot Number of msms.identification rate")
+    if(verbose) cat("--- Plot Number of msms.identification rate")
     pdf(
       'QC_Plots_summary_MSMS.pdf',
       width = nsamples * 3,
@@ -454,13 +461,13 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(cc)
     }
     garbage <- dev.off()
-    cat(" done\n")
+    if(verbose) cat(" done\n")
   }
   
   
   # Number of isotope patterns
   if (plotISOTOPE) {
-    cat("--- Plot Number of isotope patterns")
+    if(verbose) cat("--- Plot Number of isotope patterns")
     pdf(
       'QC_Plots_summary_ISOTOPE.pdf',
       width = nsamples * 3,
@@ -665,7 +672,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
       print(df)
     }
     garbage <- dev.off()
-    cat(" done\n")
+    if(verbose) cat(" done\n")
   }
   
 } # END OF SUMMARY

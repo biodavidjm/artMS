@@ -6,7 +6,7 @@
 \usage{
 artms_qualityControlSummaryExtended(summary_file, keys_file,
   isFractions = FALSE, plotMS1SCANS = TRUE, plotMS2 = TRUE,
-  plotMSMS = TRUE, plotISOTOPE = TRUE)
+  plotMSMS = TRUE, plotISOTOPE = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{summary_file}{(char or data.frame) The evidence file path and name, or
@@ -25,6 +25,8 @@ Default: \code{FALSE}}
 \item{plotMSMS}{(logical) It plots whatever}
 
 \item{plotISOTOPE}{(logical) It plots whatever}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 A number of plots from the summary file

@@ -7,22 +7,48 @@
 # @param data_f (data.frame) of the filtered Maxquant evidence file.
 # @param fraction (boolean) 1 or 0 option to specified whether or not
 #  is a fractionated experiment
-# @param datafile (char) The evidence file name (to generate the output file)
+# @param output_name (char) Output file name (to generate the output files). 
+# '.txt' extension required
 # @param funfunc (char) The function to use to aggregating the data if it is a
 # fractionated experiment (default: `sum`)
+# @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) MSstats compatible format
 # @keywords internal, MSstats, format, input, fractions
-.artms_getMSstatsFormat <- function(data_f, fraction, datafile, funfunc = "sum") {
+.artms_getMSstatsFormat <- function(data_f, 
+                                    fraction, 
+                                    output_name, 
+                                    funfunc = "sum",
+                                    verbose = TRUE) {
+    if(verbose)
     cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
-    data_f <-
-      artms_changeColumnName(data_f, "Modified.sequence", "PeptideSequence")
+  
+    if(any(missing(data_f) | 
+           missing(fraction) |
+           missing(output_name)))
+      stop("Missed (one or many) required argument(s)
+           Please, check the help of this function to find out more")
+    
+    if (!grepl(".txt", output_name)) {
+      stop(
+        "Argument <output_file> must have the extension '.txt'"
+      )
+    }
+  
+    data_f <- artms_changeColumnName(data_f, 
+                                     "Modified.sequence", 
+                                     "PeptideSequence")
+    
     data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
-    cat("---+ Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
+    
+    if(verbose)
+      cat("---+ Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
     
     # DEAL WITH FRACTIONS FIRST (but in reality it is just checking,
     # because it is doing a sum up of redundant features anyway)
     if (any(grepl("FractionKey", colnames(data_f))) & fraction) {
-      cat("------- + DEALING WITH FRACTIONS (sum up intensities per feature)\n")
+      if(verbose)
+        cat("------- + DEALING WITH FRACTIONS (sum up msint per features)\n")
+      
       predmss <-
         aggregate(
           data = data_f,
@@ -73,7 +99,9 @@
     # but it will generate a gigantic warning.
     # Using dcast from data.table because it has the option "sep" that allows to
     # choose the 'collapse' character to use.
-    cat("------- + Adding NA values for missing values (required by MSstats)\n")
+    if(verbose)
+      cat("-----+ Adding NA values for missing values (required by MSstats)\n")
+    
     predmss_dc <-
       data.table::dcast(
         data = setDT(predmss),
@@ -132,10 +160,10 @@
     }
     
     dmss <- as.data.frame(dmss)
-    cat("------- + Write out the MSstats input file (-mss.txt)\n")
+    if(verbose) cat("------- + Write out the MSstats input file (-mss.txt)\n")
     write.table(
       dmss,
-      file = gsub('.txt', '-mss.txt', datafile),
+      file = gsub('.txt', '-mss.txt', output_name),
       eol = "\n",
       sep = "\t",
       quote = FALSE,

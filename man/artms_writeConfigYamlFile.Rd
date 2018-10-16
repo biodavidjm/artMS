@@ -4,11 +4,14 @@
 \alias{artms_writeConfigYamlFile}
 \title{Write out a template file of the artMS configuration file (yaml)}
 \usage{
-artms_writeConfigYamlFile(config_file_name = "artms_config_file.yaml")
+artms_writeConfigYamlFile(config_file_name = "artms_config_file.yaml",
+  verbose = TRUE)
 }
 \arguments{
 \item{config_file_name}{(char) The name for the configuration file. It must
 have a \code{.yaml} extension. If \code{NULL}, it returns the config as a yaml object}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 A file (or yaml data object) of the artMS configuration file

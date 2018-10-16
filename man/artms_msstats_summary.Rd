@@ -5,7 +5,8 @@
 \title{Summarize the MSStats results and data quantification}
 \usage{
 artms_msstats_summary(evidence_file = NULL, prot_group_file = NULL,
-  keys_file = NULL, results_file = NULL, return_df = FALSE)
+  keys_file = NULL, results_file = NULL, return_df = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
@@ -27,6 +28,8 @@ to the R environment upon completion. This is useful if this is being
 used in an R pipeline and you want to feed the results directly into the
 next stage of analysis via an R environment/terminal.
 Regardless, the results will be written to file. Default = FALSE}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame or txt file) with the summary
