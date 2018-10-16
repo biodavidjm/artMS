@@ -74,7 +74,7 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     ) %in% colnames(keys)
   )) {
     stop(
-      'COLNAMES IN KEYS NOT CONFORM TO SCHEMA
+      'colnames in keys not conform to schema
       \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
     )
   }
@@ -115,7 +115,7 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
                 data = data_f_agg,
                 FUN = sum)
   } else{
-    stop("\nERROR!! Wrong value for variable to quantify. 
+    stop("\nWrong value for variable to quantify. 
          Please use 'msspc' or 'msint'")
   }
   

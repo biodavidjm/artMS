@@ -104,7 +104,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
     names(datamerged)[grep('Leading.Razor.Protein', names(datamerged))] <-
       'Proteins'
   } else{
-    stop("THERE IS NO Leading.razor.protein COLUMN IN THIS EVIDENCE FILE.")
+    stop("there is no <leading.razor.protein> column in this evidence file.")
   }
   
   datamerged$Proteins <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", datamerged$Proteins )

@@ -204,19 +204,19 @@ artms_quantification <- function(yaml_config_file,
   
   # CHECK POINT: DO THE FILES EXIST?
   if(!file.exists(config$files$contrasts)){
-    stop("THE FILE ", config$files$contrasts, " DOES NOT EXIST!\n")
+    stop("the file ", config$files$contrasts, " does not exist!\n")
   }
   
   if(!file.exists(config$files$evidence)){
-    stop("THE FILE ", config$files$evidence, " DOES NOT EXIST!\n")
+    stop("the file ", config$files$evidence, " does not exist!\n")
   }
   
   if(!file.exists(config$files$keys)){
-    stop("THE FILE ", config$files$keys, " DOES NOT EXIST!\n")
+    stop("the file ", config$files$keys, " does not exist!\n")
   }
   
   if(!(grepl("\\.txt$", config$files$output))){
-    stop("THE FILE ", config$files$output, " MUST HAVE EXTENSION .txt\n" )
+    stop("the file ", config$files$output, " must have extension .txt\n" )
   }
   
   

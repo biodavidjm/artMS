@@ -76,7 +76,7 @@ artms_replicatePlots <- function(input_file,
   
   if (!is.null(out_file)) {
     if (!grepl(".txt", out_file)) {
-      stop("<out_file> MUST HAVE THE EXTENSION '.txt'
+      stop("<out_file> must have extension '.txt'
         Change out_file extension and try again\n"
       )
     }

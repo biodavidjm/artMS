@@ -59,7 +59,7 @@
     } else if ("Raw file" %in% colnames(df)) {
       df <- artms_changeColumnName(df, 'Raw file', 'RawFile')
     } else{
-      stop("CANNOT FIND THE Raw.file COLUMN\nPlease, revise it")
+      stop("cannot find the <Raw.file> column")
     }
   }
   return(df)
@@ -113,8 +113,8 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
     data_f <- data
   } else{
     stop(
-      "FILTERING OPTION FOR protein_groups NOT UNDERSTOOD 
-      (OPTIONS AVAILABLE: keep OR remove)"
+      "filtering option for <protein_groups> not valid 
+      (options available: keep or remove)"
     )
   }
   

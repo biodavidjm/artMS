@@ -13,7 +13,7 @@
                                verbose = TRUE) {
   
   if (length(results) == 0 | !exists('results')) {
-    stop("ERROR!! NO RESULTS FOUND TO ANNOTATE!")
+    stop("No results found to annotate!")
   }
   
   # Annotation
@@ -57,7 +57,7 @@
       FDR = config$output_extras$plots$FDR
     )
   if (dim(sign_hits)[1] == 0)
-    stop("NO SIGNIFICANT HITS DETECTED IN THIS EXPERIMENT. ABORTING PLOTS.\n")
+    stop("No significant hits detected in this experiment. aborting plots.\n")
   sign_labels <- unique(sign_hits$Label)
   if(verbose) cat( sprintf(
       "\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",

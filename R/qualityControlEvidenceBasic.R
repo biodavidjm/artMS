@@ -51,7 +51,7 @@ The experiments supported are:\n",
     keys <- .artms_checkIfFile(keys_file)
     keys <- .artms_checkRawFileColumnName(keys)
     if (any(!'FractionKey' %in% colnames(keys))) {
-      stop('\n<fractions> WAS ACTIVATED BUT FractionKey COLUMN NOT FOUND IN THE KEYS FILE\n')
+      stop('\n<fractions> was activated but <fractionkey> column not found in the keys file\n')
     }
   }
   
@@ -550,7 +550,7 @@ The experiments supported are:\n",
              "ph",
              "other")
   } else {
-    stop("PROTEOMICS EXPERIMENT NOT RECOGNIZED\n")
+    stop("Proteomics experiment not recognized\n")
   }
   
   if(verbose) cat("--- ", prot_exp, " PROCESSED\n")

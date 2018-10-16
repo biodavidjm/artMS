@@ -137,5 +137,5 @@ artms_msstats_summary <- function(evidence_file = NULL,
     return(results_summary)
   }
   
-  cat(">> Summarization Complete! Have a nice day :)\n")
+  cat(">> Summarization Completed\n")
 }

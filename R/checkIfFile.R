@@ -18,7 +18,7 @@
     x <- data.frame(input_file)
   } else{
     if(!file.exists(input_file)){
-      stop("THE FILE ", input_file, " DOES NOT EXIST!\n")
+      stop("The file ", input_file, " does not exist!\n")
     }
     
     if (is.evidence) {

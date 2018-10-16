@@ -256,7 +256,7 @@ artms_plotHeatmapQuant <- function(input_file,
   sign_hits <- sign_hits[complete.cases(sign_hits$log2FC), ]
   sign_hits <- sign_hits[is.finite(sign_hits$log2FC), ]
   if (dim(sign_hits)[1] == 0) {
-    stop("--- NOT ENOUGH SIGNIFICANT HITS!")
+    stop("--- not enough significant hits!")
   }
   
   sign_labels <- unique(sign_hits$Label)
@@ -1139,10 +1139,10 @@ artms_volcanoPlot <- function(mss_results,
                               decimal_threshold = 16,
                               verbose = TRUE) {
   
-  if(verbose) cat(">> GENERATING VOLCANO PLOT FROM MSSTATS RESULTS\n")
+  if(verbose) cat(">> generating volcano plot from MSstats results\n")
   if (PDF) {
     if (!grepl("\\.pdf", output_name)) {
-      stop("FILE EXTENSION '.pdf' IS MISSED for < output_name >")
+      stop("File extension '.pdf' is missed for < output_name >")
     }
   }
   
