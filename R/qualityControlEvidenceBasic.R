@@ -171,7 +171,7 @@ The experiments supported are:\n",
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
   evidencekeysclean <-
-    artms_filterEvidenceContaminants(data = evidencekeys, verbose = verbose)
+    artms_filterEvidenceContaminants(x = evidencekeys, verbose = verbose)
   
   if(verbose) cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
       (Warning: it might take some time)\n")

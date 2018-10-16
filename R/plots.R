@@ -122,14 +122,14 @@ artms_dataPlots <- function(input_file,
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[idx] <- NA
     }
-    heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
+    heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
   } else if (display == 'adj.pvalue') {
     heat_data$adj.pvalue = -log10(heat_data$adj.pvalue + 10 ^ -16)
-    heat_data_w = dcast(names ~ Label, 
+    heat_data_w = data.table::dcast(names ~ Label, 
                         data = heat_data, value.var = 'adj.pvalue')
   } else if (display == 'pvalue') {
     heat_data$pvalue = -log10(heat_data$pvalue + 10 ^ -16)
-    heat_data_w = dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
+    heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
   }
   
   ## try
@@ -575,11 +575,11 @@ artms_plotHeatmapQuant <- function(input_file,
 # @param data (data.frame) processed modelqc
 # @return Abundacen boxplot
 # @keywords internal, plot, abundance
-.artms_plotAbundanceBoxplots <- function(data) {
-  p1 <-
-    ggplot2::ggplot(data, aes(x = SUBJECT_ORIGINAL, 
-                              y = ABUNDANCE, 
-                              fill = ABUNDANCE))
+.artms_plotAbundanceBoxplots <- function(df) {
+  p1 <- ggplot2::ggplot(df, 
+                        aes(x = SUBJECT_ORIGINAL, 
+                            y = ABUNDANCE, 
+                            fill = ABUNDANCE))
   p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL))
   p1 <- p1 + theme_linedraw()
   p1 <-
@@ -596,7 +596,7 @@ artms_plotHeatmapQuant <- function(input_file,
   print(p1)
   
   p2 <-
-    ggplot2::ggplot(data, aes(
+    ggplot2::ggplot(df, aes(
       x = as.factor(GROUP_ORIGINAL),
       y = ABUNDANCE,
       fill = ABUNDANCE
@@ -623,11 +623,11 @@ artms_plotHeatmapQuant <- function(input_file,
 #
 # @description Total Number of unique proteins per biological replicate and
 # conditions
-# @param data (data.frame) modelqc
+# @param df (data.frame) modelqc
 # @return (pdf) Barplots with the number of proteins per br / condition
 # @keywords internal, plots, abundance, counts
-.artms_plotNumberProteinsAbundance <- function(data) {
-  x <- data[c('PROTEIN', 'SUBJECT_ORIGINAL')]
+.artms_plotNumberProteinsAbundance <- function(df) {
+  x <- df[c('PROTEIN', 'SUBJECT_ORIGINAL')]
   y <- unique(x)
   names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicate'
   z <-
@@ -649,7 +649,7 @@ artms_plotHeatmapQuant <- function(input_file,
   z <- z + ggtitle("Unique Proteins in BioReplicates")
   print(z)
   
-  a <- data[c('PROTEIN', 'GROUP_ORIGINAL')]
+  a <- df[c('PROTEIN', 'GROUP_ORIGINAL')]
   b <- unique(a)
   names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
   c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
@@ -681,9 +681,9 @@ artms_plotHeatmapQuant <- function(input_file,
 # @return Reproducibility plots based on abundance data 
 # (normalized intensities)
 # @keywords plot, reproducibility, abundance
-.artms_plotReproducibilityAbundance <- function(data,
+.artms_plotReproducibilityAbundance <- function(x,
                                                 verbose = verbose) {
-  condi <- unique(data$GROUP_ORIGINAL)
+  condi <- unique(x$GROUP_ORIGINAL)
   
   # Progress bar
   if(verbose) pb <- txtProgressBar(min = 0,
@@ -700,7 +700,7 @@ artms_plotHeatmapQuant <- function(input_file,
     # cat("TECHNICAL REPLICAS\n---------------------------\n")
     # cat("- ", eCondition,"\n")
     
-    conditionOne <- data[which(data$GROUP_ORIGINAL == eCondition), ]
+    conditionOne <- x[which(x$GROUP_ORIGINAL == eCondition), ]
     
     # FIRST CHECK FOR TECHNICAL REPLICAS
     bioreplicasAll <- unique(conditionOne$SUBJECT_ORIGINAL)
@@ -834,18 +834,18 @@ artms_plotHeatmapQuant <- function(input_file,
 # @title Plot correlation between conditions
 #
 # @description Plot correlation between conditions
-# @param data (data.frame) of Protein Abundance (MSstats modelqc)
+# @param x (data.frame) of Protein Abundance (MSstats modelqc)
 # @param numberBiologicalReplicas (int) Number of biological replicates
 # @return (ggplot.object) A correlation plot between conditions
 # @keywords internal, plot, correlation
 .artms_plotCorrelationConditions <-
-  function(data, numberBiologicalReplicas) {
+  function(x, numberBiologicalReplicas) {
     # Before jumping to merging biological replicas:
     # Technical replicas: aggregate on the technical replicas
     b <-
       aggregate(
         ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-        data = data,
+        data = x,
         FUN = mean
       ) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Aggregate now the CONDITIONS on the biological replicas:
@@ -942,7 +942,7 @@ artms_plotHeatmapQuant <- function(input_file,
 # @keywords internal, plot, correlation, log2fc
 .artms_plotRatioLog2fc <- function(datai,
                                    verbose = TRUE) {
-  datadc <- dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
+  datadc <- data.table::dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
   before <- dim(datadc)[1]
   l <- dim(datadc)[2]
   datadc <-
@@ -1015,26 +1015,26 @@ artms_plotHeatmapQuant <- function(input_file,
 # @title Generate PCA plots based on abundance data
 #
 # @description Generate PCA plots based on abundance data
-# @param data Data.frame output from `artms_loadModelQCstrict`
+# @param x Data.frame output from `artms_loadModelQCstrict`
 # @param filename Prefix to generate output names (WITH NO EXTENSION)
 # @param allConditions Conditions selected to generate the plots
 # @return PCA plots based on abundance data (pdf format)
 # @keywords internal, plot, pca
-.artms_getPCAplots <- function(data, filename, allConditions) {
+.artms_getPCAplots <- function(x, filename, allConditions) {
   # PRINCIPAL COMPONENT ANALYSIS
   # Using the following packages:
   # FactoMineR, factoextra, corrplot, PerformanceAnalytics
   
   # Remove NA
-  nogenename2 <- data[duplicated(data$Gene), ]
+  nogenename2 <- x[duplicated(x$Gene), ]
   if (dim(nogenename2)[1] > 0) {
     # cat("\t---Removing proteins without a gene name:\n")
-    data <- data[complete.cases(data), ]
+    x <- x[complete.cases(x), ]
   }
   
-  data <- data[!duplicated(data[, c("Gene")]),]
-  rownames(data) <- data$Gene
-  df <- data[, allConditions]
+  x <- x[!duplicated(x[, c("Gene")]),]
+  rownames(x) <- x$Gene
+  df <- x[, allConditions]
   
   # Correlation matrix
   df.cor.matrix <- round(cor(df, use = "complete.obs"), 2)

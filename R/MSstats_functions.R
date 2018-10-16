@@ -96,21 +96,21 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 #
 # @description Apply the filtering options, i.e., remove protein groups and/or
 # contaminants, and/or, select posttranslational modification (if any)
-# @param data (data.frame) Evidence file
+# @param x (data.frame) Evidence file
 # @param config (yaml.object) Configuration object (opened yaml file)
 # @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) filtered according to the options selected
 # @keywords internal, filtering, remove, proteingroups, ptms
-.artms_filterData <- function(data, 
+.artms_filterData <- function(x, 
                               config,
                               verbose = TRUE) {
   if(verbose) cat("\n>> FILTERING\n")
   if (config$data$filters$protein_groups == 'remove') {
     if(verbose) cat("\tPROTEIN GROUPS\tREMOVE\n")
-    data_f <- .artms_removeMaxQProteinGroups(data)
+    data_f <- .artms_removeMaxQProteinGroups(x)
   } else if (config$data$filters$protein_groups == 'keep') {
     if(verbose) cat("\tPROTEIN GROUPS\tIGNORE\n")
-    data_f <- data
+    data_f <- x
   } else{
     stop(
       "filtering option for <protein_groups> not valid 
@@ -148,18 +148,18 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 #'
 #' @description Remove contaminants and erronously identified 'reverse'
 #' sequences by MaxQuant, in addition to empty protein ids
-#' @param data (data.frame) of the Evidence file
+#' @param x (data.frame) of the Evidence file
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
 #' @examples
-#' ef <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
+#' ef <- artms_filterEvidenceContaminants(x = artms_data_ph_evidence)
 #' @export
-artms_filterEvidenceContaminants <- function(data,
+artms_filterEvidenceContaminants <- function(x,
                                              verbose = TRUE) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
   data_selected <-
-    data[grep("CON__|REV__", data$Proteins, invert = TRUE), ]
+    x[grep("CON__|REV__", x$Proteins, invert = TRUE), ]
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)
@@ -171,7 +171,7 @@ artms_filterEvidenceContaminants <- function(data,
 # ------------------------------------------------------------------------------
 #' @title Merge evidence.txt (or summary.txt) with keys.txt files 
 #' @description Merge the evidence and keys files on the given columns
-#' @param data (data.frame or char) The evidence data, either as data.frame or
+#' @param x (data.frame or char) The evidence data, either as data.frame or
 #' the file name (and path). It also works for the summary.txt file
 #' @param keys The keys data, either as a data.frame or file name (and path)
 #' @param by (vector) specifying the columns use to merge the evidence and keys.
@@ -181,10 +181,10 @@ artms_filterEvidenceContaminants <- function(data,
 #' @return (data.frame) with the evidence and keys merged
 #' @keywords merge, evidence, summary, keys
 #' @examples
-#' evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence,
+#' evidenceKeys <- artms_mergeEvidenceAndKeys(x = artms_data_ph_evidence,
 #'                                            keys = artms_data_ph_keys)
 #' @export
-artms_mergeEvidenceAndKeys <- function(data, 
+artms_mergeEvidenceAndKeys <- function(x, 
                                        keys, 
                                        by = c('RawFile'),
                                        isSummary = FALSE,
@@ -196,10 +196,10 @@ artms_mergeEvidenceAndKeys <- function(data,
         (depending on the size of the evidence file)\n")
   }
 
-  data <- .artms_checkIfFile(data)
+  x <- .artms_checkIfFile(x)
   keys <- .artms_checkIfFile(keys)
   
-  data <- .artms_checkRawFileColumnName(data)
+  x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
   if(any(grepl("Experiment", colnames(keys)))){
@@ -207,8 +207,8 @@ artms_mergeEvidenceAndKeys <- function(data,
   }
   
   if(isSummary){
-    if(any(grepl("Experiment", colnames(data)))){
-      data <- subset(data, Experiment != "") 
+    if(any(grepl("Experiment", colnames(x)))){
+      x <- subset(x, Experiment != "") 
     }
   }
   
@@ -224,7 +224,7 @@ artms_mergeEvidenceAndKeys <- function(data,
   }
   
   # Check if the number of RawFiles is the same.
-  unique_data <- sort(unique(data$RawFile))
+  unique_data <- sort(unique(x$RawFile))
   unique_keys <- sort(unique(keys$RawFile))
   
   if (length(unique_keys) != length(unique_data)) {
@@ -247,8 +247,8 @@ artms_mergeEvidenceAndKeys <- function(data,
     }
   }
   
-  data <- merge(data, keys, by = by)
-  return(data)
+  x <- merge(x, keys, by = by)
+  return(x)
 }
 
 
@@ -316,11 +316,11 @@ artms_SILACtoLong <- function(evidence_file,
 # @title Remove protein groups
 #
 # @description Remove the group of proteins ids separated by separated by `;`
-# @param data (data.frame) with a `Proteins` column.
+# @param x (data.frame) with a `Proteins` column.
 # @return (data.frame) with the protein groups removed
 # @keywords maxquant, remove, proteingroups
-.artms_removeMaxQProteinGroups <- function(data) {
-  data_selected = data[grep(";", data$Proteins, invert = TRUE), ]
+.artms_removeMaxQProteinGroups <- function(x) {
+  data_selected = x[grep(";", x$Proteins, invert = TRUE), ]
   return(data_selected)
 }
 
@@ -363,11 +363,10 @@ artms_resultsWide <- function(results_msstats,
   
   if (select_pvalues == "adjpvalue") {
     input_l <-
-      reshape2::melt(data <-
-                       results_msstats[, c('Protein', 
-                                           'Label', 
-                                           'log2FC', 
-                                           'adj.pvalue')], 
+      reshape2::melt(data = results_msstats[, c('Protein', 
+                                                'Label', 
+                                                'log2FC', 
+                                                'adj.pvalue')], 
                      id.vars = c('Protein', 'Label'))
   } else if (select_pvalues == "pvalue") {
     input_l <-
@@ -568,19 +567,19 @@ artms_spectralCounts <- function(evidence_file,
                                  verbose = TRUE) {
   if(verbose) cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
   
-  data <- .artms_checkIfFile(evidence_file)
+  x <- .artms_checkIfFile(evidence_file)
   keys <- .artms_checkIfFile(keys_file)
   
-  data <- .artms_checkRawFileColumnName(data)
+  x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
   
-  data <- artms_mergeEvidenceAndKeys(data, 
+  x <- artms_mergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile'),
                                      verbose = verbose)
   data_sel <-
-    data[, c('Proteins',
+    x[, c('Proteins',
              'Condition',
              'BioReplicate',
              'Run',

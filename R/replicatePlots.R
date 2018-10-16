@@ -84,7 +84,7 @@ artms_replicatePlots <- function(input_file,
 
   if(verbose) cat("--- READING IN FILES...\n")
   # read in data
-  dat <- .artms_checkIfFile(input_file)
+  df <- .artms_checkIfFile(input_file)
   # keys
   keys <- .artms_checkIfFile(keys_file)
   
@@ -92,22 +92,22 @@ artms_replicatePlots <- function(input_file,
   repplot <- .artms_checkIfFile(replicate_file)
   
   # remove negatives from MaxQuant
-  if (length(grep("__", dat$Proteins)) > 0)
-    dat <- dat[-grep("__", dat$Proteins), ]
+  if (length(grep("__", df$Proteins)) > 0)
+    df <- df[-grep("__", df$Proteins), ]
   
   # remove blank protein names
-  if (any(dat$Proteins == "")) {
-    dat <- dat[-which(dat$Proteins == ""), ]
+  if (any(df$Proteins == "")) {
+    df <- df[-which(df$Proteins == ""), ]
   }
   
   if (prot_exp == "UB") {
-    dat <- dat[grep("(gl)", dat$Modified.sequence), ]
+    df <- df[grep("(gl)", df$Modified.sequence), ]
     if(verbose) cat("--- Selecting only UB modified peptides\n")
   } else if (prot_exp == "PH") {
-    dat <- dat[grep("(ph)", dat$Modified.sequence), ]
+    df <- df[grep("(ph)", df$Modified.sequence), ]
     if(verbose) cat("--- Selecting only PH modified peptides\n")
   } else if (prot_exp == "AC") {
-    dat <- dat[grep("K\\(ac\\)", dat$Modified.sequence), ]
+    df <- df[grep("K\\(ac\\)", df$Modified.sequence), ]
     if(verbose) cat("--- Selecting only AC modified peptides\n")
   } else if (prot_exp == "AB" | prot_exp == "APMS") {
     if(verbose) cat("--- No filtering of modified peptides\n")
@@ -118,12 +118,12 @@ artms_replicatePlots <- function(input_file,
     )
   }
   
-  # NOTE: dimensions between x and dat may differ if there is data in dat that
+  # NOTE: dimensions between x and df may differ if there is data in df that
   # isn't in the keys file
-  names(dat)[grep("Raw.file", names(dat))] <- 'RawFile'
-  x <-
-    merge(dat, keys[, c('RawFile', 'Condition', 'BioReplicate')], 
-          by = c('RawFile'))
+  names(df)[grep("Raw.file", names(df))] <- 'RawFile'
+  x <- merge(df, 
+             keys[, c('RawFile', 'Condition', 'BioReplicate')], 
+             by = c('RawFile'))
   
   # Put into a data matrix format
   x <-
@@ -275,4 +275,4 @@ artms_replicatePlots <- function(input_file,
         )
     }
   }
-  }
+}

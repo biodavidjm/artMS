@@ -807,7 +807,7 @@ artms_evidenceToSAINTqFormat(evidence_file = NULL,
 Remove contaminants and erronously identified 'reverse' sequences by MaxQuant, in addition to empty protein ids
 
 ```{r}
-evidencefiltered <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
+evidencefiltered <- artms_filterEvidenceContaminants(x = artms_data_ph_evidence)
 ```
 
 

@@ -4,10 +4,10 @@
 \alias{artms_filterEvidenceContaminants}
 \title{Remove contaminants and empty proteins from the MaxQuant evidence file}
 \usage{
-artms_filterEvidenceContaminants(data, verbose = TRUE)
+artms_filterEvidenceContaminants(x, verbose = TRUE)
 }
 \arguments{
-\item{data}{(data.frame) of the Evidence file}
+\item{x}{(data.frame) of the Evidence file}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
@@ -19,7 +19,7 @@ Remove contaminants and erronously identified 'reverse'
 sequences by MaxQuant, in addition to empty protein ids
 }
 \examples{
-ef <- artms_filterEvidenceContaminants(data = artms_data_ph_evidence)
+ef <- artms_filterEvidenceContaminants(x = artms_data_ph_evidence)
 }
 \keyword{cleanup,}
 \keyword{contaminants}

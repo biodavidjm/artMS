@@ -485,8 +485,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   abundancesName <- paste0("plot.", abundancesName)
   abundancesName <- paste0(output_dir, "/", abundancesName)
   pdf(abundancesName)
-  .artms_plotAbundanceBoxplots(data = dfmq)
-  .artms_plotNumberProteinsAbundance(data = dfmq)
+  .artms_plotAbundanceBoxplots(df = dfmq)
+  .artms_plotNumberProteinsAbundance(df = dfmq)
   garbage <- dev.off()
   
   # Reproducibility plots based on normalized abundance
@@ -2310,37 +2310,37 @@ artms_generatePhSiteExtended <- function(df,
 #------------------------------------------------------------------------------
 # @title Load the basic ModelQC file
 #
-# @param data (data.frame) of the ModelQC file
+# @param x (data.frame) of the ModelQC file
 # @return (data.frame) of the modelqc file with the columns Protein, Abundance,
 # Condition, BioReplicate
 # @keywords internal, loading
-.artms_loadModelqcBasic <- function(data) {
-  if (length(grep(";", data$PROTEIN)) > 0)
-    data <-
-      data[-grep(";", data$PROTEIN), ]
-  if ("PROTEIN" %in% colnames(data)) {
-    names(data)[grep("PROTEIN", names(data))] <- 'Protein'
+.artms_loadModelqcBasic <- function(x) {
+  if (length(grep(";", x$PROTEIN)) > 0)
+    x <-
+      x[-grep(";", x$PROTEIN), ]
+  if ("PROTEIN" %in% colnames(x)) {
+    names(x)[grep("PROTEIN", names(x))] <- 'Protein'
   } else{
     stop("<PROTEIN> column not found")
   }
-  if ("ABUNDANCE" %in% colnames(data)) {
-    names(data)[grep("ABUNDANCE", names(data))] <- 'Abundance'
+  if ("ABUNDANCE" %in% colnames(x)) {
+    names(x)[grep("ABUNDANCE", names(x))] <- 'Abundance'
   } else{
     stop("<ABUNDANCE> protein not found!")
   }
-  if ("GROUP_ORIGINAL" %in% colnames(data)) {
-    names(data)[grep("GROUP_ORIGINAL", names(data))] <- 'Condition'
+  if ("GROUP_ORIGINAL" %in% colnames(x)) {
+    names(x)[grep("GROUP_ORIGINAL", names(x))] <- 'Condition'
   } else{
     stop("<GROUP_ORIGINAL> not found")
   }
-  if ("SUBJECT_ORIGINAL" %in% colnames(data)) {
-    names(data)[grep("SUBJECT_ORIGINAL", names(data))] <- 'BioReplicate'
+  if ("SUBJECT_ORIGINAL" %in% colnames(x)) {
+    names(x)[grep("SUBJECT_ORIGINAL", names(x))] <- 'BioReplicate'
   } else{
     stop("<SUBJECT_ORIGINAL> not found")
   }
-  data <- subset(data, 
+  x <- subset(x, 
                  select = c(Protein, Abundance, Condition, BioReplicate))
-  return(data)
+  return(x)
 }
 
 # ------------------------------------------------------------------------------
@@ -2430,9 +2430,9 @@ artms_generatePhSiteExtended <- function(df,
 #
 # @description
 # @keys internal, plot, counts
-# @param (data.frame) Data frame of imputed log2fc
-.artms_plotNumberProteinsImputedLog2fc <- function(data) {
-  x <- data[c('Protein', 'Comparison')]
+# @param x (data.frame) Data frame of imputed log2fc
+.artms_plotNumberProteinsImputedLog2fc <- function(x) {
+  x <- x[c('Protein', 'Comparison')]
   y <- unique(x)
   z <- ggplot(y, aes(x = Comparison, fill = Comparison))
   z <- z + geom_bar(stat = "count")

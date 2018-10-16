@@ -376,19 +376,19 @@ artms_enrichProfiler <- function(x,
 # @title Plot and save heatmaps of the significant enrichment results
 #
 # @description plot and save heatmaps of the significant enrichment results
-# @param dat (data.frame) output from gprofiler
+# @param x (data.frame) output from gprofiler
 # @param out_file (char) output file name (must have `.txt` extension)
 # @return (pdf) A heatmap of the most significant enrichments
 # @keywords internal, plot, heatmap, enrichments
-.artms_EnrichmentPlotHeatmaps <- function(dat, 
+.artms_EnrichmentPlotHeatmaps <- function(x, 
                                           out_file) {
   # formatting data to heatmap compatible format
-  x <-
-    dcast(dat,
-          term.name ~ query.number,
-          value.var = 'p.value',
-          max,
-          fill = 1)
+  x <- dcast(x,
+             term.name ~ query.number,
+             value.var = 'p.value',
+             max,
+             fill = 1)
+  
   # Let's stop this thing if there is not enough terms (we need at least 2)
   if (dim(x)[1] < 2) {
     return(cat(" Not enough terms in this domain "))

@@ -255,19 +255,19 @@ artms_quantification <- function(yaml_config_file,
     if (!is.null(config$data$silac$enabled)) {
       if (config$data$silac$enabled) {
         output <- gsub(".txt", "-silac.txt", config$files$evidence)
-        data <- artms_SILACtoLong(config$files$evidence,
+        x <- artms_SILACtoLong(config$files$evidence,
                                   output,
                                   verbose = verbose)
       } else{
-        data <- .artms_checkIfFile(config$files$evidence)
-        data <- .artms_checkRawFileColumnName(data)
+        x <- .artms_checkIfFile(config$files$evidence)
+        x <- .artms_checkRawFileColumnName(x)
       }
     } else{
-      data <- .artms_checkIfFile(config$files$evidence)
-      data <- .artms_checkRawFileColumnName(data)
+      x <- .artms_checkIfFile(config$files$evidence)
+      x <- .artms_checkRawFileColumnName(x)
     }
     
-    data <- data.table(data)
+    x <- data.table(x)
     
     keys <- .artms_checkIfFile(config$files$keys)
     keys <- .artms_checkRawFileColumnName(keys)
@@ -283,53 +283,54 @@ artms_quantification <- function(yaml_config_file,
     }
     if(verbose) cat('\tVERIFYING DATA AND KEYS\n')
     
-    if (!'IsotopeLabelType' %in% colnames(data)) {
+    if (!'IsotopeLabelType' %in% colnames(x)) {
       if(verbose) cat(
         "------- + IsotopeLabelType not detected in evidence file!
         It will be assumed that this is a label-free experiment
         (adding IsotopeLabelType column with L value)\n"
       )
-      data[, IsotopeLabelType := 'L']
+      x[, IsotopeLabelType := 'L']
     }
     
     # HACK FOR SILAC DATA
     if (!is.null(config$data$silac$enabled)) {
       if (config$data$silac$enabled) {
-        data$RawFile = paste(data$RawFile, data$IsotopeLabelType, sep = '')
+        x$RawFile = paste(x$RawFile, x$IsotopeLabelType, sep = '')
         keys$RawFile = paste(keys$RawFile, keys$IsotopeLabelType, sep =
                                '')
         keys$Run = paste(keys$IsotopeLabelType, keys$Run , sep = '')
-        data$IsotopeLabelType = 'L'
+        x$IsotopeLabelType = 'L'
         keys$IsotopeLabelType = 'L'
-        data <-
-          artms_mergeEvidenceAndKeys(data, 
+        x <-
+          artms_mergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile', 'IsotopeLabelType'),
                                      verbose = verbose)
       } else{
-        data <-
-          artms_mergeEvidenceAndKeys(data, 
+        x <-
+          artms_mergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile', 'IsotopeLabelType'),
                                      verbose = verbose)
       }
     } else{
-      data <-
-        artms_mergeEvidenceAndKeys(data, 
+      x <-
+        artms_mergeEvidenceAndKeys(x, 
                                    keys, 
                                    by = c('RawFile', 'IsotopeLabelType'),
                                    verbose = verbose)
     }
     
     ## fix for weird converted values from fread
-    data[Intensity < 1, ]$Intensity <- NA
+    x[Intensity < 1, ]$Intensity <- NA
     
     ## FILTERING : handles Protein Groups and Modifications
     if (config$data$filters$enabled){
-      data_f <- .artms_filterData(data = data, config = config, 
+      data_f <- .artms_filterData(x = x, 
+                                  config = config, 
                                   verbose = verbose)
     }else{
-      data_f <- data
+      data_f <- x
     }
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
@@ -350,7 +351,7 @@ artms_quantification <- function(yaml_config_file,
     ## HEATMAPS
     if (!is.null(config$data$sample_plots) &&
         config$data$sample_plots) {
-      keys_in_data <- keys[keys$RawFile %in% unique(data$RawFile), ]
+      keys_in_data <- keys[keys$RawFile %in% unique(x$RawFile), ]
       .artms_sampleCorrelationHeatmap(data_w = data_w,
                                       keys = keys_in_data,
                                       config = config)

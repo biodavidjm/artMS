@@ -4,11 +4,11 @@
 \alias{artms_mergeEvidenceAndKeys}
 \title{Merge evidence.txt (or summary.txt) with keys.txt files}
 \usage{
-artms_mergeEvidenceAndKeys(data, keys, by = c("RawFile"),
+artms_mergeEvidenceAndKeys(x, keys, by = c("RawFile"),
   isSummary = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{data}{(data.frame or char) The evidence data, either as data.frame or
+\item{x}{(data.frame or char) The evidence data, either as data.frame or
 the file name (and path). It also works for the summary.txt file}
 
 \item{keys}{The keys data, either as a data.frame or file name (and path)}
@@ -27,7 +27,7 @@ Default: \code{by=c('RawFile')}}
 Merge the evidence and keys files on the given columns
 }
 \examples{
-evidenceKeys <- artms_mergeEvidenceAndKeys(data = artms_data_ph_evidence,
+evidenceKeys <- artms_mergeEvidenceAndKeys(x = artms_data_ph_evidence,
                                            keys = artms_data_ph_keys)
 }
 \keyword{evidence,}

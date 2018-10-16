@@ -54,10 +54,10 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     stop("The file ", ref_proteome_file, " does not exist\n")
   }
   
-  data <- fread(evidence_file, integer64 = 'double')
+  x <- fread(evidence_file, integer64 = 'double')
   keys <- fread(keys_file, integer64 = 'double')
   
-  data <- .artms_checkRawFileColumnName(data)
+  x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
   saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
@@ -78,12 +78,12 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
       \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
     )
   }
-  data <-
-    artms_mergeEvidenceAndKeys(data, 
+  x <-
+    artms_mergeEvidenceAndKeys(x, 
                                keys, 
                                by = c('RawFile'),
                                verbose = verbose)
-  data_f <- artms_filterEvidenceContaminants(data = data, verbose = verbose)
+  data_f <- artms_filterEvidenceContaminants(x = x, verbose = verbose)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
   quant_variable <- match.arg(quant_variable)

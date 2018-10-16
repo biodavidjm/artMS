@@ -2,6 +2,7 @@
 **.Rhistory
 **.Rapp.history
 **.Rprofile
+**.DS_Store
 
 # MSstats files
 msstats.log*
