@@ -113,16 +113,14 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   choosePvalue <- match.arg(choosePvalue)
-  if(!(choosePvalue %in% c('pvalue', 'adjpvalue'))){
+  if(!(choosePvalue %in% c('pvalue', 'adjpvalue')))
     stop("The < choosePvalue > argument is wrong. 
          The valid options are: <pvalue> or <adjpvalue>\n")
-  }
   
   species <- tolower(species)
-  if(!(species %in% c('human', 'mouse'))){
+  if(!(species %in% c('human', 'mouse')))
     stop("The < species > argument is wrong. 
          The valid options are: <human> or <mouse>\n")
-  }
   
   if (pathogen == "nopathogen") {
     if(verbose) cat("--- No Pathogen extra in these samples (only Influenza)\n")
@@ -193,16 +191,11 @@ artms_analysisQuantifications <- function(log2fc_file,
         "--- Warning! if you have UNIPROT_PTM id with more than one 
         underscore '_' is going to be a problem\n"
       )
-      dfmq2Genes$Protein <- ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", dfmq2Genes$Protein),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          dfmq2Genes$Protein,
-          perl = TRUE
-        ) ,
-        gsub("^(\\S+?)_.*", "\\1", dfmq2Genes$Protein, perl = TRUE)
-      )
+      
+      dfmq2Genes <- .artmsExtractUniprotId(x = dfmq2Genes, 
+                                           uniprotPtmColumn = "Protein", 
+                                           newColumnName = "Protein")
+      
       dfmq2Genes <- unique(dfmq2Genes)
       suppressMessages(dfmq2Genes <-
                          artms_annotationUniprot(dfmq2Genes, 'Protein', species))
@@ -707,26 +700,14 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(modelqc_file_splc)[grep('^Protein$', names(modelqc_file_splc))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    modelqc_file_splc$Protein <-
-      ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", modelqc_file_splc$Uniprot_PTM),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          modelqc_file_splc$Uniprot_PTM,
-          perl = TRUE
-        ) ,
-        gsub(
-          "^(\\S+?)_.*",
-          "\\1",
-          modelqc_file_splc$Uniprot_PTM,
-          perl = TRUE
-        )
-      )
+    
+    modelqc_file_splc <- 
+      .artmsExtractUniprotId(x = modelqc_file_splc, 
+                             uniprotPtmColumn = "Uniprot_PTM", 
+                             newColumnName = "Protein")
     suppressMessages(
       modelqc_file_splc <-
-        artms_annotationUniprot(modelqc_file_splc, 'Protein', species)
-    )
+        artms_annotationUniprot(modelqc_file_splc, 'Protein', species))
   } else{
     suppressMessages(
       modelqc_file_splc <-
@@ -743,17 +724,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    log2fc_file_splc$Protein <-
-      ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", log2fc_file_splc$Uniprot_PTM),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          log2fc_file_splc$Uniprot_PTM,
-          perl = TRUE
-        ) ,
-        gsub("^(\\S+?)_.*", "\\1", log2fc_file_splc$Uniprot_PTM, perl = TRUE)
-      )
+    log2fc_file_splc <- 
+      .artmsExtractUniprotId(x = log2fc_file_splc, 
+                             uniprotPtmColumn = "Uniprot_PTM" , 
+                             newColumnName = "Protein")
     suppressMessages(
       log2fc_file_splc <-
         artms_annotationUniprot(log2fc_file_splc, 'Protein', species)
@@ -988,22 +962,10 @@ artms_analysisQuantifications <- function(log2fc_file,
       names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <-
         'Uniprot_PTM'
       # Take the Protein ID, but being very careful about the fluomics labeling
-      l2fcol4enrichment$Protein <-
-        ifelse(
-          grepl("_H1N1|_H3N2|_H5N1", l2fcol4enrichment$Uniprot_PTM),
-          gsub(
-            "^(\\S+?_H[1,3,5]N[1,2])_.*",
-            "\\1",
-            l2fcol4enrichment$Uniprot_PTM,
-            perl = TRUE
-          ) ,
-          gsub(
-            "^(\\S+?)_.*",
-            "\\1",
-            l2fcol4enrichment$Uniprot_PTM,
-            perl = TRUE
-          )
-        )
+      l2fcol4enrichment <- 
+        .artmsExtractUniprotId(x = l2fcol4enrichment, 
+                               uniprotPtmColumn = "Uniprot_PTM", 
+                               newColumnName = "Protein")
       suppressMessages(
         l2fcol4enrichment <-
           artms_annotationUniprot(l2fcol4enrichment, 'Protein', species)
@@ -1312,17 +1274,10 @@ artms_analysisQuantifications <- function(log2fc_file,
     names(superunified)[grep('^Prey$', names(superunified))] <-
       'Uniprot_PTM'
     # Take the Protein ID, but being very careful about the fluomics labeling
-    superunified$Prey <-
-      ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", superunified$Uniprot_PTM),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          superunified$Uniprot_PTM,
-          perl = TRUE
-        ) ,
-        gsub("^(\\S+?)_.*", "\\1", superunified$Uniprot_PTM, perl = TRUE)
-      )
+    superunified <- 
+      .artmsExtractUniprotId(x = superunified, 
+                             uniprotPtmColumn = "Uniprot_PTM", 
+                             newColumnName = "Prey")
   }
   
   suppressMessages(superunified <-
@@ -1416,17 +1371,9 @@ artms_analysisQuantifications <- function(log2fc_file,
     imputedDF$UniprotID <- imputedDF$Uniprot_PTM
     # The virus labeling has to be taken into account 
     # when getting the uniprot id:
-    imputedDF$UniprotID <-
-      ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", imputedDF$UniprotID),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          imputedDF$UniprotID,
-          perl = TRUE
-        ) ,
-        gsub("^(\\S+?)_.*", "\\1", imputedDF$UniprotID, perl = TRUE)
-      )
+    imputedDF <- .artmsExtractUniprotId(x = imputedDF, 
+                                        uniprotPtmColumn = "Uniprot_PTM", 
+                                        newColumnName = "UniprotID")
     suppressMessages(imputedDF <-
                        artms_annotationUniprot(imputedDF, 'UniprotID', species))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
@@ -2014,16 +1961,10 @@ artms_generatePhSiteExtended <- function(df,
           'Uniprot_PTM'
       
       # Take the Protein ID, but being very careful about the fluomics labeling
-      imputedDFext$Protein <- ifelse(
-        grepl("_H1N1|_H3N2|_H5N1", imputedDFext$Uniprot_PTM),
-        gsub(
-          "^(\\S+?_H[1,3,5]N[1,2])_.*",
-          "\\1",
-          imputedDFext$Uniprot_PTM,
-          perl = TRUE
-        ) ,
-        gsub("^(\\S+?)_.*", "\\1", imputedDFext$Uniprot_PTM, perl = TRUE)
-      )
+      imputedDFext <- 
+        .artmsExtractUniprotId(x = imputedDFext, 
+                               uniprotPtmColumn = "Uniprot_PTM", 
+                               newColumnName = "Protein")
       
       # Extract sites from Uniprot_PTM
       imputedDFext$PTMsite <-
@@ -2505,3 +2446,45 @@ artms_generatePhSiteExtended <- function(df,
   }
   return(sb)
 }
+
+
+
+# ------------------------------------------------------------------------------
+# @title Extract Uniprot ID from a UNIPROT_PTM  identifier
+#
+# @param x The data.frame with the uniprot_ptm column
+# @param uniprotPtmColumn (char) Column in the data.frame with the Uniprot_PTM
+# IDs
+# @param newColumnName (char) Name of the new column that will contain the
+# Uniprot ids
+# @return (char) One of the conditions from the comparison
+# @keywords internal, selection, labeling
+.artmsExtractUniprotId <- function(x, uniprotPtmColumn, newColumnName){
+  if(any(missing(x) | missing(newColumnName) | missing(uniprotPtmColumn)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  if(!is.character(newColumnName)) 
+    stop("Argument 'newColumnName' must be a character")
+  if(!is.character(uniprotPtmColumn)) 
+    stop("Argument 'uniprotPtmColumn' must be a character")
+  
+  x[[newColumnName]] <- ifelse(
+    grepl("_H1N1|_H3N2|_H5N1", 
+          x[[uniprotPtmColumn]]),
+    gsub("^(\\S+?_H[1,3,5]N[1,2])_.*",
+         "\\1",
+         x[[uniprotPtmColumn]],
+         perl = TRUE) ,
+    gsub("^(\\S+?)_.*", 
+         "\\1", 
+         x[[uniprotPtmColumn]], 
+         perl = TRUE) 
+  )
+  return(x)
+}
+
+
+
+
+

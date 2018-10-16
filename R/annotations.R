@@ -188,3 +188,4 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
   mappings <- mappings[!duplicated(mappings$UNIPROT),]
   return(mappings)
 }
+
