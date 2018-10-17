@@ -41,6 +41,28 @@
 #' @param pathogen (char) Is there a pathogen in the dataset as well?
 #' if it does not, then use `pathogen = nopathogen` (default).
 #' Pathogens available: `tb` (Tuberculosis), `lpn` (Legionella)
+#' @param plotPvaluesLog2fcDist (logical) If `TRUE` (default) plots pvalues
+#' and log2fc distributions
+#' @param plotAbundanceStats (logical) If `TRUE` (default) plots stats graphs
+#' about abundance values
+#' @param plotReproAbundance (logical) If `TRUE` plots reproducibility
+#' based on normalized abundance values
+#' @param plotCorrConditions (logical) If `TRUE` plots correlation  
+#' between the different conditions
+#' @param plotCorrQuant (logical) if `TRUE` plots correlation between the
+#' available quantifications (comparisons)
+#' @param plotPCAabundance (logical) if `TRUE` performs PCA analysis of
+#' conditions using normalized abundance values
+#' @param plotFinalDistributions (logical) if `TRUE` plots distribution of both
+#' log2fc and pvalues
+#' @param plotPropImputation (logical) if `TRUE` plots proportion of overall
+#' imputation
+#' @param plotHeatmapsChanges (logical) if `TRUE` plots heatmaps of quantified
+#' changes (both all and significant only)
+#' @param plotTotalQuant (logical) if `TRUE` plots barplot of total number of
+#' quantifications per comparison
+#' @param plotClusteringAnalysis (logical) if `TRUE` performs clustering
+#' analysis between quantified comparisons (more than 1 comparison required)
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) summary of quantifications, including annotations, 
 #' enrichments, etc
@@ -64,6 +86,17 @@ artms_analysisQuantifications <- function(log2fc_file,
                                           mnbr = 2,
                                           isFluomics = FALSE,
                                           pathogen = "nopathogen",
+                                          plotPvaluesLog2fcDist = TRUE,
+                                          plotAbundanceStats = TRUE,
+                                          plotReproAbundance = TRUE,
+                                          plotCorrConditions = TRUE,
+                                          plotCorrQuant = TRUE,
+                                          plotPCAabundance = TRUE,
+                                          plotFinalDistributions = TRUE,
+                                          plotPropImputation = TRUE,
+                                          plotHeatmapsChanges = TRUE,
+                                          plotTotalQuant = TRUE,
+                                          plotClusteringAnalysis = TRUE,
                                           verbose = TRUE) {
   if(verbose) cat(">> ANALYSIS OF QUANTIFICATIONS\n")
   
@@ -241,30 +274,6 @@ artms_analysisQuantifications <- function(log2fc_file,
   dflog2fcraw$Protein <-
     gsub("(.*)(\\|.*)", "\\1", dflog2fcraw$Protein)
   
-  # # Filtering conditions:
-  # if(isFluomics == TRUE){
-  #   if(verbose) cat("WARNING! selecting MOCK for humans and mice in LOG2FC raw data\n")
-  #
-  #   # WHEN A REFERENCE MOCK IS WISHED
-  #   # if(species == "human"){
-  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
-  #   dflog2fcraw$Label) & grepl("MOCK_03H", dflog2fcraw$Label) ),]
-  #   # }else if (species == "mouse"){
-  #   #   dflog2fcraw <- dflog2fcraw[(grepl("H[[:digit:]]N[[:digit:]]", 
-  #   dflog2fcraw$Label) | grepl("MOCK_D04", dflog2fcraw$Label) ),]
-  #   # }
-  #
-  #   #Choosing the match mock
-  #   flu_contrast <- c("H1N1_03H-MOCK_03H", "H1N1_06H-MOCK_06H", 
-  #   "H1N1_12H-MOCK_12H", "H1N1_18H-MOCK_18H", "H3N2_03H-MOCK_03H", 
-  #   "H3N2_06H-MOCK_06H", "H3N2_12H-MOCK_12H", "H3N2_18H-MOCK_18H", 
-  #   "H5N1_03H-MOCK_03H", "H5N1_06H-MOCK_06H", "H5N1_12H-MOCK_12H", 
-  #   "H5N1_18H-MOCK_18H")
-  #   dflog2fcraw <- dflog2fcraw[which(dflog2fcraw$Label %in% flu_contrast),]
-  #
-  #   if(verbose) cat("LOG2FC Data Filtered by specific FLU comparisons\n")
-  # }
-  
   # Let's get rid of outliers: log2fc larger than X (but we need to keep 
   # the "inf" values for imputation)
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC), ]
@@ -351,115 +360,117 @@ artms_analysisQuantifications <- function(log2fc_file,
     dflog2fc <- rbind(dflog2fcfinites, theImputedL2FC)
   }
   
-  if(verbose) cat("--- Plotting distributions of log2fc and pvalues\n")
-  
-  plotDFdistColor <-
-    ggplot(dflog2fc, aes(x = log2FC, fill = Label)) +
-    geom_histogram(bins = 100,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution log2FC", x = "log2FC")
-  
-  plotDFdistAll <- ggplot(dflog2fc, aes(x = log2FC)) +
-    geom_histogram(bins = 100,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution log2FC", x = "log2FC")
-  
-  plotDFdistiLog <- ggplot(dflog2fc, aes(x = iLog2FC)) +
-    geom_histogram(bins = 100,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution ilog2FC (imputed + nonimputed", x = "iLog2FC")
-  
-  plotPvalues <-
-    ggplot(dflog2fc[is.finite(dflog2fc$pvalue), ], aes(x = pvalue)) +
-    geom_histogram(bins = 50,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution p-values", x = "p-values")
-  
-  plotAdjustedPvalues <-
-    ggplot(dflog2fc[-which(dflog2fc$adj.pvalue == 0), ], aes(x = adj.pvalue)) +
-    geom_histogram(bins = 150,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution adj.pvalues", x = "adj.values")
-  
-  plotAdjustedIpvalues <- ggplot(dflog2fc, aes(x = iPvalue)) +
-    geom_histogram(bins = 150,
-                   alpha = .4,
-                   col = "black") +
-    labs(title = "Distribution imputed p-values", x = "iPvalues")
-  
-  
-  # DISTRIBUTION PRINT OUTS
-  distributionsOut <- gsub(".txt", ".distributions.pdf", log2fc_file)
-  distributionsOut <- paste0(output_dir, "/", distributionsOut)
-  pdf(distributionsOut)
-  plotDFdistColor
-  plotDFdistAll
-  plotDFdistiLog
-  plotPvalues
-  plotAdjustedPvalues
-  plotAdjustedIpvalues
-  
-  if (numberInfinites > 0) {
+  if(plotPvaluesLog2fcDist){
+    if(verbose) cat("--- Plotting distributions of log2fc and pvalues\n")
+    
+    plotDFdistColor <-
+      ggplot(dflog2fc, aes(x = log2FC, fill = Label)) +
+      geom_histogram(bins = 100,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution log2FC", x = "log2FC")
+    
+    plotDFdistAll <- ggplot(dflog2fc, aes(x = log2FC)) +
+      geom_histogram(bins = 100,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution log2FC", x = "log2FC")
+    
+    plotDFdistiLog <- ggplot(dflog2fc, aes(x = iLog2FC)) +
+      geom_histogram(bins = 100,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution ilog2FC (imputed + nonimputed", x = "iLog2FC")
+    
+    plotPvalues <-
+      ggplot(dflog2fc[is.finite(dflog2fc$pvalue), ], aes(x = pvalue)) +
+      geom_histogram(bins = 50,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution p-values", x = "p-values")
+    
+    plotAdjustedPvalues <-
+      ggplot(dflog2fc[-which(dflog2fc$adj.pvalue == 0), ], aes(x = adj.pvalue)) +
+      geom_histogram(bins = 150,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution adj.pvalues", x = "adj.values")
+    
+    plotAdjustedIpvalues <- ggplot(dflog2fc, aes(x = iPvalue)) +
+      geom_histogram(bins = 150,
+                     alpha = .4,
+                     col = "black") +
+      labs(title = "Distribution imputed p-values", x = "iPvalues")
+    
+    
+    # DISTRIBUTION PRINT OUTS
+    distributionsOut <- gsub(".txt", ".distributions.pdf", log2fc_file)
+    distributionsOut <- paste0(output_dir, "/", distributionsOut)
+    pdf(distributionsOut)
+    plotDFdistColor
+    plotDFdistAll
+    plotDFdistiLog
+    plotPvalues
+    plotAdjustedPvalues
+    plotAdjustedIpvalues
+    
+    if (numberInfinites > 0) {
+      hist(
+        imputedL2FCmelted$iLog2FC,
+        breaks = 100,
+        main = paste0("Imputed Log2FC (all)\n  n = ", dim(imputedL2FCmelted)[1]),
+        xlab = "log2fc"
+      )
+      hist(
+        theImputedL2FC$iLog2FC,
+        breaks = 100,
+        main = paste0("Imputed Log2FC merged\n n = ", dim(theImputedL2FC)[1]),
+        xlab = "log2fc"
+      )
+    }
+    
     hist(
-      imputedL2FCmelted$iLog2FC,
+      dflog2fcfinites$pvalue,
       breaks = 100,
-      main = paste0("Imputed Log2FC (all)\n  n = ", dim(imputedL2FCmelted)[1]),
-      xlab = "log2fc"
+      main = paste0("p-value distribution\n n = ", dim(dflog2fcfinites)[1]),
+      xlab = "adj.pvalues"
     )
     hist(
-      theImputedL2FC$iLog2FC,
+      dflog2fcfinites$adj.pvalue,
       breaks = 100,
-      main = paste0("Imputed Log2FC merged\n n = ", dim(theImputedL2FC)[1]),
-      xlab = "log2fc"
+      main = paste0("Adjusted p-values distribution\n n = ", 
+                    dim(dflog2fcfinites)[1]),
+      xlab = "adj.pvalues"
     )
+    hist(
+      dflog2fcfinites$iLog2FC,
+      breaks = 1000,
+      main = paste0(
+        "Non-imputed Log2FC distribution\n n = ",
+        dim(dflog2fcfinites)[1]
+      ),
+      xlab = "log2FC"
+    )
+    hist(
+      dflog2fc$iPvalue,
+      breaks = 100,
+      main = paste0(
+        "(Imputed+NonImputed) adjusted pvalue distribution\n n = ",
+        dim(dflog2fc)[1]
+      ),
+      xlab = "adj.pvalues"
+    )
+    hist(
+      dflog2fc$iLog2FC,
+      breaks = 1000,
+      main = paste0(
+        "(Imputed+NonImputed) log2fc distribution\n n = ",
+        dim(dflog2fc)[1]
+      ),
+      xlab = "log2FC"
+    )
+    garbage <- dev.off()
   }
-  
-  hist(
-    dflog2fcfinites$pvalue,
-    breaks = 100,
-    main = paste0("p-value distribution\n n = ", dim(dflog2fcfinites)[1]),
-    xlab = "adj.pvalues"
-  )
-  hist(
-    dflog2fcfinites$adj.pvalue,
-    breaks = 100,
-    main = paste0("Adjusted p-values distribution\n n = ", 
-                  dim(dflog2fcfinites)[1]),
-    xlab = "adj.pvalues"
-  )
-  hist(
-    dflog2fcfinites$iLog2FC,
-    breaks = 1000,
-    main = paste0(
-      "Non-imputed Log2FC distribution\n n = ",
-      dim(dflog2fcfinites)[1]
-    ),
-    xlab = "log2FC"
-  )
-  hist(
-    dflog2fc$iPvalue,
-    breaks = 100,
-    main = paste0(
-      "(Imputed+NonImputed) adjusted pvalue distribution\n n = ",
-      dim(dflog2fc)[1]
-    ),
-    xlab = "adj.pvalues"
-  )
-  hist(
-    dflog2fc$iLog2FC,
-    breaks = 1000,
-    main = paste0(
-      "(Imputed+NonImputed) log2fc distribution\n n = ",
-      dim(dflog2fc)[1]
-    ),
-    xlab = "log2FC"
-  )
-  garbage <- dev.off()
   
   
   # Relationship between conditions
@@ -473,48 +484,56 @@ artms_analysisQuantifications <- function(log2fc_file,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ABUNDANCE PLOTS
   
-  if(verbose) cat(">> PLOTS: ABUNDANCE PLOTS\n")
-  abundancesName <-
-    gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
-  abundancesName <- paste0("plot.", abundancesName)
-  abundancesName <- paste0(output_dir, "/", abundancesName)
-  pdf(abundancesName)
-  .artms_plotAbundanceBoxplots(df = dfmq)
-  .artms_plotNumberProteinsAbundance(df = dfmq)
-  garbage <- dev.off()
+  if(plotAbundanceStats){
+    if(verbose) cat(">> PLOTS: ABUNDANCE PLOTS\n")
+    abundancesName <-
+      gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
+    abundancesName <- paste0("plot.", abundancesName)
+    abundancesName <- paste0(output_dir, "/", abundancesName)
+    pdf(abundancesName)
+    .artms_plotAbundanceBoxplots(df = dfmq)
+    .artms_plotNumberProteinsAbundance(df = dfmq)
+    garbage <- dev.off()
+  }
   
   # Reproducibility plots based on normalized abundance
-  if(verbose) cat(">> PLOTS: REPRODUCIBILITY PLOTS\n")
-  reproName <-
-    gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
-  reproName <- paste0("plot.", reproName)
-  reproName <- paste0(output_dir, "/", reproName)
-  pdf(reproName)
-  .artms_plotReproducibilityAbundance(dfmq, verbose = verbose)
-  garbage <- dev.off()
+  if(plotReproAbundance){
+    if(verbose) cat(">> PLOTS: REPRODUCIBILITY PLOTS\n")
+    reproName <-
+      gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
+    reproName <- paste0("plot.", reproName)
+    reproName <- paste0(output_dir, "/", reproName)
+    pdf(reproName)
+    .artms_plotReproducibilityAbundance(dfmq, verbose = verbose)
+    garbage <- dev.off()
+  }
   
   # Conditions
-  if(verbose) cat(">> PLOT: CORRELATION BETWEEN ALL CONDITIONS\n")
-  relaCond <-
-    gsub(".txt", ".correlationConditions.pdf", log2fc_file)
-  relaCond <- paste0("plot.", relaCond)
-  relaCond <- paste0(output_dir, "/", relaCond)
-  pdf(relaCond)
-  .artms_plotCorrelationConditions(dfmq, numberBioReplicas)
-  garbage <- dev.off()
-  
-  # Relationship between log2fc comparisons
-  if(verbose) cat(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values\n")
-  if (length(unique(dflog2fc$Label)) > 1) {
-    relaChanges <-
-      gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
-    relaChanges <- paste0("plot.", relaChanges)
-    relaChanges <- paste0(output_dir, "/", relaChanges)
-    pdf(relaChanges)
-    .artms_plotRatioLog2fc(dflog2fc, verbose = verbose)
+  if(plotCorrConditions){
+    if(verbose) cat(">> PLOT: CORRELATION BETWEEN ALL COMPARISONS\n")
+    relaCond <-
+      gsub(".txt", ".correlationConditions.pdf", log2fc_file)
+    relaCond <- paste0("plot.", relaCond)
+    relaCond <- paste0(output_dir, "/", relaCond)
+    pdf(relaCond)
+    .artms_plotCorrelationConditions(dfmq, numberBioReplicas)
     garbage <- dev.off()
-  } else{
-    if(verbose) cat("--- Only one Comparison is available (correlation is not possible)\n")
+  }
+  
+  if(plotCorrQuant){
+    # Relationship between log2fc comparisons
+    if(verbose) cat(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values\n")
+    if (length(unique(dflog2fc$Label)) > 1) {
+      relaChanges <-
+        gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
+      relaChanges <- paste0("plot.", relaChanges)
+      relaChanges <- paste0(output_dir, "/", relaChanges)
+      pdf(relaChanges)
+      .artms_plotRatioLog2fc(dflog2fc, verbose = verbose)
+      garbage <- dev.off()
+    } else{
+      if(verbose) cat("--- Only one Comparison is available (correlation is not possible)\n")
+    }
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -678,16 +697,18 @@ artms_analysisQuantifications <- function(log2fc_file,
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # PCA ANALYSIS
   # It requires a simplified version for modelqc
-  if(verbose) cat(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
-  modelqcabundance <-
-    .artms_loadModelQCstrict(df_input = dfmq,
-                             species = species,
-                             ptmis = isPtm,
-                             verbose = verbose)
-  out.pca <- gsub(".txt", "-pca", log2fc_file)
-  out.pca <- paste0(output_dir, "/", out.pca)
-  suppressWarnings(.artms_getPCAplots(modelqcabundance, out.pca, conditions))
-  if(verbose) cat("---+ PCA done!\n")
+  if(plotPCAabundance){
+    if(verbose) cat(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE\n")
+    modelqcabundance <-
+      .artms_loadModelQCstrict(df_input = dfmq,
+                               species = species,
+                               ptmis = isPtm,
+                               verbose = verbose)
+    out.pca <- gsub(".txt", "-pca", log2fc_file)
+    out.pca <- paste0(output_dir, "/", out.pca)
+    suppressWarnings(.artms_getPCAplots(modelqcabundance, out.pca, conditions))
+    if(verbose) cat("---+ PCA done!\n")
+  }
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ANNOTATIONS
@@ -780,163 +801,169 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   if(verbose) cat("--- Filtering is done!\n")
   
-  if(verbose) cat(">> GENERATING QC PLOTS ABOUT CHANGES (log2fc)\n")
-  if(verbose) cat("--- Distribution of log2fc and pvalues\n")
-  distributionsFilteredOut <-
-    gsub(".txt", ".distributionsFil.pdf", log2fc_file)
-  distributionsFilteredOut <-
-    paste0(output_dir, "/", distributionsFilteredOut)
-  pdf(distributionsFilteredOut)
-  hist(
-    imputedDF$iLog2FC,
-    breaks = 1000,
-    main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
-    xlab = "log2fc"
-  )
-  hist(
-    imputedDF$iPvalue,
-    breaks = 1000,
-    main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
-    xlab = "p-value"
-  )
-  garbage <- dev.off()
-  
-  if(verbose) cat("--- Proportion imputed values\n")
-  # Stats about imputed values
-  yesimputed <- dim(imputedDF[which(imputedDF$imputed == 'yes'), ])[1]
-  nonimputed <- dim(imputedDF[which(imputedDF$imputed == 'no'), ])[1]
-  
-  dat <-
-    data.frame(
-      count = c(yesimputed, nonimputed),
-      category = c("Imputed", "Non-Imputed")
+  if(plotFinalDistributions){
+    if(verbose) cat(">> GENERATING QC PLOTS ABOUT CHANGES (log2fc)\n")
+    if(verbose) cat("--- Distribution of log2fc and pvalues\n")
+    distributionsFilteredOut <-
+      gsub(".txt", ".distributionsFil.pdf", log2fc_file)
+    distributionsFilteredOut <-
+      paste0(output_dir, "/", distributionsFilteredOut)
+    pdf(distributionsFilteredOut)
+    hist(
+      imputedDF$iLog2FC,
+      breaks = 1000,
+      main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
+      xlab = "log2fc"
     )
-  # Add addition columns, needed for drawing with geom_rect.
-  dat$fraction = dat$count / sum(dat$count)
-  dat <- dat[order(dat$fraction),]
-  dat$ymax <- cumsum(dat$fraction)
-  dat$ymin <- c(0, head(dat$ymax, n = -1))
-  
-  p1 <-
-    ggplot(dat, aes(
-      fill = category,
-      ymax = ymax,
-      ymin = ymin,
-      xmax = 4,
-      xmin = 3
-    )) +
-    geom_rect() +
-    coord_polar(theta = "y") +
-    xlim(c(0, 4)) +
-    labs(title = "Proportion of Imputed Intensity values")
-  p2 <- ggplot(dat, aes(x = category, y = count, fill = category)) +
-    geom_bar(stat = "identity") +
-    labs(title = "Proportion of Imputed Intensity values")
-  
-  outImputation <- gsub(".txt", ".imputation.pdf", log2fc_file)
-  outImputation <- paste0(output_dir, "/", outImputation)
-  pdf(outImputation)
-  print(p1)
-  print(p2)
-  garbage <- dev.off()
-  
-  if(verbose) cat(">> HEATMAPS OF CHANGES (log2fc)\n")
-  l2fcol <-
-    data.table::dcast(data = imputedDF, Protein ~ Label, value.var = 'iLog2FC')
-  rownames(l2fcol) <- l2fcol$Protein
-  l2fcol <- within(l2fcol, rm(Protein))
-  l2fcol[is.na(l2fcol)] <- 0
-  
-  if (numberConditions > 1) {
-    l2fcolmatrix <- data.matrix(l2fcol)
-    if(verbose) cat("--- All changes\n")
-    outHeatMapOverallL2fc <-
-      gsub(".txt",
-           ".clustering.log2fc.all-overview.pdf",
-           log2fc_file)
-    outHeatMapOverallL2fc <-
-      paste0(output_dir, "/", outHeatMapOverallL2fc)
-    pheatmap(
-      l2fcolmatrix,
-      filename = outHeatMapOverallL2fc,
-      cellwidth = 20,
-      main = "Clustering Log2FC",
-      cluster_cols = FALSE,
-      clustering_method = "average",
-      fontfamily = "Helvetica",
-      show_colnames = FALSE,
-      fontsize = 6,
-      fontsize_row = 3,
-      fontsize_col = 10,
-      border_color = NA
+    hist(
+      imputedDF$iPvalue,
+      breaks = 1000,
+      main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
+      xlab = "p-value"
     )
-    outHeatMapZoomL2fc <-
-      gsub(".txt", ".clustering.log2fc.all-zoom.pdf", log2fc_file)
-    outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
-    pheatmap(
-      l2fcolmatrix,
-      filename = outHeatMapZoomL2fc,
-      cellheight = 10,
-      cellwidth = 20,
-      main = "Clustering Log2FC",
-      cluster_cols = FALSE,
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 8,
-      border_color = NA,
-      fontfamily = "Helvetica"
-    )
+    garbage <- dev.off()
+  }
+  
+  if(plotPropImputation){
+    if(verbose) cat("--- Proportion imputed values\n")
+    # Stats about imputed values
+    yesimputed <- dim(imputedDF[which(imputedDF$imputed == 'yes'), ])[1]
+    nonimputed <- dim(imputedDF[which(imputedDF$imputed == 'no'), ])[1]
     
-    # Only significant pvalues
-    if(verbose) cat("--- Only significant changes\n")
-    imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05), ]
-    l2fcolSignificants <-
-      data.table::dcast(data = imputedDFsig, 
-                        Protein ~ Label, 
-                        value.var = 'iLog2FC')
-    rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
-    l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
-    l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
+    dat <-
+      data.frame(
+        count = c(yesimputed, nonimputed),
+        category = c("Imputed", "Non-Imputed")
+      )
+    # Add addition columns, needed for drawing with geom_rect.
+    dat$fraction = dat$count / sum(dat$count)
+    dat <- dat[order(dat$fraction),]
+    dat$ymax <- cumsum(dat$fraction)
+    dat$ymin <- c(0, head(dat$ymax, n = -1))
     
-    l2fcolSignificantsmatrix <- data.matrix(l2fcolSignificants)
-    outHeatMapOverallL2fc <-
-      gsub(".txt",
-           ".clustering.log2fcSign.all-overview.pdf",
-           log2fc_file)
-    outHeatMapOverallL2fc <-
-      paste0(output_dir, "/", outHeatMapOverallL2fc)
-    pheatmap(
-      l2fcolSignificantsmatrix,
-      filename = outHeatMapOverallL2fc,
-      cellwidth = 20,
-      main = "Clustering Log2FC (p-value < 0.05)",
-      cluster_cols = FALSE,
-      fontfamily = "Helvetica",
-      labels_row = "",
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 8,
-      border_color = NA,
-      fontfamily = "Helvetica"
-    )
-    outHeatMapZoomL2fc <-
-      gsub(".txt",
-           ".clustering.log2fcSign.all-zoom.pdf",
-           log2fc_file)
-    outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
-    pheatmap(
-      l2fcolSignificantsmatrix,
-      filename = outHeatMapZoomL2fc,
-      cellheight = 10,
-      cellwidth = 20,
-      main = "Clustering Log2FC (p-value < 0.05)",
-      cluster_cols = FALSE,
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 8,
-      border_color = NA,
-      fontfamily = "Helvetica"
-    )
+    p1 <-
+      ggplot(dat, aes(
+        fill = category,
+        ymax = ymax,
+        ymin = ymin,
+        xmax = 4,
+        xmin = 3
+      )) +
+      geom_rect() +
+      coord_polar(theta = "y") +
+      xlim(c(0, 4)) +
+      labs(title = "Proportion of Imputed Intensity values")
+    p2 <- ggplot(dat, aes(x = category, y = count, fill = category)) +
+      geom_bar(stat = "identity") +
+      labs(title = "Proportion of Imputed Intensity values")
+    
+    outImputation <- gsub(".txt", ".imputation.pdf", log2fc_file)
+    outImputation <- paste0(output_dir, "/", outImputation)
+    pdf(outImputation)
+    print(p1)
+    print(p2)
+    garbage <- dev.off()
+  }
+  
+  if(plotHeatmapsChanges){
+    if(verbose) cat(">> HEATMAPS OF CHANGES (log2fc)\n")
+    l2fcol <-
+      data.table::dcast(data = imputedDF, Protein ~ Label, value.var = 'iLog2FC')
+    rownames(l2fcol) <- l2fcol$Protein
+    l2fcol <- within(l2fcol, rm(Protein))
+    l2fcol[is.na(l2fcol)] <- 0
+    
+    if (numberConditions > 1) {
+      l2fcolmatrix <- data.matrix(l2fcol)
+      if(verbose) cat("--- All changes\n")
+      outHeatMapOverallL2fc <-
+        gsub(".txt",
+             ".clustering.log2fc.all-overview.pdf",
+             log2fc_file)
+      outHeatMapOverallL2fc <-
+        paste0(output_dir, "/", outHeatMapOverallL2fc)
+      pheatmap(
+        l2fcolmatrix,
+        filename = outHeatMapOverallL2fc,
+        cellwidth = 20,
+        main = "Clustering Log2FC",
+        cluster_cols = FALSE,
+        clustering_method = "average",
+        fontfamily = "Helvetica",
+        show_colnames = FALSE,
+        fontsize = 6,
+        fontsize_row = 3,
+        fontsize_col = 10,
+        border_color = NA
+      )
+      outHeatMapZoomL2fc <-
+        gsub(".txt", ".clustering.log2fc.all-zoom.pdf", log2fc_file)
+      outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
+      pheatmap(
+        l2fcolmatrix,
+        filename = outHeatMapZoomL2fc,
+        cellheight = 10,
+        cellwidth = 20,
+        main = "Clustering Log2FC",
+        cluster_cols = FALSE,
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 8,
+        border_color = NA,
+        fontfamily = "Helvetica"
+      )
+      
+      # Only significant pvalues
+      if(verbose) cat("--- Only significant changes\n")
+      imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05), ]
+      l2fcolSignificants <-
+        data.table::dcast(data = imputedDFsig, 
+                          Protein ~ Label, 
+                          value.var = 'iLog2FC')
+      rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
+      l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
+      l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
+      
+      l2fcolSignificantsmatrix <- data.matrix(l2fcolSignificants)
+      outHeatMapOverallL2fc <-
+        gsub(".txt",
+             ".clustering.log2fcSign.all-overview.pdf",
+             log2fc_file)
+      outHeatMapOverallL2fc <-
+        paste0(output_dir, "/", outHeatMapOverallL2fc)
+      pheatmap(
+        l2fcolSignificantsmatrix,
+        filename = outHeatMapOverallL2fc,
+        cellwidth = 20,
+        main = "Clustering Log2FC (p-value < 0.05)",
+        cluster_cols = FALSE,
+        fontfamily = "Helvetica",
+        labels_row = "",
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 8,
+        border_color = NA,
+        fontfamily = "Helvetica"
+      )
+      outHeatMapZoomL2fc <-
+        gsub(".txt",
+             ".clustering.log2fcSign.all-zoom.pdf",
+             log2fc_file)
+      outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
+      pheatmap(
+        l2fcolSignificantsmatrix,
+        filename = outHeatMapZoomL2fc,
+        cellheight = 10,
+        cellwidth = 20,
+        main = "Clustering Log2FC (p-value < 0.05)",
+        cluster_cols = FALSE,
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 8,
+        border_color = NA,
+        fontfamily = "Helvetica"
+      )
+    }
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1014,7 +1041,8 @@ artms_analysisQuantifications <- function(log2fc_file,
           output_name = out.mac.allsig,
           species = species,
           heatmaps = TRUE,
-          background = listOfGenes
+          background = listOfGenes,
+          verbose = verbose
         ), error = function(e){
           cat("\n\n------ (!! Error): Enrichment is not possible!\n")
           cat("                    gProfiler server is likely down\n")
@@ -1098,7 +1126,8 @@ artms_analysisQuantifications <- function(log2fc_file,
             species = species,
             heatmaps = TRUE,
             output_name = out.mac.pos,
-            background = listOfGenes
+            background = listOfGenes,
+            verbose = verbose
           ), error = function(e){
             cat("\n\n------ (!! Error): Enrichment is not possible!\n")
             cat("                    gProfiler server is likely down\n")
@@ -1184,7 +1213,8 @@ artms_analysisQuantifications <- function(log2fc_file,
           output_name = out.mac.neg,
           species = species,
           heatmaps = TRUE,
-          background = listOfGenes), 
+          background = listOfGenes,
+          verbose = verbose), 
         error = function(e){
           cat("\n\n------ (!! Error): Enrichment is not possible!\n")
           cat("                    gProfiler server is likely down\n")
@@ -1429,300 +1459,305 @@ artms_analysisQuantifications <- function(log2fc_file,
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # boxplot of relative abundances
-  if(verbose) cat(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED\n")
-  numimputedfinal <-
-    gsub(".txt", ".TotalNumberQuantifications.pdf", log2fc_file)
-  numimputedfinal <- paste0("plot.", numimputedfinal)
-  numimputedfinal <- paste0(output_dir, "/", numimputedfinal)
-  pdf(numimputedfinal)
-  .artms_plotNumberProteinsImputedLog2fc(imputedDF)
-  garbage <- dev.off()
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (isPtm == "global") {
-    if(verbose) cat(">> CLUSTERING ANALYSIS OF QUANTIFICATIONS\n")
-    
-    # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
-    list_of_significants <-
-      unique(imputedDF$Protein[which(abs(imputedDF$iLog2FC > 1) &
-                                       imputedDF$iPvalue < 0.05)])
-    
-    # AND APPLY THE FILTER
-    data.select <-
-      imputedDF[which(imputedDF$Protein %in% list_of_significants), ]
-    
-    # GENE BASED -> heatmaps
-    hasdc <-
-      data.table::dcast(
-        data = data.select[which(data.select$imputed == "no"), ],
-        Gene + Protein ~ Comparison,
-        value.var = "iLog2FC",
-        fun.aggregate = median,
-        fill = 0
-      )
-    
-    # EXPERIMENT BASED -> PCA
-    hasdcexp <-
-      data.table::dcast(
-        data = data.select[which(data.select$imputed == "no"), ],
-        Comparison ~ Gene + Protein,
-        value.var = "iLog2FC",
-        fun.aggregate = median,
-        fill = 0
-      )
-    
-    # ----------------------------------------------------------------------
-    # CLUSTERING ANALYSIS
-    
-    # GENE BASED
-    rownames(hasdc) <- paste0(hasdc$Gene, "_", hasdc$Protein)
-    vamos <- within(hasdc, rm(Gene, Protein))
-    
-    # if this dataset only have one comparison,
-    # this analysis does not makes sense: check it out:
-    if (dim(vamos)[2] > 1) {
-      venga <- as.matrix(vamos)
-      
-      # EXPERIMENT BASED
-      rownames(hasdcexp) <- hasdcexp$Comparison
-      vamosexp <- within(hasdcexp, rm(Comparison))
-      vengaexp <- as.matrix(vamosexp)
-      
-      # PCA AND CORRELATION ANALYSIS
-      if(verbose) cat("--- Correlation plots\n")
-      df.cor.matrix <-
-        round(cor(venga, use = "pairwise.complete.obs"), 2)
-      file_corr_l2fc <- gsub(".txt", ".log2fc-corr.pdf", log2fc_file)
-      file_corr_l2fc <- paste0(output_dir, "/", file_corr_l2fc)
-      pdf(file_corr_l2fc, width = 12, height = 9)
-      corrplot::corrplot(
-        df.cor.matrix,
-        type = "upper",
-        tl.pos = "td",
-        method = "circle",
-        tl.cex = 0.9,
-        tl.col = 'black',
-        tl.srt = 45,
-        # order = "hclust",
-        diag = TRUE
-      )
-      PerformanceAnalytics::chart.Correlation(venga,
-                                    histogram = TRUE,
-                                    pch = 25,
-                                    main = "Correlation between Comparisons")
-      garbage <- dev.off()
-      
-      # BASED ON GROUPS
-      pca.hasdcexp <-
-        FactoMineR::PCA(
-          hasdcexp[, -c(1)],
-          scale.unit = FALSE,
-          ncp = 4,
-          graph = FALSE
-        )
-      
-      pca_all <- factoextra::fviz_pca_ind(
-        pca.hasdcexp,
-        labelsize = 3,
-        repel = TRUE,
-        habillage = as.factor(hasdcexp$Comparison),
-        addEllipses = FALSE,
-        ellipse.level = 0.95
-      )
-      
-      if(verbose) cat("--- PCA, individuals plot\n")
-      file_pca_l2fc <-
-        gsub(".txt", ".log2fc-individuals-pca.pdf", log2fc_file)
-      file_pca_l2fc <- paste0(output_dir, "/", file_pca_l2fc)
-      pdf(file_pca_l2fc, width = 9, height = 7)
-      print(pca_all)
-      garbage <- dev.off()
-      
-      # Determine the OPTIMAL NUMBER OF CLUSTERS:
-      
-      # Elbow method
-      e1 <-
-        factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
-        geom_vline(xintercept = 4, linetype = 2) +
-        labs(subtitle = "kmeans Elbow method")
-      e2 <-
-        factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
-        geom_vline(xintercept = 4, linetype = 2) +
-        labs(subtitle = "PAM Elbow method")
-      
-      # Silhouette method
-      k1 <-
-        factoextra::fviz_nbclust(venga, kmeans, method = "silhouette") +
-        labs(subtitle = "kmeans Silhouette method")
-      k2 <-
-        factoextra::fviz_nbclust(venga, cluster::pam, method = "silhouette") +
-        labs(subtitle = "pam Silhouette method")
-      
-      
-      # Create a dendrogram
-      if(verbose) cat("--- Dendrogram\n")
-      res.dist <-
-        factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
-      hc <- hclust(res.dist)
-      file_dendro_l2fc <-
-        gsub(".txt", ".log2fc-dendro.pdf", log2fc_file)
-      file_dendro_l2fc <- paste0(output_dir, "/", file_dendro_l2fc)
-      pdf(file_dendro_l2fc, width = 9, height = 7)
-      plot(hc)
-      garbage <- dev.off()
-      
-      # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
-      n = 10
-      pam.res <- pam(vamos, k = n)
-      
-      cp1 <- factoextra::fviz_cluster(pam.res)
-      cp2 <-
-        factoextra::fviz_silhouette(pam.res, print.summary = FALSE)
-      
-      if(verbose) cat("--- Plots to determine optimal number of clusters\n")
-      file_clusterplots_l2fc <-
-        gsub(".txt", ".log2fc-clusters.pdf", log2fc_file)
-      file_clusterplots_l2fc <-
-        paste0(output_dir, "/", file_clusterplots_l2fc)
-      pdf(file_clusterplots_l2fc,
-          width = 9,
-          height = 7)
-      print(e1)
-      print(e2)
-      print(k1)
-      print(k2)
-      print(cp1)
-      print(cp2)
-      garbage <- dev.off()
-      
-      if(verbose) cat("--- Cluster heatmaps (10 clusters)\n")
-      hmap <- ComplexHeatmap::Heatmap(
-        vamos,
-        name = paste0("Clusters ", "(n = ", n, ")"),
-        col = circlize::colorRamp2(c(-3, 0, 3), c(
-          "firebrick1", "black", "olivedrab1"
-        )),
-        heatmap_legend_param = list(
-          color_bar = "continuous",
-          legend_direction = "horizontal",
-          legend_width = unit(5, "cm"),
-          title_position = "topcenter",
-          title_gp = gpar(fontsize = 15, fontface = "bold")
-        ),
-        split = paste0("", pam.res$clustering),
-        row_title = "Genes",
-        row_title_side = "left",
-        row_title_gp = gpar(fontsize = 15, fontface = "bold"),
-        show_row_names = FALSE,
-        column_title = "Relative Quantifications",
-        column_title_side = "top",
-        column_title_gp = gpar(fontsize = 10, fontface = "bold"),
-        column_title_rot = 0,
-        show_column_names = TRUE,
-        cluster_columns = FALSE,
-        clustering_distance_columns = function(x)
-          as.dist(1 - cor(t(x))),
-        clustering_method_columns = "ward.D2",
-        clustering_distance_rows = "euclidean",
-        clustering_method_rows = "ward.D2",
-        row_dend_width = unit(30, "mm"),
-        column_dend_height = unit(30, "mm"),
-        # top_annotation=colAnn,
-        top_annotation_height = unit(1.75, "cm"),
-        # bottom_annotation=sampleBoxplot,
-        bottom_annotation_height = unit(4, "cm"),
-        column_names_gp = gpar(fontsize = 10)
-      )
-      file_clusterheat_l2fc <-
-        gsub(".txt", ".log2fc-clusterheatmap.pdf", log2fc_file)
-      file_clusterheat_l2fc <-
-        paste0(output_dir, "/", file_clusterheat_l2fc)
-      pdf(file_clusterheat_l2fc,
-          width = 12,
-          height = 10)
-      ComplexHeatmap::draw(hmap,
-                           heatmap_legend_side = "top",
-                           annotation_legend_side = "right")
-      garbage <- dev.off()
-      
-      if(verbose) cat("--- Enrichment analysis of the clusters\n")
-      cl_number <- pam.res$clustering
-      dfclusters <- as.data.frame(cl_number)
-      dfclusters$ids <- row.names(dfclusters)
-      dfclusters$Gene <- gsub("(.*)(_)(.*)", "\\1", dfclusters$ids)
-      dfclusters$Protein <- gsub("(.*)(_)(.*)", "\\3", dfclusters$ids)
-      
-      # Making sure we have unique genes in each comparison 
-      # (the PTM might bring redundancy)
-      pretmp <- dfclusters[c('Gene', 'cl_number')]
-      pretmp <- unique(pretmp)
-      
-      tmp <- split(pretmp$Gene, pretmp$cl_number, drop = TRUE)
-      
-      if (species == "human") {
-        enrichgenes <-
-          artms_enrichProfiler(
-            tmp,
-            categorySource = c(
-              'GO:BP',
-              'GO:MF',
-              'GO:CC',
-              'KEGG',
-              'REAC',
-              'CORUM',
-              'HPA',
-              'OMIM'
-            ),
-            species = 'hsapiens',
-            listOfGenes
-          ) # 'HP'
-      } else if (species == "mouse") {
-        enrichgenes <-
-          artms_enrichProfiler(
-            tmp,
-            categorySource = c('GO:BP', 
-                               'GO:MF', 
-                               'GO:CC', 
-                               'KEGG', 
-                               'REAC', 
-                               'CORUM'),
-            species = 'mmusculus',
-            listOfGenes
-          )
-      } else{
-        stop(species, " is currently not supported in the enrichment")
-      }
-      
-      file_clusterheatenrich_l2fc <-
-        gsub(".txt",
-             ".log2fc-clusterheatmap-enriched.txt",
-             log2fc_file)
-      file_clusterheatenrich_l2fc <-
-        paste0(output_dir, "/", file_clusterheatenrich_l2fc)
-      write.table(
-        enrichgenes,
-        file_clusterheatenrich_l2fc,
-        col.names = TRUE,
-        row.names = FALSE,
-        sep = "\t",
-        quote = FALSE
-      )
-      
-      file_clusterheatdata_l2fc <-
-        gsub(".txt", ".log2fc-clusterheatmap.txt", log2fc_file)
-      file_clusterheatdata_l2fc <-
-        paste0(output_dir, "/", file_clusterheatdata_l2fc)
-      write.table(
-        dfclusters,
-        file_clusterheatdata_l2fc,
-        col.names = TRUE,
-        row.names = FALSE,
-        sep = "\t",
-        quote = FALSE
-      )
-    }
+  if(plotTotalQuant){
+    if(verbose) cat(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED\n")
+    numimputedfinal <-
+      gsub(".txt", ".TotalQuantifications.pdf", log2fc_file)
+    numimputedfinal <- paste0("plot.", numimputedfinal)
+    numimputedfinal <- paste0(output_dir, "/", numimputedfinal)
+    pdf(numimputedfinal)
+    .artms_plotNumberProteinsImputedLog2fc(imputedDF)
+    garbage <- dev.off()
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  if(plotClusteringAnalysis){
+    if (isPtm == "global") {
+      if(verbose) cat(">> CLUSTERING ANALYSIS OF QUANTIFICATIONS\n")
+      
+      # PRE-CLUSTERING
+      # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
+      list_of_significants <-
+        unique(imputedDF$Protein[which(abs(imputedDF$iLog2FC > 1) &
+                                         imputedDF$iPvalue < 0.05)])
+      
+      # AND APPLY THE FILTER
+      data.select <-
+        imputedDF[which(imputedDF$Protein %in% list_of_significants), ]
+      
+      # GENE BASED -> heatmaps
+      hasdc <-
+        data.table::dcast(
+          data = data.select[which(data.select$imputed == "no"), ],
+          Gene + Protein ~ Comparison,
+          value.var = "iLog2FC",
+          fun.aggregate = median,
+          fill = 0
+        )
+      
+      # EXPERIMENT BASED -> PCA
+      hasdcexp <-
+        data.table::dcast(
+          data = data.select[which(data.select$imputed == "no"), ],
+          Comparison ~ Gene + Protein,
+          value.var = "iLog2FC",
+          fun.aggregate = median,
+          fill = 0
+        )
+    
+      # CLUSTERING ANALYSIS
+      # GENE BASED
+      rownames(hasdc) <- paste0(hasdc$Gene, "_", hasdc$Protein)
+      vamos <- within(hasdc, rm(Gene, Protein))
+      
+      # if this dataset only have one comparison,
+      # this analysis does not makes sense: check it out:
+      if (dim(vamos)[2] > 1) {
+        venga <- as.matrix(vamos)
+        
+        # EXPERIMENT BASED
+        rownames(hasdcexp) <- hasdcexp$Comparison
+        vamosexp <- within(hasdcexp, rm(Comparison))
+        vengaexp <- as.matrix(vamosexp)
+        
+        # PCA AND CORRELATION ANALYSIS
+        if(verbose) cat("--- Correlation plots\n")
+        df.cor.matrix <-
+          round(cor(venga, use = "pairwise.complete.obs"), 2)
+        file_corr_l2fc <- gsub(".txt", ".log2fc-corr.pdf", log2fc_file)
+        file_corr_l2fc <- paste0(output_dir, "/", file_corr_l2fc)
+        pdf(file_corr_l2fc, width = 12, height = 9)
+        corrplot::corrplot(
+          df.cor.matrix,
+          type = "upper",
+          tl.pos = "td",
+          method = "circle",
+          tl.cex = 0.9,
+          tl.col = 'black',
+          tl.srt = 45,
+          # order = "hclust",
+          diag = TRUE
+        )
+        PerformanceAnalytics::chart.Correlation(venga,
+                                                histogram = TRUE,
+                                                pch = 25,
+                                                main = "Correlation between Comparisons")
+        garbage <- dev.off()
+        
+        # BASED ON GROUPS
+        pca.hasdcexp <-
+          FactoMineR::PCA(
+            hasdcexp[, -c(1)],
+            scale.unit = FALSE,
+            ncp = 4,
+            graph = FALSE
+          )
+        
+        pca_all <- factoextra::fviz_pca_ind(
+          pca.hasdcexp,
+          labelsize = 3,
+          repel = TRUE,
+          habillage = as.factor(hasdcexp$Comparison),
+          addEllipses = FALSE,
+          ellipse.level = 0.95
+        )
+        
+        if(verbose) cat("--- PCA, individuals plot\n")
+        file_pca_l2fc <-
+          gsub(".txt", ".log2fc-individuals-pca.pdf", log2fc_file)
+        file_pca_l2fc <- paste0(output_dir, "/", file_pca_l2fc)
+        pdf(file_pca_l2fc, width = 9, height = 7)
+        print(pca_all)
+        garbage <- dev.off()
+        
+        # Determine the OPTIMAL NUMBER OF CLUSTERS:
+        
+        # Elbow method
+        e1 <-
+          factoextra::fviz_nbclust(venga, kmeans, method = "wss") +
+          geom_vline(xintercept = 4, linetype = 2) +
+          labs(subtitle = "kmeans Elbow method")
+        e2 <-
+          factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
+          geom_vline(xintercept = 4, linetype = 2) +
+          labs(subtitle = "PAM Elbow method")
+        
+        # Silhouette method
+        k1 <-
+          factoextra::fviz_nbclust(venga, kmeans, method = "silhouette") +
+          labs(subtitle = "kmeans Silhouette method")
+        k2 <-
+          factoextra::fviz_nbclust(venga, cluster::pam, method = "silhouette") +
+          labs(subtitle = "pam Silhouette method")
+        
+        
+        # Create a dendrogram
+        if(verbose) cat("--- Dendrogram\n")
+        res.dist <-
+          factoextra::get_dist(vamosexp, stand = TRUE, method = "minkowski")
+        hc <- hclust(res.dist)
+        file_dendro_l2fc <-
+          gsub(".txt", ".log2fc-dendro.pdf", log2fc_file)
+        file_dendro_l2fc <- paste0(output_dir, "/", file_dendro_l2fc)
+        pdf(file_dendro_l2fc, width = 9, height = 7)
+        plot(hc)
+        garbage <- dev.off()
+        
+        # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
+        n = 10
+        pam.res <- pam(vamos, k = n)
+        
+        cp1 <- factoextra::fviz_cluster(pam.res)
+        cp2 <-
+          factoextra::fviz_silhouette(pam.res, print.summary = FALSE)
+        
+        if(verbose) cat("--- Plots to determine optimal number of clusters\n")
+        file_clusterplots_l2fc <-
+          gsub(".txt", ".log2fc-clusters.pdf", log2fc_file)
+        file_clusterplots_l2fc <-
+          paste0(output_dir, "/", file_clusterplots_l2fc)
+        pdf(file_clusterplots_l2fc,
+            width = 9,
+            height = 7)
+        print(e1)
+        print(e2)
+        print(k1)
+        print(k2)
+        print(cp1)
+        print(cp2)
+        garbage <- dev.off()
+        
+        if(verbose) cat("--- Cluster heatmaps (10 clusters)\n")
+        hmap <- ComplexHeatmap::Heatmap(
+          vamos,
+          name = paste0("Clusters ", "(n = ", n, ")"),
+          col = circlize::colorRamp2(c(-3, 0, 3), c(
+            "firebrick1", "black", "olivedrab1"
+          )),
+          heatmap_legend_param = list(
+            color_bar = "continuous",
+            legend_direction = "horizontal",
+            legend_width = unit(5, "cm"),
+            title_position = "topcenter",
+            title_gp = gpar(fontsize = 15, fontface = "bold")
+          ),
+          split = paste0("", pam.res$clustering),
+          row_title = "Genes",
+          row_title_side = "left",
+          row_title_gp = gpar(fontsize = 15, fontface = "bold"),
+          show_row_names = FALSE,
+          column_title = "Relative Quantifications",
+          column_title_side = "top",
+          column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+          column_title_rot = 0,
+          show_column_names = TRUE,
+          cluster_columns = FALSE,
+          clustering_distance_columns = function(x)
+            as.dist(1 - cor(t(x))),
+          clustering_method_columns = "ward.D2",
+          clustering_distance_rows = "euclidean",
+          clustering_method_rows = "ward.D2",
+          row_dend_width = unit(30, "mm"),
+          column_dend_height = unit(30, "mm"),
+          # top_annotation=colAnn,
+          top_annotation_height = unit(1.75, "cm"),
+          # bottom_annotation=sampleBoxplot,
+          bottom_annotation_height = unit(4, "cm"),
+          column_names_gp = gpar(fontsize = 10)
+        )
+        file_clusterheat_l2fc <-
+          gsub(".txt", ".log2fc-clusterheatmap.pdf", log2fc_file)
+        file_clusterheat_l2fc <-
+          paste0(output_dir, "/", file_clusterheat_l2fc)
+        pdf(file_clusterheat_l2fc,
+            width = 12,
+            height = 10)
+        ComplexHeatmap::draw(hmap,
+                             heatmap_legend_side = "top",
+                             annotation_legend_side = "right")
+        garbage <- dev.off()
+        
+        if(verbose) cat("--- Enrichment analysis of the clusters\n")
+        cl_number <- pam.res$clustering
+        dfclusters <- as.data.frame(cl_number)
+        dfclusters$ids <- row.names(dfclusters)
+        dfclusters$Gene <- gsub("(.*)(_)(.*)", "\\1", dfclusters$ids)
+        dfclusters$Protein <- gsub("(.*)(_)(.*)", "\\3", dfclusters$ids)
+        
+        # Making sure we have unique genes in each comparison 
+        # (the PTM might bring redundancy)
+        pretmp <- dfclusters[c('Gene', 'cl_number')]
+        pretmp <- unique(pretmp)
+        
+        tmp <- split(pretmp$Gene, pretmp$cl_number, drop = TRUE)
+        
+        if (species == "human") {
+          enrichgenes <-
+            artms_enrichProfiler(
+              tmp,
+              categorySource = c(
+                'GO:BP',
+                'GO:MF',
+                'GO:CC',
+                'KEGG',
+                'REAC',
+                'CORUM',
+                'HPA',
+                'OMIM'
+              ),
+              species = 'hsapiens',
+              listOfGenes,
+              verbose = verbose
+            ) # 'HP'
+        } else if (species == "mouse") {
+          enrichgenes <-
+            artms_enrichProfiler(
+              tmp,
+              categorySource = c('GO:BP', 
+                                 'GO:MF', 
+                                 'GO:CC', 
+                                 'KEGG', 
+                                 'REAC', 
+                                 'CORUM'),
+              species = 'mmusculus',
+              listOfGenes,
+              verbose = verbose
+            )
+        } else{
+          stop(species, " is currently not supported in the enrichment")
+        }
+        
+        file_clusterheatenrich_l2fc <-
+          gsub(".txt",
+               ".log2fc-clusterheatmap-enriched.txt",
+               log2fc_file)
+        file_clusterheatenrich_l2fc <-
+          paste0(output_dir, "/", file_clusterheatenrich_l2fc)
+        write.table(
+          enrichgenes,
+          file_clusterheatenrich_l2fc,
+          col.names = TRUE,
+          row.names = FALSE,
+          sep = "\t",
+          quote = FALSE
+        )
+        
+        file_clusterheatdata_l2fc <-
+          gsub(".txt", ".log2fc-clusterheatmap.txt", log2fc_file)
+        file_clusterheatdata_l2fc <-
+          paste0(output_dir, "/", file_clusterheatdata_l2fc)
+        write.table(
+          dfclusters,
+          file_clusterheatdata_l2fc,
+          col.names = TRUE,
+          row.names = FALSE,
+          sep = "\t",
+          quote = FALSE
+        )
+      }
+    }
+  }
+  # End of clustering analysis
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if(verbose) cat(">> WRITTING ALL THE OUTPUT FILES\n")
   
@@ -2483,8 +2518,4 @@ artms_generatePhSiteExtended <- function(df,
   )
   return(x)
 }
-
-
-
-
 

@@ -8,7 +8,13 @@ artms_analysisQuantifications(log2fc_file, modelqc_file, species,
   output_dir, enrich = TRUE, l2fc_thres = 1.5,
   choosePvalue = c("adjpvalue", "pvalue"),
   isBackground = "nobackground", isPtm = "global", mnbr = 2,
-  isFluomics = FALSE, pathogen = "nopathogen", verbose = TRUE)
+  isFluomics = FALSE, pathogen = "nopathogen",
+  plotPvaluesLog2fcDist = TRUE, plotAbundanceStats = TRUE,
+  plotReproAbundance = TRUE, plotCorrConditions = TRUE,
+  plotCorrQuant = TRUE, plotPCAabundance = TRUE,
+  plotFinalDistributions = TRUE, plotPropImputation = TRUE,
+  plotHeatmapsChanges = TRUE, plotTotalQuant = TRUE,
+  plotClusteringAnalysis = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}
@@ -53,6 +59,39 @@ conditions in at least 2 of the biological replicates)}
 \item{pathogen}{(char) Is there a pathogen in the dataset as well?
 if it does not, then use \code{pathogen = nopathogen} (default).
 Pathogens available: \code{tb} (Tuberculosis), \code{lpn} (Legionella)}
+
+\item{plotPvaluesLog2fcDist}{(logical) If \code{TRUE} (default) plots pvalues
+and log2fc distributions}
+
+\item{plotAbundanceStats}{(logical) If \code{TRUE} (default) plots stats graphs
+about abundance values}
+
+\item{plotReproAbundance}{(logical) If \code{TRUE} plots reproducibility
+based on normalized abundance values}
+
+\item{plotCorrConditions}{(logical) If \code{TRUE} plots correlation
+between the different conditions}
+
+\item{plotCorrQuant}{(logical) if \code{TRUE} plots correlation between the
+available quantifications (comparisons)}
+
+\item{plotPCAabundance}{(logical) if \code{TRUE} performs PCA analysis of
+conditions using normalized abundance values}
+
+\item{plotFinalDistributions}{(logical) if \code{TRUE} plots distribution of both
+log2fc and pvalues}
+
+\item{plotPropImputation}{(logical) if \code{TRUE} plots proportion of overall
+imputation}
+
+\item{plotHeatmapsChanges}{(logical) if \code{TRUE} plots heatmaps of quantified
+changes (both all and significant only)}
+
+\item{plotTotalQuant}{(logical) if \code{TRUE} plots barplot of total number of
+quantifications per comparison}
+
+\item{plotClusteringAnalysis}{(logical) if \code{TRUE} performs clustering
+analysis between quantified comparisons (more than 1 comparison required)}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

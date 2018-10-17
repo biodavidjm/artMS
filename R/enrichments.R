@@ -118,7 +118,8 @@ artms_enrichLog2fc <- function(dataset,
           'OMIM'
         ),
         species = 'hsapiens',
-        background
+        background,
+        verbose = verbose
       ) # 'HP'
   } else if (species == "mouse") {
     enrichgenes <-
@@ -126,7 +127,7 @@ artms_enrichLog2fc <- function(dataset,
         tmp,
         categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'),
         species = 'mmusculus',
-        background
+        background, verbose = verbose
       )
   } else{
     stop("\nThe species (",
