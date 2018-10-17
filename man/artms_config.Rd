@@ -100,7 +100,7 @@ artms_config
 }
 \description{
 The configuration file in \code{yaml} format contains
-the configuration details required to run \code{artms_quantification()}, which
+the configuration details required to run \code{artmsQuantification()}, which
 includes quality control functions
 }
 \keyword{datasets}

@@ -34,7 +34,7 @@
       )
     }
   
-    data_f <- artms_changeColumnName(data_f, 
+    data_f <- artmsChangeColumnName(data_f, 
                                      "Modified.sequence", 
                                      "PeptideSequence")
     
@@ -134,9 +134,9 @@
     
     # Names required by MSstats
     predmss_melt <-
-      artms_changeColumnName(predmss_melt, "Proteins", "ProteinName")
+      artmsChangeColumnName(predmss_melt, "Proteins", "ProteinName")
     predmss_melt <-
-      artms_changeColumnName(predmss_melt, "Charge", "PrecursorCharge")
+      artmsChangeColumnName(predmss_melt, "Charge", "PrecursorCharge")
     
     # And re-sort it as msstats likes it
     dmss <-

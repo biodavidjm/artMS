@@ -39,7 +39,7 @@
 #' colnames(replica_info) <- x_names
 #'
 #' # Now let's make the plots.
-#' artms_replicatePlots(input_file = artms_data_ph_evidence,
+#' artmsReplicatePlots(input_file = artms_data_ph_evidence,
 #'                      keys_file = artms_data_ph_keys,
 #'                      replicate_file = replica_info,
 #'                      out_file = NULL,
@@ -48,7 +48,7 @@
 #' # Remember that if you want to see the txt results and pdf file, just
 #' # change out_file = NULL" to out_file = 'output_file.pdf'
 #' @export
-artms_replicatePlots <- function(input_file,
+artmsReplicatePlots <- function(input_file,
                                  keys_file,
                                  replicate_file,
                                  out_file,
@@ -113,7 +113,7 @@ artms_replicatePlots <- function(input_file,
     if(verbose) cat("--- No filtering of modified peptides\n")
   } else{
     stop(
-      "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artms_replicatePlots 
+      "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artmsReplicatePlots 
       TO FIND OUT THE AVAILABLE OPTIONS\n"
     )
   }

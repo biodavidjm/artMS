@@ -188,10 +188,10 @@ utils::globalVariables(
 #' addition to quality control plots (if selected)
 #' @keywords main, driver, function
 #' @examples \donttest{
-#' artms_quantification("artms-ab-config.yaml")
+#' artmsQuantification("artms-ab-config.yaml")
 #' }
 #' @export
-artms_quantification <- function(yaml_config_file,
+artmsQuantification <- function(yaml_config_file,
                                  verbose = TRUE) {
   
   if(verbose){
@@ -228,7 +228,7 @@ artms_quantification <- function(yaml_config_file,
   
   # Quality Control
   if (config$qc$basic) {
-    artms_qualityControlEvidenceBasic(
+    artmsQualityControlEvidenceBasic(
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
@@ -236,7 +236,7 @@ artms_quantification <- function(yaml_config_file,
   }
   
   if (config$qc$extended) {
-    artms_qualityControlEvidenceExtended(
+    artmsQualityControlEvidenceExtended  (
       evidence_file = config$files$evidence,
       keys_file = config$files$keys)
   }
@@ -255,7 +255,7 @@ artms_quantification <- function(yaml_config_file,
     if (!is.null(config$data$silac$enabled)) {
       if (config$data$silac$enabled) {
         output <- gsub(".txt", "-silac.txt", config$files$evidence)
-        x <- artms_SILACtoLong(config$files$evidence,
+        x <- artmsSILACtoLong(config$files$evidence,
                                   output,
                                   verbose = verbose)
       } else{
@@ -302,20 +302,20 @@ artms_quantification <- function(yaml_config_file,
         x$IsotopeLabelType = 'L'
         keys$IsotopeLabelType = 'L'
         x <-
-          artms_mergeEvidenceAndKeys(x, 
+          artmsMergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile', 'IsotopeLabelType'),
                                      verbose = verbose)
       } else{
         x <-
-          artms_mergeEvidenceAndKeys(x, 
+          artmsMergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile', 'IsotopeLabelType'),
                                      verbose = verbose)
       }
     } else{
       x <-
-        artms_mergeEvidenceAndKeys(x, 
+        artmsMergeEvidenceAndKeys(x, 
                                    keys, 
                                    by = c('RawFile', 'IsotopeLabelType'),
                                    verbose = verbose)
@@ -404,7 +404,7 @@ artms_quantification <- function(yaml_config_file,
 #' @title Write out a template file of the artMS configuration file (yaml)
 #' 
 #' @description Creates a template file of the artMS configuration file, which
-#' is required to run `artms_quantification`. Check `?artms_config` and the 
+#' is required to run `artmsQuantification`. Check `?artms_config` and the 
 #' vignettes to find out more about the details of the structure of the file
 #' and how to fill it up
 #' @param config_file_name (char) The name for the configuration file. It must
@@ -413,9 +413,9 @@ artms_quantification <- function(yaml_config_file,
 #' @return A file (or yaml data object) of the artMS configuration file
 #' @keywords config, yaml
 #' @examples 
-#' config_empty <- artms_writeConfigYamlFile(config_file_name = NULL)
+#' config_empty <- artmsWriteConfigYamlFile(config_file_name = NULL)
 #' @export
-artms_writeConfigYamlFile <- function(
+artmsWriteConfigYamlFile <- function(
   config_file_name = "artms_config_file.yaml",
   verbose = TRUE){
   

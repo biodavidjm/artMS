@@ -27,10 +27,10 @@
 #' @keywords evidence, convert, ptm, ph, ub, ac
 #' @examples
 #' # Testing warning if files are not submitted
-#' artms_proteinToSiteConversion(evidence_file = NULL, ref_proteome_file = NULL, 
+#' artmsProtein2SiteConversion(evidence_file = NULL, ref_proteome_file = NULL, 
 #' output_file = NULL)
 #' @export
-artms_proteinToSiteConversion <- function (evidence_file,
+artmsProtein2SiteConversion <- function (evidence_file,
                                            ref_proteome_file,
                                            output_file,
                                            mod_type,

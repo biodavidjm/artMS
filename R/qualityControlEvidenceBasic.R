@@ -20,12 +20,12 @@
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
 #' @examples
-#' artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#' artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 #'                  keys_file = artms_data_ph_keys,
 #'                  output_name = "qcPlots_evidence",
 #'                  prot_exp = "PH")
 #' @export
-artms_qualityControlEvidenceBasic <- function(evidence_file,
+artmsQualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
                              prot_exp = c('AB', 'PH', 'UB', 'APMS'),
                              fractions = 0,
@@ -58,7 +58,7 @@ The experiments supported are:\n",
   if(verbose) cat("\nQUALITY CONTROL -------------------\n>> LOADING FILES\n")
   
   # EVIDENCE:
-  evidencekeys <- artms_mergeEvidenceAndKeys(evidence_file, 
+  evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
                                              keys_file,
                                              verbose = verbose)
   
@@ -116,7 +116,7 @@ The experiments supported are:\n",
   # Careful with old versions of MaxQuant:
   if (any(grep("Leading.Proteins", names(evidencekeys)))) {
     evidencekeys <-
-      artms_changeColumnName(evidencekeys, 
+      artmsChangeColumnName(evidencekeys, 
                              "Leading.Proteins", 
                              "Leading.proteins")
   }
@@ -171,7 +171,7 @@ The experiments supported are:\n",
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
   evidencekeysclean <-
-    artms_filterEvidenceContaminants(x = evidencekeys, verbose = verbose)
+    artmsFilterEvidenceContaminants(x = evidencekeys, verbose = verbose)
   
   if(verbose) cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
       (Warning: it might take some time)\n")

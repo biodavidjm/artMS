@@ -22,10 +22,10 @@
 #' Retention Time, Caliberated Retention Time
 #' @keywords MaxQuant, evidence, summary, intensity, retention time, caliberated
 #' @examples
-#' ave_int <- artms_avg_intensity_RT(evidence_file = artms_data_ph_evidence,
+#' ave_int <- artmsAvgIntensityRT(evidence_file = artms_data_ph_evidence,
 #'                                   species = "human")
 #' @export
-artms_avg_intensity_RT <- function(evidence_file,
+artmsAvgIntensityRT <- function(evidence_file,
                                    protein_file = NULL,
                                    output_file = FALSE,
                                    species,
@@ -42,7 +42,7 @@ artms_avg_intensity_RT <- function(evidence_file,
   if(verbose) cat(">> READING IN FILES...\n")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
   suppressMessages(dat <-
-                     artms_annotationUniprot(dat, "Proteins", 
+                     artmsAnnotationUniprot(dat, "Proteins", 
                                              species = species))
   
   if (!is.null(protein_file)) {

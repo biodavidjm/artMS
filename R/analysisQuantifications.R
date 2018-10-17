@@ -1,8 +1,7 @@
 # ------------------------------------------------------------------------------
-#' @title Analysis of the Relative Quantification
+#' @title Analysis of the Relative Quantifications
 #'
-#' @description Analysis of the Relative Quantifications obtained by MSstats.
-#' It includes:
+#' @description Analysis of relative quantifications, including:
 #'
 #' - Annotations
 #' - Summary files in different format (xls, txt) and shapes (long, wide)
@@ -69,12 +68,12 @@
 #' @keywords analysis, quantifications
 #' @examples
 #' # Testing that the files cannot be empty
-#' artms_analysisQuantifications(log2fc_file = NULL,
+#' artmsAnalysisQuantifications(log2fc_file = NULL,
 #'                               modelqc_file = NULL,
 #'                               species = NULL,
 #'                               output_dir = NULL)
 #' @export
-artms_analysisQuantifications <- function(log2fc_file,
+artmsAnalysisQuantifications <- function(log2fc_file,
                                           modelqc_file,
                                           species,
                                           output_dir,
@@ -205,7 +204,7 @@ artms_analysisQuantifications <- function(log2fc_file,
     # then extract them from the modelqc file
     if (isPtm == "global") {
       suppressMessages(dfmq2Genes <-
-                         artms_annotationUniprot(dfmq, 'PROTEIN', species))
+                         artmsAnnotationUniprot(dfmq, 'PROTEIN', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       if(verbose) cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",
           numberTotalGenes,
@@ -231,7 +230,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       dfmq2Genes <- unique(dfmq2Genes)
       suppressMessages(dfmq2Genes <-
-                         artms_annotationUniprot(dfmq2Genes, 'Protein', species))
+                         artmsAnnotationUniprot(dfmq2Genes, 'Protein', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       if(verbose) cat("--- TOTAL NUMBER OF GENES/PROTEINS: ",
           numberTotalGenes,
@@ -728,11 +727,11 @@ artms_analysisQuantifications <- function(log2fc_file,
                              newColumnName = "Protein")
     suppressMessages(
       modelqc_file_splc <-
-        artms_annotationUniprot(modelqc_file_splc, 'Protein', species))
+        artmsAnnotationUniprot(modelqc_file_splc, 'Protein', species))
   } else{
     suppressMessages(
       modelqc_file_splc <-
-        artms_annotationUniprot(modelqc_file_splc, 'Protein', species)
+        artmsAnnotationUniprot(modelqc_file_splc, 'Protein', species)
     )
   }
   
@@ -751,12 +750,12 @@ artms_analysisQuantifications <- function(log2fc_file,
                              newColumnName = "Protein")
     suppressMessages(
       log2fc_file_splc <-
-        artms_annotationUniprot(log2fc_file_splc, 'Protein', species)
+        artmsAnnotationUniprot(log2fc_file_splc, 'Protein', species)
     )
   } else{
     suppressMessages(
       log2fc_file_splc <-
-        artms_annotationUniprot(log2fc_file_splc, 'Protein', species)
+        artmsAnnotationUniprot(log2fc_file_splc, 'Protein', species)
     )
   }
   
@@ -995,12 +994,12 @@ artms_analysisQuantifications <- function(log2fc_file,
                                newColumnName = "Protein")
       suppressMessages(
         l2fcol4enrichment <-
-          artms_annotationUniprot(l2fcol4enrichment, 'Protein', species)
+          artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
       )
     } else{
       suppressMessages(
         l2fcol4enrichment <-
-          artms_annotationUniprot(l2fcol4enrichment, 'Protein', species)
+          artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
       )
     }
   }
@@ -1036,7 +1035,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       mac.allsig <- NULL
       
       tryCatch(
-        mac.allsig <- artms_enrichLog2fc(
+        mac.allsig <- artmsEnrichLog2fc(
           dataset = filallsig_log2fc_long,
           output_name = out.mac.allsig,
           species = species,
@@ -1121,7 +1120,7 @@ artms_analysisQuantifications <- function(log2fc_file,
 
       mac.pos <- NULL
       tryCatch(
-          mac.pos <- artms_enrichLog2fc(
+          mac.pos <- artmsEnrichLog2fc(
             dataset = filpos_log2fc_long,
             species = species,
             heatmaps = TRUE,
@@ -1208,7 +1207,7 @@ artms_analysisQuantifications <- function(log2fc_file,
       
       mac.neg <- NULL
       tryCatch(
-        mac.neg <- artms_enrichLog2fc(
+        mac.neg <- artmsEnrichLog2fc(
           dataset = filneg_log2fc_long,
           output_name = out.mac.neg,
           species = species,
@@ -1311,7 +1310,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   }
   
   suppressMessages(superunified <-
-                     artms_annotationUniprot(superunified, 'Prey', species))
+                     artmsAnnotationUniprot(superunified, 'Prey', species))
   
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <-
@@ -1320,8 +1319,8 @@ artms_analysisQuantifications <- function(log2fc_file,
   # ANNOTATE SPECIE
   if(verbose) cat("--- Annotating species(s) in files\n")
   superunified <-
-    artms_annotateSpecie(superunified, pathogen, species)
-  imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
+    artmsAnnotateSpecie(superunified, pathogen, species)
+  imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # THE JITTER PLOTS
@@ -1385,7 +1384,7 @@ artms_analysisQuantifications <- function(log2fc_file,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (grepl("ptm", isPtm)) {
     if(verbose) cat(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE\n")
-    imputedDFext <- artms_generatePhSiteExtended(
+    imputedDFext <- artmsGeneratePhSiteExtended(
       df = imputedDF,
       pathogen = pathogen,
       species = species,
@@ -1405,11 +1404,11 @@ artms_analysisQuantifications <- function(log2fc_file,
                                         uniprotPtmColumn = "Uniprot_PTM", 
                                         newColumnName = "UniprotID")
     suppressMessages(imputedDF <-
-                       artms_annotationUniprot(imputedDF, 'UniprotID', species))
+                       artmsAnnotationUniprot(imputedDF, 'UniprotID', species))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
-    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
+    imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <-
@@ -1429,13 +1428,13 @@ artms_analysisQuantifications <- function(log2fc_file,
     
   } else if (isPtm == "global") {
     suppressMessages(imputedDF <-
-                       artms_annotationUniprot(imputedDF, 'Protein', species))
+                       artmsAnnotationUniprot(imputedDF, 'Protein', species))
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
     # imputedDF$Species <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, 
     # pathogen, species)
-    imputedDF <- artms_annotateSpecie(imputedDF, pathogen, species)
+    imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
     imputedDF_wide_log2fc <-
@@ -1693,7 +1692,7 @@ artms_analysisQuantifications <- function(log2fc_file,
         
         if (species == "human") {
           enrichgenes <-
-            artms_enrichProfiler(
+            artmsEnrichProfiler(
               tmp,
               categorySource = c(
                 'GO:BP',
@@ -1711,7 +1710,7 @@ artms_analysisQuantifications <- function(log2fc_file,
             ) # 'HP'
         } else if (species == "mouse") {
           enrichgenes <-
-            artms_enrichProfiler(
+            artmsEnrichProfiler(
               tmp,
               categorySource = c('GO:BP', 
                                  'GO:MF', 
@@ -1917,10 +1916,10 @@ artms_analysisQuantifications <- function(log2fc_file,
 #' # Adding a new column with the main species of the data. Easy.
 #' # But the main functionality is to add both the host-species and a pathogen,
 #' # which is not illustrated in this example
-#' data_with_specie <- artms_annotateSpecie(df = artms_data_ph_msstats_results,
+#' data_with_specie <- artmsAnnotateSpecie(df = artms_data_ph_msstats_results,
 #'                                          species = "human")
 #' @export
-artms_annotateSpecie <- function(df,
+artmsAnnotateSpecie <- function(df,
                                  pathogen = "nopathogen",
                                  species) {
   
@@ -1966,13 +1965,13 @@ artms_annotateSpecie <- function(df,
 #' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
 #' @examples \donttest{
-#' artms_generatePhSiteExtended(df = dfobject, 
+#' artmsGeneratePhSiteExtended(df = dfobject, 
 #'                              species = "mouse", 
 #'                              ptmType = "ptmsites",
 #'                              output_name = log2fc_file)
 #' }
 #' @export
-artms_generatePhSiteExtended <- function(df, 
+artmsGeneratePhSiteExtended <- function(df, 
                                          pathogen = "nopathogen", 
                                          species, 
                                          ptmType,
@@ -2012,7 +2011,7 @@ artms_generatePhSiteExtended <- function(df,
         imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
       
       if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
-        imputedDFext <- artms_annotationUniprot(imputedDFext, 
+        imputedDFext <- artmsAnnotationUniprot(imputedDFext, 
                                                 'Protein', 
                                                 species)
         )
@@ -2021,7 +2020,7 @@ artms_generatePhSiteExtended <- function(df,
       names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
         'Comparison'
       
-      imputedDFext <- artms_annotateSpecie(imputedDFext, pathogen, species)
+      imputedDFext <- artmsAnnotateSpecie(imputedDFext, pathogen, species)
     } else if (ptmType == "ptmsites") {
       #1. Change the Protein name to Uniprot_PTM (if it is not there already)
       if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
@@ -2054,7 +2053,7 @@ artms_generatePhSiteExtended <- function(df,
       
       if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
         imputedDFext <- 
-          artms_annotationUniprot(imputedDFext, 'Protein', species)
+          artmsAnnotationUniprot(imputedDFext, 'Protein', species)
       )
       
       if( any(grepl("Label", colnames(imputedDFext))) )
@@ -2068,7 +2067,7 @@ artms_generatePhSiteExtended <- function(df,
       
       if( !any(grepl("Species", colnames(imputedDFext))) ) suppressMessages(
         imputedDFext <-
-                      artms_annotateSpecie(imputedDFext, "Protein", species))
+                      artmsAnnotateSpecie(imputedDFext, "Protein", species))
     } else{
       stop(
         "--- (!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType>\n"
@@ -2278,7 +2277,7 @@ artms_generatePhSiteExtended <- function(df,
     send_back <- datadc
   } else{
     suppressMessages(send_back <-
-                       artms_annotationUniprot(datadc, 'Protein', species))
+                       artmsAnnotationUniprot(datadc, 'Protein', species))
   }
   return(send_back)
 }

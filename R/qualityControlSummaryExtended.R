@@ -20,10 +20,10 @@
 #' @keywords qc, summary, keys
 #' @examples
 #' # Testing warning if files are not submitted
-#' test <- artms_qualityControlSummaryExtended(summary_file = NULL,
+#' test <- artmsQualityControlSummaryExtended(summary_file = NULL,
 #' keys_file = NULL)
 #' @export
-artms_qualityControlSummaryExtended <- function(summary_file,
+artmsQualityControlSummaryExtended <- function(summary_file,
                                                 keys_file,
                                                 isFractions = FALSE,
                                                 plotMS1SCANS = TRUE,
@@ -43,7 +43,7 @@ artms_qualityControlSummaryExtended <- function(summary_file,
   
   # Getting data ready
   summarykeys <-
-    artms_mergeEvidenceAndKeys(summary_file, keys_file,
+    artmsMergeEvidenceAndKeys(summary_file, keys_file,
                                isSummary = TRUE,
                                verbose = verbose)
   colnames(summarykeys) <- tolower(colnames(summarykeys))

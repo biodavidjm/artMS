@@ -15,11 +15,11 @@
 #' # This example adds annotations to the evidence file available in
 #' # artMS, based on the column 'Proteins'.
 #'
-#' evidence_anno <- artms_annotationUniprot(x = artms_data_ph_evidence,
+#' evidence_anno <- artmsAnnotationUniprot(x = artms_data_ph_evidence,
 #'                                          columnid = 'Proteins',
 #'                                          species = 'human')
 #' @export
-artms_annotationUniprot <- function(x, columnid, species) {
+artmsAnnotationUniprot <- function(x, columnid, species) {
   
   if(any(missing(x) | 
          missing(columnid) |

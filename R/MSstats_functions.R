@@ -55,9 +55,9 @@
 .artms_checkRawFileColumnName <- function(df) {
   if (!('RawFile' %in% colnames(df))) {
     if ("Raw.file" %in% colnames(df)) {
-      df <- artms_changeColumnName(df, 'Raw.file', 'RawFile')
+      df <- artmsChangeColumnName(df, 'Raw.file', 'RawFile')
     } else if ("Raw file" %in% colnames(df)) {
-      df <- artms_changeColumnName(df, 'Raw file', 'RawFile')
+      df <- artmsChangeColumnName(df, 'Raw file', 'RawFile')
     } else{
       stop("cannot find the <Raw.file> column")
     }
@@ -75,12 +75,12 @@
 #' @return (data.frame) with the new specified column name
 #' @keywords rename, data.frame, columns
 #' @examples
-#' artms_data_ph_evidence <- artms_changeColumnName(
+#' artms_data_ph_evidence <- artmsChangeColumnName(
 #'                                dataset = artms_data_ph_evidence,
 #'                                oldname = "Phospho..STY.",
 #'                                newname = "PH_STY")
 #' @export
-artms_changeColumnName <- function(dataset, oldname, newname) {
+artmsChangeColumnName <- function(dataset, oldname, newname) {
   if (!(oldname %in% colnames(dataset))) {
     stop("\nThe Column name provided <",
          oldname,
@@ -120,7 +120,7 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
   
   if (config$data$filters$contaminants) {
     if(verbose) cat("\tCONTAMINANTS\tREMOVE\n")
-    data_f <- artms_filterEvidenceContaminants(data_f)
+    data_f <- artmsFilterEvidenceContaminants(data_f)
   }
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification 
@@ -153,9 +153,9 @@ artms_changeColumnName <- function(dataset, oldname, newname) {
 #' @return (data.frame) without REV__ and CON__ Protein ids
 #' @keywords cleanup, contaminants
 #' @examples
-#' ef <- artms_filterEvidenceContaminants(x = artms_data_ph_evidence)
+#' ef <- artmsFilterEvidenceContaminants(x = artms_data_ph_evidence)
 #' @export
-artms_filterEvidenceContaminants <- function(x,
+artmsFilterEvidenceContaminants <- function(x,
                                              verbose = TRUE) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
   data_selected <-
@@ -181,10 +181,10 @@ artms_filterEvidenceContaminants <- function(x,
 #' @return (data.frame) with the evidence and keys merged
 #' @keywords merge, evidence, summary, keys
 #' @examples
-#' evidenceKeys <- artms_mergeEvidenceAndKeys(x = artms_data_ph_evidence,
+#' evidenceKeys <- artmsMergeEvidenceAndKeys(x = artms_data_ph_evidence,
 #'                                            keys = artms_data_ph_keys)
 #' @export
-artms_mergeEvidenceAndKeys <- function(x, 
+artmsMergeEvidenceAndKeys <- function(x, 
                                        keys, 
                                        by = c('RawFile'),
                                        isSummary = FALSE,
@@ -203,7 +203,7 @@ artms_mergeEvidenceAndKeys <- function(x,
   keys <- .artms_checkRawFileColumnName(keys)
   
   if(any(grepl("Experiment", colnames(keys)))){
-    keys <- artms_changeColumnName(keys, "Experiment", "ExperimentKeys")
+    keys <- artmsChangeColumnName(keys, "Experiment", "ExperimentKeys")
   }
   
   if(isSummary){
@@ -264,11 +264,11 @@ artms_mergeEvidenceAndKeys <- function(x,
 #' @return (data.frame) with SILAC data processed for MSstats (and output file)
 #' @keywords convert, silac, evidence
 #' @examples \donttest{
-#' evidence2silac <- artms_SILACtoLong(evidence_file = "silac.evicence.txt",
+#' evidence2silac <- artmsSILACtoLong(evidence_file = "silac.evicence.txt",
 #'                                    output = "silac-evidence.txt")
 #' }
 #' @export
-artms_SILACtoLong <- function(evidence_file, 
+artmsSILACtoLong <- function(evidence_file, 
                               output,
                               verbose = TRUE) {
   file <- Sys.glob(evidence_file)
@@ -348,12 +348,12 @@ artms_SILACtoLong <- function(evidence_file,
 #' and as many columns log2fc and adj.pvalues as comparisons available
 #' @keywords msstats, results, wide, reshape
 #' @examples
-#' ph_results_wide <- artms_resultsWide(
+#' ph_results_wide <- artmsResultsWide(
 #'                          results_msstats = artms_data_ph_msstats_results,
 #'                          output_file = NULL,
 #'                          species = "human")
 #' @export
-artms_resultsWide <- function(results_msstats,
+artmsResultsWide <- function(results_msstats,
                               output_file = NULL,
                               select_pvalues = c("adjpvalue", "pvalue"),
                               species,
@@ -377,7 +377,7 @@ artms_resultsWide <- function(results_msstats,
   input_w <- data.table::dcast(Protein ~ Label + variable,
                                data = input_l,
                                value.var = c('value'))
-  suppressMessages(input_w <- artms_annotationUniprot(input_w, 
+  suppressMessages(input_w <- artmsAnnotationUniprot(input_w, 
                                                       "Protein", 
                                                       species))
   if (!is.null(output_file)) {
@@ -553,11 +553,11 @@ artms_resultsWide <- function(results_msstats,
 #' count columns
 #' @keywords spectral_counts, evidence
 #' @examples
-#' summary_spectral_counts <- artms_spectralCounts(
+#' summary_spectral_counts <- artmsSpectralCounts(
 #'                                  evidence_file = artms_data_ph_evidence,
 #'                                  keys_file = artms_data_ph_keys)
 #' @export
-artms_spectralCounts <- function(evidence_file,
+artmsSpectralCounts <- function(evidence_file,
                                  keys_file,
                                  output_file = NULL,
                                  verbose = TRUE) {
@@ -570,7 +570,7 @@ artms_spectralCounts <- function(evidence_file,
   keys <- .artms_checkRawFileColumnName(keys)
   
   
-  x <- artms_mergeEvidenceAndKeys(x, 
+  x <- artmsMergeEvidenceAndKeys(x, 
                                      keys, 
                                      by = c('RawFile'),
                                      verbose = verbose)
@@ -581,7 +581,7 @@ artms_spectralCounts <- function(evidence_file,
              'Run',
              'MS.MS.count')]
   data_sel <-
-    artms_changeColumnName(data_sel, 'MS.MS.count', 'spectral_counts')
+    artmsChangeColumnName(data_sel, 'MS.MS.count', 'spectral_counts')
   data_sel <-
     aggregate(
       spectral_counts ~ Proteins + Condition + BioReplicate + Run,

@@ -43,9 +43,9 @@
 #' `FALSE` otherwise
 #' @keywords file, evidence, input, check version
 #' @examples
-#' artms_isEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
+#' artmsIsEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
 #' @export
-artms_isEvidenceNewVersion <- function(evidence_file) {
+artmsIsEvidenceNewVersion <- function(evidence_file) {
   rawEvidence <- .artms_checkIfFile(input_file = evidence_file, 
                                     is.evidence = TRUE)
   

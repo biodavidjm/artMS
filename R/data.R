@@ -1,7 +1,7 @@
 #' artMS configuration template
 #' 
 #' @description The configuration file in `yaml` format contains 
-#' the configuration details required to run `artms_quantification()`, which
+#' the configuration details required to run `artmsQuantification()`, which
 #' includes quality control functions
 #' 
 #' @format The configuration (`yaml`) file contains the following sections:

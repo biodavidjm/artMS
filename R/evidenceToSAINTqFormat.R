@@ -41,11 +41,11 @@
 #' @keywords SAINT, SAINTq, APMS
 #' @examples
 #' # Testing that the files cannot be empty
-#' artms_evidenceToSAINTqFormat(evidence_file = NULL, 
+#' artmsEvidenceToSAINTq   (evidence_file = NULL, 
 #'                                    keys_file = NULL, 
 #'                                    output_dir = NULL)
 #' @export
-artms_evidenceToSAINTqFormat <- function(evidence_file,
+artmsEvidenceToSAINTq    <- function(evidence_file,
                                          keys_file,
                                          output_dir,
                                          sc_option = c("all", "msspc"),
@@ -88,7 +88,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   }
   
   # EVIDENCE:
-  datamerged <- artms_mergeEvidenceAndKeys(evidence_file, 
+  datamerged <- artmsMergeEvidenceAndKeys(evidence_file, 
                                            keys_file,
                                            verbose = verbose)
   
@@ -140,7 +140,7 @@ artms_evidenceToSAINTqFormat <- function(evidence_file,
   
   # Removing Contaminants
   if(verbose) cat("--- Removing contaminants")
-  data_f2 <- artms_filterEvidenceContaminants(datamerged,
+  data_f2 <- artmsFilterEvidenceContaminants(datamerged,
                                               verbose = verbose)
   
   quant_variable <- match.arg(quant_variable)

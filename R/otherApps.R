@@ -97,10 +97,10 @@ artmsPhotonOutput <- function(inputFile,
     # Photon takes this input columns: GeneID,Amino.Acid,Position,avg,Symbol
     df.out <- df.select[c('Gene','PTMsite','iLog2FC','ENTREZID')]
     df.out$Amino.Acid <- df.select$PTMaa
-    df.out <- artms_changeColumnName(df.out, "ENTREZID", "GeneID")
-    df.out <- artms_changeColumnName(df.out, "PTMsite", "Position")
-    df.out <- artms_changeColumnName(df.out, "iLog2FC", "avg")
-    df.out <- artms_changeColumnName(df.out, "Gene", "Symbol")
+    df.out <- artmsChangeColumnName(df.out, "ENTREZID", "GeneID")
+    df.out <- artmsChangeColumnName(df.out, "PTMsite", "Position")
+    df.out <- artmsChangeColumnName(df.out, "iLog2FC", "avg")
+    df.out <- artmsChangeColumnName(df.out, "Gene", "Symbol")
     
     df.out <- df.out[c('GeneID', 'Amino.Acid', 'Position', 'avg', 'Symbol')]
     if(any(grep(";", df.out$Symbol))){

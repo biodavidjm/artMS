@@ -39,11 +39,11 @@
 #' conditions
 #' @keywords abundance, dotplots, plot
 #' @examples \donttest{
-#' artms_dataPlots(input_file = "results/ab-results-mss-normalized.txt",
+#' artmsDataPlots(input_file = "results/ab-results-mss-normalized.txt",
 #'                output_file = "results/ab-results-mss-normalized.pdf")
 #' }
 #' @export
-artms_dataPlots <- function(input_file, 
+artmsDataPlots <- function(input_file, 
                             output_file,
                             verbose = TRUE) {
   
@@ -218,14 +218,14 @@ artms_dataPlots <- function(input_file,
 #' selected metric
 #' @keywords heatmap, log2fc
 #' @examples 
-#' artms_plotHeatmapQuant(input_file = artms_data_ph_msstats_results,
+#' artmsPlotHeatmapQuant(input_file = artms_data_ph_msstats_results,
 #'                        species = "human",
 #'                        output_file = NULL,
 #'                        whatPvalue = "pvalue",
 #'                        lfc_lower = -1,
 #'                        lfc_upper = 1)
 #' @export
-artms_plotHeatmapQuant <- function(input_file,
+artmsPlotHeatmapQuant <- function(input_file,
                                    output_file = "quantifications_heatmap.pdf",
                                    species,
                                    labels = '*',
@@ -271,7 +271,7 @@ artms_plotHeatmapQuant <- function(input_file,
   )
   
   suppressMessages(
-    sign_hits <- artms_annotationUniprot(
+    sign_hits <- artmsAnnotationUniprot(
       x = sign_hits,
       columnid = "Protein",
       species = species
@@ -1125,11 +1125,11 @@ artms_plotHeatmapQuant <- function(input_file,
 #' @keywords plot, volcano
 #' @return (pdf) of a volcano plot
 #' @examples
-#' artms_volcanoPlot(mss_results = artms_data_ph_msstats_results,
+#' artmsVolcanoPlot(mss_results = artms_data_ph_msstats_results,
 #'                   whatPvalue = "pvalue",
 #'                   PDF = FALSE)
 #' @export
-artms_volcanoPlot <- function(mss_results,
+artmsVolcanoPlot <- function(mss_results,
                               lfc_upper = 1,
                               lfc_lower = -1,
                               whatPvalue = "adj.pvalue",

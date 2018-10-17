@@ -102,10 +102,10 @@
 #' @keywords qc, evidence, keys
 #' @examples
 #' # Testing warning if files are not submitted
-#' test <- artms_qualityControlEvidenceExtended(evidence_file = NULL,
+#' test <- artmsQualityControlEvidenceExtended  (evidence_file = NULL,
 #' keys_file = NULL)
 #' @export
-artms_qualityControlEvidenceExtended <- function(evidence_file,
+artmsQualityControlEvidenceExtended   <- function(evidence_file,
                                                  keys_file,
                                                  plotPSM = TRUE,
                                                  plotIONS = TRUE,
@@ -141,7 +141,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   # ----------------------------------------------------------------------------
   # DATA PREPARATION
   evidencekeys <-
-    artms_mergeEvidenceAndKeys(evidence_file, 
+    artmsMergeEvidenceAndKeys(evidence_file, 
                                keys_file,
                                verbose = verbose)
   colnames(evidencekeys) <- tolower(colnames(evidencekeys))
@@ -1843,7 +1843,7 @@ artms_qualityControlEvidenceExtended <- function(evidence_file,
   
   
   
-} # END OF artms_qualityControlEvidenceExtended
+} # END OF artmsQualityControlEvidenceExtended  
 
 
 # ------------------------------------------------------------------------------

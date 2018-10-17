@@ -18,7 +18,7 @@
   
   # Annotation
   if (config$output_extras$annotate$enabled) {
-    results_ann <- artms_annotationUniprot(x = results, 
+    results_ann <- artmsAnnotationUniprot(x = results, 
                                 columnid = 'Protein', 
                                 species = config$output_extras$annotate$species)
     output_annotated_file <- gsub(".txt", "-annotated.txt", config$files$output)
@@ -91,7 +91,7 @@
   if (config$output_extras$plots$volcano) {
     if(verbose) cat(">> PLOTTING VOLCANO PLOT\n")
     file_name <- gsub('.txt', '-volcano.pdf', config$files$output)
-    artms_volcanoPlot(
+    artmsVolcanoPlot(
       mss_results = results_ann[grep(selected_labels, results_ann$Label), ], 
       lfc_upper = lfc_upper, lfc_lower = lfc_lower, 
       FDR = config$output_extras$plots$FDR,

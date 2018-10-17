@@ -58,17 +58,17 @@
 #' @keywords enrichment
 #' @examples
 #' # The data must be annotated (Protein and Gene columns)
-#' data_annotated <- artms_annotationUniprot(
+#' data_annotated <- artmsAnnotationUniprot(
 #'                       x = artms_data_ph_msstats_results,
 #'                       columnid = "Protein",
 #'                       species = "human")
 #' # And then the enrichment
-#' enrich_set <- artms_enrichLog2fc(
+#' enrich_set <- artmsEnrichLog2fc(
 #'                    dataset = data_annotated,
 #'                    species = "human",
 #'                    background = unique(data_annotated$Gene))
 #' @export
-artms_enrichLog2fc <- function(dataset,
+artmsEnrichLog2fc <- function(dataset,
                                species,
                                background,
                                heatmaps = FALSE,
@@ -91,7 +91,7 @@ artms_enrichLog2fc <- function(dataset,
   # should have instead the "Label" column.
   if (!any(grepl("Comparisons", colnames(dataset)))) {
     if (any(grepl("Label", colnames(dataset)))) {
-      dataset <- artms_changeColumnName(dataset, "Label", "Comparisons")
+      dataset <- artmsChangeColumnName(dataset, "Label", "Comparisons")
     } else{
       stop("This dataset does not have a <Label> or <Comparisons> column")
     }
@@ -105,7 +105,7 @@ artms_enrichLog2fc <- function(dataset,
   
   if (species == "human") {
     enrichgenes <-
-      artms_enrichProfiler(
+      artmsEnrichProfiler(
         tmp,
         categorySource = c(
           'GO:BP',
@@ -123,7 +123,7 @@ artms_enrichLog2fc <- function(dataset,
       ) # 'HP'
   } else if (species == "mouse") {
     enrichgenes <-
-      artms_enrichProfiler(
+      artmsEnrichProfiler(
         tmp,
         categorySource = c('GO:BP', 'GO:MF', 'GO:CC', 'KEGG', 'REAC', 'CORUM'),
         species = 'mmusculus',
@@ -286,7 +286,7 @@ artms_enrichLog2fc <- function(dataset,
 #' @keywords enrichment
 #' @examples
 #' # annotate the MSstats results to get the Gene name
-#' data_annotated <- artms_annotationUniprot(
+#' data_annotated <- artmsAnnotationUniprot(
 #'                                      x = artms_data_ph_msstats_results,
 #'                                      columnid = "Protein",
 #'                                      species = "human")
@@ -296,13 +296,13 @@ artms_enrichLog2fc <- function(dataset,
 #' unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 #'
 #' # And perform enrichment analysis
-#' data_annotated_enrich <- artms_enrichProfiler(
+#' data_annotated_enrich <- artmsEnrichProfiler(
 #'                                    x = filtered_data,
 #'                                    categorySource = c('KEGG'),
 #'                                    species = "hsapiens",
 #'                                    background = unique(data_annotated$Gene))
 #' @export
-artms_enrichProfiler <- function(x,
+artmsEnrichProfiler <- function(x,
                                  categorySource = c('GO'),
                                  species,
                                  background = NA,
@@ -348,7 +348,7 @@ artms_enrichProfiler <- function(x,
 # ------------------------------------------------------------------------------
 # @title Simplify the gProfiler output
 #
-# @description Simplify the output from `artms_enrichProfiler` resulted from
+# @description Simplify the output from `artmsEnrichProfiler` resulted from
 # running `gProfileR`
 # @param gp (data.frame) with the results
 # @return (data.frame) with the following columns:

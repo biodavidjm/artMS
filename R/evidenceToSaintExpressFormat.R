@@ -21,10 +21,10 @@
 #' @keywords SAINT, SAINTexpress, APMS
 #' @examples
 #' # Testing that the files cannot be empty
-#' artms_evidenceToSaintExpressFormat(evidence_file = NULL, 
+#' artmsEvidenceToSaintExpress(evidence_file = NULL, 
 #' keys_file = NULL, ref_proteome_file = NULL)
 #' @export
-artms_evidenceToSaintExpressFormat <- function(evidence_file,
+artmsEvidenceToSaintExpress <- function(evidence_file,
                                            keys_file,
                                            ref_proteome_file,
                                            quant_variable = c('msspc','msint'),
@@ -79,11 +79,11 @@ artms_evidenceToSaintExpressFormat <- function(evidence_file,
     )
   }
   x <-
-    artms_mergeEvidenceAndKeys(x, 
+    artmsMergeEvidenceAndKeys(x, 
                                keys, 
                                by = c('RawFile'),
                                verbose = verbose)
-  data_f <- artms_filterEvidenceContaminants(x = x, verbose = verbose)
+  data_f <- artmsFilterEvidenceContaminants(x = x, verbose = verbose)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
   quant_variable <- match.arg(quant_variable)

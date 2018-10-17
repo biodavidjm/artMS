@@ -31,12 +31,12 @@
 #' @keywords MaxQuant, evidence, MSStats, summary
 #' @examples
 #' # Testing warning if files are not submitted
-#' test <- artms_msstats_summary(evidence_file = NULL,
+#' test <- artmsMsstatsSummary(evidence_file = NULL,
 #'                       prot_group_file = NULL,
 #'                       keys_file = NULL,
 #'                       results_file = NULL)
 #' @export
-artms_msstats_summary <- function(evidence_file = NULL,
+artmsMsstatsSummary <- function(evidence_file = NULL,
                                   prot_group_file = NULL,
                                   keys_file = NULL,
                                   results_file = NULL,
@@ -51,7 +51,7 @@ artms_msstats_summary <- function(evidence_file = NULL,
     return("Files must not be NULL")
   }
   
-  dat <- artms_mergeEvidenceAndKeys(evidence_file, 
+  dat <- artmsMergeEvidenceAndKeys(evidence_file, 
                                     keys_file, 
                                     verbose = verbose)
   dat <- data.table(dat)
@@ -63,7 +63,7 @@ artms_msstats_summary <- function(evidence_file = NULL,
   # get SPECTRAL COUNTS
   cat("--- Summarizing Spectral Counts\n")
   if( any(grepl("MS.MS.count", colnames(dat))) ){
-    dat <- artms_changeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
+    dat <- artmsChangeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
   }
   dat.sc <-
     data.table::dcast(
