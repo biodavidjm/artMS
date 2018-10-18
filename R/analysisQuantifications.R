@@ -168,6 +168,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     stop("This pathogen is not supported yet")
   }
   
+  session <- sessionInfo()
+  sink("sessionInfoArtMS.txt")
+  print(session)
+  sink()
+  
   output_dir <- paste0(output_dir, "_", choosePvalue)
   
   # create output directory if it doesn't exist

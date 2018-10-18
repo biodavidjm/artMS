@@ -37,7 +37,7 @@
 #' @import stringr
 #' @importFrom tidyr unnest
 #' @import UpSetR
-#' @importFrom utils combn read.delim write.table setTxtProgressBar 
+#' @importFrom utils combn read.delim sessionInfo write.table setTxtProgressBar 
 #' txtProgressBar head globalVariables
 #' @import VennDiagram
 #' @import yaml
