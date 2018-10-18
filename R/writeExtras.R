@@ -18,14 +18,20 @@
   
   # Annotation
   if (config$output_extras$annotate$enabled) {
-    results_ann <- artmsAnnotationUniprot(x = results, 
-                                columnid = 'Protein', 
-                                species = config$output_extras$annotate$species)
-    output_annotated_file <- gsub(".txt", "-annotated.txt", config$files$output)
-    write.table(results_ann, output_annotated_file, quote = FALSE, 
-                row.names = FALSE, 
-                col.names = TRUE, 
-                sep = "\t")
+    if(!is.null(config$output_extras$annotate$species)){
+      results_ann <- artmsAnnotationUniprot(x = results, 
+                                            columnid = 'Protein', 
+                                            species = config$output_extras$annotate$species)
+      output_annotated_file <- gsub(".txt", "-annotated.txt", config$files$output)
+      write.table(results_ann, output_annotated_file, quote = FALSE, 
+                  row.names = FALSE, 
+                  col.names = TRUE, 
+                  sep = "\t")
+    } else {
+      cat("--- Cannot find species name in the file name 
+(Add specie to field 'output_extras > annotate > species' in the config file)")
+      results_ann <- results
+    }
   }else{
     results_ann <- results
   }

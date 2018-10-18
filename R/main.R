@@ -66,6 +66,7 @@ utils::globalVariables(
     "condition",
     "Condition",
     "Contaminant",
+    "ENTREZID",
     "evidencekeys",
     "experiment",
     "Experiment",
@@ -147,8 +148,8 @@ utils::globalVariables(
     "quantile",
     "RawFile",
     "rect",
-    "ReproBioreplicaCount",
-    "ReproConditionCount",
+    "BiorepCount",
+    "CondCount",
     "res_index",
     "retention.length",
     "reverse",
@@ -392,7 +393,7 @@ artmsQuantification <- function(yaml_config_file,
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
     if (!config$msstats$enabled){
-      stop("MSstats was not enabled, therefore <output_extras> cannot be done!")
+      cat("MSstats was not enabled, therefore <output_extras> cannot be done!")
     }else{
       .artms_writeExtras(results$ComparisonResult, config)
     }

@@ -185,10 +185,10 @@ artmsFilterEvidenceContaminants <- function(x,
 #'                                            keys = artms_data_ph_keys)
 #' @export
 artmsMergeEvidenceAndKeys <- function(x, 
-                                       keys, 
-                                       by = c('RawFile'),
-                                       isSummary = FALSE,
-                                       verbose = TRUE) {
+                                     keys, 
+                                     by = c('RawFile'),
+                                     isSummary = FALSE,
+                                     verbose = TRUE) {
 
   if(verbose){
     cat(">> MERGING FILES\n")
@@ -233,20 +233,19 @@ artmsMergeEvidenceAndKeys <- function(x,
     if(length(keys_not_found) != 0){
       cat(
         sprintf(
-          "\tRaw data not in data file: %s\n",
+          "--(-) Raw.files in keys not found in evidence file: %s\n",
           paste(keys_not_found, collapse = '\t'))
       )
     }
     if(length(data_not_found) != 0){
       cat(
         sprintf(
-          "\tRaw data not in keys file: %s\n",
+          "--(-) Raw.files in evidence not found in keys file: %s\n",
           paste(data_not_found, collapse = '\t')
         )
       )
     }
   }
-  
   x <- merge(x, keys, by = by)
   return(x)
 }
@@ -571,9 +570,9 @@ artmsSpectralCounts <- function(evidence_file,
   
   
   x <- artmsMergeEvidenceAndKeys(x, 
-                                     keys, 
-                                     by = c('RawFile'),
-                                     verbose = verbose)
+                                 keys, 
+                                 by = c('RawFile'),
+                                 verbose = verbose)
   data_sel <-
     x[, c('Proteins',
              'Condition',

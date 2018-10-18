@@ -1139,7 +1139,7 @@ artmsVolcanoPlot <- function(mss_results,
                               decimal_threshold = 16,
                               verbose = TRUE) {
   
-  if(verbose) cat(">> generating volcano plot from MSstats results\n")
+  if(verbose) cat(">> Generating volcano plot from MSstats results\n")
   if (PDF) {
     if (!grepl("\\.pdf", output_name)) {
       stop("File extension '.pdf' is missed for < output_name >")

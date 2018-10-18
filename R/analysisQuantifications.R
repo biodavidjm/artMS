@@ -669,11 +669,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # Make a copy to use later
   bioReplicaInfo <- OUTreprod
   # And geht the total number of biological replicates
-  OUTreprod$ReproBioreplicaCount <- rowSums(OUTreprod[, 2:here])
+  OUTreprod$BiorepCount <- rowSums(OUTreprod[, 2:here])
   
   # Get whether a protein is found in all conditions
   reprospec2merge <-
-    subset(OUTreprod, select = c(Prey, ReproBioreplicaCount))
+    subset(OUTreprod, select = c(Prey, BiorepCount))
   
   OUTreproCondition <-
     data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
@@ -682,11 +682,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   thepreys <- subset(OUTreproCondition, select = c(Prey))
   thevalues <- subset(OUTreproCondition, select = -c(Prey))
   thevalues[thevalues > 0] <- 1
-  thevalues$ReproConditionCount <- rowSums(thevalues)
+  thevalues$CondCount <- rowSums(thevalues)
   FinalReproCondition <- cbind(thepreys, thevalues)
   
   reprocondition2merge <-
-    subset(FinalReproCondition, select = c(Prey, ReproConditionCount))
+    subset(FinalReproCondition, select = c(Prey, CondCount))
   
   # This version will be printed out below
   OUTreprodFinal <-
@@ -1414,14 +1414,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_log2fc <-
       data.table::dcast(
         data = imputedDF,
-        Gene + Protein + ENTREZID + Uniprot_PTM ~ Comparison,
+        Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
         value.var = 'iLog2FC',
         fill = 0
       )
     imputedDF_wide_pvalue <-
       data.table::dcast(
         data = imputedDF,
-        Gene + Protein + ENTREZID + Uniprot_PTM ~ Comparison,
+        Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
         value.var = 'iPvalue',
         fill = 0
       )
@@ -1440,14 +1440,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_log2fc <-
       data.table::dcast(
         data = imputedDF,
-        Gene + Protein + ENTREZID ~ Comparison,
+        Gene + Protein + EntrezID ~ Comparison,
         value.var = 'iLog2FC',
         fill = 0
       )
     imputedDF_wide_pvalue <-
       data.table::dcast(
         data = imputedDF,
-        Gene + Protein + ENTREZID ~ Comparison,
+        Gene + Protein + EntrezID ~ Comparison,
         value.var = 'iPvalue',
         fill = 0
       )

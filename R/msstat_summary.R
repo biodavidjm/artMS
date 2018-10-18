@@ -11,16 +11,15 @@
 #' In cases where there are multiple values for a Protein-BioReplicate
 #' pair due to minute changes in sequence, the maximum value is taken for the
 #' pair. Any pairs without a value are assigned a value of NA.
-#' @param evidence_file (char) The filepath to the MaxQuant searched data
-#' (evidence) file (txt tab delimited file). Only works in the newer versions
-#' of the evidence file
+#' @param evidence_file (char or data.frame) The filepath to the MaxQuant 
+#' searched data (evidence) file (txt tab delimited file). 
+#' Only works for the newer versions of the evidence file.
 #' @param prot_group_file (char) The filepath to the MaxQuant
-#' `proteinGroups.txt`
-#'  file (txt tab delimited file).
+#' `proteinGroups.txt` file (txt tab delimited file) or data.frame
 #' @param keys_file (char) The filepath to the keys file used with MSStats
 #' (txt tab delimited file).
 #' @param results_file (char) The filepath to the MSStats results file in t
-#' he default long format (txt tab delimited file).
+#' he default long format (txt tab delimited file or data.frame).
 #' @param return_df (data.frame) Whether or not to return the results
 #' to the R environment upon completion. This is useful if this is being
 #' used in an R pipeline and you want to feed the results directly into the
@@ -36,17 +35,28 @@
 #'                       keys_file = NULL,
 #'                       results_file = NULL)
 #' @export
-artmsMsstatsSummary <- function(evidence_file = NULL,
-                                  prot_group_file = NULL,
-                                  keys_file = NULL,
-                                  results_file = NULL,
+artmsMsstatsSummary <- function(evidence_file,
+                                  prot_group_file,
+                                  keys_file,
+                                  results_file,
                                   return_df = FALSE,
                                   verbose = TRUE) {
+  
+  if(any(missing(evidence_file) | 
+         missing(prot_group_file) |
+         missing(keys_file) | 
+         missing(results_file)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  
   # Check if passing in data or if passing in files
   if(verbose) cat(">> GENERATING A GLOBAL SUMMARY\n>> LOADING DATA\n")
   
   
-  if(is.null(evidence_file) & is.null(prot_group_file) & is.null(keys_file)
+  if(is.null(evidence_file) & 
+     is.null(prot_group_file) & 
+     is.null(keys_file)
      & is.null(results_file)){
     return("Files must not be NULL")
   }

@@ -44,8 +44,8 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
                     all.x = TRUE)
   
   # Move Gene name to the left:
-  gene_first <- preload[, c("SYMBOL", "UNIPROT", "GENENAME")]
-  dc_merged <- subset(dc_merged, select = -c(SYMBOL, GENENAME))
+  gene_first <- preload[, c("SYMBOL", "UNIPROT", "GENENAME", "ENTREZID")]
+  dc_merged <- subset(dc_merged, select = -c(SYMBOL, GENENAME, ENTREZID))
   send_back <-
     merge(
       gene_first,
@@ -56,7 +56,8 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
     )
   names(send_back)[grep("^UNIPROT$", names(send_back))] <- "Protein"
   names(send_back)[grep("^SYMBOL$", names(send_back))] <- "Gene"
-  names(send_back)[grep("^GENENAME$", names(send_back))] <- "Protein.names"
+  names(send_back)[grep("^GENENAME$", names(send_back))] <- "ProteinName"
+  names(send_back)[grep("^ENTREZID$", names(send_back))] <- "EntrezID"
   # Some uniprot entries might not have yet a gene name, 
   # which will be an empty value. Replace with Entry name:
   send_back$Gene[which(send_back$Gene == "")] <- NA
@@ -94,7 +95,7 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
 #' - YEAST (`install.packages(org.Sc.sgd.db)`)
 #' - PIG (`install.packages(org.Ss.eg.db)`)
 #' - XENOPUS (`install.packages(org.Xl.eg.db)`)
-#' @return (data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
+#' @return (data.frame) with ENTREZID and GENENAMES mapped on UniprotKB ids
 #' @keywords annotation, ids
 #' @examples
 #' # Load an example

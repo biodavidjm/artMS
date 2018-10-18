@@ -125,7 +125,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                                                  plotSP = TRUE,
                                                  verbose = TRUE) {
   if(verbose)
-    cat("EXTENDED QUALITY CONTROL ANALYSIS (evidence.txt based)-------------\n")
+    cat(">>EXTENDED QUALITY CONTROL ANALYSIS
+(evidence.txt based)----------------------\n")
   
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")

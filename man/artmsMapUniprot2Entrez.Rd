@@ -39,7 +39,7 @@ install the corresponding org.db package:
 }}
 }
 \value{
-(data.frame) with EntrezID and GENENAMES mapped on UniprotKB ids
+(data.frame) with ENTREZID and GENENAMES mapped on UniprotKB ids
 }
 \description{
 Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS

@@ -4,24 +4,22 @@
 \alias{artmsMsstatsSummary}
 \title{Summarize the MSStats results and data quantification}
 \usage{
-artmsMsstatsSummary(evidence_file = NULL, prot_group_file = NULL,
-  keys_file = NULL, results_file = NULL, return_df = FALSE,
-  verbose = TRUE)
+artmsMsstatsSummary(evidence_file, prot_group_file, keys_file,
+  results_file, return_df = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{evidence_file}{(char) The filepath to the MaxQuant searched data
-(evidence) file (txt tab delimited file). Only works in the newer versions
-of the evidence file}
+\item{evidence_file}{(char or data.frame) The filepath to the MaxQuant
+searched data (evidence) file (txt tab delimited file).
+Only works for the newer versions of the evidence file.}
 
 \item{prot_group_file}{(char) The filepath to the MaxQuant
-\code{proteinGroups.txt}
-file (txt tab delimited file).}
+\code{proteinGroups.txt} file (txt tab delimited file) or data.frame}
 
 \item{keys_file}{(char) The filepath to the keys file used with MSStats
 (txt tab delimited file).}
 
 \item{results_file}{(char) The filepath to the MSStats results file in t
-he default long format (txt tab delimited file).}
+he default long format (txt tab delimited file or data.frame).}
 
 \item{return_df}{(data.frame) Whether or not to return the results
 to the R environment upon completion. This is useful if this is being

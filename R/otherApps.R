@@ -74,7 +74,7 @@ artmsPhotonOutput <- function(inputFile,
   df <- .artms_checkIfFile(inputFile)
   
   # Check the existance of the columns that are needed.
-  checkColumns <- c('Gene', 'PTMsite', 'iLog2FC', 'ENTREZID')
+  checkColumns <- c('Gene', 'PTMsite', 'iLog2FC', 'EntrezID')
   
   if (any( !checkColumns %in% colnames(df)) ) {
     stop("One (or many) column names are not found:\n",sprintf('%s, ',checkColumns))
@@ -95,9 +95,9 @@ artmsPhotonOutput <- function(inputFile,
     df.select <- df.select[which(df.select$iPvalue < 0.05),]
     
     # Photon takes this input columns: GeneID,Amino.Acid,Position,avg,Symbol
-    df.out <- df.select[c('Gene','PTMsite','iLog2FC','ENTREZID')]
+    df.out <- df.select[c('Gene','PTMsite','iLog2FC','EntrezID')]
     df.out$Amino.Acid <- df.select$PTMaa
-    df.out <- artmsChangeColumnName(df.out, "ENTREZID", "GeneID")
+    df.out <- artmsChangeColumnName(df.out, "EntrezID", "GeneID")
     df.out <- artmsChangeColumnName(df.out, "PTMsite", "Position")
     df.out <- artmsChangeColumnName(df.out, "iLog2FC", "avg")
     df.out <- artmsChangeColumnName(df.out, "Gene", "Symbol")
