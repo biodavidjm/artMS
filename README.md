@@ -50,10 +50,16 @@ If the outcome is `>= 3.5.0`, congratulations! you can move forward
 
 Two options to install `artMS`
 
-### Official bioconductor releases
+### Official BioConductor releases (recommended)
 
 `artMS` is currently under revision by [BioConductor](https://www.bioconductor.org/). Why Bioconductor? [Here you can find a nice summary of good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor). Until officially accepted, the development version can be installed directly from Github. 
 
+Once accepted:
+
+```
+install.packages("BiocManager")
+BiocManager::install("artMS")
+```
 
 ### Development version from this repo 
 
@@ -66,7 +72,7 @@ library(devtools)
 install_github("biodavidjm/artMS")
 ```
 
-- Check that it is up and running by checking, for example, the documentation of the qc function `artmsQualityControlEvidenceBasic`:
+Check that it is up and running by checking, for example, the documentation of the qc function `artmsQualityControlEvidenceBasic`:
 
 ```
 library(artMS)
@@ -656,13 +662,13 @@ setwd('~/path/to/the/results_quantification/')
 And then run the following function (for an "AB" experiment)
 
 ```{r, echo = FALSE}
-artms_analysisQuantifications(log2fc_file = "ab-results.txt",
+artmsAnalysisQuantifications(log2fc_file = "ab-results.txt",
                               modelqc_file = "ab-results_ModelQC.txt",
                               species = "human",
                               output_dir = "AnalysisQuantifications")
 ```
 
-A few comments about the available options for `artms_analysisQuantifications`:
+A few comments about the available options for `artmsAnalysisQuantifications`:
 
 - `isPTM`. For both protein abundance (`AB`), Affinity Purification-Mass Spectrometry (`APMS`), and global analysis of posttranslational modifications (`PH` and `UB`) analyses use the option `"noptm"`. For a site specific PTM analysis use `"ptmsites"`.
 - `species`. This downstream analysis supports (for now) `"human"` and `"mouse"`

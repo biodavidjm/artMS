@@ -1,7 +1,7 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 0.99.86
+Version: 0.99.87
 Date: 2018-10-17
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
@@ -10,8 +10,8 @@ Description: artMS provides a set of tools for the analysis of proteomics
     output (evidence.txt file) and performs quality control, 
     relative quantification using MSstats, downstream analysis 
     and integration. artMS also provides a set of functions to re-format 
-    and make it compatible with other analytical tools, 
-    including, SAINTq, SAINTexpress, Phosfate, and PHOTON.
+    and make it compatible with other analytical tools, including, SAINTq, 
+    SAINTexpress, Phosfate, and PHOTON.
 License: GPL (>= 3) + file LICENSE
 URL: https://github.com/biodavidjm/artMS
 BugReports: https://github.com/biodavidjm/artMS/issues
