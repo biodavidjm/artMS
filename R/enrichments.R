@@ -130,23 +130,23 @@ artmsEnrichLog2fc <- function(dataset,
         background, verbose = verbose
       )
   } else{
-    stop("\nThe species (",
+    stop(" The species (",
          species,
-         ") not supported for the enrichment analysis!!\n")
+         ") not supported for the enrichment analysis!! ")
   }
   
   if (dim(enrichgenes)[1] == 0) {
-    cat("--- No significant results from the enrichment analysis\n")
+    message("--- No significant results from the enrichment analysis ")
   } else{
     if (is.null(heatmaps)) {
       enrichgenes2plot <- enrichgenes[which(enrichgenes$term.size < 500), ]
       for (i in unique(enrichgenes2plot$domain)) {
-        if(verbose) cat("\t--- Plotting '", i, "' annotations... ")
+        if(verbose) message("\t--- Plotting '", i, "' annotations... ")
         tmp <-
           enrichgenes2plot[which(enrichgenes2plot$domain == i), ]
         outfile <- gsub(".txt", paste0("_", i, ".txt"), output_name)
         .artms_EnrichmentPlotHeatmaps(tmp, outfile)
-        if(verbose) cat("out!\n")
+        if(verbose) message("out! ")
       }
     }
   }
@@ -221,7 +221,7 @@ artmsEnrichLog2fc <- function(dataset,
       color = color.palette
     )
   } else{
-    cat("---(-) Not enough enriched comparisons to plot the heatmap\n")
+    message("---(-) Not enough enriched comparisons to plot the heatmap ")
   }
 }
 
@@ -313,7 +313,7 @@ artmsEnrichProfiler <- function(x,
          Please, check the help of this function to find out more")
   
   gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
-  if(verbose) cat("---+ Enrichment analysis using gProfiler...")
+  if(verbose) message("---+ Enrichment analysis using gProfiler...")
   enrichData <- gprofiler(
     x,
     organism = species,
@@ -340,7 +340,7 @@ artmsEnrichProfiler <- function(x,
     include_graph = TRUE,
     src_filter = categorySource
   )
-  if(verbose) cat("done!\n")
+  if(verbose) message("done! ")
   return(enrichData)
 }
 
@@ -392,7 +392,7 @@ artmsEnrichProfiler <- function(x,
   
   # Let's stop this thing if there is not enough terms (we need at least 2)
   if (dim(x)[1] < 2) {
-    return(cat(" Not enough terms in this domain "))
+    return(message(" Not enough terms in this domain "))
   } else{
     row.names(x) = x$term.name
     x$term.name = c()
@@ -439,7 +439,7 @@ artmsEnrichProfiler <- function(x,
           fontfamily = "Helvetica"
         )
       } else{
-        cat(" [artMS currently doesn't support heatmaps of a single set] ")
+        message(" [artMS currently doesn't support heatmaps of a single set] ")
         #pheatmap(term_groups_selected_w_display, 
         #cluster_cols= FALSE,cluster_rows= FALSE, 
         #cellheight=10, cellwidth=10, scale="none", 
@@ -449,7 +449,7 @@ artmsEnrichProfiler <- function(x,
         # fontfamily="Helvetica")
       }
     } else{
-      cat(" [Not enough significant terms for this domain] ")
+      message(" [Not enough significant terms for this domain] ")
     }
   }
   

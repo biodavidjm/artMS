@@ -24,7 +24,7 @@
                               contrasts, 
                               config,
                               verbose = TRUE) {
-  if(verbose) cat(">> MSstats STARTS RUNNING:\n")
+  if(verbose) message(">> MSstats STARTS RUNNING: ")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
     mssquant = dataProcess(
@@ -74,9 +74,9 @@
       featureSubset = config$msstats$feature_subset
     )
   } else{
-    if(verbose) cat(
+    if(verbose) message(
       sprintf(
-        '\n--- NORMALIZATION METHOD: %s\n',
+        ' --- NORMALIZATION METHOD: %s ',
         config$msstats$normalization_method
       )
     )
@@ -114,7 +114,7 @@
     stop(
       sprintf(
         '\tERROR IN CONTRAST COMPARISON: GROUP LEVELS DIFFERENT FROM 
-        CONTRASTS FILE\n\tGROUP LEVELS\t%s\n\tCONTRASTS FILE\t%s\n',
+        CONTRASTS FILE \tGROUP LEVELS\t%s \tCONTRASTS FILE\t%s ',
         paste(levels(mssquant$GROUP_ORIGINAL), collapse = ','),
         paste(colnames(contrasts), collapse = ',')
       )
@@ -125,7 +125,7 @@
   write.table(
     quantification(mssquant),
     file = gsub('.txt', '-mss-sampleQuant.txt', config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -134,21 +134,21 @@
   write.table(
     quantification(mssquant, type = "Group"),
     file = gsub('.txt', '-mss-groupQuant.txt', config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
     col.names = TRUE
   )
   
-  if(verbose) cat(sprintf(
-    '\tFITTING CONTRASTS:\t%s\n',
+  if(verbose) message(sprintf(
+    '\tFITTING CONTRASTS:\t%s ',
     paste(rownames(contrasts), collapse = ',')
   ))
   write.table(
     mssquant$ProcessedData,
     file = gsub('.txt', '-mss-normalized.txt', config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -159,7 +159,7 @@
   write.table(
     results$ComparisonResult,
     file = config$files$output,
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -168,16 +168,16 @@
   write.table(
     results$ModelQC,
     file = gsub(".txt", "_ModelQC.txt", config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
     col.names = TRUE
   )
-  if(verbose) cat(">> MSstats IS DONE!\n")
+  if(verbose) message(">> MSstats IS DONE! ")
   
   #(1) Minimal number of biological replicates per condition
-  if(verbose) cat(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS\n")
+  if(verbose) message(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS ")
   results.ss1 <-
     designSampleSize(
       data = results$fittedmodel,
@@ -206,7 +206,7 @@
   write.table(
     results.ss,
     file = gsub(".txt", "_sampleSize.txt", config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -214,7 +214,7 @@
   )
   
   #(2) Power calculation
-  if(verbose) cat(">> CALCULATING POWER OF EXPERIMENT")
+  if(verbose) message(">> CALCULATING POWER OF EXPERIMENT")
   results.power1 <-
     designSampleSize(
       data = results$fittedmodel,
@@ -235,12 +235,12 @@
   write.table(
     results.power,
     file = gsub(".txt", "_experimentPower.txt", config$files$output),
-    eol = "\n",
+    eol = " ",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
     col.names = TRUE
   )
-  if(verbose) cat(" done!\n")
+  if(verbose) message(" done! ")
   return(results)
 }

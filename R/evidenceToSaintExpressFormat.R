@@ -30,7 +30,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
                                            quant_variable = c('msspc','msint'),
                                            output_file, 
                                            verbose = TRUE) {
-  if(verbose) cat(">> CONVERTING TO SAINTexpress FORMAT\n")
+  if(verbose) message(">> CONVERTING TO SAINTexpress FORMAT ")
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(ref_proteome_file)){
     return("The evidence_file, keys_file, and ref_proteome_file 
@@ -51,7 +51,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   }
 
   if(!file.exists(ref_proteome_file)){
-    stop("The file ", ref_proteome_file, " does not exist\n")
+    stop("The file ", ref_proteome_file, " does not exist ")
   }
   
   x <- fread(evidence_file, integer64 = 'double')
@@ -62,7 +62,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   
   saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
   
-  if(verbose) cat('>> VERIFYING DATA AND KEYS\n')
+  if(verbose) message('>> VERIFYING DATA AND KEYS ')
   if (any(
     !c(
       'RawFile',
@@ -75,7 +75,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   )) {
     stop(
       'colnames in keys not conform to schema
-      \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT\n'
+      \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT '
     )
   }
   x <-
@@ -87,7 +87,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
   quant_variable <- match.arg(quant_variable)
-  if(verbose) cat(">> AGGREGATING ON", quant_variable, "VALUES...\n")
+  if(verbose) message(">> AGGREGATING ON", quant_variable, "VALUES... ")
   ## aggregate over technical replicates if necessary
   if (quant_variable == 'msspc') {
     setnames(data_f, 'MS/MS Count', 'spectral_counts')
@@ -115,7 +115,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
                 data = data_f_agg,
                 FUN = sum)
   } else{
-    stop("\nWrong value for variable to quantify. 
+    stop(" Wrong value for variable to quantify. 
          Please use 'msspc' or 'msint'")
   }
   
@@ -154,9 +154,9 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_id = saint_preys[is.na(saint_preys$uniprot_id), ]$uniprot_ac
   if (missing_lengths > 0) {
     if(verbose)     
-      cat(
+      message(
       sprintf(
-        "--- WARNING! COMPUTING %s MISSING LENGTHS WITH THE MEDIAN LENGTH FROM THE DATASET\n",
+        "--- WARNING! COMPUTING %s MISSING LENGTHS WITH THE MEDIAN LENGTH FROM THE DATASET ",
         missing_lengths))
     saint_preys[is.na(saint_preys$lengths), ]$lengths = median(saint_preys$lengths, na.rm = TRUE)
   }
@@ -165,7 +165,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_baits,
     file = gsub('.txt', '-saint-baits.txt', output_file),
-    eol = '\n',
+    eol = ' ',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -174,7 +174,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_preys,
     file = gsub('.txt', '-saint-preys.txt', output_file),
-    eol = '\n',
+    eol = ' ',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -183,16 +183,16 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_interactions,
     file = gsub('.txt', '-saint-interactions.txt', output_file),
-    eol = '\n',
+    eol = ' ',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
     col.names = FALSE
   )
   if(verbose){
-    cat(">> OUTPUT FILES:\n")
-    cat("--- ", gsub('.txt', '-saint-baits.txt', output_file), "\n")
-    cat("--- ", gsub('.txt', '-saint-preys.txt', output_file), "\n")
-    cat("--- ", gsub('.txt', '-saint-interactions.txt', output_file, "\n"))
+    message(">> OUTPUT FILES: ")
+    message("--- ", gsub('.txt', '-saint-baits.txt', output_file), " ")
+    message("--- ", gsub('.txt', '-saint-preys.txt', output_file), " ")
+    message("--- ", gsub('.txt', '-saint-interactions.txt', output_file, " "))
   }
 }

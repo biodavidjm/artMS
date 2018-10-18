@@ -60,10 +60,10 @@ artmsDataPlots <- function(input_file,
   max_abu <- max(data_mss$ABUNDANCE, na.rm = TRUE)
   
   pdf(output_file, width = condition_length * 1.5, height = 3)
-  if(verbose) cat('>> PRINTING CONDITION PLOTS for every protein\n')
+  if(verbose) message('>> PRINTING CONDITION PLOTS for every protein ')
   for (subject in unique_subjects) {
     subject_data <- data_mss[PROTEIN == subject, ]
-    if(verbose) cat(sprintf('%s ', subject))
+    if(verbose) message(sprintf('%s ', subject))
     p <-
       ggplot(data = subject_data,
              aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, colour = FEATURE))
@@ -81,7 +81,7 @@ artmsDataPlots <- function(input_file,
       ggtitle(subject)
     print(p)
   }
-  if(verbose) cat("--- Done!\n")
+  if(verbose) message("--- Done! ")
   garbarge <- dev.off()
 }
 
@@ -166,7 +166,7 @@ artmsDataPlots <- function(input_file,
       cluster_cols = cluster_cols,
       fontfamily = "mono"
     )
-    if(verbose) cat("--- Heatmap is out\n")
+    if(verbose) message("--- Heatmap is out ")
   } else{
     heat_data_w <- heat_data_w[, labelOrder]
     pheatmap(
@@ -184,7 +184,7 @@ artmsDataPlots <- function(input_file,
       cluster_cols = cluster_cols,
       fontfamily = "mono"
     )
-    if(verbose) cat("--- Heatmap is out\n")
+    if(verbose) message("--- Heatmap is out ")
   }
   
   return(heat_data_w)
@@ -260,9 +260,9 @@ artmsPlotHeatmapQuant <- function(input_file,
   }
   
   sign_labels <- unique(sign_hits$Label)
-  if(verbose) cat(
+  if(verbose) message(
     sprintf(
-      ">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s\n",
+      ">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s ",
       lfc_lower,
       lfc_upper,
       FDR,
@@ -351,7 +351,7 @@ artmsPlotHeatmapQuant <- function(input_file,
       cluster_cols = cluster_cols,
       fontfamily = "mono"
     )
-    if(verbose) cat("--- Heatmap done\n")
+    if(verbose) message("--- Heatmap done ")
   } else{
     pheatmap(
       heat_data_w,
@@ -407,7 +407,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     bioreplicasAll <- unique(conditionOne$BioReplicate)
     
     for (eBioreplica in bioreplicasAll) {
-      # cat('\tChecking for technical replicas in ',eBioreplica, "\n")
+      # message('\tChecking for technical replicas in ',eBioreplica, " ")
       biorepli <-
         conditionOne[conditionOne$BioReplicate == eBioreplica, ]
       here <- unique(biorepli$Run)
@@ -416,7 +416,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         #Limit to 2 technical replicas: (length(here) > 1 & length(here) == 2)
         # We are expecting no more than 2 technical replicas. 
         # If there is more... it is worthy to double check
-        # cat('\t\t>>Reproducibility for technical replicas of',eBioreplica,":")
+        # message('\t\t>>Reproducibility for technical replicas of',eBioreplica,":")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$Run
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
@@ -442,7 +442,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         corr_coef <-
           round(cor(bdc$tr1, bdc$tr2, use = "pairwise.complete.obs"),
                 digits = 2)
-        # cat("r:\t",corr_coef,"\n")
+        # message("r:\t",corr_coef," ")
         p1 <- ggplot(bdc, aes(x = tr1, y = tr2))
         p1 <- p1 + geom_point() + geom_rug() + 
           geom_density_2d(colour = 'lightgreen')
@@ -454,7 +454,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <-
           p1 + labs(
             title = paste(
-              "Reproducibility between Technical Replicas\nBioReplica:",
+              "Reproducibility between Technical Replicas BioReplica:",
               eBioreplica,
               "  (n = ",
               np,
@@ -465,7 +465,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           )
         print(p1)
       } else if (length(here) == 1) {
-        # cat("\t\tOnly one technical replica\n")
+        # message("\t\tOnly one technical replica ")
       } else{
         stop("More than 2 technical replicates found. This is very unusual.
         Please, revise it and if correct contact artms developers")
@@ -513,7 +513,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           br1 <- blist[i]
           br2 <- blist[k]
           
-          # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
+          # message("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
           bcfinal <-
             data.table::dcast(data = b,
                               Feature + Proteins ~ BioReplicate,
@@ -529,7 +529,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           corr_coef <-
             round(cor(bcfinal[[br1]], bcfinal[[br2]], 
                       use = "pairwise.complete.obs"), digits = 2)
-          # cat("r:\t",corr_coef,"\n")
+          # message("r:\t",corr_coef," ")
           p2 <-
             ggplot(bcfinal, aes(x = bcfinal[[br1]], y = bcfinal[[br2]]))
           p2 <-
@@ -542,9 +542,9 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             p2 + labs(
               title = paste(
-                "Peptide Reproducibility between Bioreplicas\n(condition:",
+                "Peptide Reproducibility between Bioreplicas (condition:",
                 eCondition,
-                ")\n",
+                ") ",
                 br1,
                 "vs",
                 br2,
@@ -561,7 +561,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         } #end for
       } #end for
     } else{
-      cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+      message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
     }
   } # all the conditions
   # Close Progress bar
@@ -696,9 +696,9 @@ artmsPlotHeatmapQuant <- function(input_file,
     # Progress bar
     if(verbose) setTxtProgressBar(pb, i)
     
-    # cat("\n##################\nCONDITION: ",eCondition,"\n###############\n")
-    # cat("TECHNICAL REPLICAS\n---------------------------\n")
-    # cat("- ", eCondition,"\n")
+    # message(" ################## CONDITION: ",eCondition," ############### ")
+    # message("TECHNICAL REPLICAS --------------------------- ")
+    # message("- ", eCondition," ")
     
     conditionOne <- x[which(x$GROUP_ORIGINAL == eCondition), ]
     
@@ -706,7 +706,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     bioreplicasAll <- unique(conditionOne$SUBJECT_ORIGINAL)
     # plot_tr = list()
     for (eBioreplica in bioreplicasAll) {
-      # cat('\tChecking for technical replicas in ',eBioreplica, "\n")
+      # message('\tChecking for technical replicas in ',eBioreplica, " ")
       biorepli <-
         conditionOne[conditionOne$SUBJECT_ORIGINAL == eBioreplica, ]
       here <- unique(biorepli$RUN)
@@ -715,15 +715,15 @@ artmsPlotHeatmapQuant <- function(input_file,
         # Check whether we have more than 2 technical replicas and let 
         # the user know:
         if (length(here) > 2) {
-          cat(
+          message(
             "(-)----- WARNING: More than 2 technical replicas! 
-            make sure that this is right\n\n"
+            make sure that this is right  "
           )
         }
         # We are expecting no more than 2 technical replicas. 
         # If there is more... it is worthy to double check
-        # cat('\t\t>>Plotting Reproducibility between technical replicas ',
-        # eBioreplica,"\n")
+        # message('\t\t>>Plotting Reproducibility between technical replicas ',
+        # eBioreplica," ")
         #Need to change the RUN number to letters (TR: TECHNICAL REPLICA)
         biorepli$TR <- biorepli$RUN
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
@@ -745,7 +745,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <-
           p1 + labs(
             title = paste(
-              "Reproducibility between Technical Replicas\nBioReplica:",
+              "Reproducibility between Technical Replicas BioReplica:",
               eBioreplica,
               "  (n = ",
               np,
@@ -766,7 +766,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     # NOW BETWEEN BIOREPLICAS
     # Before comparing the different biological replicas, 
     # aggregate on the technical replicas
-    # cat("\nBIOLOGICAL REPLICAS\n---------------------------\n")
+    # message(" BIOLOGICAL REPLICAS --------------------------- ")
     b <-
       aggregate(
         ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
@@ -782,7 +782,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         for (k in j:length(blist)) {
           br1 <- blist[i]
           br2 <- blist[k]
-          # cat("\tChecking reproducibility between ",br1, "and ",br2 ,"\n")
+          # message("\tChecking reproducibility between ",br1, "and ",br2 ," ")
           
           bc <-
             data.table::dcast(data = b,
@@ -805,7 +805,7 @@ artmsPlotHeatmapQuant <- function(input_file,
               title = paste(
                 "Reproducibility between Bioreplicas (condition:",
                 eCondition,
-                ")\n",
+                ") ",
                 br1,
                 "vs",
                 br2,
@@ -821,9 +821,9 @@ artmsPlotHeatmapQuant <- function(input_file,
           print(p2)
         }
       }
-      if(verbose) cat("\n")
+      if(verbose) message(" ")
     } else{
-      if(verbose) cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+      if(verbose) message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
     }
   } # all the conditions
   
@@ -874,9 +874,9 @@ artmsPlotHeatmapQuant <- function(input_file,
     # evenafter <- dim(datadc)[1]
     # datadc <- datadc[complete.cases(datadc),]
     # after <- dim(datadc)[1]
-    # cat("Total proteins before: ", 
-    # before, "\nRemoving the 0s: ",evenafter, 
-    # "\nTotal proteins (only complete cases): ", after, "\n\n")
+    # message("Total proteins before: ", 
+    # before, " Removing the 0s: ",evenafter, 
+    # " Total proteins (only complete cases): ", after, "  ")
     
     blist <- unique(b$GROUP_ORIGINAL)
     if (length(blist) > 1) {
@@ -887,7 +887,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         for (k in j:length(blist)) {
           br1 <- blist[i]
           br2 <- blist[k]
-          # cat("\t",br1,"-",br2,":")
+          # message("\t",br1,"-",br2,":")
           
           npt <- length(unique(datadc$PROTEIN))
           
@@ -895,7 +895,7 @@ artmsPlotHeatmapQuant <- function(input_file,
             round(cor(datadc[[br1]], 
                       datadc[[br2]], 
                       use = "complete.obs"), digits = 2)
-          # cat ("r:",corr_coef,"\n")
+          # cat ("r:",corr_coef," ")
           
           p2 <-
             ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
@@ -908,11 +908,11 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             p2 + labs(
               title = paste(
-                "CORRELATION between CONDITIONS:\n",
+                "CORRELATION between CONDITIONS: ",
                 br1,
                 "and",
                 br2,
-                "\n(n =",
+                " (n =",
                 npt,
                 " r = ",
                 corr_coef,
@@ -924,9 +924,9 @@ artmsPlotHeatmapQuant <- function(input_file,
           print(p2)
         } # FOR loop
       } # For loop
-      # cat("\n")
+      # message(" ")
     } else{
-      cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+      message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
     }
   }
 
@@ -950,11 +950,11 @@ artmsPlotHeatmapQuant <- function(input_file,
       replace(x, is.infinite(x), NA)))
   datadc <- datadc[complete.cases(datadc), ]
   after <- dim(datadc)[1]
-  if(verbose) cat("---Total unique identifiers before: ",
+  if(verbose) message("---Total unique identifiers before: ",
     before,
-    "\n---Total unique identifiers (only complete cases): ",
+    " ---Total unique identifiers (only complete cases): ",
     after,
-    "\n\n")
+    "  ")
   
   blist <- unique(datai$Label)
   blist <- gsub("-", ".", blist)
@@ -972,13 +972,13 @@ artmsPlotHeatmapQuant <- function(input_file,
       for (k in j:length(blist)) {
         br1 <- blist[i]
         br2 <- blist[k]
-        # cat("\tChecking relation between conditions ",br1, "and ",br2 ,":")
+        # message("\tChecking relation between conditions ",br1, "and ",br2 ,":")
         
         npt <- length(unique(datadc$Protein))
         
         corr_coef <-
           round(cor(datadc[[br1]], datadc[[br2]]), digits = 2)
-        # cat ("r: ",corr_coef,"\n")
+        # cat ("r: ",corr_coef," ")
         
         p3 <-
           ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
@@ -994,7 +994,7 @@ artmsPlotHeatmapQuant <- function(input_file,
             br1,
             ") vs log2fc(",
             br2,
-            ")\n(n =",
+            ") (n =",
             npt,
             " r = ",
             corr_coef,
@@ -1007,7 +1007,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     } # For loop
     close(pb)
   } else{
-    cat("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible)\n")
+    message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
   }
 }
 
@@ -1028,7 +1028,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   # Remove NA
   nogenename2 <- x[duplicated(x$Gene), ]
   if (dim(nogenename2)[1] > 0) {
-    # cat("\t---Removing proteins without a gene name:\n")
+    # message("\t---Removing proteins without a gene name: ")
     x <- x[complete.cases(x), ]
   }
   
@@ -1139,7 +1139,7 @@ artmsVolcanoPlot <- function(mss_results,
                               decimal_threshold = 16,
                               verbose = TRUE) {
   
-  if(verbose) cat(">> Generating volcano plot from MSstats results\n")
+  if(verbose) message(">> Generating volcano plot from MSstats results ")
   if (PDF) {
     if (!grepl("\\.pdf", output_name)) {
       stop("File extension '.pdf' is missed for < output_name >")

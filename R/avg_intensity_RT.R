@@ -39,14 +39,14 @@ artmsAvgIntensityRT <- function(evidence_file,
   if(!is.character(species)) stop("Argument <species> must be a character")
   
   # read in data
-  if(verbose) cat(">> READING IN FILES...\n")
+  if(verbose) message(">> READING IN FILES... ")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
   suppressMessages(dat <-
                      artmsAnnotationUniprot(dat, "Proteins", 
                                              species = species))
   
   if (!is.null(protein_file)) {
-    if(verbose) cat(">> FILTERING OUT UNWANTED PROTEINS...\n")
+    if(verbose) message(">> FILTERING OUT UNWANTED PROTEINS... ")
     proteins <- .artms_checkIfFile(protein_file)
     
     # pull out only cases where the proteins appear
@@ -55,7 +55,7 @@ artmsAvgIntensityRT <- function(evidence_file,
     dat <- dat[idx,]
   }
   
-  if(verbose) cat(">> COMPUTING AVERAGES...\n")
+  if(verbose) message(">> COMPUTING AVERAGES... ")
   # Compute the average Intensity
   dat.avg <-
     aggregate(data = dat[, c("Protein",
@@ -83,7 +83,7 @@ artmsAvgIntensityRT <- function(evidence_file,
               mean,
               na.rm = TRUE)
   
-  if(verbose) cat(">> MERGING RESULTS...\n")
+  if(verbose) message(">> MERGING RESULTS... ")
   results <-
     merge(
       dat.avg,
@@ -101,11 +101,11 @@ artmsAvgIntensityRT <- function(evidence_file,
   # add 'Avg' to names
   names(results)[5:7] = paste0("Avg_", names(results)[5:7])
   
-  if(verbose) cat(">> SUMMARIZATION COMPLETE!!\n")
+  if(verbose) message(">> SUMMARIZATION COMPLETE!! ")
   
   if (output_file) {
     # write out results
-    if(verbose) cat("--- WRITING OUT RESULTS TO ", output_file, "\n")
+    if(verbose) message("--- WRITING OUT RESULTS TO ", output_file, " ")
     write.table(
       results,
       output_file,

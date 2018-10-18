@@ -28,7 +28,7 @@
                   col.names = TRUE, 
                   sep = "\t")
     } else {
-      cat("--- Cannot find species name in the file name 
+      message("--- Cannot find species name in the file name 
 (Add specie to field 'output_extras > annotate > species' in the config file)")
       results_ann <- results
     }
@@ -63,10 +63,10 @@
       FDR = config$output_extras$plots$FDR
     )
   if (dim(sign_hits)[1] == 0)
-    stop("No significant hits detected in this experiment. aborting plots.\n")
+    stop("No significant hits detected in this experiment. aborting plots. ")
   sign_labels <- unique(sign_hits$Label)
-  if(verbose) cat( sprintf(
-      "\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s\n",
+  if(verbose) message( sprintf(
+      "\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s ",
       lfc_lower,
       lfc_upper,
       config$output_extras$plots$FDR,
@@ -76,7 +76,7 @@
   if (config$output_extras$plots$heatmap) {
     # Heatmap only for > 1 comparison
     if (dim(sign_hits)[1] > 1) {
-      if(verbose) cat(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES\n")
+      if(verbose) message(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES ")
       heat_labels <-
         .artms_prettyPrintHeatmapLabels(
           uniprot_acs = sign_hits$Protein,
@@ -95,7 +95,7 @@
   }
   
   if (config$output_extras$plots$volcano) {
-    if(verbose) cat(">> PLOTTING VOLCANO PLOT\n")
+    if(verbose) message(">> PLOTTING VOLCANO PLOT ")
     file_name <- gsub('.txt', '-volcano.pdf', config$files$output)
     artmsVolcanoPlot(
       mss_results = results_ann[grep(selected_labels, results_ann$Label), ], 

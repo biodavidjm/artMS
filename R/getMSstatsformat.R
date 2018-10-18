@@ -20,7 +20,7 @@
                                     funfunc = "sum",
                                     verbose = TRUE) {
     if(verbose)
-    cat("\n>> ADAPTING THE DATA TO MSSTATS FORMAT\n")
+    message(" >> ADAPTING THE DATA TO MSSTATS FORMAT ")
   
     if(any(missing(data_f) | 
            missing(fraction) |
@@ -41,13 +41,13 @@
     data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
     
     if(verbose)
-      cat("---+ Selecting Sequence Type: MaxQuant 'Modified.sequence' column\n")
+      message("---+ Selecting Sequence Type: MaxQuant 'Modified.sequence' column ")
     
     # DEAL WITH FRACTIONS FIRST (but in reality it is just checking,
     # because it is doing a sum up of redundant features anyway)
     if (any(grepl("FractionKey", colnames(data_f))) & fraction) {
       if(verbose)
-        cat("------- + DEALING WITH FRACTIONS (sum up msint per features)\n")
+        message("------- + DEALING WITH FRACTIONS (sum up msint per features) ")
       
       predmss <-
         aggregate(
@@ -100,7 +100,7 @@
     # Using dcast from data.table because it has the option "sep" that allows to
     # choose the 'collapse' character to use.
     if(verbose)
-      cat("-----+ Adding NA values for missing values (required by MSstats)\n")
+      message("-----+ Adding NA values for missing values (required by MSstats) ")
     
     predmss_dc <-
       data.table::dcast(
@@ -160,11 +160,11 @@
     }
     
     dmss <- as.data.frame(dmss)
-    if(verbose) cat("------- + Write out the MSstats input file (-mss.txt)\n")
+    if(verbose) message("------- + Write out the MSstats input file (-mss.txt) ")
     write.table(
       dmss,
       file = gsub('.txt', '-mss.txt', output_name),
-      eol = "\n",
+      eol = " ",
       sep = "\t",
       quote = FALSE,
       row.names = FALSE,

@@ -54,7 +54,7 @@ artmsReplicatePlots <- function(input_file,
                                  out_file,
                                  prot_exp  = c("AB", "PH", "UB", "APMS"),
                                  verbose = TRUE) {
-  if(verbose) cat(">> GENERATING CUSTOMIZED REPLICATE PLOTS\n")
+  if(verbose) message(">> GENERATING CUSTOMIZED REPLICATE PLOTS ")
   
   if(any(missing(input_file) | 
          missing(keys_file) |
@@ -70,19 +70,19 @@ artmsReplicatePlots <- function(input_file,
   
   if (any(!prot_exp %in% supportedExperiments)) {
     stop(prot_exp, " is currently not supported.
-         The experiments supported are:\n",
-         sprintf('\t%s\n', supportedExperiments))
+         The experiments supported are: ",
+         sprintf('\t%s ', supportedExperiments))
   }
   
   if (!is.null(out_file)) {
     if (!grepl(".txt", out_file)) {
       stop("<out_file> must have extension '.txt'
-        Change out_file extension and try again\n"
+        Change out_file extension and try again "
       )
     }
   }
 
-  if(verbose) cat("--- READING IN FILES...\n")
+  if(verbose) message("--- READING IN FILES... ")
   # read in data
   df <- .artms_checkIfFile(input_file)
   # keys
@@ -102,19 +102,19 @@ artmsReplicatePlots <- function(input_file,
   
   if (prot_exp == "UB") {
     df <- df[grep("(gl)", df$Modified.sequence), ]
-    if(verbose) cat("--- Selecting only UB modified peptides\n")
+    if(verbose) message("--- Selecting only UB modified peptides ")
   } else if (prot_exp == "PH") {
     df <- df[grep("(ph)", df$Modified.sequence), ]
-    if(verbose) cat("--- Selecting only PH modified peptides\n")
+    if(verbose) message("--- Selecting only PH modified peptides ")
   } else if (prot_exp == "AC") {
     df <- df[grep("K\\(ac\\)", df$Modified.sequence), ]
-    if(verbose) cat("--- Selecting only AC modified peptides\n")
+    if(verbose) message("--- Selecting only AC modified peptides ")
   } else if (prot_exp == "AB" | prot_exp == "APMS") {
-    if(verbose) cat("--- No filtering of modified peptides\n")
+    if(verbose) message("--- No filtering of modified peptides ")
   } else{
     stop(
-      "\n!!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artmsReplicatePlots 
-      TO FIND OUT THE AVAILABLE OPTIONS\n"
+      " !!! THE prot_exp IS NOT RECOGNIZED. CHECK ?artmsReplicatePlots 
+      TO FIND OUT THE AVAILABLE OPTIONS "
     )
   }
   
@@ -146,7 +146,7 @@ artmsReplicatePlots <- function(input_file,
   
   # cycle through the condition pairs in the file and plot each pair
   for (i in seq_len(dim(repplot)[1])) {
-    if(verbose) cat("--- PLOTTING REPLICATE PLOT ", i, ": ")
+    if(verbose) message("--- PLOTTING REPLICATE PLOT ", i, ": ")
     
     # check if the replicate combination exists in the plots
     rep1_1 <-
@@ -259,11 +259,11 @@ artmsReplicatePlots <- function(input_file,
             height = 10
           )
           
-          if(verbose) cat(pdf_nameout, "\n")
+          if(verbose) message(pdf_nameout, " ")
         }
       } else{
-        if(verbose) cat(
-          "WARNING: not enough data for correlation analysis\n"
+        if(verbose) message(
+          "WARNING: not enough data for correlation analysis "
         )
       }
       } else{
@@ -271,7 +271,7 @@ artmsReplicatePlots <- function(input_file,
           "--- REPLICATE PLOT ",
           i,
           " NOT MADE -- MISSING DATA FROM ",
-          paste(" ", reps[!(reps %in% names(x))], "\n", collapse = "")
+          paste(" ", reps[!(reps %in% names(x))], " ", collapse = "")
         )
     }
   }

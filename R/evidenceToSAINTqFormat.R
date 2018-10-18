@@ -54,8 +54,8 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
                                          verbose = TRUE){
 
   if(verbose){
-    cat(">> GENERATING A SAINTq INPUT FILE\n")
-    cat(">> CHECKING THE keys FILE FIRST\n")
+    message(">> GENERATING A SAINTq INPUT FILE ")
+    message(">> CHECKING THE keys FILE FIRST ")
   }  
   
   if(is.null(evidence_file) & is.null(keys_file) & is.null(output_dir)){
@@ -72,19 +72,19 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
   keys <- .artms_checkRawFileColumnName(keys)
   
   if(fractions){
-    if(verbose) cat("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE\n")
+    if(verbose) message("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE ")
     requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
                          'BioReplicate','Run', 
                          'FractionKey', 'SAINT')
     if(any(! requiredColumns %in% colnames(keys)))
       stop('Column names in keys not conform to schema. Required columns:', 
-           sprintf('\t%s\n',requiredColumns))
+           sprintf('\t%s ',requiredColumns))
   }else{
     requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
                          'BioReplicate','Run', 'SAINT')
     if(any(! requiredColumns %in% colnames(keys)))
       stop('Column names in keys not conform to schema. Required columns:', 
-           sprintf('\t%s\n', requiredColumns))
+           sprintf('\t%s ', requiredColumns))
   }
   
   # EVIDENCE:
@@ -96,11 +96,11 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
   
   datamerged <- subset(datamerged, select = -Proteins)
   if( ('Leading.razor.protein' %in% colnames(datamerged)) ) {
-    if(verbose) cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
+    if(verbose) message('--- Making the <Leading.Razor.Protein> the <Proteins> column ')
     names(datamerged)[grep('Leading.razor.protein', 
                            names(datamerged))] <- 'Proteins'
   } else if('Leading.Razor.Protein' %in% colnames(datamerged) ) {
-    if(verbose) cat('--- Making the <Leading.Razor.Protein> the <Proteins> column\n')
+    if(verbose) message('--- Making the <Leading.Razor.Protein> the <Proteins> column ')
     names(datamerged)[grep('Leading.Razor.Protein', names(datamerged))] <-
       'Proteins'
   } else{
@@ -112,34 +112,34 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
   ## ONLY VALUES WITH SPECTRAL COUNTS
   sc_option <- match.arg(sc_option)
   if(sc_option == "msspc"){
-    if(verbose) cat("--- Selecting peptides with spectral count only\n")
+    if(verbose) message("--- Selecting peptides with spectral count only ")
     before <- dim(datamerged)[1]
     datamerged <- datamerged[which(datamerged$MS.MS.Count > 0),]
     after <- dim(datamerged)[1]
     keepingPercent <- (after*100)/before
     if(verbose){
-      cat("\t+--> Before:", before,"\n")
-      cat("\t+--> After:", after," (Keeping:", keepingPercent,"%)\n")
+      message("\t+--> Before:", before," ")
+      message("\t+--> After:", after," (Keeping:", keepingPercent,"%) ")
     }
   }else if(sc_option == "all"){
     if(verbose)
-      cat("--- ALL peptides with intensities will be used to generate the 
-      saintq input file (indepependently of the number of spectral counts\n")
+      message("--- ALL peptides with intensities will be used to generate the 
+      saintq input file (indepependently of the number of spectral counts ")
   }else{stop("<sc_option> argument must be either 'sc' or 'all'")
   }
 
   # Remove empty proteins
-  if(verbose) cat("--- Removing empty protein ids (if any)\n")
+  if(verbose) message("--- Removing empty protein ids (if any) ")
   if(length(which(datamerged$Proteins==""))>0){
     datamerged <- datamerged[-which(datamerged$Proteins==""),]
   }
   
   # Remove protein groups
-  if(verbose) cat("--- Removing Protein Groups (if any)\n")
+  if(verbose) message("--- Removing Protein Groups (if any) ")
   datamerged <- .artms_removeMaxQProteinGroups(datamerged)
   
   # Removing Contaminants
-  if(verbose) cat("--- Removing contaminants")
+  if(verbose) message("--- Removing contaminants")
   data_f2 <- artmsFilterEvidenceContaminants(datamerged,
                                               verbose = verbose)
   
@@ -286,15 +286,15 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
        ", file=outconfig_peptide)
 
   if(verbose){
-    cat(">> FOLDER <",output_dir,"> SHOULD CONTAIN 4 FILES:\n")
-    cat("\t- saintq-config-peptides\n")
-    cat("\t- saintq-config-proteins\n")
-    cat("\t- saintq_input_peptides.txt\n")
-    cat("\t- saintq_input_proteins.txt\n\n")
-    cat("--- Now get into the folder and run either:
+    message(">> FOLDER <",output_dir,"> SHOULD CONTAIN 4 FILES: ")
+    message("\t- saintq-config-peptides ")
+    message("\t- saintq-config-proteins ")
+    message("\t- saintq_input_peptides.txt ")
+    message("\t- saintq_input_proteins.txt  ")
+    message("--- Now get into the folder and run either:
         > saintq config-saintq-peptides
         or
-        > saintq config-saintq-proteins\n")
-    cat(">> DONE!\n")
+        > saintq config-saintq-proteins ")
+    message(">> DONE! ")
   }
 }

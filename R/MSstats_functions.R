@@ -82,9 +82,9 @@
 #' @export
 artmsChangeColumnName <- function(dataset, oldname, newname) {
   if (!(oldname %in% colnames(dataset))) {
-    stop("\nThe Column name provided <",
+    stop(" The Column name provided <",
          oldname,
-         "> was not found in the object provided\n")
+         "> was not found in the object provided ")
   }
   colnames(dataset)[grep(paste0('^', oldname, '$'), colnames(dataset))] <-
     newname
@@ -104,12 +104,12 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
 .artms_filterData <- function(x, 
                               config,
                               verbose = TRUE) {
-  if(verbose) cat("\n>> FILTERING\n")
+  if(verbose) message(" >> FILTERING ")
   if (config$data$filters$protein_groups == 'remove') {
-    if(verbose) cat("\tPROTEIN GROUPS\tREMOVE\n")
+    if(verbose) message("\tPROTEIN GROUPS\tREMOVE ")
     data_f <- .artms_removeMaxQProteinGroups(x)
   } else if (config$data$filters$protein_groups == 'keep') {
-    if(verbose) cat("\tPROTEIN GROUPS\tIGNORE\n")
+    if(verbose) message("\tPROTEIN GROUPS\tIGNORE ")
     data_f <- x
   } else{
     stop(
@@ -119,18 +119,18 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   }
   
   if (config$data$filters$contaminants) {
-    if(verbose) cat("\tCONTAMINANTS\tREMOVE\n")
+    if(verbose) message("\tCONTAMINANTS\tREMOVE ")
     data_f <- artmsFilterEvidenceContaminants(data_f)
   }
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification 
   # COULD BE EMPTY
   if (is.null(config$data$filters$modification)) {
-    if(verbose) cat("--- NO config$data$filters$modification provided. 
-        Using 'AB' as default\n")
+    if(verbose) message("--- NO config$data$filters$modification provided. 
+        Using 'AB' as default ")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
-    if(verbose) cat(sprintf("\tPROCESSING\t%s\n", 
+    if(verbose) message(sprintf("\tPROCESSING\t%s ", 
                             config$data$filters$modification))
   } else if (config$data$filters$modification == 'UB') {
     data_f = data_f[Modifications %like% 'GlyGly']
@@ -164,7 +164,7 @@ artmsFilterEvidenceContaminants <- function(x,
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)
     data_selected = data_selected[-blank.idx, ]
-  if(verbose) cat(">> CONTAMINANTS CON__|REV__ REMOVED\n")
+  if(verbose) message(">> CONTAMINANTS CON__|REV__ REMOVED ")
   return(data_selected)
 }
 
@@ -191,9 +191,9 @@ artmsMergeEvidenceAndKeys <- function(x,
                                      verbose = TRUE) {
 
   if(verbose){
-    cat(">> MERGING FILES\n")
-    cat("\tIt might take a long time 
-        (depending on the size of the evidence file)\n")
+    message(">> MERGING FILES ")
+    message("\tIt might take a long time 
+        (depending on the size of the evidence file) ")
   }
 
   x <- .artms_checkIfFile(x)
@@ -219,8 +219,8 @@ artmsMergeEvidenceAndKeys <- function(x,
                    'Run')
   # Check that the keys file is correct
   if (any(!requiredColumns %in% colnames(keys))) {
-    stop('Column names in keys not conform to schema. Required columns:\n', 
-           sprintf('\t%s\n', requiredColumns))
+    stop('Column names in keys not conform to schema. Required columns: ', 
+           sprintf('\t%s ', requiredColumns))
   }
   
   # Check if the number of RawFiles is the same.
@@ -231,16 +231,16 @@ artmsMergeEvidenceAndKeys <- function(x,
     keys_not_found <- setdiff(unique_keys, unique_data)
     data_not_found <- setdiff(unique_data, unique_keys)
     if(length(keys_not_found) != 0){
-      cat(
+      message(
         sprintf(
-          "--(-) Raw.files in keys not found in evidence file: %s\n",
+          "--(-) Raw.files in keys not found in evidence file: %s ",
           paste(keys_not_found, collapse = '\t'))
       )
     }
     if(length(data_not_found) != 0){
-      cat(
+      message(
         sprintf(
-          "--(-) Raw.files in evidence not found in keys file: %s\n",
+          "--(-) Raw.files in evidence not found in keys file: %s ",
           paste(data_not_found, collapse = '\t')
         )
       )
@@ -271,7 +271,7 @@ artmsSILACtoLong <- function(evidence_file,
                               output,
                               verbose = TRUE) {
   file <- Sys.glob(evidence_file)
-  if(verbose) cat(sprintf('>> PROCESSING SILAC EVIDENCE FILE\n'))
+  if(verbose) message(sprintf('>> PROCESSING SILAC EVIDENCE FILE '))
   tmp <- fread(file, integer64 = 'double')
   
   # reshape the data and split the heavy and light data
@@ -292,7 +292,7 @@ artmsSILACtoLong <- function(evidence_file,
     row.names = FALSE,
     col.names = TRUE
   )
-  if(verbose) cat("--- File ", output, " is ready\n")
+  if(verbose) message("--- File ", output, " is ready ")
   return(tmp_long)
 }
 
@@ -363,7 +363,7 @@ artmsResultsWide <- function(results_msstats,
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  if(verbose) cat(">> RESHAPING MSSTATS RESULTS TO wide FORMAT\n")
+  if(verbose) message(">> RESHAPING MSSTATS RESULTS TO wide FORMAT ")
   results_msstats <- .artms_checkIfFile(results_msstats)
   
   select_pvalues <- match.arg(select_pvalues)
@@ -383,13 +383,13 @@ artmsResultsWide <- function(results_msstats,
     write.table(
       input_w,
       file = output_file,
-      eol = '\n',
+      eol = ' ',
       sep = '\t',
       quote = FALSE,
       row.names = FALSE,
       col.names = TRUE
     )
-    if(verbose) cat("--- Results wide are out!\n")
+    if(verbose) message("--- Results wide are out! ")
   } else{
     return(input_w)
   }
@@ -458,7 +458,7 @@ artmsResultsWide <- function(results_msstats,
       angle = 90,
       hjust = 1,
       family = 'mono'
-    )) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
+    )) + ggtitle('Unique peptides per run  after filtering') + coord_flip()
   ggsave(
     filename = gsub('.txt', '-peptidecounts.pdf', config$files$output),
     plot = p,
@@ -476,7 +476,7 @@ artmsResultsWide <- function(results_msstats,
       angle = 90,
       hjust = 1,
       family = 'mono' )) + 
-    ggtitle('Unique peptides per run\n after filtering') + 
+    ggtitle('Unique peptides per run  after filtering') + 
     facet_wrap( ~ Condition, scales = 'free', ncol = 5)  + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
@@ -560,7 +560,7 @@ artmsSpectralCounts <- function(evidence_file,
                                  keys_file,
                                  output_file = NULL,
                                  verbose = TRUE) {
-  if(verbose) cat(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE\n")
+  if(verbose) message(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE ")
   
   x <- .artms_checkIfFile(evidence_file)
   keys <- .artms_checkIfFile(keys_file)
@@ -602,13 +602,13 @@ artmsSpectralCounts <- function(evidence_file,
     write.table(
       data_sel[, c('AllCondition', 'Proteins', 'spectral_counts')],
       file = output_file,
-      eol = '\n',
+      eol = ' ',
       sep = '\t',
       quote = FALSE,
       row.names = FALSE,
       col.names = TRUE
     )
-    if(verbose) cat(">> OUTPUT FILE <", output_file, "> is ready\n")
+    if(verbose) message(">> OUTPUT FILE <", output_file, "> is ready ")
   } else{
     return(data_sel)
   }

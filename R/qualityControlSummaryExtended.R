@@ -31,7 +31,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                                                 plotMSMS = TRUE,
                                                 plotISOTOPE = TRUE,
                                                 verbose = TRUE) {
-  if(verbose) cat("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)---------------\n")
+  if(verbose) message("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)--------------- ")
   
   if (is.null(summary_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
@@ -113,7 +113,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   )
   
   # PLOTS
-  if(verbose) cat(">> GENERATING QC PLOTS\n")
+  if(verbose) message(">> GENERATING QC PLOTS ")
   
   nsamples <- length(unique(summarykeys$bioreplicate))
   nconditions <- length(unique(summarykeys$condition))
@@ -129,7 +129,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
-    if(verbose) cat("--- Plot NUMBER OF MS1 SCANS")
+    if(verbose) message("--- Plot NUMBER OF MS1 SCANS")
     pdf(
       'QC_Plots_summary_MS1SCANS.pdf',
       width = nsamples * 3,
@@ -225,13 +225,13 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(ac)
     }
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   ## Number of MS2 scans
   if (plotMS2) {
-    if(verbose) cat("--- Plot Number of MS2 scans")
+    if(verbose) message("--- Plot Number of MS2 scans")
     pdf(
       'QC_Plots_summary_MS2.pdf',
       width = nsamples * 3,
@@ -356,13 +356,13 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       scale_fill_brewer(palette = "Spectral")
     print(bd)
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   # Number of msms.identification rate
   if (plotMSMS) {
-    if(verbose) cat("--- Plot Number of msms.identification rate")
+    if(verbose) message("--- Plot Number of msms.identification rate")
     pdf(
       'QC_Plots_summary_MSMS.pdf',
       width = nsamples * 3,
@@ -461,13 +461,13 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(cc)
     }
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   # Number of isotope patterns
   if (plotISOTOPE) {
-    if(verbose) cat("--- Plot Number of isotope patterns")
+    if(verbose) message("--- Plot Number of isotope patterns")
     pdf(
       'QC_Plots_summary_ISOTOPE.pdf',
       width = nsamples * 3,
@@ -672,7 +672,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(df)
     }
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
 } # END OF SUMMARY

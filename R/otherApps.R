@@ -25,7 +25,7 @@ artmsPhosfateOutput <- function(inputFile,
   checkColumns <- c('Protein', 'PTMsite', 'iLog2FC', 'Comparison')
   
   if (any( !checkColumns %in% colnames(df)) ) {
-    stop("One (or many) column names are not found:\n",
+    stop("One (or many) column names are not found: ",
          sprintf('%s, ',checkColumns))
   }
     
@@ -37,7 +37,7 @@ artmsPhosfateOutput <- function(inputFile,
   conditions <- unique(df$Comparison)
   
   for ( i in seq_len(length(conditions)) ){
-    if(verbose) cat("+---", i, conditions[i])
+    if(verbose) message("+---", i, conditions[i])
     df.select <- df[which(df$Comparison == conditions[i]),]
     df.out <- df.select[c('Protein','PTMsite','iLog2FC')]
     fileout <- gsub(".txt","", inputFile)
@@ -46,7 +46,7 @@ artmsPhosfateOutput <- function(inputFile,
     write.table(df.out, fileout, col.names = FALSE, 
                 row.names = FALSE, 
                 quote = FALSE, sep = ",")
-    if(verbose) cat(":", fileout, " is out\n")
+    if(verbose) message(":", fileout, " is out ")
   }
 }
 
@@ -77,7 +77,7 @@ artmsPhotonOutput <- function(inputFile,
   checkColumns <- c('Gene', 'PTMsite', 'iLog2FC', 'EntrezID')
   
   if (any( !checkColumns %in% colnames(df)) ) {
-    stop("One (or many) column names are not found:\n",sprintf('%s, ',checkColumns))
+    stop("One (or many) column names are not found: ",sprintf('%s, ',checkColumns))
   }
   
   # create output directory if it doesn't exist
@@ -88,7 +88,7 @@ artmsPhotonOutput <- function(inputFile,
   conditions <- unique(df$Comparison)
   
   for ( i in seq_len(length(conditions)) ){
-    if(verbose) cat("+---", i, conditions[i])
+    if(verbose) message("+---", i, conditions[i])
     df.select <- df[which(df$Comparison == conditions[i]),]
     
     # first, filter by pvalue
@@ -104,7 +104,7 @@ artmsPhotonOutput <- function(inputFile,
     
     df.out <- df.out[c('GeneID', 'Amino.Acid', 'Position', 'avg', 'Symbol')]
     if(any(grep(";", df.out$Symbol))){
-      if(verbose) cat("\t---(-) Removed multiple ids from column 'Protein'\n")
+      if(verbose) message("\t---(-) Removed multiple ids from column 'Protein' ")
       df.out <- df.out[-grep(";", df.out$Symbol),]
     }
     fileout <- gsub(".txt","", inputFile)
@@ -113,7 +113,7 @@ artmsPhotonOutput <- function(inputFile,
     write.table(df.out, fileout, 
                 col.names = TRUE, row.names = FALSE, 
                 quote = FALSE, sep = ",")
-    if(verbose) cat(":",fileout," is out\n")
+    if(verbose) message(":",fileout," is out ")
   }
 }
 

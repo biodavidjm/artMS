@@ -42,8 +42,8 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   if (any(!prot_exp %in% supportedExperiments)) {
     stop(prot_exp, " is currently not supported.
-The experiments supported are:\n",
-         sprintf('\t%s\n', supportedExperiments))
+The experiments supported are: ",
+         sprintf('\t%s ', supportedExperiments))
   }
   
   if (fractions) {
@@ -51,11 +51,11 @@ The experiments supported are:\n",
     keys <- .artms_checkIfFile(keys_file)
     keys <- .artms_checkRawFileColumnName(keys)
     if (any(!'FractionKey' %in% colnames(keys))) {
-      stop('\n<fractions> was activated but <fractionkey> column not found in the keys file\n')
+      stop(' <fractions> was activated but <fractionkey> column not found in the keys file ')
     }
   }
   
-  if(verbose) cat("\nQUALITY CONTROL -------------------\n>> LOADING FILES\n")
+  if(verbose) message(" QUALITY CONTROL ------------------- >> LOADING FILES ")
   
   # EVIDENCE:
   evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
@@ -95,7 +95,7 @@ The experiments supported are:\n",
       vjust = 0.5
     ))
   
-  if(verbose) cat(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS\n")
+  if(verbose) message(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS ")
   intDistribution <-
     paste0(output_name, ".qcplot.IntensityDistributions.pdf")
   
@@ -173,8 +173,8 @@ The experiments supported are:\n",
   evidencekeysclean <-
     artmsFilterEvidenceContaminants(x = evidencekeys, verbose = verbose)
   
-  if(verbose) cat(">> GENERATING THE REPRODUCIBILITY PLOTS 
-      (Warning: it might take some time)\n")
+  if(verbose) message(">> GENERATING THE REPRODUCIBILITY PLOTS 
+      (Warning: it might take some time) ")
   seqReproName <-
     paste0(output_name, ".qcplot.basicReproducibility.pdf")
   
@@ -223,7 +223,7 @@ The experiments supported are:\n",
   color.palette  <-
     colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
-  if(verbose) cat(">> GENERATING CORRELATION MATRICES\n")
+  if(verbose) message(">> GENERATING CORRELATION MATRICES ")
   if (length(technicalReplicas) > 1) {
     # First aggregate at the protein level by summing up everything
     biorepliaggregated <-
@@ -247,7 +247,7 @@ The experiments supported are:\n",
       .artms_plotCorrelationDistribution(Mtechnicalrep)
     
     # And now for clustering
-    if(verbose) cat("--- By Technical replicates\n")
+    if(verbose) message("--- By Technical replicates ")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
     
@@ -282,7 +282,7 @@ The experiments supported are:\n",
     print(theTechCorDis)
     garbage <- dev.off()
   } else{
-    if(verbose) cat("--- NO Technical Replicates detected\n")
+    if(verbose) message("--- NO Technical Replicates detected ")
   }
   
   # biological replicates
@@ -324,7 +324,7 @@ The experiments supported are:\n",
   
   theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
   
-  if(verbose) cat("--- By Biological replicates\n")
+  if(verbose) message("--- By Biological replicates ")
   matrixCorrelationBioreplicas <-
     paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
   pdf(matrixCorrelationBioreplicas,
@@ -400,7 +400,7 @@ The experiments supported are:\n",
   
   theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
   
-  if(verbose) cat("--- By Conditions\n")
+  if(verbose) message("--- By Conditions ")
   matrixCorrelationCond <-
     paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
   pdf(matrixCorrelationCond)
@@ -432,7 +432,7 @@ The experiments supported are:\n",
   garbage <- dev.off()
   
   # DETAILS
-  if(verbose) cat(">> GENERATING INTENSITY STATS PLOTS\n")
+  if(verbose) message(">> GENERATING INTENSITY STATS PLOTS ")
   if (prot_exp == "APMS" | prot_exp == "AB") {
     ekselect <- evidencekeysclean[c('Feature',
                                     'Proteins',
@@ -550,10 +550,10 @@ The experiments supported are:\n",
              "ph",
              "other")
   } else {
-    stop("Proteomics experiment not recognized\n")
+    stop("Proteomics experiment not recognized ")
   }
   
-  if(verbose) cat("--- ", prot_exp, " PROCESSED\n")
+  if(verbose) message("--- ", prot_exp, " PROCESSED ")
   reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
   
   #QC: SUM of intensities per biological replica (peptides vs contaminant)
@@ -643,7 +643,7 @@ The experiments supported are:\n",
       legend.position = "none"
     ) +
     labs(x = "BioReplicate", y = "log2(Intensity)") +
-    ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. 
+    ggtitle("Protein Intensity in BioReplicates Excluding contaminants. 
             Max intensity of TR")
   
   pisf <-
@@ -661,7 +661,7 @@ The experiments supported are:\n",
       legend.position = "none"
     ) +
     labs(x = "Condition", y = "log2(Intensity)") +
-    ggtitle("Protein Intensity in Conditions\nExcluding contaminants. 
+    ggtitle("Protein Intensity in Conditions Excluding contaminants. 
             Max intensity of TR")
   
   pisg <- ggplot(ekselectaBioreplica) +
@@ -678,7 +678,7 @@ The experiments supported are:\n",
       fill = "black",
       colour = "orange"
     ) +
-    ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. 
+    ggtitle("Total Intensity in Biological Replicas Excluding contaminants. 
             Max intensity of TR")
   
   pish <- ggplot(ekselectaBioreplica) +
@@ -695,7 +695,7 @@ The experiments supported are:\n",
       fill = "black",
       colour = "green"
     ) +
-    ggtitle("Total Intensity in Conditions\nExcluding contaminants. 
+    ggtitle("Total Intensity in Conditions Excluding contaminants. 
             Max intensity of TR")
   
   pisi <- ggplot(cd, aes(x = TR, fill = Condition)) +
@@ -767,7 +767,7 @@ The experiments supported are:\n",
   garbage <- dev.off()
   
   if (prot_exp == "PH" | prot_exp == "UB") {
-    if(verbose) cat(">> GENERATING PTM ", prot_exp, " STATS\n")
+    if(verbose) message(">> GENERATING PTM ", prot_exp, " STATS ")
     modName <- paste0(output_name, "qcplot.ptmStats.pdf")
     
     x <-
@@ -856,5 +856,5 @@ The experiments supported are:\n",
     garbage <- dev.off()
   }
   
-  if(verbose) cat(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!\n\n")
+  if(verbose) message(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!  ")
 }

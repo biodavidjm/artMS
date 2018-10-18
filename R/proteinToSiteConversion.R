@@ -52,24 +52,24 @@ artmsProtein2SiteConversion <- function (evidence_file,
   if(mod_type %in% c("PH", "UB", "AC"))
     stop("the mod_type ", mod_type, " is not supported")
   
-  if(verbose) cat(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC\n")
+  if(verbose) message(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC ")
 
   if(evidence_file == output_file) 
     stop("<output_file> cannot be the same as <evidence_file>")
   
   if(verbose)
-    cat(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS\n")
+    message(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS ")
   
   if (mod_type == 'UB') {
-    if(verbose) cat('--- SELECTING << UB >> MODIFIED PEPTIDES\n')
+    if(verbose) message('--- SELECTING << UB >> MODIFIED PEPTIDES ')
     maxq_mod_residue = 'K\\(gl\\)'
     mod_residue = 'K'
   } else if (mod_type == 'PH') {
-    if(verbose) cat('--- SELECTING << PH >> MODIFIED PEPTIDES\n')
+    if(verbose) message('--- SELECTING << PH >> MODIFIED PEPTIDES ')
     maxq_mod_residue = '(S|T|Y)\\(ph\\)'
     mod_residue = 'S|T|Y'
   } else if (mod_type == 'AC') {
-    if(verbose) cat('--- SELECTING << AC >> MODIFIED PEPTIDES\n')
+    if(verbose) message('--- SELECTING << AC >> MODIFIED PEPTIDES ')
     maxq_mod_residue = 'K\\(ac\\)'
     mod_residue = 'K'
   } else{
@@ -79,7 +79,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
     )
   }
   
-  if(verbose) cat("--- READING REFERENCE PROTEOME\n")
+  if(verbose) message("--- READING REFERENCE PROTEOME ")
   ## read in reference proteome
   ref_proteome <- read.fasta(
     file = ref_proteome_file,
@@ -132,7 +132,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
     )
   
   ## map mod sites in data to index
-  if(verbose) cat("--- OPENING EVIDENCE FILE\n")
+  if(verbose) message("--- OPENING EVIDENCE FILE ")
   ## read in maxq. data
   maxq_data <- fread(evidence_file, integer64 = 'double')
   # remove contaminants, keep unique sequences, fix names
@@ -145,8 +145,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
   mod_sites <- c()
   mod_seqs <- c()
   
-  if(verbose) cat("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
-      (it might take some time)\n")
+  if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
+      (it might take some time) ")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
@@ -185,7 +185,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
               peptide_index_in_protein + residues_before_site
             protein_mod_sites <- protein_indices[uniprot_ac == uac, ]
             if (!is.na(mod_site_index_in_protein)) {
-              #cat(sprintf('%s\n',mod_site_id))
+              #message(sprintf('%s ',mod_site_id))
               mod_res <-
                 protein_mod_sites[res_index == mod_site_index_in_protein, 
                                   ptm_site]
@@ -204,11 +204,11 @@ artmsProtein2SiteConversion <- function (evidence_file,
               mod_seqs <- c(mod_seqs, peptide_seq)
               stopifnot(length(mod_sites) == length(mod_seqs))
             } else{
-              cat(
+              message(
                 sprintf(
-                  'MISMATCH\t%s\n\tPEPTIDE_SEQ\t%s\n\tMOD_SITE\t%s\n\t
-                  PEPTIDE_IDX_IN_PROTEIN\t%s\n\tRESIDUES_BEFORE_SITE
-                  \t%s\n\tPROTEIN_SEQ\t%s\n',
+                  'MISMATCH\t%s \tPEPTIDE_SEQ\t%s \tMOD_SITE\t%s \t
+                  PEPTIDE_IDX_IN_PROTEIN\t%s \tRESIDUES_BEFORE_SITE
+                  \t%s \tPROTEIN_SEQ\t%s ',
                   mod_site_id,
                   peptide_seq,
                   mod_site,
@@ -240,10 +240,10 @@ artmsProtein2SiteConversion <- function (evidence_file,
   unmapped_mod_seqs <-
     unique(unmapped_mod_seqs[, c('mod_seqs', 'Proteins'), with = FALSE])
   if (dim(unmapped_mod_seqs)[1] > 0) {
-    if(verbose) cat('>> UNABLE TO MAP\n\t')
+    if(verbose) message('>> UNABLE TO MAP \t')
     if(verbose) print(unmapped_mod_seqs)
   } else{
-    if(verbose) cat(">> ALL SEQUENCES MAPPED\n")
+    if(verbose) message(">> ALL SEQUENCES MAPPED ")
   }
   
   final_data <-
@@ -256,7 +256,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
   write.table(
     final_data,
     file = output_file,
-    eol = '\n',
+    eol = ' ',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -275,21 +275,21 @@ artmsProtein2SiteConversion <- function (evidence_file,
   write.table(
     mapping_table,
     file = gsub('.txt', '-mapping.txt', output_file),
-    eol = '\n',
+    eol = ' ',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
     col.names = TRUE
   )
   
-  if(verbose) cat(
-    ">> FILES OUT:\n",
+  if(verbose) message(
+    ">> FILES OUT: ",
     "\t---New evidence-site file: ",
     output_file,
-    "\n",
+    " ",
     "\t---Details of the Mappings: ",
     gsub('.txt', '-mapping.txt', output_file),
-    "\n"
+    " "
   )
-  if(verbose) cat(">> CONVERSION COMPLETED\n\n")
+  if(verbose) message(">> CONVERSION COMPLETED  ")
 }

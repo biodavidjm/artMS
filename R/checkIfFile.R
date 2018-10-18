@@ -18,7 +18,7 @@
     x <- data.frame(input_file)
   } else{
     if(!file.exists(input_file)){
-      stop("The file ", input_file, " does not exist!\n")
+      stop("The file ", input_file, " does not exist! ")
     }
     
     if (is.evidence) {
@@ -71,7 +71,7 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
 # @keywords internal, MaxQuant, evidence
 .artms_read_evidence_file <- function(evidence_file,
                                       verbose = TRUE) {
-  if(verbose) cat("--- Reading in evidence file...\n")
+  if(verbose) message("--- Reading in evidence file... ")
   # read in the first line to get the header names
   cols <- readLines(evidence_file, 1)
   cols <-
@@ -268,7 +268,7 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
     stop("The evidence file contains columns that are not recognize.
         If they are new columns, add them to 'col.classes' of
         function <.artms_read_evidence_file>",
-        paste(cols.matched$V1[which(is.na(cols.matched$V2))],"\n")
+        paste(cols.matched$V1[which(is.na(cols.matched$V2))]," ")
     )
   }
   

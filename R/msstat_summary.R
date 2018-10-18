@@ -51,7 +51,7 @@ artmsMsstatsSummary <- function(evidence_file,
   
   
   # Check if passing in data or if passing in files
-  if(verbose) cat(">> GENERATING A GLOBAL SUMMARY\n>> LOADING DATA\n")
+  if(verbose) message(">> GENERATING A GLOBAL SUMMARY >> LOADING DATA ")
   
   
   if(is.null(evidence_file) & 
@@ -71,7 +71,7 @@ artmsMsstatsSummary <- function(evidence_file,
   results <- data.table(results)
   
   # get SPECTRAL COUNTS
-  cat("--- Summarizing Spectral Counts\n")
+  message("--- Summarizing Spectral Counts ")
   if( any(grepl("MS.MS.count", colnames(dat))) ){
     dat <- artmsChangeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
   }
@@ -85,7 +85,7 @@ artmsMsstatsSummary <- function(evidence_file,
     )
   names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
   # get INTENSITIES
-  cat("--- Summarizing Intensities\n")
+  message("--- Summarizing Intensities ")
   dat.intensity <- data.table::dcast(data = dat,
                                      Proteins ~ BioReplicate,
                                      value.var = "Intensity",
@@ -95,7 +95,7 @@ artmsMsstatsSummary <- function(evidence_file,
     paste0(names(dat.intensity)[-1], "_Intensity")
   
   # find the UNIQUE PEPTIDE columns
-  cat("--- Summarizing Unique Peptides\n")
+  message("--- Summarizing Unique Peptides ")
   idx <- grep("Peptide.counts..unique.", colnames(pg), fixed = TRUE)
   pg.uniqPep <- pg[, c(1, idx), with = FALSE]
   # # fix names to match the rest of the data and to merge smoothly
@@ -109,7 +109,7 @@ artmsMsstatsSummary <- function(evidence_file,
   names(pg.uniqPep)[1] <- "Proteins"
   
   # convert RESULTS to WIDE format
-  cat(">> Converting Results to Wide format\n")
+  message(">> Converting Results to Wide format ")
   results_l = melt(data = 
                      results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
                              with = FALSE], id.vars = c("Protein", "Label"))
@@ -121,7 +121,7 @@ artmsMsstatsSummary <- function(evidence_file,
   names(results_w)[1] = "Proteins"
   
   # Combine them all together
-  cat(">> Bringing it all together\n")
+  message(">> Bringing it all together ")
   results_summary = Reduce(
     function(...)
       merge(..., by = "Proteins", all.x = TRUE),
@@ -130,7 +130,7 @@ artmsMsstatsSummary <- function(evidence_file,
   names(results_summary)[grep("Proteins", names(results_summary))] = "Protein"
   
   # write out summary
-  cat(">> Writing out Summary.\n")
+  message(">> Writing out Summary. ")
   if (!is.data.frame(results_file) &
       !is.data.table(results_file)) {
     out_file <- gsub(".txt", "_summarized.txt", results_file)
@@ -147,5 +147,5 @@ artmsMsstatsSummary <- function(evidence_file,
     return(results_summary)
   }
   
-  cat(">> Summarization Completed\n")
+  message(">> Summarization Completed ")
 }

@@ -125,8 +125,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                                                  plotSP = TRUE,
                                                  verbose = TRUE) {
   if(verbose)
-    cat(">>EXTENDED QUALITY CONTROL ANALYSIS
-(evidence.txt based)----------------------\n")
+    message(">>EXTENDED QUALITY CONTROL ANALYSIS
+(evidence.txt based)---------------------- ")
   
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
@@ -342,7 +342,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # ----------------------------------------------------------------------------
   # PLOTS
-  if(verbose) cat(">> GENERATING QC PLOTS\n")
+  if(verbose) message(">> GENERATING QC PLOTS ")
   
   nsamples <- length(unique(evidencekeys$bioreplicate))
   nconditions <- length(unique(evidencekeys$condition))
@@ -358,7 +358,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   ### PSM
   if (plotPSM) {
-    if(verbose) cat("--- Plot PSM")
+    if(verbose) message("--- Plot PSM")
     pdf(
       'QC_Plots_PSM.pdf',
       width = nsamples * 3,
@@ -472,13 +472,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     }
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   ### IONS
   if (plotIONS) {
-    if(verbose) cat("--- Plot IONS")
+    if(verbose) message("--- Plot IONS")
     
     pdf(
       'QC_Plots_IONS.pdf',
@@ -596,12 +596,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   #### TYPE ######
   if (plotTYPE) {
-    if(verbose) cat("--- Plot TYPE")
+    if(verbose) message("--- Plot TYPE")
     
     pdf(
       'QC_Plots_TYPE.pdf',
@@ -642,14 +642,14 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   
   ### PEPTIDES ###
   if (plotPEPTIDES) {
-    if(verbose) cat("--- Plot PEPTIDES")
+    if(verbose) message("--- Plot PEPTIDES")
     
     pdf(
       'QC_Plots_PEPTIDES.pdf',
@@ -805,13 +805,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     )
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   ## PROTEINS
   if (plotPROTEINS) {
-    if(verbose) cat("--- Plot PROTEINS")
+    if(verbose) message("--- Plot PROTEINS")
     
     pdf(
       'QC_Plots_PROTEINS.pdf',
@@ -933,13 +933,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   # Peptide ion oversampling
   if (plotPIO) {
-    if(verbose) cat("--- Plot Plot Ion Oversampling")
+    if(verbose) message("--- Plot Plot Ion Oversampling")
     
     pdf(
       'QC_Plots_PepIonOversampling.pdf',
@@ -1047,13 +1047,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   # Charge state distribution
   if (plotCS) {
-    if(verbose) cat("--- Plot Charge State")
+    if(verbose) message("--- Plot Charge State")
     
     pdf(
       'QC_Plots_CHARGESTATE.pdf',
@@ -1087,12 +1087,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(ga)
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   # Mass error
   if (plotME) {
-    if(verbose) cat("--- Plot Mass Error")
+    if(verbose) message("--- Plot Mass Error")
     pdf(
       'QC_Plots_MASSERROR.pdf',
       width = nsamples * 3,
@@ -1131,13 +1131,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       scale_fill_brewer(palette = "Spectral")
     print(fa)
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   # mass-over-charge distribution
   if (plotMOCD) {
-    if(verbose) cat("--- Plot Mass-over-Charge distribution")
+    if(verbose) message("--- Plot Mass-over-Charge distribution")
     
     pdf(
       'QC_Plots_MZ.pdf',
@@ -1172,13 +1172,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(ga)
     garbage <- dev.off()
     
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   #m Peptide Intensity CV
   if (plotPEPICV) {
-    if(verbose) cat("--- Plot Peptide Intensity CV")
+    if(verbose) message("--- Plot Peptide Intensity CV")
     pdf(
       'QC_Plots_PEPINT.pdf',
       width = nsamples * 3,
@@ -1220,7 +1220,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of peptide feature intensity CV within each condition \n
+        "Distribution of peptide feature intensity CV within each condition  
         Overall median CV for each condition is given on the top and number of features used to calculate CVs is shown on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
@@ -1261,9 +1261,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of peptide feature intensity CV within each condition \n
-        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated, \n
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides \n
+        "Distribution of peptide feature intensity CV within each condition  
+        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated,  
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides  
         Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
@@ -1276,12 +1276,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(hb)
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   # peptide detection (using modified.sequence)
   if (plotPEPDETECT) {
-    if(verbose) cat("--- Plot Peptide Detection (using modified.sequence)")
+    if(verbose) message("--- Plot Peptide Detection (using modified.sequence)")
     pdf(
       'QC_Plots_PepDetect.pdf',
       width = nsamples * 3,
@@ -1317,13 +1317,13 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(ia)
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   #m Protein Intensity CV
   if (plotPROTICV) {
-    if(verbose) cat("--- Plot Protein Intensity CV")
+    if(verbose) message("--- Plot Protein Intensity CV")
     pdf(
       'QC_Plots_ProtInt.pdf',
       width = nsamples * 3,
@@ -1358,7 +1358,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of Protein intensity CV within each condition \n
+        "Distribution of Protein intensity CV within each condition  
         Overall median CV for each condition is given on the top and number of proteins used to calculate CVs is shown on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
@@ -1399,9 +1399,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of Protein (summed) intensity CV within each condition \n
-        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated, \n
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins \n
+        "Distribution of Protein (summed) intensity CV within each condition  
+        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated,  
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins  
         Overall median CV within each bin/condition is shown on the top and number of protein groups used to calculate CV is given on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
@@ -1414,12 +1414,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(jb)
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   # Protein detection
   if (plotPROTDETECT) {
-    if(verbose) cat("--- Plot Protein Detection")
+    if(verbose) message("--- Plot Protein Detection")
     pdf(
       'QC_Plots_ProtDetect.pdf',
       width = nsamples * 3,
@@ -1503,12 +1503,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       scale_fill_brewer(palette = "Set1")
     print(kd)
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   if (plotIDoverlap) {
-    if(verbose) cat("--- Plot ID overlap")
+    if(verbose) message("--- Plot ID overlap")
     pdf(
       'QC-ID-Overlap.pdf',
       width = nsamples * 4,
@@ -1636,11 +1636,11 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       dendrogram = "none"
     )
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   if (plotIC) {
-    if(verbose) cat("--- Plot Inter-Correlation")
+    if(verbose) message("--- Plot Inter-Correlation")
     pdf(
       'QC-IntCorrelation.pdf',
       width = nsamples * 4,
@@ -1736,12 +1736,12 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     print(mb)
     
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   
   if (plotSP) {
-    if(verbose) cat("--- Plot Sample Preparation")
+    if(verbose) message("--- Plot Sample Preparation")
     pdf(
       'QC-SamplePrep.pdf',
       width = nsamples * 4,
@@ -1839,7 +1839,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       scale_fill_brewer(palette = "Spectral")
     print(nb)
     garbage <- dev.off()
-    if(verbose) cat(" done\n")
+    if(verbose) message(" done ")
   }
   
   

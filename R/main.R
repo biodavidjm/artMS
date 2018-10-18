@@ -196,28 +196,28 @@ artmsQuantification <- function(yaml_config_file,
                                  verbose = TRUE) {
   
   if(verbose){
-    cat("\nWELCOME to artMS (Analytical R Tools for Mass Spectrometry)\n")
-    cat("============================================================\n\n")
-    cat(">> LOADING CONFIGURATION FILE...\n")
+    message(" WELCOME to artMS (Analytical R Tools for Mass Spectrometry) ")
+    message("============================================================  ")
+    message(">> LOADING CONFIGURATION FILE... ")
   }
   
   config <- yaml.load_file(yaml_config_file)
   
   # CHECK POINT: DO THE FILES EXIST?
   if(!file.exists(config$files$contrasts)){
-    stop("the file ", config$files$contrasts, " does not exist!\n")
+    stop("the file ", config$files$contrasts, " does not exist! ")
   }
   
   if(!file.exists(config$files$evidence)){
-    stop("the file ", config$files$evidence, " does not exist!\n")
+    stop("the file ", config$files$evidence, " does not exist! ")
   }
   
   if(!file.exists(config$files$keys)){
-    stop("the file ", config$files$keys, " does not exist!\n")
+    stop("the file ", config$files$keys, " does not exist! ")
   }
   
   if(!(grepl("\\.txt$", config$files$output))){
-    stop("the file ", config$files$output, " must have extension .txt\n" )
+    stop("the file ", config$files$output, " must have extension .txt " )
   }
   
   
@@ -245,7 +245,7 @@ artmsQuantification <- function(yaml_config_file,
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
     if(verbose)
-      cat("\nQUANTIFICATION: LOADING DATA-----------------\n")
+      message(" QUANTIFICATION: LOADING DATA----------------- ")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
     ## although he provided examples)
@@ -282,13 +282,13 @@ artmsQuantification <- function(yaml_config_file,
         .artms_writeContrast(config$files$contrasts, 
                              unique(as.character(keys$Condition)))
     }
-    if(verbose) cat('\tVERIFYING DATA AND KEYS\n')
+    if(verbose) message('\tVERIFYING DATA AND KEYS ')
     
     if (!'IsotopeLabelType' %in% colnames(x)) {
-      if(verbose) cat(
+      if(verbose) message(
         "------- + IsotopeLabelType not detected in evidence file!
         It will be assumed that this is a label-free experiment
-        (adding IsotopeLabelType column with L value)\n"
+        (adding IsotopeLabelType column with L value) "
       )
       x[, IsotopeLabelType := 'L']
     }
@@ -337,8 +337,8 @@ artmsQuantification <- function(yaml_config_file,
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
     if (!is.null(config$files$sequence_type)) {
       if(verbose)
-      cat(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
-        WARNING: RECOMMENDED TO ALWAYS USED modified HERE\n")
+      message(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
+        WARNING: RECOMMENDED TO ALWAYS USED modified HERE ")
       if (config$files$sequence_type == 'modified'){
         castFun = .artms_castMaxQToWidePTM
       }else{
@@ -379,7 +379,7 @@ artmsQuantification <- function(yaml_config_file,
                                       output_name = config$files$evidence,
                                       funfunc = "sum")
     } else {
-      if(verbose) cat(sprintf("\tREADING PREPROCESSED\t%s\n",
+      if(verbose) message(sprintf("\tREADING PREPROCESSED\t%s ",
         config$msstats$msstats_input))
       dmss <- read.delim(config$msstats$msstats_input,
                          stringsAsFactors = FALSE,
@@ -393,12 +393,12 @@ artmsQuantification <- function(yaml_config_file,
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
     if (!config$msstats$enabled){
-      cat("MSstats was not enabled, therefore <output_extras> cannot be done!")
+      message("MSstats was not enabled, therefore <output_extras> cannot be done!")
     }else{
       .artms_writeExtras(results$ComparisonResult, config)
     }
   }
-  if(verbose) cat("\nANALYSIS COMPLETED\n")
+  if(verbose) message(" ANALYSIS COMPLETED ")
 }
 
 # ------------------------------------------------------------------------------
@@ -423,7 +423,7 @@ artmsWriteConfigYamlFile <- function(
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){
       write_yaml(x = artms_config, file = config_file_name )
-      if(verbose) cat(">> File",config_file_name,"is out\n")
+      if(verbose) message(">> File",config_file_name,"is out ")
     }else{
       stop("The <config_file_name> must have the extension .yaml")
     }
