@@ -18,13 +18,31 @@ data.frame}
 \item{isFractions}{(logical) \code{TRUE} if it is a 2D experiment (fractions).
 Default: \code{FALSE}}
 
-\item{plotMS1SCANS}{(logical) It plots whatever}
+\item{plotMS1SCANS}{(logical) \code{TRUE} generates MS1 scan counts plot:
+Page 1 shows the number of MS1 scans in each BioReplicate.
+If replicates are present, Page 2 shows the mean number of MS1 scans
+per condition with error bar showing the standard error of the mean.
+If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
 
-\item{plotMS2}{(logical) It plots whatever}
+\item{plotMS2}{(logical) \code{TRUE} generates MS2 scan counts plot:
+Page 1 shows the number of MSs scans in each BioReplicate.
+If replicates are present, Page 2 shows the mean number of MS1 scans per
+condition with error bar showing the standard error of the mean.
+If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
 
-\item{plotMSMS}{(logical) It plots whatever}
+\item{plotMSMS}{(logical) \code{TRUE} generates MS2 identification rate (%) plot:
+Page 1 shows the fraction of MS2 scans confidently identified in each
+BioReplicate. If replicates are present, Page 2 shows the mean rate of MS2
+scans confidently identified per condition with error bar showing the
+standard error of the mean.
+If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
 
-\item{plotISOTOPE}{(logical) It plots whatever}
+\item{plotISOTOPE}{(logical) \code{TRUE} generates Isotope Pattern counts plot:
+Page 1 shows the number of Isotope Patterns with charge greater than 1 in
+each BioReplicate. If replicates are present, Page 2 shows the mean number
+of Isotope Patterns with charge greater than 1 per condition with error bar
+showing the standard error of the mean.
+If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
