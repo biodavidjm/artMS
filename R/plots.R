@@ -952,9 +952,8 @@ artmsPlotHeatmapQuant <- function(input_file,
   after <- dim(datadc)[1]
   if(verbose) message("---Total unique identifiers before: ",
     before,
-    " ---Total unique identifiers (only complete cases): ",
-    after,
-    "  ")
+    "\n---Total unique identifiers (only complete cases): ",
+    after)
   
   blist <- unique(datai$Label)
   blist <- gsub("-", ".", blist)

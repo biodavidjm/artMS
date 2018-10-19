@@ -9,7 +9,8 @@
 #' or data.frame
 #' @param keys_file (char) Keys file with a SAINT column specifying
 #' test (`T`) and control (`C`) conditions
-#' @param output_dir (char) New directory to create ans save files
+#' @param output_dir (char) New directory to create and save files. 
+#' Default is current directory (recommended to provide a new folder name).
 #' @param sc_option (char). Filter peptides with spectral counts only.
 #' Two options:
 #' - `msspc`: use only peptides with spectral_counts
@@ -47,7 +48,7 @@
 #' @export
 artmsEvidenceToSAINTq    <- function(evidence_file,
                                          keys_file,
-                                         output_dir,
+                                         output_dir = ".",
                                          sc_option = c("all", "msspc"),
                                          fractions = FALSE,
                                          quant_variable = c('msint','msspc'),
@@ -62,9 +63,7 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
     return("The evidence_file, keys_file and output_dir must not be NULL")
   }
   
-  if(any(missing(evidence_file) | 
-         missing(keys_file) |
-         missing(output_dir)))
+  if(any(missing(evidence_file) | missing(keys_file)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
@@ -156,11 +155,10 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
     data_f2 <- data_f2[!is.na(data_f2$Intensity),]
   }
   
-  # Combine sequence and charge
-  # data_f2$Sequence <- paste0(data_f2$Sequence,"_",data_f2$Charge)
-  
-  # Create the directory
-  dir.create(output_dir, showWarnings = FALSE)
+  # create output directory if it doesn't exist
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+  }
   
   # Combine all the fractions if this is a fractioning experiment by 
   # summing them up
@@ -286,15 +284,15 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
        ", file=outconfig_peptide)
 
   if(verbose){
-    message(">> FOLDER <",output_dir,"> SHOULD CONTAIN 4 FILES: ")
+    message(">> NEW 4 FILES CREATED: ")
     message("\t- saintq-config-peptides ")
     message("\t- saintq-config-proteins ")
     message("\t- saintq_input_peptides.txt ")
     message("\t- saintq_input_proteins.txt  ")
-    message("--- Now get into the folder and run either:
-        > saintq config-saintq-peptides
-        or
-        > saintq config-saintq-proteins ")
+    message("--- Now get into the folder and run either:\n
+        > saintq config-saintq-peptides\n
+        or\n
+        > saintq config-saintq-proteins")
     message(">> DONE! ")
   }
 }

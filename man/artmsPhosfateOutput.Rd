@@ -4,14 +4,13 @@
 \alias{artmsPhosfateOutput}
 \title{Generate Phosfate Input file}
 \usage{
-artmsPhosfateOutput(inputFile, outputDir = "phosfate_input_files",
-  verbose = TRUE)
+artmsPhosfateOutput(inputFile, output_dir = ".", verbose = TRUE)
 }
 \arguments{
 \item{inputFile}{(char) the \code{imputedL2fcExtended.txt} file name and location}
 
-\item{outputDir}{(char) Name of the folder to output results
-(Default: "phosfate_input_files")}
+\item{output_dir}{(char) Name of the folder to output results
+(Default: current directory. Recommended: \code{phosfate_input})}
 
 \item{verbose}{(logical) \code{TRUE} (default) to show function messages}
 }

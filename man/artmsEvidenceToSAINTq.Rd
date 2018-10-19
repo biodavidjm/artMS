@@ -4,7 +4,7 @@
 \alias{artmsEvidenceToSAINTq}
 \title{MaxQuant evidence file to SAINTq format}
 \usage{
-artmsEvidenceToSAINTq(evidence_file, keys_file, output_dir,
+artmsEvidenceToSAINTq(evidence_file, keys_file, output_dir = ".",
   sc_option = c("all", "msspc"), fractions = FALSE,
   quant_variable = c("msint", "msspc"), verbose = TRUE)
 }
@@ -15,7 +15,8 @@ or data.frame}
 \item{keys_file}{(char) Keys file with a SAINT column specifying
 test (\code{T}) and control (\code{C}) conditions}
 
-\item{output_dir}{(char) New directory to create ans save files}
+\item{output_dir}{(char) New directory to create and save files.
+Default is current directory (recommended to provide a new folder name).}
 
 \item{sc_option}{(char). Filter peptides with spectral counts only.
 Two options:

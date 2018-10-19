@@ -4,14 +4,13 @@
 \alias{artmsPhotonOutput}
 \title{Generate PHOTON Input file}
 \usage{
-artmsPhotonOutput(inputFile, outputDir = "photon_input_files",
-  verbose = TRUE)
+artmsPhotonOutput(inputFile, output_dir = ".", verbose = TRUE)
 }
 \arguments{
 \item{inputFile}{(char) the \code{imputedL2fcExtended.txt} file name and location}
 
-\item{outputDir}{(char) Name of the folder to output results
-(Default: "photon_input_files")}
+\item{output_dir}{(char) Name of the folder to output results
+(Default: current. Recommended: "photon_input_files" or similar)}
 
 \item{verbose}{(logical) \code{TRUE} (default) to show function messages}
 }

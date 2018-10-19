@@ -6,8 +6,8 @@
 #' the [Phosfate](http://phosfate.com/) input file (or data.frame)
 #' Please, notice that the only species suported by Phosfate is humans.
 #' @param inputFile (char) the `imputedL2fcExtended.txt` file name and location
-#' @param outputDir (char) Name of the folder to output results 
-#' (Default: "phosfate_input_files")
+#' @param output_dir (char) Name of the folder to output results 
+#' (Default: current directory. Recommended: `phosfate_input`)
 #' @param verbose (logical) `TRUE` (default) to show function messages
 #' @return Multiple output files (inputs of phosfate)
 #' @keywords generate, outputs, files
@@ -16,7 +16,7 @@
 #' }
 #' @export
 artmsPhosfateOutput <- function(inputFile, 
-                                outputDir = "phosfate_input_files",
+                                output_dir = ".",
                                 verbose = TRUE){
 
   df <- .artms_checkIfFile(inputFile)
@@ -30,19 +30,19 @@ artmsPhosfateOutput <- function(inputFile,
   }
     
   # create output directory if it doesn't exist
-  if(!dir.exists(outputDir)){
-    dir.create(outputDir, recursive = TRUE)
+  if(!dir.exists(output_dir)){
+    dir.create(output_dir, recursive = TRUE)
   }
   
   conditions <- unique(df$Comparison)
   
   for ( i in seq_len(length(conditions)) ){
-    if(verbose) message("+---", i, conditions[i])
+    if(verbose) message("+---", i, conditions[i], appendLF = FALSE)
     df.select <- df[which(df$Comparison == conditions[i]),]
     df.out <- df.select[c('Protein','PTMsite','iLog2FC')]
     fileout <- gsub(".txt","", inputFile)
     fileout <- paste0(fileout,"-",conditions[i],".txt")
-    fileout <- paste0(outputDir,"/",fileout)
+    fileout <- paste0(output_dir,"/",fileout)
     write.table(df.out, fileout, col.names = FALSE, 
                 row.names = FALSE, 
                 quote = FALSE, sep = ",")
@@ -58,8 +58,8 @@ artmsPhosfateOutput <- function(inputFile,
 #' the [PHOTON](https://github.com/jdrudolph/photon) input file.
 #' Please, notice that the only species suported by PHOTON is humans.
 #' @param inputFile (char) the `imputedL2fcExtended.txt` file name and location
-#' @param outputDir (char) Name of the folder to output results 
-#' (Default: "photon_input_files")
+#' @param output_dir (char) Name of the folder to output results 
+#' (Default: current. Recommended: "photon_input_files" or similar)
 #' @param verbose (logical) `TRUE` (default) to show function messages
 #' @return Multiple output files (inputs of phosfate)
 #' @keywords generate, outputs, files
@@ -68,7 +68,7 @@ artmsPhosfateOutput <- function(inputFile,
 #' }
 #' @export
 artmsPhotonOutput <- function(inputFile,
-                              outputDir = "photon_input_files",
+                              output_dir = ".",
                               verbose = TRUE){
   
   df <- .artms_checkIfFile(inputFile)
@@ -81,14 +81,14 @@ artmsPhotonOutput <- function(inputFile,
   }
   
   # create output directory if it doesn't exist
-  if(!dir.exists(outputDir)){
-    dir.create(outputDir, recursive = TRUE)
+  if(!dir.exists(output_dir)){
+    dir.create(output_dir, recursive = TRUE)
   }
   
   conditions <- unique(df$Comparison)
   
   for ( i in seq_len(length(conditions)) ){
-    if(verbose) message("+---", i, conditions[i])
+    if(verbose) message("+---", i, conditions[i], appendLF = FALSE)
     df.select <- df[which(df$Comparison == conditions[i]),]
     
     # first, filter by pvalue
@@ -109,7 +109,7 @@ artmsPhotonOutput <- function(inputFile,
     }
     fileout <- gsub(".txt","", inputFile)
     fileout <- paste0("photon.",conditions[i],".csv")
-    fileout <- paste0(outputDir,"/",fileout)
+    fileout <- paste0(output_dir,"/",fileout)
     write.table(df.out, fileout, 
                 col.names = TRUE, row.names = FALSE, 
                 quote = FALSE, sep = ",")

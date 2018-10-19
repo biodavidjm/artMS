@@ -5,7 +5,7 @@
 \title{Analysis of the Relative Quantifications}
 \usage{
 artmsAnalysisQuantifications(log2fc_file, modelqc_file, species,
-  output_dir, enrich = TRUE, l2fc_thres = 1.5,
+  output_dir = ".", enrich = TRUE, l2fc_thres = 1.5,
   choosePvalue = c("adjpvalue", "pvalue"),
   isBackground = "nobackground", isPtm = "global", mnbr = 2,
   isFluomics = FALSE, pathogen = "nopathogen",
@@ -24,7 +24,8 @@ artmsAnalysisQuantifications(log2fc_file, modelqc_file, species,
 \item{species}{(char) Main species. Currently supported: human, mouse}
 
 \item{output_dir}{(char) Name for the folder to output the results from the
-function}
+function. Default is current directory (recommended to provide a new folder
+name).}
 
 \item{enrich}{(logical) Performed enrichment analysis using GprofileR?
 \code{TRUE} (default) or \code{FALSE}}

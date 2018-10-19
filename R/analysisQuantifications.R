@@ -15,7 +15,8 @@
 #' @param modelqc_file (char) MSstats modelqc file location
 #' @param species (char) Main species. Currently supported: human, mouse
 #' @param output_dir (char) Name for the folder to output the results from the 
-#' function
+#' function. Default is current directory (recommended to provide a new folder
+#' name).
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
 #' `TRUE` (default) or `FALSE`
 #' @param l2fc_thres (int) log2fc cutoff for enrichment analysis (default,
@@ -76,7 +77,7 @@
 artmsAnalysisQuantifications <- function(log2fc_file,
                                           modelqc_file,
                                           species,
-                                          output_dir,
+                                          output_dir = ".",
                                           enrich = TRUE,
                                           l2fc_thres = 1.5,
                                           choosePvalue = c("adjpvalue","pvalue"),
@@ -101,8 +102,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if(any(missing(log2fc_file) | 
          missing(modelqc_file) |
-         missing(species) | 
-         missing(output_dir)))
+         missing(species) ))
    stop("One (or many) of the required arguments missed. 
         Please, check the help for this function to find out more")
   
@@ -299,8 +299,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     )
     dflog2fcfinites <-
       dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc), ]
-  } else{
-    if(verbose) message("------ (+) No abs(log2fc) >", cutofflog2fc, "so moving on! ")
   }
   
   # IMPUTING MISSING VALUES
@@ -328,7 +326,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if (numberInfinites < 1) {
     if(verbose) message(" WARNING: O infinite values. This is not normal ")
   } else {
-    if(verbose) message("--- Number of +/- INF values", dim(dflog2fcinfinites)[1], " ")
+    if(verbose) message("--- Number of +/- INF values: ", dim(dflog2fcinfinites)[1], " ")
     
     imputedL2FCmelted <-
       .artms_imputeMissingValues(dflog2fcinfinites, dfmq)
@@ -2249,7 +2247,6 @@ artmsGeneratePhSiteExtended <- function(df,
                                       ptmis,
                                       verbose = TRUE) {
   if(verbose) message("--- Loading abundance for proteins found in all biological replicas ")
-  if(verbose) message("--- With respect to the ptm: ", ptmis)
   # Remove empty entries
   if (any(df_input$PROTEIN == "")) {
     df_input <- df_input[-which(df_input$PROTEIN == ""), ]

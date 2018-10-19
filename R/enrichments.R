@@ -313,7 +313,8 @@ artmsEnrichProfiler <- function(x,
          Please, check the help of this function to find out more")
   
   gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
-  if(verbose) message("---+ Enrichment analysis using gProfiler...")
+  if(verbose) message("---+ Enrichment analysis using gProfiler...", 
+                      appendLF = FALSE) 
   enrichData <- gprofiler(
     x,
     organism = species,
