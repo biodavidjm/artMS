@@ -11,10 +11,28 @@
 #' data.frame
 #' @param isFractions (logical) `TRUE` if it is a 2D experiment (fractions).
 #' Default: `FALSE`
-#' @param plotMS1SCANS (logical) It plots whatever
-#' @param plotMS2 (logical) It plots whatever
-#' @param plotMSMS (logical) It plots whatever
-#' @param plotISOTOPE (logical) It plots whatever
+#' @param plotMS1SCANS (logical) `TRUE` generates MS1 scan counts plot: 
+#' Page 1 shows the number of MS1 scans in each BioReplicate. 
+#' If replicates are present, Page 2 shows the mean number of MS1 scans 
+#' per condition with error bar showing the standard error of the mean. 
+#' If isFractions `TRUE`, each fraction is a stack on the individual bar graphs. 
+#' @param plotMS2 (logical) `TRUE` generates MS2 scan counts plot: 
+#' Page 1 shows the number of MSs scans in each BioReplicate. 
+#' If replicates are present, Page 2 shows the mean number of MS1 scans per 
+#' condition with error bar showing the standard error of the mean. 
+#' If isFractions `TRUE`, each fraction is a stack on the individual bar graphs. 
+#' @param plotMSMS (logical) `TRUE` generates MS2 identification rate (%) plot: 
+#' Page 1 shows the fraction of MS2 scans confidently identified in each 
+#' BioReplicate. If replicates are present, Page 2 shows the mean rate of MS2 
+#' scans confidently identified per condition with error bar showing the 
+#' standard error of the mean. 
+#' If isFractions `TRUE`, each fraction is a stack on the individual bar graphs.
+#' @param plotISOTOPE (logical) `TRUE` generates Isotope Pattern counts plot: 
+#' Page 1 shows the number of Isotope Patterns with charge greater than 1 in 
+#' each BioReplicate. If replicates are present, Page 2 shows the mean number 
+#' of Isotope Patterns with charge greater than 1 per condition with error bar 
+#' showing the standard error of the mean. 
+#' If isFractions `TRUE`, each fraction is a stack on the individual bar graphs.
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A number of plots from the summary file
 #' @keywords qc, summary, keys
