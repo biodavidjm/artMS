@@ -6,7 +6,9 @@
 \usage{
 artmsQualityControlEvidenceBasic(evidence_file, keys_file,
   prot_exp = c("AB", "PH", "UB", "APMS"), fractions = 0,
-  output_name = "qcPlots_evidence", verbose = TRUE)
+  output_name = "qcPlots_evidence", plotINTDIST = TRUE,
+  plotREPRO = TRUE, plotCORMAT = TRUE, plotINTMISC = TRUE,
+  plotPTMSTATS = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -31,6 +33,39 @@ data.frame}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcPlots_evidence"}
+
+\item{plotINTDIST}{if \code{TRUE} (default) plots both \emph{Box-dot plot}
+and \emph{Jitter plot} of biological replicates based on MS (raw)
+intensity values.}
+
+\item{plotREPRO}{if \code{TRUE} (default) plots a correlation dotplot for all the
+combinations of biological replicates of conditions, based on MS Intensity
+values using features (peptide+charge)}
+
+\item{plotCORMAT}{if \code{TRUE} (default) plots a
+\itemize{
+\item \emph{Correlation matrix} for all the biological replicates using
+MS Intensity values,
+\item \emph{Clustering matrix} of the MS Intensities and correlation distribution
+\item \emph{histogram} of the distribution of correlations
+}}
+
+\item{plotINTMISC}{if \code{TRUE} (default) plots several pages, including
+bar plots of \emph{Total Sum of Intensities in BioReplicates},
+\emph{Total Sum of Intensities in Conditions},
+\emph{Total Peptide Counts in BioReplicates},
+\emph{Total Peptide Counts in conditions} separated by categories:
+\code{CON}: contaminants, \code{PROT} peptides, \code{REV} reversed sequences used by
+MaxQuant to estimate the FDR; \emph{Box plots} of MS Intensity values per
+biological replicates and conditions; \emph{bar plots} of total intensity
+(excluding contaminants) by bioreplicates and conditions; Barplots of
+\emph{total feature counts} by bioreplicates and conditions.}
+
+\item{plotPTMSTATS}{IF \code{TRUE} (default) plots stats related to the
+selected modification, including:
+\emph{bar plot of peptide counts and intensities}, broken by \code{PTM/other}
+categories; bar plots of \emph{total sum-up of MS intensity values} by
+other/PTM categories.}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
