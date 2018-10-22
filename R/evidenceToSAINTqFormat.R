@@ -77,13 +77,13 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
                          'FractionKey', 'SAINT')
     if(any(! requiredColumns %in% colnames(keys)))
       stop('Column names in keys not conform to schema. Required columns:', 
-           sprintf('\t%s ',requiredColumns))
+           sprintf('\t%s\n',requiredColumns))
   }else{
     requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
                          'BioReplicate','Run', 'SAINT')
     if(any(! requiredColumns %in% colnames(keys)))
       stop('Column names in keys not conform to schema. Required columns:', 
-           sprintf('\t%s ', requiredColumns))
+           sprintf('\t%s\n', requiredColumns))
   }
   
   # EVIDENCE:

@@ -80,6 +80,7 @@ utils::globalVariables(
     "iLog2FC",
     "imputedDFext",
     "installed.packages",
+    "IntDetection",
     "intensity",
     "Intensity",
     "Ions",
@@ -279,8 +280,9 @@ artmsQuantification <- function(yaml_config_file,
     if (config$msstats$enabled) {
       # Read in contrast file
       contrasts <-
-        .artms_writeContrast(config$files$contrasts, 
-                             unique(as.character(keys$Condition)))
+        .artms_writeContrast(
+          contrast_file = config$files$contrasts, 
+          all_conditions = unique(as.character(keys$Condition)))
     }
     if(verbose) message('\tVERIFYING DATA AND KEYS ')
     
@@ -365,8 +367,9 @@ artmsQuantification <- function(yaml_config_file,
 
     # Read in contrast file
     contrasts <-
-      .artms_writeContrast(config$files$contrasts, 
-                           unique(as.character(keys$Condition)))
+      .artms_writeContrast(
+        contrast_file = config$files$contrasts, 
+        all_conditions= unique(as.character(keys$Condition)))
     
     selectedConditions <- as.character(colnames(contrasts))
     
@@ -423,7 +426,7 @@ artmsWriteConfigYamlFile <- function(
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){
       write_yaml(x = artms_config, file = config_file_name )
-      if(verbose) message(">> File",config_file_name,"is out ")
+      if(verbose) message(">> File ",config_file_name,"is out ")
     }else{
       stop("The <config_file_name> must have the extension .yaml")
     }

@@ -185,7 +185,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
               peptide_index_in_protein + residues_before_site
             protein_mod_sites <- protein_indices[uniprot_ac == uac, ]
             if (!is.na(mod_site_index_in_protein)) {
-              #message(sprintf('%s ',mod_site_id))
+              #message(sprintf('%s\n',mod_site_id))
               mod_res <-
                 protein_mod_sites[res_index == mod_site_index_in_protein, 
                                   ptm_site]
@@ -206,9 +206,9 @@ artmsProtein2SiteConversion <- function (evidence_file,
             } else{
               message(
                 sprintf(
-                  'MISMATCH\t%s \tPEPTIDE_SEQ\t%s \tMOD_SITE\t%s \t
-                  PEPTIDE_IDX_IN_PROTEIN\t%s \tRESIDUES_BEFORE_SITE
-                  \t%s \tPROTEIN_SEQ\t%s ',
+                  'MISMATCH\t%s\n\tPEPTIDE_SEQ\t%s\n\tMOD_SITE\t%s\n\t
+                  PEPTIDE_IDX_IN_PROTEIN\t%s\n\tRESIDUES_BEFORE_SITE
+                  \t%s\n\tPROTEIN_SEQ\t%s\n',
                   mod_site_id,
                   peptide_seq,
                   mod_site,
@@ -256,7 +256,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
   write.table(
     final_data,
     file = output_file,
-    eol = ' ',
+    eol = '\n',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -275,7 +275,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
   write.table(
     mapping_table,
     file = gsub('.txt', '-mapping.txt', output_file),
-    eol = ' ',
+    eol = '\n',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -283,13 +283,13 @@ artmsProtein2SiteConversion <- function (evidence_file,
   )
   
   if(verbose) message(
-    ">> FILES OUT: ",
+    ">> FILES OUT:\n",
     "\t---New evidence-site file: ",
     output_file,
-    " ",
+    "\n",
     "\t---Details of the Mappings: ",
     gsub('.txt', '-mapping.txt', output_file),
-    " "
+    "\n"
   )
   if(verbose) message(">> CONVERSION COMPLETED  ")
 }

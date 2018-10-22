@@ -130,7 +130,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
         Using 'AB' as default ")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
-    if(verbose) message(sprintf("\tPROCESSING\t%s ", 
+    if(verbose) message(sprintf("\tPROCESSING\t%s\n", 
                             config$data$filters$modification))
   } else if (config$data$filters$modification == 'UB') {
     data_f = data_f[Modifications %like% 'GlyGly']
@@ -219,7 +219,7 @@ artmsMergeEvidenceAndKeys <- function(x,
                    'Run')
   # Check that the keys file is correct
   if (any(!requiredColumns %in% colnames(keys))) {
-    stop('Column names in keys not conform to schema. Required columns: ', 
+    stop('Column names in keys not conform to schema. Required columns:\n', 
            sprintf('\t%s ', requiredColumns))
   }
   
@@ -233,14 +233,14 @@ artmsMergeEvidenceAndKeys <- function(x,
     if(length(keys_not_found) != 0){
       message(
         sprintf(
-          "--(-) Raw.files in keys not found in evidence file: %s ",
+          "--(-) Raw.files in keys not found in evidence file: %s\n",
           paste(keys_not_found, collapse = '\t'))
       )
     }
     if(length(data_not_found) != 0){
       message(
         sprintf(
-          "--(-) Raw.files in evidence not found in keys file: %s ",
+          "--(-) Raw.files in evidence not found in keys file: %s\n",
           paste(data_not_found, collapse = '\t')
         )
       )
@@ -383,7 +383,7 @@ artmsResultsWide <- function(results_msstats,
     write.table(
       input_w,
       file = output_file,
-      eol = ' ',
+      eol = '\n',
       sep = '\t',
       quote = FALSE,
       row.names = FALSE,
@@ -458,7 +458,7 @@ artmsResultsWide <- function(results_msstats,
       angle = 90,
       hjust = 1,
       family = 'mono'
-    )) + ggtitle('Unique peptides per run  after filtering') + coord_flip()
+    )) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
   ggsave(
     filename = gsub('.txt', '-peptidecounts.pdf', config$files$output),
     plot = p,
@@ -476,7 +476,7 @@ artmsResultsWide <- function(results_msstats,
       angle = 90,
       hjust = 1,
       family = 'mono' )) + 
-    ggtitle('Unique peptides per run  after filtering') + 
+    ggtitle('Unique peptides per run\n after filtering') + 
     facet_wrap( ~ Condition, scales = 'free', ncol = 5)  + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
@@ -602,7 +602,7 @@ artmsSpectralCounts <- function(evidence_file,
     write.table(
       data_sel[, c('AllCondition', 'Proteins', 'spectral_counts')],
       file = output_file,
-      eol = ' ',
+      eol = '\n',
       sep = '\t',
       quote = FALSE,
       row.names = FALSE,
@@ -664,7 +664,7 @@ artmsSpectralCounts <- function(evidence_file,
           length(which(!(characs %in% accepted_chars)))
         if (not_allowed_count > 0) {
           valid <- FALSE
-          stop(paste(x, "is not a valid input"))
+          stop(paste(x, " is not a valid input"))
         }
         
         dash_count <- length(which(characs == '-'))

@@ -268,7 +268,7 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
     stop("The evidence file contains columns that are not recognize.
         If they are new columns, add them to 'col.classes' of
         function <.artms_read_evidence_file>",
-        paste(cols.matched$V1[which(is.na(cols.matched$V2))]," ")
+        paste(cols.matched$V1[which(is.na(cols.matched$V2))],"\n")
     )
   }
   

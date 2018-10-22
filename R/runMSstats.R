@@ -76,7 +76,7 @@
   } else{
     if(verbose) message(
       sprintf(
-        ' --- NORMALIZATION METHOD: %s ',
+        ' --- NORMALIZATION METHOD: %s\n',
         config$msstats$normalization_method
       )
     )
@@ -114,7 +114,7 @@
     stop(
       sprintf(
         '\tERROR IN CONTRAST COMPARISON: GROUP LEVELS DIFFERENT FROM 
-        CONTRASTS FILE \tGROUP LEVELS\t%s \tCONTRASTS FILE\t%s ',
+        CONTRASTS FILE \tGROUP LEVELS\t%s\n\tCONTRASTS FILE\t%s ',
         paste(levels(mssquant$GROUP_ORIGINAL), collapse = ','),
         paste(colnames(contrasts), collapse = ',')
       )
@@ -125,7 +125,7 @@
   write.table(
     quantification(mssquant),
     file = gsub('.txt', '-mss-sampleQuant.txt', config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -134,7 +134,7 @@
   write.table(
     quantification(mssquant, type = "Group"),
     file = gsub('.txt', '-mss-groupQuant.txt', config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -142,13 +142,13 @@
   )
   
   if(verbose) message(sprintf(
-    '\tFITTING CONTRASTS:\t%s ',
+    '\tFITTING CONTRASTS:\t%s\n',
     paste(rownames(contrasts), collapse = ',')
   ))
   write.table(
     mssquant$ProcessedData,
     file = gsub('.txt', '-mss-normalized.txt', config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -159,7 +159,7 @@
   write.table(
     results$ComparisonResult,
     file = config$files$output,
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -168,7 +168,7 @@
   write.table(
     results$ModelQC,
     file = gsub(".txt", "_ModelQC.txt", config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -206,7 +206,7 @@
   write.table(
     results.ss,
     file = gsub(".txt", "_sampleSize.txt", config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,
@@ -235,7 +235,7 @@
   write.table(
     results.power,
     file = gsub(".txt", "_experimentPower.txt", config$files$output),
-    eol = " ",
+    eol = "\n",
     sep = "\t",
     quote = FALSE,
     row.names = FALSE,

@@ -74,7 +74,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   if (any(!prot_exp %in% supportedExperiments)) {
     stop(prot_exp, " is currently not supported.
 The experiments supported are: ",
-         sprintf('\t%s ', supportedExperiments))
+         sprintf('\t%s\n', supportedExperiments))
   }
   
   if (fractions) {
@@ -676,7 +676,7 @@ The experiments supported are: ",
         legend.position = "none"
       ) +
       labs(x = "BioReplicate", y = "log2(Intensity)") +
-      ggtitle("Protein Intensity in BioReplicates Excluding contaminants. 
+      ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. 
               Max intensity of TR")
     
     pisf <-
@@ -694,7 +694,7 @@ The experiments supported are: ",
         legend.position = "none"
       ) +
       labs(x = "Condition", y = "log2(Intensity)") +
-      ggtitle("Protein Intensity in Conditions Excluding contaminants. 
+      ggtitle("Protein Intensity in Conditions\nExcluding contaminants. 
               Max intensity of TR")
     
     pisg <- ggplot(ekselectaBioreplica) +
@@ -711,7 +711,7 @@ The experiments supported are: ",
         fill = "black",
         colour = "orange"
       ) +
-      ggtitle("Total Intensity in Biological Replicas Excluding contaminants. 
+      ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. 
               Max intensity of TR")
     
     pish <- ggplot(ekselectaBioreplica) +

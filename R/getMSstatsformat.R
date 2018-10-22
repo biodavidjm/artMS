@@ -164,7 +164,7 @@
     write.table(
       dmss,
       file = gsub('.txt', '-mss.txt', output_name),
-      eol = " ",
+      eol = "\n",
       sep = "\t",
       quote = FALSE,
       row.names = FALSE,

@@ -262,7 +262,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   sign_labels <- unique(sign_hits$Label)
   if(verbose) message(
     sprintf(
-      ">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s ",
+      ">> TOTAL NUMBER OF SELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:%s\n",
       lfc_lower,
       lfc_upper,
       FDR,
@@ -454,9 +454,9 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <-
           p1 + labs(
             title = paste(
-              "Reproducibility between Technical Replicas BioReplica:",
+              "Reproducibility between Technical Replicas\nBioReplica:\n",
               eBioreplica,
-              "  (n = ",
+              "\n(n =  ",
               np,
               ", r = ",
               corr_coef,
@@ -542,13 +542,13 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             p2 + labs(
               title = paste(
-                "Peptide Reproducibility between Bioreplicas (condition:",
+                "Peptide Reproducibility between Bioreplicas\n (condition:",
                 eCondition,
-                ") ",
+                ")",
                 br1,
                 "vs",
                 br2,
-                "(n =",
+                "\n(n =",
                 npt,
                 " r = ",
                 corr_coef,
@@ -745,9 +745,9 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <-
           p1 + labs(
             title = paste(
-              "Reproducibility between Technical Replicas BioReplica:",
+              "Reproducibility between Technical Replicas\nBioReplica:\n",
               eBioreplica,
-              "  (n = ",
+              "\n(n = ",
               np,
               ", r = ",
               corr_coef,
@@ -803,13 +803,13 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             p2 + labs(
               title = paste(
-                "Reproducibility between Bioreplicas (condition:",
+                "Reproducibility between Bioreplicas\n(condition:",
                 eCondition,
                 ") ",
                 br1,
                 "vs",
                 br2,
-                "(n =",
+                "\n(n =",
                 npt,
                 " r = ",
                 corr_coef,
@@ -895,7 +895,7 @@ artmsPlotHeatmapQuant <- function(input_file,
             round(cor(datadc[[br1]], 
                       datadc[[br2]], 
                       use = "complete.obs"), digits = 2)
-          # cat ("r:",corr_coef," ")
+          # cat ("r:",corr_coef,"\n")
           
           p2 <-
             ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
@@ -908,11 +908,11 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             p2 + labs(
               title = paste(
-                "CORRELATION between CONDITIONS: ",
+                "CORRELATION between CONDITIONS:\n",
                 br1,
                 "and",
                 br2,
-                " (n =",
+                "\n(n = ",
                 npt,
                 " r = ",
                 corr_coef,
@@ -993,7 +993,7 @@ artmsPlotHeatmapQuant <- function(input_file,
             br1,
             ") vs log2fc(",
             br2,
-            ") (n =",
+            ") \n(n = ",
             npt,
             " r = ",
             corr_coef,

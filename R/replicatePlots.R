@@ -71,7 +71,7 @@ artmsReplicatePlots <- function(input_file,
   if (any(!prot_exp %in% supportedExperiments)) {
     stop(prot_exp, " is currently not supported.
          The experiments supported are: ",
-         sprintf('\t%s ', supportedExperiments))
+         sprintf('\t%s\n', supportedExperiments))
   }
   
   if (!is.null(out_file)) {
@@ -271,7 +271,7 @@ artmsReplicatePlots <- function(input_file,
           "--- REPLICATE PLOT ",
           i,
           " NOT MADE -- MISSING DATA FROM ",
-          paste(" ", reps[!(reps %in% names(x))], " ", collapse = "")
+          paste(" ", reps[!(reps %in% names(x))], "\n", collapse = "")
         )
     }
   }

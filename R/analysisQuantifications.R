@@ -420,13 +420,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       hist(
         imputedL2FCmelted$iLog2FC,
         breaks = 100,
-        main = paste0("Imputed Log2FC (all)   n = ", dim(imputedL2FCmelted)[1]),
+        main = paste0("Imputed Log2FC (all)\n n = ", dim(imputedL2FCmelted)[1]),
         xlab = "log2fc"
       )
       hist(
         theImputedL2FC$iLog2FC,
         breaks = 100,
-        main = paste0("Imputed Log2FC merged  n = ", dim(theImputedL2FC)[1]),
+        main = paste0("Imputed Log2FC merged\n n = ", dim(theImputedL2FC)[1]),
         xlab = "log2fc"
       )
     }
@@ -434,13 +434,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     hist(
       dflog2fcfinites$pvalue,
       breaks = 100,
-      main = paste0("p-value distribution  n = ", dim(dflog2fcfinites)[1]),
+      main = paste0("p-value distribution\n n = ", dim(dflog2fcfinites)[1]),
       xlab = "adj.pvalues"
     )
     hist(
       dflog2fcfinites$adj.pvalue,
       breaks = 100,
-      main = paste0("Adjusted p-values distribution  n = ", 
+      main = paste0("Adjusted p-values distribution\n n = ", 
                     dim(dflog2fcfinites)[1]),
       xlab = "adj.pvalues"
     )
@@ -448,7 +448,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       dflog2fcfinites$iLog2FC,
       breaks = 1000,
       main = paste0(
-        "Non-imputed Log2FC distribution  n = ",
+        "Non-imputed Log2FC distribution\n n = ",
         dim(dflog2fcfinites)[1]
       ),
       xlab = "log2FC"
@@ -457,7 +457,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       dflog2fc$iPvalue,
       breaks = 100,
       main = paste0(
-        "(Imputed+NonImputed) adjusted pvalue distribution  n = ",
+        "(Imputed+NonImputed) adjusted pvalue distribution\n n = ",
         dim(dflog2fc)[1]
       ),
       xlab = "adj.pvalues"
@@ -466,7 +466,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       dflog2fc$iLog2FC,
       breaks = 1000,
       main = paste0(
-        "(Imputed+NonImputed) log2fc distribution  n = ",
+        "(Imputed+NonImputed) log2fc distribution\n n = ",
         dim(dflog2fc)[1]
       ),
       xlab = "log2FC"
@@ -814,13 +814,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     hist(
       imputedDF$iLog2FC,
       breaks = 1000,
-      main = paste0("Filtered Log2FC (>2BR)  n = ", dim(imputedDF)[1]),
+      main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
       xlab = "log2fc"
     )
     hist(
       imputedDF$iPvalue,
       breaks = 1000,
-      main = paste0("Filtered p-values (>2BR)  n = ", dim(imputedDF)[1]),
+      main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
       xlab = "p-value"
     )
     garbage <- dev.off()

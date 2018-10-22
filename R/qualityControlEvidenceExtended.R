@@ -1220,8 +1220,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of peptide feature intensity CV within each condition  
-        Overall median CV for each condition is given on the top and number of features used to calculate CVs is shown on the bottom"
+        "Distribution of peptide feature intensity CV within each condition\n  
+        Overall median CV for each condition is given on the top and number\n 
+        of features used to calculate CVs is shown on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
@@ -1261,9 +1262,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of peptide feature intensity CV within each condition  
-        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated,  
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides  
+        "Distribution of peptide feature intensity CV within each condition\n  
+        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated,\n  
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides\n
         Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
@@ -1358,8 +1359,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of Protein intensity CV within each condition  
-        Overall median CV for each condition is given on the top and number of proteins used to calculate CVs is shown on the bottom"
+        "Distribution of Protein intensity CV within each condition\n
+        Overall median CV for each condition is given on the top and\n
+        number of proteins used to calculate CVs is shown on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
@@ -1399,9 +1401,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
       ggtitle(
-        "Distribution of Protein (summed) intensity CV within each condition  
-        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated,  
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins  
+        "Distribution of Protein (summed) intensity CV within each condition\n 
+        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated\n
+        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins\n
         Overall median CV within each bin/condition is shown on the top and number of protein groups used to calculate CV is given on the bottom"
       ) +
       theme(legend.text = element_text(size = 20)) +

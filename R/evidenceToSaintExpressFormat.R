@@ -165,7 +165,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_baits,
     file = gsub('.txt', '-saint-baits.txt', output_file),
-    eol = ' ',
+    eol = '\n',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -174,7 +174,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_preys,
     file = gsub('.txt', '-saint-preys.txt', output_file),
-    eol = ' ',
+    eol = '\n',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -183,7 +183,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   write.table(
     saint_interactions,
     file = gsub('.txt', '-saint-interactions.txt', output_file),
-    eol = ' ',
+    eol = '\n',
     sep = '\t',
     quote = FALSE,
     row.names = FALSE,
@@ -191,8 +191,8 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   )
   if(verbose){
     message(">> OUTPUT FILES: ")
-    message("--- ", gsub('.txt', '-saint-baits.txt', output_file), " ")
-    message("--- ", gsub('.txt', '-saint-preys.txt', output_file), " ")
-    message("--- ", gsub('.txt', '-saint-interactions.txt', output_file, " "))
+    message("--- ", gsub('.txt', '-saint-baits.txt', output_file))
+    message("--- ", gsub('.txt', '-saint-preys.txt', output_file))
+    message("--- ", gsub('.txt', '-saint-interactions.txt', output_file))
   }
 }
