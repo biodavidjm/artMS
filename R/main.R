@@ -426,7 +426,7 @@ artmsWriteConfigYamlFile <- function(
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){
       write_yaml(x = artms_config, file = config_file_name )
-      if(verbose) message(">> File ",config_file_name,"is out ")
+      if(verbose) message(">> File ",config_file_name," is out ")
     }else{
       stop("The <config_file_name> must have the extension .yaml")
     }

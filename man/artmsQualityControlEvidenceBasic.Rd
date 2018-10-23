@@ -8,7 +8,7 @@ artmsQualityControlEvidenceBasic(evidence_file, keys_file,
   prot_exp = c("AB", "PH", "UB", "APMS"), fractions = 0,
   output_name = "qcPlots_evidence", plotINTDIST = TRUE,
   plotREPRO = TRUE, plotCORMAT = TRUE, plotINTMISC = TRUE,
-  plotPTMSTATS = TRUE, verbose = TRUE)
+  plotPTMSTATS = TRUE, printPDF = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -67,6 +67,9 @@ selected modification, including:
 categories; bar plots of \emph{total sum-up of MS intensity values} by
 other/PTM categories.}
 
+\item{printPDF}{If \code{TRUE} (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.}
+
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
@@ -77,9 +80,25 @@ Quality Control analysis of the MaxQuant evidence file
 }
 \examples{
 artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
-                 keys_file = artms_data_ph_keys,
-                 output_name = "qcPlots_evidence",
-                 prot_exp = "PH")
+                                 keys_file = artms_data_ph_keys, 
+                                 prot_exp =  "PH", 
+                                 plotINTDIST = FALSE,
+                                 plotREPRO = TRUE,
+                                 plotCORMAT = FALSE,
+                                 plotINTMISC = FALSE,
+                                 plotPTMSTATS = FALSE,
+                                 printPDF = FALSE,
+                                 verbose = FALSE)
+
+# But we recommend the following test:
+# 1. Go to a working directory: 
+# setwd("/path/to/your/working/directory/")
+# 2. Run the following command to print out all the pdf files
+# artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#                                  keys_file = artms_data_ph_keys, 
+#                                  prot_exp =  "PH")
+# 3. Check your working directory and you should find pdf files with 
+# all the QC plots
 }
 \keyword{QC,}
 \keyword{control,}

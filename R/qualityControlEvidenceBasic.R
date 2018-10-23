@@ -42,14 +42,32 @@
 #' *bar plot of peptide counts and intensities*, broken by `PTM/other` 
 #' categories; bar plots of *total sum-up of MS intensity values* by 
 #' other/PTM categories.
+#' @param printPDF If `TRUE` (default) prints out the pdfs. Warning: plot
+#' objects are not returned due to the large number of them. 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return Quality control files and plots
 #' @keywords QC, quality, control, evidence
 #' @examples
 #' artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
-#'                  keys_file = artms_data_ph_keys,
-#'                  output_name = "qcPlots_evidence",
-#'                  prot_exp = "PH")
+#'                                  keys_file = artms_data_ph_keys, 
+#'                                  prot_exp =  "PH", 
+#'                                  plotINTDIST = FALSE,
+#'                                  plotREPRO = TRUE,
+#'                                  plotCORMAT = FALSE,
+#'                                  plotINTMISC = FALSE,
+#'                                  plotPTMSTATS = FALSE,
+#'                                  printPDF = FALSE,
+#'                                  verbose = FALSE)
+#' 
+#' # But we recommend the following test:
+#' # 1. Go to a working directory: 
+#' # setwd("/path/to/your/working/directory/")
+#' # 2. Run the following command to print out all the pdf files
+#' # artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#' #                                  keys_file = artms_data_ph_keys, 
+#' #                                  prot_exp =  "PH")
+#' # 3. Check your working directory and you should find pdf files with 
+#' # all the QC plots
 #' @export
 artmsQualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
@@ -61,6 +79,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                              plotCORMAT = TRUE,
                              plotINTMISC = TRUE,
                              plotPTMSTATS = TRUE,
+                             printPDF = TRUE,
                              verbose = TRUE) {
   
   if(any(missing(evidence_file) | missing(keys_file)))
@@ -131,11 +150,10 @@ The experiments supported are: ",
         hjust = 1,
         vjust = 0.5
       ))
-    
-    pdf(intDistribution)
-    plot(j)
-    plot(k)
-    garbage <- dev.off()
+    if(printPDF) pdf(intDistribution)
+      plot(j)
+      plot(k)
+    if(printPDF) garbage <- dev.off()
   }
 
   
@@ -236,9 +254,10 @@ The experiments supported are: ",
     seqReproName <-
       paste0(output_name, ".qcplot.basicReproducibility.pdf")
     
-    pdf(seqReproName)
-    .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
-    garbage <- dev.off()
+    
+    if(printPDF) pdf(seqReproName)
+      .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
+    if(printPDF) garbage <- dev.off()
   }
 
   
@@ -284,7 +303,7 @@ The experiments supported are: ",
       matrixCorrelationBioreplicas <-
         paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
       
-      pdf(matrixCorrelationBioreplicas,
+      if(printPDF) pdf(matrixCorrelationBioreplicas,
           width = 20,
           height = 20) #
       corrplot(
@@ -313,7 +332,7 @@ The experiments supported are: ",
         color = color.palette
       )
       print(theTechCorDis)
-      garbage <- dev.off()
+      if(printPDF) garbage <- dev.off()
     } else{
       if(verbose) message("--- NO Technical Replicates detected ")
     }
@@ -360,36 +379,34 @@ The experiments supported are: ",
     if(verbose) message("--- By Biological replicates ")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
-    pdf(matrixCorrelationBioreplicas,
-        width = 20,
-        height = 20) #, width = 20, height = 20
-    corrplot(
-      Mbioreplicas,
-      method = "square",
-      addCoef.col = "white",
-      number.cex = 0.9,
-      tl.cex = 1.5,
-      tl.col = "black",
-      title = "Matrix Correlation based on Protein Intensities"
-    )
-    pheatmap(
-      Mbioreplicas,
-      cluster_rows = TRUE,
-      cluster_cols = TRUE,
-      cellheight = 10,
-      cellwidth = 25,
-      main = "Clustering Biological Replicates",
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 12,
-      border_color = 'black',
-      fontfamily = "Helvetica",
-      treeheight_row = FALSE,
-      treeheight_col = FALSE,
-      color = color.palette
-    )
-    print(theBiorCorDis)
-    garbage <- dev.off()
+    if(printPDF) pdf(matrixCorrelationBioreplicas, width = 20, height = 20)
+      corrplot(
+        Mbioreplicas,
+        method = "square",
+        addCoef.col = "white",
+        number.cex = 0.9,
+        tl.cex = 1.5,
+        tl.col = "black",
+        title = "Matrix Correlation based on Protein Intensities"
+      )
+      pheatmap(
+        Mbioreplicas,
+        cluster_rows = TRUE,
+        cluster_cols = TRUE,
+        cellheight = 10,
+        cellwidth = 25,
+        main = "Clustering Biological Replicates",
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 12,
+        border_color = 'black',
+        fontfamily = "Helvetica",
+        treeheight_row = FALSE,
+        treeheight_col = FALSE,
+        color = color.palette
+      )
+      print(theBiorCorDis)
+    if(printPDF) garbage <- dev.off()
     
     # Create matrix of reproducibility CONDITIONS
     biorepliaggregated <- NULL
@@ -436,33 +453,33 @@ The experiments supported are: ",
     if(verbose) message("--- By Conditions ")
     matrixCorrelationCond <-
       paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
-    pdf(matrixCorrelationCond)
-    corrplot(
-      Mcond,
-      method = "square",
-      addCoef.col = "white",
-      number.cex = 0.6,
-      tl.col = "black",
-      title = "Matrix Correlation based on protein Intensities"
-    )
-    pheatmap(
-      Mcond,
-      cluster_rows = TRUE,
-      cluster_cols = TRUE,
-      cellheight = 10,
-      cellwidth = 25,
-      main = "Clustering Conditions",
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 12,
-      border_color = 'black',
-      fontfamily = "Helvetica",
-      treeheight_row = FALSE,
-      treeheight_col = FALSE,
-      color = color.palette
-    )
-    print(theCondCorDis)
-    garbage <- dev.off()
+    if(printPDF) pdf(matrixCorrelationCond)
+      corrplot(
+        Mcond,
+        method = "square",
+        addCoef.col = "white",
+        number.cex = 0.6,
+        tl.col = "black",
+        title = "Matrix Correlation based on protein Intensities"
+      )
+      pheatmap(
+        Mcond,
+        cluster_rows = TRUE,
+        cluster_cols = TRUE,
+        cellheight = 10,
+        cellwidth = 25,
+        main = "Clustering Conditions",
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 12,
+        border_color = 'black',
+        fontfamily = "Helvetica",
+        treeheight_row = FALSE,
+        treeheight_col = FALSE,
+        color = color.palette
+      )
+      print(theCondCorDis)
+    if(printPDF) garbage <- dev.off()
   } # plotCORMAT ends
 
   
@@ -788,7 +805,7 @@ The experiments supported are: ",
     if(verbose) message("--- ", prot_exp, " PROCESSED ")
     reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
     
-    pdf(reproName)
+    if(printPDF) pdf(reproName)
     print(pisa)
     print(pisb)
     print(pisc)
@@ -800,7 +817,7 @@ The experiments supported are: ",
     print(pisi)
     print(pisj)
     print(pisk)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }# ends plotINTMISC
   
   if(plotPTMSTATS){
@@ -886,12 +903,12 @@ The experiments supported are: ",
       z <- z + scale_fill_brewer(palette = "Paired")
       
       #QC: Total Peptides
-      pdf(modName)
+      if(printPDF) pdf(modName)
       print(x)
       print(y)
       print(u)
       print(z)
-      garbage <- dev.off()
+      if(printPDF) garbage <- dev.off()
     }
   } #plotPTMSTATS
 
