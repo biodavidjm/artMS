@@ -116,6 +116,7 @@ control functions using the "evidence" (`artms_data_ph_evidence`) and
 "keys" (`artms_data_ph_keys`) files included in `artMS` as test datasets.
 
 ```{r, eval = TRUE}
+library(artMS)
 suppressWarnings(
   artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
                                  keys_file = artms_data_ph_keys, 
@@ -126,8 +127,7 @@ suppressWarnings(
                                  plotINTMISC = FALSE,
                                  plotPTMSTATS = FALSE,
                                  printPDF = FALSE,
-                                 verbose = FALSE)
-                 )
+                                 verbose = FALSE))
 ```
 
 (To learn more about these testing datasets, check the documentation by 

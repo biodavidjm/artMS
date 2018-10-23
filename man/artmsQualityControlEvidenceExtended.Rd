@@ -10,7 +10,7 @@ artmsQualityControlEvidenceExtended(evidence_file, keys_file,
   plotCS = TRUE, plotME = TRUE, plotMOCD = TRUE, plotPEPICV = TRUE,
   plotPEPDETECT = TRUE, plotPROTICV = TRUE, plotPROTDETECT = TRUE,
   plotIDoverlap = TRUE, plotIC = TRUE, plotSP = TRUE,
-  verbose = TRUE)
+  printPDF = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -123,6 +123,9 @@ proteins, respectively.}
 shows missing cleavage distribution of all peptides confidently identified
 in each BioReplicate. Page 2 shows the fraction of peptides with at least
 one methionine oxidized in each BioReplicate.}
+
+\item{printPDF}{If \code{TRUE} (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
