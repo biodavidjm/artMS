@@ -61,11 +61,11 @@ artmsConvertMetabolomics <- function(input_file,
   tmp$Proteins <- tmp$Sequence
   tmp$Charge <- 1
   
-  tmp <- as.data.frame(tmp, stringsAsFactors=F)
+  tmp <- as.data.frame(tmp, stringsAsFactors = FALSE)
   
   # annotate with  known id's
   if(!is.null(id_file)){
-    ids <- read.delim(id_file, stringsAsFactors=F, sep='\t')
+    ids <- read.delim(id_file, stringsAsFactors = FALSE, sep='\t')
     ids$KEGG <- gsub('\\\xca','',ids$KEGG)
     for( i in 1:length(ids$KEGG)){  #### This could be optimized!!!!!
       idx <- tmp$'m/z' %in% ids$m.z[i]
@@ -74,12 +74,12 @@ artmsConvertMetabolomics <- function(input_file,
   }
   
   if(verbose) message(">> Writing out data to:", out_file, "... ")
-  write.table(as.data.frame(tmp, stringsAsFactors=F), 
+  write.table(as.data.frame(tmp, stringsAsFactors = FALSE), 
               out_file, 
-              row.names=F, 
-              col.names=T, 
-              sep='\t', 
-              quote=F)
+              row.names = FALSE, 
+              col.names = TRUE, 
+              sep ='\t', 
+              quote = FALSE)
   if(verbose) message('>> CONVERSION COMPLETE! ')
 }
 
