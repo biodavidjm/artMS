@@ -106,7 +106,7 @@ install_github("biodavidjm/artMS")
 - Check that it is up and running by checking, for example, the documentation 
 of the QC function `artmsQualityControlEvidenceBasic`:
 
-```{r, eval = TRUE}
+```
 library(artMS)
 ?artmsQualityControlEvidenceBasic
 ```
@@ -136,11 +136,6 @@ running `?artms_data_ph_keys` or `?artms_data_ph_evidence` on the R console)
 
 Once the QC is done, go to the folder `"/path/to/your/working/directory/"` 
 and check out all the generated QC (pdf) files.
-
-
-
-
-
 
 
 
@@ -1001,7 +996,7 @@ protein (i.e, typical MSstats results)
 data_annotated <- artmsAnnotationUniprot(
                       x = artms_data_ph_msstats_results,
                       columnid = "Protein",
-                      species = "human", verbose = FALSE)
+                      species = "human")
 # And then the enrichment
 enrich_set <- artmsEnrichLog2fc(
                    dataset = data_annotated,
