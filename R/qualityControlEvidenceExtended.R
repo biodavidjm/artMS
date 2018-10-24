@@ -104,10 +104,10 @@
 #' @keywords qc, evidence, keys
 #' @examples
 #' # Testing warning if files are not submitted
-#' test <- artmsQualityControlEvidenceExtended  (evidence_file = NULL,
+#' test <- artmsQualityControlEvidenceExtended(evidence_file = NULL,
 #' keys_file = NULL)
 #' @export
-artmsQualityControlEvidenceExtended   <- function(evidence_file,
+artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                  keys_file,
                                                  plotPSM = TRUE,
                                                  plotIONS = TRUE,
@@ -361,7 +361,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   ### PSM
   if (plotPSM) {
-    if(verbose) message("--- Plot PSM")
+    if(verbose) message("--- Plot PSM", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_PSM.pdf',
       width = nsamples * 3,
@@ -387,7 +387,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      ggtitle("Number of PSMs: bottom = Potential contaminants; top = non-contaminants") +
+      labs(title = "Number of PSMs",           
+           subtitle = "bottom = Potential contaminants; top = non-contaminants") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -458,9 +459,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                     ncol = 1,
                     scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle(
-          "Number of PSMs per Fraction: bottom = Potential contaminants; top = non-contaminants"
-        ) +
+        labs(title = "Number of PSMs per Fraction",           
+        subtitle = "bottom = Potential contaminants; top = non-contaminants") +
         theme(legend.text = element_text(size = 20)) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -481,7 +481,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   ### IONS
   if (plotIONS) {
-    if(verbose) message("--- Plot IONS")
+    if(verbose) message("--- Plot IONS", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_IONS.pdf',
@@ -508,9 +508,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      ggtitle(
-        "Number of unique Peptide Ions: bottom = Potential contaminants; top = non-contaminants"
-      ) +
+      labs(title = "Number of unique Peptide Ions:",
+           subtitle = "bottom = Potential contaminants; top = non-contaminants") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -546,9 +545,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle(
-        "Mean number of unique Peptide Ions per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
-      ) +
+      labs(title = "Mean number of unique Peptide Ions",
+           subtitle = "for contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 0,
@@ -581,9 +579,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                     ncol = 1,
                     scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle(
-          "Number of unique Peptide Ions in each Fraction: bottom = Potential contaminants; top = non-contaminants"
-        ) +
+        labs(title = "Number of unique Peptide Ions in each Fraction",
+             subtitle = "bottom = Potential contaminants; top = non-contaminants") +
         theme(legend.text = element_text(size = 20)) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -604,7 +601,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   #### TYPE ######
   if (plotTYPE) {
-    if(verbose) message("--- Plot TYPE")
+    if(verbose) message("--- Plot TYPE", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_TYPE.pdf',
@@ -629,7 +626,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Experiment") + ylab("Fraction") +
-      ggtitle("Type of identification (MaxQuant type column)") +
+      labs(title = "Type of identification",
+           subtitle = "(MaxQuant type column)") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -652,7 +650,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   ### PEPTIDES ###
   if (plotPEPTIDES) {
-    if(verbose) message("--- Plot PEPTIDES")
+    if(verbose) message("--- Plot PEPTIDES", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_PEPTIDES.pdf',
@@ -679,7 +677,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      ggtitle("Number of unique Peptides: bottom = Potential contaminants; top = non-contaminants") +
+      labs(title = "Number of unique Peptides",
+           subtitle = "bottom = Potential contaminants; top = non-contaminants") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -719,9 +718,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle(
-        "Mean number of unique Peptides per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
-      ) +
+      labs(title = "Mean number of unique Peptides",
+           subtitle = "Contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 0,
@@ -755,9 +753,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                     ncol = 1,
                     scales = "free") +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle(
-          "Number of unique Peptides in each Fraction: bottom = Potential contaminants; top = non-contaminants"
-        ) +
+        labs(title = "Number of unique Peptides",
+        subtitle = "bottom = Potential contaminants; top = non-contaminants") +
         theme(legend.text = element_text(size = 20)) +
         theme(axis.text.x = element_text(
           angle = 90,
@@ -814,7 +811,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   ## PROTEINS
   if (plotPROTEINS) {
-    if(verbose) message("--- Plot PROTEINS")
+    if(verbose) message("--- Plot PROTEINS", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_PROTEINS.pdf',
@@ -841,9 +838,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      ggtitle(
-        "Number of unique Protein Groups: bottom = Potential contaminants; top = non-contaminants"
-      ) +
+      labs(title = "Number of unique Protein Groups",
+           subtitle = "bottom = Potential contaminants; top = non-contaminants") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -883,9 +879,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle(
-        "Mean number of unique Proteins per condition for contaminants (blue) and non-contaminants (red), error bar= std error of the mean"
-      ) +
+      labs(title = "Mean number of unique Proteins",
+        subtitle = "contaminants (blue) and non-contaminants (red), error bar= std error of the mean") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 0,
@@ -942,7 +937,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # Peptide ion oversampling
   if (plotPIO) {
-    if(verbose) message("--- Plot Plot Ion Oversampling")
+    if(verbose) message("--- Plot Plot Ion Oversampling", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_PepIonOversampling.pdf',
@@ -968,7 +963,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Peptide ion oversampling, all peptides reported by MaxQuant") +
+      labs(title = "Peptide ion oversampling",
+           subtitle = "Based on all the peptides reported by MaxQuant") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1000,7 +996,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Peptide ion oversampling, only peptides detected (MS1 AUC calculated)") +
+      labs(title = "Peptide ion oversampling",
+           subtitle = "Only peptides detected (MS1 AUC calculated)") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1032,9 +1029,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle(
-        "Peptide ion oversampling, only peptides detected (MS1 AUC calculated) and identified (confidence MS/MS)"
-      ) +
+      labs(title = "Peptide ion oversampling",
+           subtitle = "Only peptides detected (MS1 AUC calculated) and identified (confidence MS/MS)") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1056,7 +1052,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # Charge state distribution
   if (plotCS) {
-    if(verbose) message("--- Plot Charge State")
+    if(verbose) message("--- Plot Charge State", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_CHARGESTATE.pdf',
@@ -1095,7 +1091,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # Mass error
   if (plotME) {
-    if(verbose) message("--- Plot Mass Error")
+    if(verbose) message("--- Plot Mass Error", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_MASSERROR.pdf',
       width = nsamples * 3,
@@ -1120,7 +1116,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         size = 20
       ) +
       xlab("Experiment") + ylab("mass error") +
-      ggtitle("Precursor mass error (in ppm) distribution, global median mass error on the top") +
+      labs(title = "Precursor mass error (in ppm) distribution",
+           subtitle = "Global median mass error on the top") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1137,10 +1134,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     if(verbose) message(" done ")
   }
   
-  
   # mass-over-charge distribution
   if (plotMOCD) {
-    if(verbose) message("--- Plot Mass-over-Charge distribution")
+    if(verbose) message("--- Plot Mass-over-Charge distribution", appendLF = FALSE)
     
     if(printPDF) pdf(
       'QC_Plots_MZ.pdf',
@@ -1160,7 +1156,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         size = 20
       ) +
       xlab("Experiment") + ylab("m/z") +
-      ggtitle("Precursor mass-over-charge distribution, global median m/z on the top") +
+      labs(title = "Precursor mass-over-charge distribution",
+           subtitle = "Global median m/z on the top") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1181,7 +1178,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   #m Peptide Intensity CV
   if (plotPEPICV) {
-    if(verbose) message("--- Plot Peptide Intensity CV")
+    if(verbose) message("--- Plot Peptide Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_PEPINT.pdf',
       width = nsamples * 3,
@@ -1222,11 +1219,9 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         size = 10
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
-      ggtitle(
-        "Distribution of peptide feature intensity CV within each condition\n  
-        Overall median CV for each condition is given on the top and number\n 
-        of features used to calculate CVs is shown on the bottom"
-      ) +
+      labs(title = "Distribution of peptide feature intensity CV",
+           subtitle = "Top: Overall median CV for each condition is given
+Bottom: number of features used to calculate CVs") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1264,12 +1259,10 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         angle = 90
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
-      ggtitle(
-        "Distribution of peptide feature intensity CV within each condition\n  
-        For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated,\n  
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides\n
-        Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom"
-      ) +
+      labs(title = "Distribution of peptide feature intensity CV",
+           subtitle = "For each condition, peptides were ranked by summed intensity and the CV for each peptide was calculated, 
+therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity peptides. 
+Overall median CV within each bin/condition is shown on the top and number of features used to calculate CV is given on the bottom") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 90, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1285,7 +1278,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # peptide detection (using modified.sequence)
   if (plotPEPDETECT) {
-    if(verbose) message("--- Plot Peptide Detection (using modified.sequence)")
+    if(verbose) message("--- Plot Peptide Detection (using modified.sequence)", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_PepDetect.pdf',
       width = nsamples * 3,
@@ -1312,7 +1305,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Frequency of peptides detection across replicates within the same condition") +
+      ggtitle("Frequency of peptides detection") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1327,7 +1320,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   #m Protein Intensity CV
   if (plotPROTICV) {
-    if(verbose) message("--- Plot Protein Intensity CV")
+    if(verbose) message("--- Plot Protein Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_ProtInt.pdf',
       width = nsamples * 3,
@@ -1361,11 +1354,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         size = 15
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
-      ggtitle(
-        "Distribution of Protein intensity CV within each condition\n
-        Overall median CV for each condition is given on the top and\n
-        number of proteins used to calculate CVs is shown on the bottom"
-      ) +
+      labs(title = "Distribution of Protein intensity CV",
+           subtitle = "Top: Overall median CV for each condition. Bottom: number of proteins used to calculate CVs") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1403,12 +1393,10 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         angle = 90
       ) +
       xlab("Condition") + ylab("Coefficient of variance (%)") +
-      ggtitle(
-        "Distribution of Protein (summed) intensity CV within each condition\n 
-        For each condition, Proteins were ranked by summed intensity and the CV for each protein was calculated\n
-        therefore each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins\n
-        Overall median CV within each bin/condition is shown on the top and number of protein groups used to calculate CV is given on the bottom"
-      ) +
+      labs(title = "Distribution of Protein (summed) intensity CV",
+           subtitle = "Proteins were ranked by summed intensity and the CV for each protein was calculated
+Each condition shows 4 distribution (box) for low (1) to high (4) intensity proteins.
+Overall median CV within each condition is shown on the top and number of protein groups used to calculate CV is given on the bottom") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 90, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1424,7 +1412,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   # Protein detection
   if (plotPROTDETECT) {
-    if(verbose) message("--- Plot Protein Detection")
+    if(verbose) message("--- Plot Protein Detection", appendLF = FALSE)
     if(printPDF) pdf(
       'QC_Plots_ProtDetect.pdf',
       width = nsamples * 3,
@@ -1450,7 +1438,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
         position = position_stack()
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Detection of Protein across replicates of the same condition") +
+      labs(title = "Detection of Protein across replicates of the same condition") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(angle = 0, size = 20)) +
       theme(axis.text.y = element_text(size = 20)) +
@@ -1497,7 +1485,8 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
     
     kd <- ggplot(evidencekeys, aes(x = log2(intensity))) +
       geom_density(alpha = .5, aes(fill = type)) +
-      ggtitle("Peptide feature intensity distribution by ID Type") +
+      labs(title = "Peptide feature intensity distribution",
+           subtitle = "by ID Type") +
       facet_wrap( ~ bioreplicate, ncol = 5) +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(size = 20)) +
@@ -1513,7 +1502,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   
   if (plotIDoverlap) {
-    if(verbose) message("--- Plot ID overlap")
+    if(verbose) message("--- Plot ID overlap", appendLF = FALSE)
     if(printPDF) pdf(
       'QC-ID-Overlap.pdf',
       width = nsamples * 4,
@@ -1530,18 +1519,21 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
                                    referenceID = 'sequence')
     ovlSeqM <- ovlSeq$M
     ovlSeqM[ovlSeqM == 1] <- NA
-    
+    # coordinates to move the keys
+    lmat = rbind(c(0,3),c(2,1),c(0,4))
+    lwid = c(1.5,4)
+    lhei = c(1.5,4,1)
     gplots::heatmap.2(
       ovlSeqM * 100,
       col = hmcol,
       Rowv = FALSE,
       Colv = "Rowv",
+      main = "Pairwise peptide identification overlap (only peptides with at least 1 peptide detected and identified)",
       cexRow = 5,
       cexCol = 5,
       margins = c(40, 40),
       cellnote = round(ovlSeqM * 100, 1),
-      notecex = 8,
-      main = "Pairwise peptide identification overlap (only peptides with at least 1 peptide detected and identified)",
+      notecex = 3,
       notecol = "black",
       trace = "none",
       key = TRUE,
@@ -1622,7 +1614,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       cexCol = 5,
       margins = c(40, 40),
       cellnote = round(ovlProtM * 100, 1),
-      notecex = 8,
+      notecex = 3,
       main = "Pairwise protein identification overlap (only proteins with at least 1 peptide detected and identified)",
       notecol = "black",
       trace = "none",
@@ -1645,7 +1637,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   }
   
   if (plotIC) {
-    if(verbose) message("--- Plot Inter-Correlation")
+    if(verbose) message("--- Plot Inter-Correlation", appendLF = FALSE)
     if(printPDF) pdf(
       'QC-IntCorrelation.pdf',
       width = nsamples * 4,
@@ -1746,7 +1738,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
   
   
   if (plotSP) {
-    if(verbose) message("--- Plot Sample Preparation")
+    if(verbose) message("--- Plot Sample Preparation", appendLF = FALSE)
     if(printPDF) pdf(
       'QC-SamplePrep.pdf',
       width = nsamples * 4,
@@ -1830,7 +1822,7 @@ artmsQualityControlEvidenceExtended   <- function(evidence_file,
       ) +
       xlab("Experiment") +
       ylab("Fraction (percentage)") +
-      ggtitle("Percentage of peptides where at least 1 Methionine is oxidized") +
+      ggtitle("Percentage of peptides with at least 1 Methionine oxidized") +
       theme(legend.text = element_text(size = 20)) +
       theme(axis.text.x = element_text(
         angle = 90,

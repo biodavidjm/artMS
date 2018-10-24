@@ -70,7 +70,7 @@ running an `R version >= 3.5` or otherwise nothing will work (Bioconductor
 requirement). You can check the R version currently running on your system 
 by executing this command in RStudio:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 getRversion()
 ```
 
@@ -106,7 +106,7 @@ install_github("biodavidjm/artMS")
 - Check that it is up and running by checking, for example, the documentation 
 of the QC function `artmsQualityControlEvidenceBasic`:
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 library(artMS)
 ?artmsQualityControlEvidenceBasic
 ```
@@ -241,8 +241,8 @@ details for the quantification performed by `artMS` using `MSstats`.
 To generate a sample configuration file, go to the project folder 
 (`setwd(/path/to/your/working/folder/)`) and execute:
 
-```{r, eval = FALSE}
-artmsWriteConfigYamlFile(config_file_name = "config.yaml" )
+```{r, eval = TRUE}
+artmsWriteConfigYamlFile(config_file_name = "config.yaml", verbose = FALSE)
 ```
 
 Open the `config.yaml` file with your favorite editor (RStudio works 
@@ -331,7 +331,7 @@ and to reduce interference between peptides in quantitative proteomics.
 
 ---
 
-### Section: `msstats`
+### Section: `MSstats`
 
 ```
 msstats :
@@ -529,11 +529,23 @@ url_keys <- 'http://kroganlab.ucsf.edu/artms/ph/evidence.txt'
 The basic quality control analysis takes as input both the `evidence.txt`
 and `keys.txt`. 
 
-```{r, }
+```{r, eval = TRUE}
+# But it is recommended to get the full pdf package of QC plots by running:
+# artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+#                                 keys_file = artms_data_ph_keys,
+#                                 prot_exp = "PH")
+# But for illustration purposes printing only INTDIST plot:
 artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
-                                  keys_file = artms_data_ph_keys,
-                                  output_name = "qcPlots_evidence",
-                                  prot_exp = "PH")
+                                 keys_file = artms_data_ph_keys,
+                                 prot_exp = "PH",
+                                 plotINTDIST = TRUE,
+                                 plotREPRO = FALSE,
+                                 plotCORMAT = FALSE,
+                                 plotINTMISC = FALSE,
+                                 plotPTMSTATS = FALSE,
+                                 printPDF = FALSE,
+                                 verbose = FALSE)
+
 ```
 
 Running `artmsQualityControlEvidenceBasic()` generates the following `pdf` 
@@ -564,15 +576,16 @@ including: *bar plot of peptide counts and intensities*, broken by
 `PTM/other` categories; bar plots of *total sum-up of MS intensity values* by 
 other/PTM categories.
 
-Check `?artms_evidenceQCbasic()` to find out more options about this function. 
+Check `?artmsQualityControlEvidenceBasic()` to find out more options 
+about this function. 
 
 ## Extended QC (`evidence.txt`-based)
 
 It takes as input the `evidence.txt` and `keys.txt` files as follows:
 
-```{r}
+```{r, eval=FALSE}
 artmsQualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
-                                     keys_file = artms_data_ph_keys)
+                                    keys_file = artms_data_ph_keys)
 ```
 
 It generates the following QC files:
@@ -648,20 +661,10 @@ peptide identification into different categories (e.g., MSMS, MULTI-MSMS,
 MULTI-SECPEP). Page 1 shows the distribution of identification type in each 
 BioReplicate
 
-## Extended QC (`evidence.txt`-based)
-
-It takes as input the `evidence.txt` and `keys.txt` files as follows:
-
-```{r}
-artmsQualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
-                                     keys_file = artms_data_ph_keys)
-```
-
-It generates the following QC files:
 
 ## Extended QC (`summary.txt` based)
 
-requires two files:
+It requires two files:
 
 - `keys.txt`
 - MaxQuant `summary.txt` file. As described by MaxQuant's `table.pdf`, the 
@@ -671,7 +674,7 @@ quality of every RawFile based on this `summary.txt`.
 
 Run it as follows:
 
-```{r, eval = FALSE}
+```
 artmsQualityControlSummaryExtended(summary_file = "summary.txt",
                                     keys_file = artms_data_ph_keys)
 ```
@@ -682,27 +685,28 @@ It generates the following `pdf` plots:
 Page 1 shows the number of MS1 scans in each BioReplicate. 
 If replicates are present, Page 2 shows the mean number of MS1 scans 
 per condition with error bar showing the standard error of the mean. 
-If isFractions `TRUE`, each fraction is a stack on the individual bar graphs. 
+If `isFractions` is `TRUE`, each fraction is a stack on the individual 
+bar graphs. 
 
 - MS2: generates MS2 scan counts plot: 
 Page 1 shows the number of MSs scans in each BioReplicate. 
 If replicates are present, Page 2 shows the mean number of MS1 scans per 
 condition with error bar showing the standard error of the mean. 
-If isFractions `TRUE`, each fraction is a stack on the individual bar graphs. 
+If `isFractions` `TRUE`, each fraction is a stack on the individual bar graphs. 
 
 - MSMS: generates MS2 identification rate (%) plot: 
 Page 1 shows the fraction of MS2 scans confidently identified in each 
 BioReplicate. If replicates are present, Page 2 shows the mean rate of MS2 
 scans confidently identified per condition with error bar showing the 
 standard error of the mean. 
-If isFractions `TRUE`, each fraction is a stack on the individual bar graphs.
+If `isFractions` `TRUE`, each fraction is a stack on the individual bar graphs.
 
 - ISOTOPE: generates Isotope Pattern counts plot: 
 Page 1 shows the number of Isotope Patterns with charge greater than 1 in 
 each BioReplicate. If replicates are present, Page 2 shows the mean number 
 of Isotope Patterns with charge greater than 1 per condition with error bar 
 showing the standard error of the mean. 
-If isFractions `TRUE`, each fraction is a stack on the individual bar graphs.
+If `isFractions` `TRUE`, each fraction is a stack on the individual bar graphs.
 
 
 # Relative quantification
@@ -752,7 +756,7 @@ Make sure that the filter `modifications` is labeled as `AB`.
 
 Finally, run the following `artMS` function:
 
-```{r, eval = FALSE}
+```
 artmsQuantification(
   yaml_config_file = '/path/to/config/file/artms_ab_config.yaml')
 ```
@@ -939,9 +943,9 @@ low (for example n = 2), then `pvalue` is recommended.
 
 ## Annotate table with Gene Symbol and Name based on Uniprot ID(s)
 
-Annotate gene name and symbol based on uniprot ids. It will take the column 
+Annotate gene name and symbol based on UniProt ids. It will take the column 
 from your data.frame specified by the columnid argument, search for the 
-gene symbol, name, and entrez based on the species (sps argument) and merge 
+gene symbol, name, and entrez based on the species (species argument) and merge 
 the information back to the input data.frame
 
 ```{r, eval = FALSE}
@@ -949,8 +953,8 @@ the information back to the input data.frame
 # artMS, based on the column 'Proteins'.
 
 evidence_anno <- artmsAnnotationUniprot(x = artms_data_ph_evidence,
-                                         columnid = 'Proteins',
-                                         sps = 'human')
+                                        columnid = 'Proteins',
+                                        species = 'human')
 ```
 
 
@@ -982,7 +986,7 @@ artms_data_ph_evidence <- artmsChangeColumnName(
 
 Protein abundance dot plots for each unique uniprot id. It can take a long time
 
-```{r, eval = FALSE}
+```
 artmsDataPlots(input_file = "results/ab-results-mss-normalized.txt",
                output_file = "results/ab-results-mss-normalized.pdf")
 ```
@@ -992,29 +996,29 @@ artmsDataPlots(input_file = "results/ab-results-mss-normalized.txt",
 Enrichment analysis based on a data.frame with `Gene` and `Comparison`/`Label` 
 protein (i.e, typical MSstats results)
 
-```{r}
+```{r, eval=TRUE}
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artmsAnnotationUniprot(
                       x = artms_data_ph_msstats_results,
                       columnid = "Protein",
-                      sps = "human")
+                      species = "human", verbose = FALSE)
 # And then the enrichment
 enrich_set <- artmsEnrichLog2fc(
                    dataset = data_annotated,
                    species = "human",
-                   background = unique(data_annotated$Gene))
+                   background = unique(data_annotated$Gene), verbose = FALSE)
 ```
 
 ## Enrichment analysis using gProfileR
 
 Function that simplifies enrichment analysis using gProfileR
 
-```{r}
+```{r, eval=TRUE}
 # annotate the MSstats results to get the Gene name
 data_annotated <- artmsAnnotationUniprot(
                                      x = artms_data_ph_msstats_results,
                                      columnid = "Protein",
-                                     sps = "human")
+                                     species = "human")
 
 # Filter the list of genes with a log2fc > 2
 filtered_data <- 
@@ -1037,10 +1041,10 @@ following quantitative MS metrics:
 - MS spectral counts (use msspc)
 - MS intensities (use msint)
 
-```{r}
-# Testing that the files cannot be empty
-artmsEvidenceToSaintExpress(evidence_file = NULL, 
-keys_file = NULL, ref_proteome_file = NULL)
+```
+artmsEvidenceToSaintExpress(evidence_file = "/path/to/evidence.txt", 
+                            keys_file = "/path/to/keys.txt", 
+                            ref_proteome_file = "/path/to/org.proteome.fasta")
 ```
 
 
@@ -1051,11 +1055,10 @@ based on either peptides with spectral counts (use `msspc`) or all the peptides
 (use `all`) for the analysis. The quantitative metric can be also chosen 
 (either MS intensity or spectral counts)
 
-```{r}
-# Testing that the files cannot be empty
-artmsEvidenceToSAINTq(evidence_file = NULL, 
-                      keys_file = NULL, 
-                      output_dir = NULL)
+```
+artmsEvidenceToSAINTq(evidence_file = "/path/to/evidence.txt", 
+                      keys_file = "/path/to/keys.txt", 
+                      output_dir = "saintq_input_files")
 ```
 
 ## Generate Phosfate input file
@@ -1065,7 +1068,7 @@ resulting from running the `artmsAnalysisQuantifications()` on a ph-site
 quantification (see above). Notice that the only species suported by PHOTON 
 is humans.
 
-```{r}
+```
 artmsPhosfateOutput(inputFile = "your-imputedL2fcExtended.txt")
 ```
 
@@ -1076,7 +1079,7 @@ resulting from running the `artmsAnalysisQuantifications()` on a ph-site
 quantification (see above). Please, notice that the only species suported by 
 PHOTON is humans.
 
-```{r}
+```
 artmsPhotonOutput(inputFile = "your-imputedL2fcExtended.txt")
 ```
 
@@ -1086,7 +1089,7 @@ artmsPhotonOutput(inputFile = "your-imputedL2fcExtended.txt")
 Remove contaminants and erroneously identified 'reverse' sequences by MaxQuant,
 in addition to empty protein ids
 
-```{r}
+```
 evidencefiltered <- artmsFilterEvidenceContaminants(x = artms_data_ph_evidence)
 ```
 
@@ -1097,11 +1100,11 @@ Generate extended detailed ph-site file, where every line is a ph site instead
 of a peptide. Therefore, if one peptide has multiple ph sites it will be 
 breaking down in multiple extra lines for each of the sites. 
 
-```{r}
+```
 artmsGeneratePhSiteExtended(df = dfobject, 
-                             species = "mouse", 
-                             ptmType = "ptmsites",
-                             output_name = log2fc_file)
+                            species = "mouse", 
+                            ptmType = "ptmsites",
+                            output_name = log2fc_file)
 ```
 
 

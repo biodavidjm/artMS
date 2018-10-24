@@ -235,15 +235,17 @@ artmsMergeEvidenceAndKeys <- function(x,
         sprintf(
           "--(-) Raw.files in keys not found in evidence file: %s\n",
           paste(keys_not_found, collapse = '\t'))
-      )
+      ) 
     }
     if(length(data_not_found) != 0){
-      message(
-        sprintf(
-          "--(-) Raw.files in evidence not found in keys file: %s\n",
-          paste(data_not_found, collapse = '\t')
+      if (!any(grepl("Total", data_not_found))){
+        message(
+          sprintf(
+            "--(-) Raw.files in evidence not found in keys file: %s\n",
+            paste(data_not_found, collapse = '\t')
+          )
         )
-      )
+      }
     }
   }
   x <- merge(x, keys, by = by)
