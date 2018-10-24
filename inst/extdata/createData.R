@@ -57,7 +57,6 @@
 
 # TESTING OPTIONS
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CREATE DATA
 
@@ -74,7 +73,7 @@ save(artms_data_randomDF, file = 'data/artms_data_randomDF.RData',
 artms_data_ph_evidence <- read.delim(
   "~/sourcecode/artms/ph/artms_data_ph_evidence.txt",
   stringsAsFactors = FALSE)
-save(artms_data_ph_evidence, file = 'data/artms_data_ph_evidence.RData', 
+save(artms_data_ph_evidence, file = '~/github/biodavidjm/artMS/data/artms_data_ph_evidence.RData', 
      compress = 'xz')
 
 # Reduced version of the Keys file (experimental design)
@@ -115,7 +114,7 @@ save(artms_config, file = 'data/artms_config.RData', compress = 'xz')
 
 # PATHOGENS
 
-cat("--- PATHOGEN IN SAMPLES: TB\n")
+message("--- PATHOGEN IN SAMPLES: TB\n")
 artms_data_pathogen_TB <-
   read.delim(
     '~/Box Sync/db/uniprot/uniprot-tr-myctb_tuberculosis_ATCC35801_TMC10-onlyEntryID.fasta',
@@ -129,7 +128,7 @@ save(artms_data_pathogen_TB,
      file = '~/github/biodavidjm/artMS/data/artms_data_pathogen_TB.RData', 
      compress = 'xz')
 
-cat("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
+message("--- PATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA")
 artms_data_pathogen_LPN <-
   read.delim(
     '~/Box Sync/db/uniprot/uniprot-legionella-proteome_UP000000609.txt',
@@ -155,7 +154,7 @@ sapply(x, FUN = length)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # VIGNETTES
 
-artms_qualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
+artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
                                   keys_file = artms_data_ph_keys,
                                   prot_exp = "PH")
 
@@ -170,14 +169,28 @@ evidence_file <- "evidence.txt"
 keys_file <- "keys.txt"
 summary_file <- "summary.txt"
 
-artms_qualityControlEvidenceExtended(evidence_file = "evidence.txt",
+artmsQualityControlEvidenceExtended  (evidence_file = "evidence.txt",
                                      keys_file = "keys.txt")
 
-artms_qualityControlSummaryExtended(summary_file = "summary.txt",
-                                    keys_file = "keys.txt")
+artmsQualityControlSummaryExtended(summary_file = "summary.txt",
+                                   keys_file = "keys.txt")
 
-artms_quantification(yaml_config_file = "config.yaml")
+artmsQuantification(yaml_config_file = "config.yaml")
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## METABOLOMICS
+setwd("~/sourcecode/artms/metabolomics/")
+
+artmsConvertMetabolomics(input_file = "H5THP1align_05292018.txt", 
+                         out_file = "H5THP1align_05292018-evidence.txt")
+
+artmsQualityControlMetabolomics(evidence_file = "H5THP1align_05292018-evidence.txt",
+                                 keys_file = "H5THP1_05292018_keys.txt")
+
+artmsWriteConfigYamlFile(config_file_name = "metabConfig.yaml")
+
+artmsQuantification(yaml_config_file = "metabConfig.yaml")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,44 +199,47 @@ setwd("~/sourcecode/artms/apms/")
 
 here <- read.delim("a549-PB1-keys.txt", stringsAsFactors = FALSE)
 
-artms_qualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt",
-                                  keys_file = "a549-PB1-keys.txt",
-                                  prot_exp = "APMS")
+artmsQuantification(yaml_config_file = "apms_config.yaml")
 
-artms_qualityControlEvidenceExtended(evidence_file = "a549-PB1-evidence.txt",
+artmsQualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt",
+                                 keys_file = "a549-PB1-keys.txt",
+                                 prot_exp = "APMS", 
+                                 verbose = TRUE)
+
+artmsQualityControlEvidenceExtended (evidence_file = "a549-PB1-evidence.txt",
                                      keys_file = "a549-PB1-keys.txt")
 
-artms_qualityControlSummaryExtended(summary_file = "summary.txt",
-                                    keys_file = "a549-PB1-keys.txt")
+artmsQualityControlSummaryExtended(summary_file = "summary.txt",
+                                   keys_file = "a549-PB1-keys.txt", 
+                                   verbose = FALSE)
 
-artms_quantification(yaml_config_file = "apms_config.yaml")
+artmsEvidenceToSAINTq(evidence_file = "a549-PB1-evidence.txt",
+                      keys_file = "a549-PB1-keys.txt",
+                      verbose = TRUE)
 
-artms_evidenceToSAINTqFormat(evidence_file = "a549-PB1-evidence.txt",
-                             keys_file = "a549-PB1-keys.txt",
-                             output_dir = "saintq_folder")
-
-artms_evidenceToSaintExpressFormat(
+artmsEvidenceToSaintExpress(
   evidence_file = "a549-PB1-evidence.txt",
   keys_file = "a549-PB1-keys.txt",
   output_file = "a549-PB1-saintexpress.txt",
-  ref_proteome_file = "~/Box Sync/db/flu/fluomics-uniprot-hsa_20170516.fasta"
+  ref_proteome_file = "~/Box Sync/DavidBox/db/flu/fluomics-uniprot-hsa_20170516.fasta"
 )
 
-artms_msstats_summary(
+artmsMsstatsSummary(
   evidence_file = "a549-PB1-evidence.txt",
   keys_file = "a549-PB1-keys.txt",
-  prot_group_file = "proteinGroups.txt"
-)
+  prot_group_file = "proteinGroups.txt",
+  results_file = "results/a549-PB1-results.txt",
+  verbose = FALSE)
 
 setwd("~/sourcecode/artms/apms/results/")
-artms_analysisQuantifications(
-  # log2fc_file = "a549-PB1-results.txt",
-  # modelqc_file = "a549-PB1-results_ModelQC.txt",
+artmsAnalysisQuantifications(
+  log2fc_file = "a549-PB1-results.txt",
+  modelqc_file = "a549-PB1-results_ModelQC.txt",
   species = "HUMAN",
-  output_dir = "analysis"
+  output_dir = "analysisQ"
 )
 
-artms_volcanoPlot(
+artmsVolcanoPlot(
   mss_results = "a549-PB1-results.txt",
   lfc_upper = 1,
   lfc_lower = -1,
@@ -235,30 +251,23 @@ artms_volcanoPlot(
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## FRACTIONS
 setwd('~/sourcecode/artms/fractions/')
-evidence_file <-
-  '~/sourcecode/artms/fractions/petroski-cul4-evidence.txt'
-keys_file <- '~/sourcecode/artms/fractions/petroski-cul4-keys.txt'
-contrast_file <-
-  '~/sourcecode/artms/fractions/petroski-cul4-contrast.txt'
-
-yaml_config_file <-
-  '~/sourcecode/artms/fractions/config-petroski-debugging.yaml'
+yaml_config_file <- '~/sourcecode/artms/fractions/config-petroski-debugging.yaml'
 
 # Quantifications
-artms_quantification(yaml_config_file = yaml_config_file)
+artmsQuantification(yaml_config_file = yaml_config_file)
 
 # Analysis of Quantifications
 
 setwd('~/sourcecode/artms/fractions/results/')
-artms_analysisQuantifications(
+artmsAnalysisQuantifications(
   log2fc_file = "petroski-cul4-debug2-results.txt",
   modelqc_file = "petroski-cul4-debug2-results_ModelQC.txt",
   species = "human",
-  output_dir = "analysis"
+  output_dir = "analysisQ"
 )
 
 setwd('~/sourcecode/artms/fractions/')
-artms_msstats_summary(
+artmsMsstatsSummary(
   evidence_file = "petroski-cul4-evidence.txt",
   keys_file = "petroski-cul4-keys.txt",
   prot_group_file = "proteinGroups.txt",
@@ -268,6 +277,8 @@ artms_msstats_summary(
 
 #-------------------------------------------------------------------------------
 ## CREATE THE OFFICIAL PHGLOBAL COMING WITH THE PACKAGE
+setwd("~/sourcecode/artms/ph/")
+
 evidence_file <- 'evidence.txt'
 keys_file <- 'keys.txt'
 contrast_file <- 'contrast.txt'
@@ -287,7 +298,7 @@ edfnew <- edf[which(edf$`Raw file` %in% selectedBR), ]
 kdfnew <- kdf[which(kdf$RawFile %in% selectedBR),]
 
 # And random sampling lines
-n <- round(dim(edfnew)[1] / 7)
+n <- round(dim(edfnew)[1] / 9)
 edfnew2 <- edfnew[sample(nrow(edfnew), n),]
 
 # print out evidence & keys
@@ -301,7 +312,7 @@ write.table(
 )
 write.table(
   kdfnew,
-  file = "~/github/biodavidjm/artMS/inst/extdata/artms_data_ph_keys.txt",
+  file = "~/sourcecode/artms/ph/artms_data_ph_keys.txt",
   quote = FALSE,
   sep = "\t",
   row.names = FALSE,
@@ -317,21 +328,21 @@ prot_group_file = "proteinGroups.txt"
 keys_file = "keys.txt"
 contrast_file <- 'contrast.txt'
 
-artms_qualityControlSummaryExtended(summary_file = "summary.txt", 
+artmsQualityControlSummaryExtended(summary_file = "summary.txt", 
                                     keys_file = "keys.txt")
 
-artms_writeConfigYamlFile()
+artmsWriteConfigYamlFile()
 
-artms_quantification("phglobal/phglobal_config.yaml")
+artmsQuantification("phglobal/phglobal_config.yaml")
 
-artms_msstats_summary(
+artmsMsstatsSummary(
   evidence_file = "evidence.txt",
   prot_group_file = "proteinGroups.txt",
   keys_file = "keys.txt",
   results_file = "phglobal/phglobal-results.txt"
 )
 
-artms_replicatePlots(
+artmsReplicatePlots(
   input_file = evidence_file,
   keys_file = keys_file,
   replicate_file = "replicates_plots.txt",
@@ -341,7 +352,7 @@ artms_replicatePlots(
 
 setwd('~/sourcecode/artms/ph/phglobal/')
 
-artms_analysisQuantifications(
+artmsAnalysisQuantifications(
   log2fc_file = "phglobal-results.txt",
   modelqc_file = "phglobal-results_ModelQC.txt",
   species = "human",
@@ -352,26 +363,27 @@ artms_analysisQuantifications(
 # PH SITES
 setwd('~/sourcecode/artms/ph/')
 
-artms_proteinToSiteConversion(
+artmsProtein2SiteConversion(
   evidence_file = "evidence.txt",
   ref_proteome_file = "uniprot_canonical.fasta",
   output_file = "evidence-sites.txt",
   mod_type = "ph"
 )
 
-artms_qualityControlEvidenceExtended(evidence_file = "evidence-sites.txt",
+artmsQualityControlEvidenceExtended  (evidence_file = "evidence-sites.txt",
                                      keys_file = "keys.txt")
 
-artms_quantification(yaml_config_file = "phsites/phsites_config.yaml")
+artmsQuantification(yaml_config_file = "phsites/phsites_config.yaml")
 
 setwd('~/sourcecode/artms/ph/phsites/')
-artms_analysisQuantifications(
+artmsAnalysisQuantifications(
   log2fc_file = "phsites-results.txt",
   modelqc_file = "phsites-results_ModelQC.txt",
   species = "human",
-  output_dir = "analysisQuant2",
+  output_dir = "analysisQuantEnrich",
+  choosePvalue = "adjpvalue",
   isPtm = "ptmsites",
-  enrich = FALSE
+  enrich = TRUE
 )
 
 log2fc_file = "phsites-results.txt"
@@ -401,7 +413,7 @@ filename <- "phsites-results-imputedL2fcExtended.txt"
 artmsPhosfateOutput(inputFile = filename)
 artmsPhotonOutput(inputFile = filename)
 
-here <- artms_generatePhSiteExtended(df = "phsites-results-abundance-long.txt", 
+here <- artmsGeneratePhSiteExtended(df = "phsites-results-abundance-long.txt", 
                              pathogen = "nopathogen", 
                              species = "human", 
                              ptmType = "ptmsites", 
@@ -413,33 +425,34 @@ artmsPhosfateOutput(inputFile = filename)
 
 #-------------------------------------------------------------------------------
 # PH REDUCED
-setwd('~/sourcecode/artms/ph/phglobalreduced/')
+setwd('~/sourcecode/artms/ph/phglobal/')
 
-artms_quantification("phglobal_reduced_config.yaml")
+artmsQuantification("phglobal_reduced_config.yaml")
 
-artms_analysisQuantifications(
-  log2fc_file = "ph-reduced-results.txt",
-  modelqc_file = "ph-reduced-results_ModelQC.txt",
+artmsAnalysisQuantifications(
+  log2fc_file = "phglobal-results.txt",
+  modelqc_file = "phglobal-results_ModelQC.txt",
   species = "human",
   isPtm = "global",
   enrich = TRUE,
-  output_dir = "testingARTMS3",
+  output_dir = "testingARTMS4",
   mnbr = 2,
   l2fc_thres = 1.5,
-  ipval = "pvalue"
+  choosePvalue = "pvalue"
 )
 
 #-------------------------------------------------------------------------------
-ph_results_wide <- artms_resultsWide(
+ph_results_wide <- artmsResultsWide(
   results_msstats = artms_data_ph_msstats_results,
-  output_file = NULL)
+  output_file = NULL,
+  species = "human")
 
 summary_spectral_counts <-
-  artms_spectralCounts(evidence_file = artms_data_ph_evidence,
+  artmsSpectralCounts(evidence_file = artms_data_ph_evidence,
                        keys_file = artms_data_ph_keys)
 
 evidence_anno <-
-  artms_annotationUniprot(x = artms_data_ph_evidence,
+  artmsAnnotationUniprot(x = artms_data_ph_evidence,
                           columnid = "Proteins",
                           sps = "human")
 
@@ -448,7 +461,7 @@ uniprots_anno <- artms_mapUniprot2entrezGeneName(
   species = "human")
 
 data_annotated <-
-  artms_annotationUniprot(x = artms_data_ph_msstats_results,
+  artmsAnnotationUniprot(x = artms_data_ph_msstats_results,
                           columnid = "Protein",
                           sps = "human")
 
@@ -457,7 +470,7 @@ filtered_data <-
   unique(data_annotated$Gene[which(data_annotated$log2FC > 2)])
 
 # And enrich it
-data_annotated_enrich <- artms_enrichProfiler(
+data_annotated_enrich <- artmsEnrichProfiler(
   x = filtered_data,
   categorySource = c('KEGG'),
   species = "hsapiens",
@@ -465,7 +478,7 @@ data_annotated_enrich <- artms_enrichProfiler(
 )
 
 # -----------------------------------------------------------------------------
-artms_plotHeatmapQuant(
+artmsPlotHeatmapQuant(
   input_file = artms_data_ph_msstats_results,
   species = "human",
   output_file = NULL,
@@ -474,17 +487,17 @@ artms_plotHeatmapQuant(
   lfc_upper = 1
 )
 # -----------------------------------------------------------------------------
-artms_volcanoPlot(mss_results = artms_data_ph_msstats_results,
+artmsVolcanoPlot(mss_results = artms_data_ph_msstats_results,
                   whatPvalue = "pvalue",
                   PDF = FALSE)
 
 # -----------------------------------------------------------------------------
 # The data must be annotated (Protein and Gene columns)
-data_annotated <- artms_annotationUniprot(x = artms_data_ph_msstats_results,
+data_annotated <- artmsAnnotationUniprot(x = artms_data_ph_msstats_results,
                                           columnid = "Protein",
                                           sps = "human")
 # And then the enrichment
-enrich_set <- artms_enrichLog2fc(
+enrich_set <- artmsEnrichLog2fc(
   dataset = data_annotated,
   species = "human",
   background = unique(data_annotated$Gene),
@@ -497,14 +510,14 @@ background = unique(data_annotated$Gene)
 heatmaps = TRUE
 
 #----------------------------------------------------------------------
-artms_isEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
+artmsIsEvidenceNewVersion(evidence_file = artms_data_ph_evidence)
 
 
 #----------------------------------------------------------------------
 # Adding a new column with the main species of the data. Easy.
 # But the main functionality is to add both the host-species and a pathogen,
 # which is not illustrated in this example
-artms_annotateSpecie(df = artms_data_ph_msstats_results, species = "human")
+artmsAnnotateSpecie(df = artms_data_ph_msstats_results, species = "human")
 
 #-------------------------------------------------------------------------------
 # First, let's make the "replicate file" (in a data.frame)
@@ -522,7 +535,7 @@ colnames(replica_info) <- x_names
 
 # Now let's make the plots (it is recommended to use the <out_file> option
 # and print the results to a file)
-artms_replicatePlots(
+artmsReplicatePlots(
   input_file = artms_data_ph_evidence,
   keys_file = artms_data_ph_keys,
   replicate_file = replica_info,
@@ -534,7 +547,7 @@ artms_replicatePlots(
 
 ## PHSITES
 setwd('~/sourcecode/artms/ph/')
-artms_proteinToSiteConversion(
+artmsProtein2SiteConversion(
   evidence_file = "evidence.txt",
   ref_proteome_file = "uniprot_canonical.fasta",
   output_file = "phsite_evidence.txt",
@@ -543,7 +556,7 @@ artms_proteinToSiteConversion(
 
 
 # Generate the site-evidence.txt file:
-artms_proteinToSiteConversion(evidence_file = '')
+artmsProtein2SiteConversion(evidence_file = '')
 
 yaml_config_file <-
   '~/sourcecode/artms/ph/phsites/phsites_config.yaml'
@@ -574,7 +587,7 @@ yaml_config_file <-
   '~/sourcecode/artms/silac/results/config-silac.yaml'
 
 evidence2silac <-
-  artms_SILACtoLong(evidence_file = evidence_file, 
+  artmsSILACtoLong(evidence_file = evidence_file, 
                     output = "silac-evidence.txt")
 
 ## ABUNDANCE, technical replicates
@@ -598,7 +611,7 @@ contrast_file <-
 ## ANALYSIS OF QUANTIFICATIONS
 setwd('~/sourcecode/artms/thp1_ab_h1n1/results/testing/')
 
-artms_analysisQuantifications(
+artmsAnalysisQuantifications(
   log2fc_file = "ab-testing-new-results.txt",
   modelqc_file = "ab-testing-new-results_ModelQC.txt",
   species = "human",
@@ -618,18 +631,18 @@ q <- resultsHeatmap(results_file = "ab-testing-new-results.txt",
                     species = "human")
 print(q)
 
-artms_resultsWide(evidence_file = "results/testing/ab-testing-new-results.txt",
+artmsResultsWide(evidence_file = "results/testing/ab-testing-new-results.txt",
               output_file = "results/testing/ab-testing-new-results-wide.txt")
 
-artms_dataPlots(
+artmsDataPlots(
   input_file = "results/testing/ab-testing-new-results-mss-normalized.txt",
   output_file = "results/testing/ab-testing-new-results-mss-normalized.pdf")
 
-artms_plotHeatmapQuant(input_file = "ab-testing-new-results.txt",
+artmsPlotHeatmapQuant(input_file = "ab-testing-new-results.txt",
                        species = "human")
 
 print(here)
-artms_msstats_summary(
+artmsMsstatsSummary(
   evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
   prot_group_file = "proteinGroups.txt",
   keys_file = "FLU-THP1-H1N1-AB-keys.txt",
@@ -637,7 +650,7 @@ artms_msstats_summary(
   return_df = TRUE
 )
 
-artms_spectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
+artmsSpectralCounts(evidence_file = "FLU-THP1-H1N1-AB-evidence.txt",
                      keys_file = "FLU-THP1-H1N1-AB-keys.txt",
                      output_file = "FLU-THP1-H1N1-AB-spectral_counts.txt")
 
@@ -646,7 +659,7 @@ evidence <-
 keys <-
   read.delim("FLU-THP1-H1N1-AB-keys.txt", stringsAsFactors = FALSE)
 evidenceKeys <-
-  artms_mergeEvidenceAndKeys(data = evidence, keys = keys)
+  artmsMergeEvidenceAndKeys(data = evidence, keys = keys)
 
 evidenceKeys <-
   artms_mergeEvidenceKeysByFiles(
@@ -697,7 +710,7 @@ artms_evidenceToMISTformat(
 )
 
 ## Evidence QC
-artms_qualityControlEvidenceBasic(evidence_file = evidence_file,
+artmsQualityControlEvidenceBasic(evidence_file = evidence_file,
                                   keys_file = keys_file,
                                   prot_exp = "ph")
 

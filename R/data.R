@@ -112,8 +112,12 @@
 #' @description Evidence file from a PH experiment consisting of two 
 #' head and neck cancer cell lines ("Conditions" `"Cal33"` and `"HSC6"`). 
 #' 
-#' The number of peptides was reduced to 1/5 due 
-#' to bioconductor limitations on data size.
+#' Unfortunately, the number of lines was reduced to 1/8 due 
+#' to bioconductor limitations on data size, which means that this data is 
+#' not very representative of a real evidence file. However, both the 
+#' full evidence.txt and keys.txt file are available at:
+#' http://kroganlab.ucsf.edu/artms/ph/evidence.txt
+#' http://kroganlab.ucsf.edu/artms/ph/keys.txt
 #'
 #' @format A data frame with all the columns available in an evidence file
 #' generated with MaxQuant version 1.6.2.3
