@@ -34,7 +34,8 @@ combinations of biological replicates of conditions, based on MS Intensity
 values using features (mz_rt+charge)}
 
 \item{plotCORMAT}{if \code{TRUE} (default) generates up to 3 pdf files for
-technical replicates, biological replicates, and conditions. Each pdf file contains:
+technical replicates, biological replicates, and conditions. Each pdf file
+contains:
 \itemize{
 \item \emph{Correlation matrix} for all the biological replicates using
 MS Intensity values,
@@ -66,11 +67,10 @@ Quality Control analysis of the evidence-like metabolomics
 dataset
 }
 \examples{
-\donttest{
-artmsQualityControlMetabolomics(evidence_file = "metabolomics-evidence.txt",
-                 keys_file = "metabolomics-keys.txt",
+# Testing that input arguments cannot be null
+artmsQualityControlMetabolomics(evidence_file = NULL,
+                 keys_file = NULL,
                  met_exp = "MV")
-}
 }
 \keyword{QC,}
 \keyword{control,}

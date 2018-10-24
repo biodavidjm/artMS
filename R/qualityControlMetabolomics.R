@@ -19,7 +19,8 @@
 #' combinations of biological replicates of conditions, based on MS Intensity 
 #' values using features (mz_rt+charge)
 #' @param plotCORMAT if `TRUE` (default) generates up to 3 pdf files for 
-#' technical replicates, biological replicates, and conditions. Each pdf file contains: 
+#' technical replicates, biological replicates, and conditions. Each pdf file 
+#' contains: 
 #' - *Correlation matrix* for all the biological replicates using 
 #' MS Intensity values, 
 #' - *Clustering matrix* of the MS Intensities and correlation distribution 
@@ -39,11 +40,11 @@
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return Quality control files and plots for metabolomics
 #' @keywords QC, quality, control, evidence, metabolomics
-#' @examples \donttest{
-#' artmsQualityControlMetabolomics(evidence_file = "metabolomics-evidence.txt",
-#'                  keys_file = "metabolomics-keys.txt",
+#' @examples
+#' # Testing that input arguments cannot be null
+#' artmsQualityControlMetabolomics(evidence_file = NULL,
+#'                  keys_file = NULL,
 #'                  met_exp = "MV")
-#' }
 #' @export
 artmsQualityControlMetabolomics <- function(evidence_file,
                              keys_file,
@@ -59,6 +60,10 @@ artmsQualityControlMetabolomics <- function(evidence_file,
   if(any(missing(evidence_file) | missing(keys_file)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
+  
+  if( is.null(evidence_file) & is.null(keys_file) ){
+    return("Both <evidence_file> and <keys_file> cannot be NULL")
+  }
 
   met_exp <- toupper(met_exp)
   met_exp <- match.arg(met_exp)
