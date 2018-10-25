@@ -77,8 +77,14 @@ artmsQualityControlMetabolomics <- function(evidence_file,
   
   # remove 
   
-  ekselecta <- evidencekeys
-  ekselectaBioreplica <- evidencekeys
+  ekselecta <-
+    aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
+              data = evidencekeys,
+              FUN = sum)
+  ekselectaBioreplica <-
+    aggregate(Intensity ~ Proteins + Condition + BioReplicate,
+              data = ekselecta,
+              FUN = sum)
   
   # Checking the overall distribution of intensities before anything else
   # Based on Intensity

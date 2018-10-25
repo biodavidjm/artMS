@@ -1,3 +1,9 @@
+Changes in version v0.99.100
+
+* This version addresses all the suggestions and comments raised by the bioconductor's reviewer
+* Incorporates functions to handle Metabolomics based on Markview alignment 
+table
+
 Changes in version v0.99.52
 
 * Updated Vignette extensively
@@ -16,7 +22,7 @@ Changes in version 0.99.01
 
 For Developers
 
-* All the functions name must have the prefix 'artMS_'
+* All the functions name must have the prefix 'artms'
 
 * Normalized all documentation using roxygen2
     
