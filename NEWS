@@ -1,48 +1,47 @@
-Changes in version v1.0.0
+Changes in version v1.0.0 (2018-10-29)
 
-* artMS is officially released
++ artMS is officially released
 
-Changes in version v0.99.102
+Changes in version v0.99.102 (2018-10-27)
 
-* Fix bug in artmsConvertMetabolomics()
++ Fix bug in artmsConvertMetabolomics()
 
 Changes in version v0.99.101
 
-* Update vignettes
++ Update vignettes
 
 Changes in version v0.99.100
 
-* This version addresses all the suggestions and comments raised by the bioconductor's reviewer
-* Incorporates functions to handle Metabolomics based on Markview alignment 
-table
++ This version addresses all the suggestions and comments raised by the bioconductor's reviewer
++ Incorporates functions to handle Metabolomics based on the Markview alignment table
 
 Changes in version v0.99.52
 
-* Updated Vignette extensively
++ Updated Vignette extensively
     
 Changes in version 0.99.25
 
-* Update Vignette to just output html
++ Update Vignette to just output html
 
 Changes in version 0.99.02
 
-* Add the Bioconductor webhook
++ Add the Bioconductor webhook
 
 Changes in version 0.99.01
 
-* Submit the package to the Bioconductor project
++ Submit the package to the Bioconductor project
 
 For Developers
 
-* All the functions name must have the prefix 'artms'
++ All the functions name must have the prefix 'artms'
 
-* Normalized all documentation using roxygen2
++ Normalized all documentation using roxygen2
     
 Deprecated
 
-* Nothing yet
++ Nothing yet
 
 Defunct
 
-* Nothing yet
++ Nothing yet
 
