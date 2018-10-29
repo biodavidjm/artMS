@@ -163,19 +163,6 @@ artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # TESTING artMS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# QC PLOTS EXTENDED
-setwd("~/Box Sync/tempStuff/david2alex/alex2david/1D/")
-evidence_file <- "evidence.txt"
-keys_file <- "keys.txt"
-summary_file <- "summary.txt"
-
-artmsQualityControlEvidenceExtended  (evidence_file = "evidence.txt",
-                                     keys_file = "keys.txt")
-
-artmsQualityControlSummaryExtended(summary_file = "summary.txt",
-                                   keys_file = "keys.txt")
-
-artmsQuantification(yaml_config_file = "config.yaml")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,16 +175,7 @@ artmsConvertMetabolomics(input_file = "H5THP1align_05292018.txt",
 artmsQualityControlMetabolomics(evidence_file = "H5THP1align_05292018-evidence.txt",
                                  keys_file = "H5THP1_05292018_keys.txt")
 
-# met_exp = c('MV')
-# output_name = "qcPlots_metab"
-# plotINTDIST = TRUE
-# plotREPRO = TRUE
-# plotCORMAT = TRUE
-# plotINTMISC = TRUE
-# printPDF = TRUE
-# verbose = TRUE
-
-artmsWriteConfigYamlFile(config_file_name = "metabConfig.yaml")
+# artmsWriteConfigYamlFile(config_file_name = "metabConfig.yaml")
 
 artmsQuantification(yaml_config_file = "metabConfig.yaml")
 

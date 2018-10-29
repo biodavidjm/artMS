@@ -1,3 +1,15 @@
+Changes in version v1.0.0
+
+* artMS is officially released
+
+Changes in version v0.99.102
+
+* Fix bug in artmsConvertMetabolomics()
+
+Changes in version v0.99.101
+
+* Update vignettes
+
 Changes in version v0.99.100
 
 * This version addresses all the suggestions and comments raised by the bioconductor's reviewer

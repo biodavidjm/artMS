@@ -59,6 +59,7 @@ artmsConvertMetabolomics <- function(input_file,
   setnames(tmp, c(1,3), c('Modified.sequence', 'Retention time'))
   tmp$Modified.sequence <- gsub(' \\([0-9]+\\)', '', tmp$Modified.sequence)
   tmp$Proteins <- tmp$Modified.sequence
+  tmp$Charge <- 1
   
   tmp <- as.data.frame(tmp, stringsAsFactors = FALSE)
   
