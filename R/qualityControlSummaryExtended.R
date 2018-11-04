@@ -147,7 +147,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
-    if(verbose) message("--- Plot NUMBER OF MS1 SCANS")
+    if(verbose) message("--- Plot NUMBER OF MS1 SCANS", appendLF = FALSE)
     pdf(
       'QC_Plots_summary_MS1SCANS.pdf',
       width = nsamples * 3,
@@ -249,7 +249,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   ## Number of MS2 scans
   if (plotMS2) {
-    if(verbose) message("--- Plot Number of MS2 scans")
+    if(verbose) message("--- Plot Number of MS2 scans", appendLF = FALSE)
     pdf(
       'QC_Plots_summary_MS2.pdf',
       width = nsamples * 3,
@@ -380,7 +380,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   # Number of msms.identification rate
   if (plotMSMS) {
-    if(verbose) message("--- Plot Number of msms.identification rate")
+    if(verbose) message("--- Plot Number of msms.identification rate", appendLF = FALSE)
     pdf(
       'QC_Plots_summary_MSMS.pdf',
       width = nsamples * 3,
@@ -485,7 +485,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   # Number of isotope patterns
   if (plotISOTOPE) {
-    if(verbose) message("--- Plot Number of isotope patterns")
+    if(verbose) message("--- Plot Number of isotope patterns", appendLF = FALSE)
     pdf(
       'QC_Plots_summary_ISOTOPE.pdf',
       width = nsamples * 3,

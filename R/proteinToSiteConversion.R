@@ -49,7 +49,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
          Please, check the help of this function to find out more")
   
   mod_type <- toupper(mod_type)
-  if(mod_type %in% c("PH", "UB", "AC"))
+  if(!mod_type %in% c("PH", "UB", "AC"))
     stop("the mod_type ", mod_type, " is not supported")
   
   if(verbose) message(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC ")

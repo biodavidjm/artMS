@@ -87,7 +87,7 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
   quant_variable <- match.arg(quant_variable)
-  if(verbose) message(">> AGGREGATING ON", quant_variable, "VALUES... ")
+  if(verbose) message(">> AGGREGATING ON ", quant_variable, " VALUES... ")
   ## aggregate over technical replicates if necessary
   if (quant_variable == 'msspc') {
     setnames(data_f, 'MS/MS Count', 'spectral_counts')
