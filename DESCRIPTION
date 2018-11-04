@@ -1,7 +1,7 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.1.1
+Version: 1.0.1
 Date: 2018-11-04
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
