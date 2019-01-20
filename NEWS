@@ -1,6 +1,23 @@
+Changes in version v1.0.1 (2019-01-19)
+
++ Fixed error: the condition has length (from bioc 3.9)
++ Fixed bug with artmsVolcanoPlot
+
+Changes in version v1.0.1 (2018-10-29)
+
++ Fixed bug on artmsProtein2SiteConvertion
+
 Changes in version v1.0.0 (2018-10-29)
 
 + artMS is officially released
+
+Changes in version v0.99.104 (2018-10-29)
+
++ Minor changes in output messages (verbose)
+
+Changes in version v0.99.103 (2018-10-29)
+
++ Update NEWS format
 
 Changes in version v0.99.102 (2018-10-27)
 
