@@ -1116,7 +1116,8 @@ artmsPlotHeatmapQuant <- function(input_file,
 #' @param lfc_lower (numeric) log2fc lower threshold (negative value)
 #' @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)
 #' @param FDR (numeric) False Discovery Rate threshold
-#' @param output_name (char) Name for the output file
+#' @param output_name (char) Name for the output file (don't forget the `.pdf`
+#' extension)
 #' @param PDF (logical) Option to generate pdf format. Default: `T`
 #' @param decimal_threshold (numeric) Decimal threshold for the pvalue.
 #' Default: 16 (10^-16)
@@ -1129,14 +1130,18 @@ artmsPlotHeatmapQuant <- function(input_file,
 #'                   PDF = FALSE)
 #' @export
 artmsVolcanoPlot <- function(mss_results,
-                              lfc_upper = 1,
-                              lfc_lower = -1,
-                              whatPvalue = "adj.pvalue",
-                              FDR = 0.05,
-                              PDF = TRUE,
-                              output_name = '',
-                              decimal_threshold = 16,
-                              verbose = TRUE) {
+                             output_name = "volcano_plot.pdf",
+                             lfc_upper = 1,
+                             lfc_lower = -1,
+                             whatPvalue = "adj.pvalue",
+                             FDR = 0.05,
+                             PDF = TRUE,
+                             decimal_threshold = 16,
+                             verbose = TRUE) {
+  
+  if(any(missing(mss_results)))
+    stop("One (or many) of the required arguments missed. 
+         Please, check the help for this function to find out more")
   
   if(verbose) message(">> Generating volcano plot from MSstats results ")
   if (PDF) {
@@ -1242,6 +1247,7 @@ artmsVolcanoPlot <- function(mss_results,
                  ncol = 2,
                  scales = 'fixed')
   }
+  
   if (PDF) {
     pdf(output_name, width = w, height = h)
     print(p)

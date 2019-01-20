@@ -4,12 +4,15 @@
 \alias{artmsVolcanoPlot}
 \title{Volcano plot (log2fc / pvalues)}
 \usage{
-artmsVolcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
-  whatPvalue = "adj.pvalue", FDR = 0.05, PDF = TRUE,
-  output_name = "", decimal_threshold = 16, verbose = TRUE)
+artmsVolcanoPlot(mss_results, output_name = "volcano_plot.pdf",
+  lfc_upper = 1, lfc_lower = -1, whatPvalue = "adj.pvalue",
+  FDR = 0.05, PDF = TRUE, decimal_threshold = 16, verbose = TRUE)
 }
 \arguments{
 \item{mss_results}{(data.frame or file) Selected MSstats results}
+
+\item{output_name}{(char) Name for the output file (don't forget the \code{.pdf}
+extension)}
 
 \item{lfc_upper}{(numeric) log2fc upper threshold (positive value)}
 
@@ -20,8 +23,6 @@ artmsVolcanoPlot(mss_results, lfc_upper = 1, lfc_lower = -1,
 \item{FDR}{(numeric) False Discovery Rate threshold}
 
 \item{PDF}{(logical) Option to generate pdf format. Default: \code{T}}
-
-\item{output_name}{(char) Name for the output file}
 
 \item{decimal_threshold}{(numeric) Decimal threshold for the pvalue.
 Default: 16 (10^-16)}

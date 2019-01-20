@@ -19,13 +19,7 @@
   } else{
     if(!file.exists(input_file)){
       stop("The file ", input_file, " does not exist! ")
-    }
-    
-    if (is.evidence) {
-      # we are not using this for now
-      # x <- .artms_read_evidence_file(input_file)
-      x <- read.delim(input_file, stringsAsFactors = FALSE)
-    } else {
+    }else{
       x <- read.delim(input_file, stringsAsFactors = FALSE)
     }
   }
