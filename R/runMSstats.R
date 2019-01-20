@@ -174,6 +174,16 @@
     row.names = FALSE,
     col.names = TRUE
   )
+  write.table(
+    mssquant$RunlevelData,
+    file = gsub(".txt", "_RunlevelData.txt", config$files$output),
+    eol = "\n",
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE
+  )
+
   if(verbose) message(">> MSstats IS DONE! ")
   
   #(1) Minimal number of biological replicates per condition

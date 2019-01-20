@@ -235,12 +235,16 @@ artmsQuantification <- function(yaml_config_file,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
       fractions = config$data$fractions$enabled)
+  }else{
+    if(verbose) message("-- No QC basic selected")
   }
   
   if (config$qc$extended) {
     artmsQualityControlEvidenceExtended  (
       evidence_file = config$files$evidence,
       keys_file = config$files$keys)
+  }else{
+    if(verbose) message("-- No QC extended selected")
   }
   
   # process MaxQuant data, link with keys, and convert for MSStats format
@@ -360,10 +364,18 @@ artmsQuantification <- function(yaml_config_file,
                                       config = config)
       .artms_samplePeptideBarplot(data_f, config)
     }
+  }else{
+    if(verbose) 
+      message("-- Data not selected (will require to load evidence-mss.txt file)")
   }
   
   ## MSSTATS
   if (config$msstats$enabled) {
+    
+    # Load the keys files
+    keys <- .artms_checkIfFile(config$files$keys)
+    keys <- .artms_checkRawFileColumnName(keys)
+    keys <- data.table(keys)
 
     # Read in contrast file
     contrasts <-
@@ -387,10 +399,11 @@ artmsQuantification <- function(yaml_config_file,
       dmss <- read.delim(config$msstats$msstats_input,
                          stringsAsFactors = FALSE,
                          sep = '\t')
-      dmss <- data.table(dmss)
     }
     results <- .artms_runMSstats(dmss, contrasts, config,
                                  verbose = verbose)
+  } else{
+    if(verbose) message("MSstats not selected")
   }
   
   ## ANNOTATING RESULT FILE
