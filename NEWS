@@ -1,3 +1,20 @@
+Changes in version v1.0.4 (2019-01-20)
+
++ Update the vignette
+
+Changes in version v1.0.3 (2019-01-20)
+
++ bug fix: pre-formatted mss file now works
+
+Changes in version v1.0.2 (2019-01-19)
+
++ Fixed error: the condition has length (from bioc 3.9)
++ Fixed bug with artmsVolcanoPlot
+
+Changes in version v1.0.1 (2018-10-29)
+
++ Fixed bug on artmsProtein2SiteConvertion
+
 Changes in version v1.0.0 (2018-10-29)
 
 + artMS is officially released
