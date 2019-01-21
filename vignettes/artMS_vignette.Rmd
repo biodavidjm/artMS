@@ -663,76 +663,99 @@ artmsQualityControlEvidenceExtended(evidence_file = artms_data_ph_evidence,
 
 and generates the following QC plots:
 
-- **CS**: charge state plot: Page 1 shows the charge state distribution of 
-peptide-spectrum matches (PSMs) confidently identified in each BioReplicate.
-- **IDoverlap**: pairwise identification heatmap overlap: Pages 1 and 2 show 
-pairwise peptide and protein overlap between any 2 BioReplicates, respectively. 
-- **IONS**: peptide ion statistics plot: A peptide ion is defined in the context
-of m/z, in other words, an unique peptide sequence may give rise to multiple 
-ions with different charge state and/or amino acid modification. Page 1 shows
-the number of ions confidently identified in each BioReplicate . 
-If replicates are present, Page 2 shows the mean number of peptide ions per 
-condition with error bar showing the standard error of the mean. 
-Note that potential contaminant proteins are plotted separately.  
-- **ME**: precursor mass error plot: Page 1 shows the distribution of precursor 
-error for all PSMs confidently identified in each BioReplicate.
-- **MOCD**: precursor mass-over-charge plot: Page 1 shows the distribution of 
-precursor mass-over-charge for all PSMs confidently identified in each 
-BioReplicate. 
-- **PEPDETECT**: peptide detection frequency plot: Page 1 summarizes the 
-frequency that each peptide is detected across BioReplicates of each 
-condition, showing the percentage of peptides detected once, twice, thrice, 
-and so on (for whatever number of replicates each condition has).
-- **PEPICV**: peptide intensity coefficient of variance (CV) plot: The CV is 
-calculated for each feature (peptide ion) identified in more than one 
-replicate. Page 1 shows the distribution of CV's for each condition, while 
-Page 2 shows the distribution of CV's within 4 bins of intensity (i.e., 4 
+- **plotPSM (QC_Plots_PSM.pdf)** : it generates peptide-spectrum-matches (PSMs) 
+statistics plot: Page 1 shows the number of PSMs confidently identified 
+in each BioReplicate. If replicates are present, Page 2 shows the mean 
+number of PSMs per condition with error bar showing the standard error 
+of the mean. Note that potential contaminant proteins are plotted separately. 
+- **plotIONS (QC_Plots_IONS.pdf)** : it generates peptide ion statistics plot: 
+A peptide ion is defined in the context of m/z, in other words, an unique 
+peptide sequence may give rise to multiple ions with different charge state 
+and/or amino acid modification. Page 1 shows the number of ions confidently
+ identified in each BioReplicate . If replicates are present, Page 2 shows 
+ the mean number of peptide ions per condition with error bar showing the 
+ standard error of the mean. Note that potential contaminant proteins are 
+ plotted separately.  
+- **plotTYPE (QC_Plots_TYPE.pdf)**: it generates identification type statistics 
+plot: MaxQuant classifies each peptide identification into different 
+categories (e.g., MSMS, MULTI-MSMS, MULTI-SECPEP). 
+Page 1 shows the distribution of identification type in each BioReplicate
+- **plotPEPTIDES (QC_Plots_PEPTIDES.pdf)**: it generates peptide statistics 
+plot: 
+Page 1 shows the number of unique peptide sequences (disregard the charge 
+state or amino acid modifications) confidently identified in each 
+BioReplicate. If replicates are present, Page 2 shows the mean number of 
+peptides per condition with error bar showing the standard error of the 
+mean. Note that potential contaminant proteins are plotted separately. 
+Pages 3 and 4 show peptide identification intersection between 
+BioReplicates (the bars are ordered by degree or frequency, respectively),
+ and Page 4 shows the intersections across conditions instead of 
+ BioReplicates.
+- **plotPROTEINS (QC_Plots_PROTEINS.pdf)**: it generates protein statistics 
+plot: 
+Page 1 shows the number of protein groups confidently identified in each 
+BioReplicate. If replicates are present, Page 2 shows the mean number of 
+protein groups per condition with error bar showing the standard error of 
+the mean. Note that potential contaminant proteins are plotted separately.
+Pages 3 and 4 show peptide identification intersection between 
+BioReplicates (the bars are ordered by degree or frequency, respectively), 
+and Page 4 shows the intersections across conditions instead of 
+BioReplicates.
+- **plotPIO (QC_Plots_PepIonOversampling.pdf)**: it generates oversampling 
+statistics plot: 
+Page 1 shows the proportion of all peptide ions (including peptides 
+matched across runs) fragmented once, twice and thrice or more. 
+Page 2 shows the  proportion of peptide ions (with intensity detected) 
+fragmented once, twice and thrice or more. Page 3 shows the proportion of 
+peptide ions (with intensity detected and MS/MS identification) fragmented 
+once, twice and thrice or more
+- **plotCS (QC_Plots_CHARGESTATE.pdf)**: it generates charge state plot: 
+Page 1 shows 
+the charge state distribution of PSMs confidently identified in each 
+BioReplicate.
+- **plotME (QC_Plots_MASSERROR.pdf)**: it generates precursor mass error plot: 
+Page 1 shows the distribution of precursor error for all PSMs confidently 
+identified in each BioReplicate.
+- **plotMOCD (QC_Plots_MZ.pdf)**: it generates precursor mass-over-charge plot: 
+Page 1 shows the distribution of precursor mass-over-charge for all PSMs 
+confidently identified in each BioReplicate. 
+- **plotPEPICV (QC_Plots_PEPINT.pdf)**: it generates peptide intensity coefficient 
+of variance (CV) plot: The CV is calculated for each feature (peptide ion) 
+identified in more than one replicate. Page 1 shows the distribution of 
+CV's for each condition, while Page 2 shows the distribution of CV's 
+within 4 bins of intensity (i.e., 4 quantiles of average intensity).
+- **plotPEPDETECT (QC_Plots_PepDetect.pdf)**: it generates peptide detection 
+frequency plot: Page 1 summarizes the frequency that each peptide is 
+detected across BioReplicates of each condition, showing the percentage 
+of peptides detected once, twice, thrice, and so on (for whatever number 
+of replicates each condition has).
+- **plotPROTICV (QC_Plots_ProtInt.pdf)**: it generates protein intensity coefficient 
+of variance (CV) plot: The CV is calculated for each protein (after summing 
+the peptide intensities) identified in more than one replicate. 
+Page 1 shows the distribution of CV's for each condition, while Page 2 
+shows the distribution of CV's within 4 bins of intensity (i.e., 4 
 quantiles of average intensity).
-- **PEPTIDES**: peptide statistics plot: Page 1 shows the number of unique 
-peptide sequences (disregard the charge state or amino acid modifications) 
-confidently identified in each BioReplicate. If replicates are present, 
-Page 2 shows the mean number of peptides per condition with error bar showing 
-the standard error of the mean. Note that potential contaminant proteins
-are plotted separately. Pages 3 and 4 show peptide identification intersection
-between BioReplicates (the bars are ordered by degree or frequency, 
-respectively), and Page 4 shows the intersections across conditions instead 
-of BioReplicates.
-- **PIO**: oversampling statistics plot: Page 1 shows the proportion of all 
-peptide ions (including peptides matched across runs) fragmented once, 
-twice and thrice or more. Page 2 shows the  proportion of peptide ions 
-(with intensity detected) fragmented once, twice and thrice or more. 
-Page 3 shows the proportion of peptide ions (with intensity detected and 
-MS/MS identification) fragmented once, twice and thrice or more
-- **PROTDETECT**: protein detection frequency plot: Page 1 summarizes the 
-frequency that each protein group is detected across BioReplicates of 
-each condition, showing the percentage of proteins detected once, twice, 
-thrice, and so on (for whatever number of replicates each condition has). 
-Page 2 shows the feature (peptide ion) intensity distribution within each 
-BioReplicate (potential contaminant proteins are plot separately). Page 3 
-shows the density of feature intensity for different feature types (i.e., 
-MULTI-MSMS, MULTI-SECPEP).
-- **PROTEINS**: protein statistics plot: Page 1 shows the number of protein 
-groups confidently identified in each BioReplicate. If replicates are 
-present, Page 2 shows the mean number of protein groups per condition with 
-error bar showing the standard error of the mean. Note that potential 
-contaminant proteins are plotted separately.Pages 3 and 4 show peptide
-identification intersection between BioReplicates (the bars are ordered 
-by degree or frequency, respectively), and Page 4 shows the intersections 
-across conditions instead of BioReplicates.
-- **PROTICV**: protein intensity coefficient of variance (CV) plot: The CV is 
-calculated for each protein (after summing the peptide intensities) identified
-in more than one replicate. Page 1 shows the distribution of CV's for 
-each condition, while Page 2 shows the distribution of CV's within 4 bins 
-of intensity (i.e., 4 quantiles of average intensity).
-- **PSM**: peptide-spectrum-matches (PSMs) statistics plot: Page 1 shows the
-number of PSMs confidently identified in each BioReplicate. If replicates 
-are present, Page 2 shows the mean number of PSMs per condition with error
-bar showing the standard error of the mean. Note that potential contaminant
-proteins are plotted separately. 
-- **TYPE**: identification type statistics plot: MaxQuant classifies each 
-peptide identification into different categories (e.g., MSMS, MULTI-MSMS, 
-MULTI-SECPEP). Page 1 shows the distribution of identification type in each 
-BioReplicate
+- **plotPROTDETECT (QC_Plots_ProtDetect.pdf)**: it generates protein detection 
+frequency plot: Page 1 summarizes the frequency that each protein group 
+is detected across BioReplicates of each condition, showing the 
+percentage of proteins detected once, twice, thrice, and so on (for 
+whatever number of replicates each condition has). Page 2 shows the feature 
+(peptide ion) intensity distribution within each BioReplicate (potential 
+contaminant proteins are plot separately). Page 3 shows the density of 
+feature intensity for different feature types (i.e., MULTI-MSMS, 
+MULTI-SECPEP).
+- **plotIDoverlap (QC-ID-Overlap.pdf)**: it generates pairwise identification 
+heatmap overlap: Pages 1 and 2 show pairwise peptide and protein overlap 
+between any 2 BioReplicates, respectively. 
+- **plotIC (QC-IntCorrelation.pdf)**: it generates pairwise intensity correlation: 
+Page 1 and 3 show pairwise peptide and protein intensity correlation and 
+scatter plot between any 2 BioReplicates, respectively. Page 2 and 4 show 
+principal component analysis at the intensity level for both peptide and 
+proteins, respectively. 
+- **plotSP (QC-SamplePrep.pdf)**: it generates sample quality metrics: Page 1 
+shows missing cleavage distribution of all peptides confidently identified 
+in each BioReplicate. Page 2 shows the fraction of peptides with at least 
+one methionine oxidized in each BioReplicate. 
 
 
 <a name="qcextendedevidence" />
@@ -755,27 +778,27 @@ artmsQualityControlSummaryExtended(summary_file = "summary.txt",
 
 It generates the following `pdf` plots:
 
-- **MS1SCANS**: generates MS1 scan counts plot: 
+- **plotMS1SCANS**: generates MS1 scan counts plot: 
 Page 1 shows the number of MS1 scans in each BioReplicate. 
 If replicates are present, Page 2 shows the mean number of MS1 scans 
 per condition with error bar showing the standard error of the mean. 
 If `isFractions` is `TRUE`, each fraction is a stack on the individual 
 bar graphs. 
 
-- **MS2**: generates MS2 scan counts plot: 
+- **plotMS2**: generates MS2 scan counts plot: 
 Page 1 shows the number of MSs scans in each BioReplicate. 
 If replicates are present, Page 2 shows the mean number of MS1 scans per 
 condition with error bar showing the standard error of the mean. 
 If `isFractions` is `TRUE`, each fraction is a stack on the individual bar graphs. 
 
-- **MSMS**: generates MS2 identification rate (%) plot: 
+- **plotMSMS**: generates MS2 identification rate (%) plot: 
 Page 1 shows the fraction of MS2 scans confidently identified in each 
 BioReplicate. If replicates are present, Page 2 shows the mean rate of MS2 
 scans confidently identified per condition with error bar showing the 
 standard error of the mean. 
 If `isFractions` `TRUE`, each fraction is a stack on the individual bar graphs.
 
-- **ISOTOPE**: generates Isotope Pattern counts plot: 
+- **plotISOTOPE**: generates Isotope Pattern counts plot: 
 Page 1 shows the number of Isotope Patterns with charge greater than 1 in 
 each BioReplicate. If replicates are present, Page 2 shows the mean number 
 of Isotope Patterns with charge greater than 1 per condition with error bar 
