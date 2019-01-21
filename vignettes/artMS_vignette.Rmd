@@ -1068,13 +1068,13 @@ And then run the following function (e.g., for a protein abundance
 "AB" experiment)
 
 ```
-artms_analysisQuantifications(log2fc_file = "ab-results.txt",
+artmsAnalysisQuantifications(log2fc_file = "ab-results.txt",
                               modelqc_file = "ab-results_ModelQC.txt",
                               species = "human",
                               output_dir = "AnalysisQuantifications")
 ```
 
-A few comments on the available options for `artms_analysisQuantifications`:
+A few comments on the available options for `artmsAnalysisQuantifications`:
 
 - `isPTM`: for protein abundance (`AB`), Affinity Purification-Mass 
 Spectrometry (`APMS`), and global analysis of posttranslational modifications 
