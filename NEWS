@@ -1,4 +1,12 @@
-Changes in version v1.0.1 (2019-01-19)
+Changes in version v1.0.4 (2019-01-20)
+
++ Updated vignette with a more detail description of every step
+
+Changes in version v1.0.3 (2019-01-20)
+
++ Bug fix: using pre-formatted mss file
+
+Changes in version v1.0.2 (2019-01-19)
 
 + Fixed error: the condition has length (from bioc 3.9)
 + Fixed bug with artmsVolcanoPlot
