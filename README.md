@@ -52,11 +52,12 @@ Two options to install `artMS`
 
 ## Official BioConductor releases (recommended)
 
-`artMS` is available on [BioConductor](https://www.bioconductor.org/). 
+`artMS` is available on [BioConductor](https://www.bioconductor.org/). Run the following lines:
 
 ```
-install.packages("BiocManager")
-BiocManager::install("artMS")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("artMS", version = "3.8")
 ```
 
 Why Bioconductor? [Here you can find a nice summary of good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor).
