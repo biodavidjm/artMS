@@ -1,5 +1,8 @@
+^Meta$
+^doc$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
 codecov.yml
 .travis.yml
+^.*\.git$
