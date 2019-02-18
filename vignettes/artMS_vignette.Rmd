@@ -5,11 +5,11 @@ date: "`r Sys.Date()`"
 output: 
   BiocStyle::html_document:
     toc_float: true
-  # pdf_document:
+  # pdf_document: true
   # toc: true
   
 vignette: >
-    %\VignetteIndexEntry{Learn to use artMS ~30 min}
+    %\VignetteIndexEntry{Learn to use artMS}
     %\usepackage[utf8]{inputenc}
     %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -1010,16 +1010,20 @@ line is a protein for each comparison. It includes the following columns:
     * `Tvalue`: test statistic of the Student test
     * `DF`: degree of freedom of the Student test
     * `pvalue`: raw p-values
-    * `adj.pvalue`: p-values adjusted among all the proteins in the specific comparison using the approach by Benjamini and Hochberg 
-    * `issue`: shows if there is any issue for inference in corresponding protein and comparison,
-for example, OneConditionMissing or CompleteMissing.
-    * `MissingPercentage`: percentage of random and censored missing in the corresponding run and protein out of the total number of feature in the corresponding protein.
+    * `adj.pvalue`: p-values adjusted among all the proteins in the specific 
+    comparison using the approach by Benjamini and Hochberg 
+    * `issue`: shows if there is any issue for inference in corresponding 
+    protein and comparison, for example, OneConditionMissing or CompleteMissing.
+    * `MissingPercentage`: percentage of random and censored missing 
+    in the corresponding run and protein out of the total number of 
+    feature in the corresponding protein.
     * `ImputationPercentage`: percentage of imputation
     * Note:  If a protein is completely missed in one of the conditions of 
     a given comparison, it would get the flag `OneConditionMission` with 
     `adj.pvalue=0` and `log2FC=Inf` or `-Inf` even though `pvalue=NA`. 
-    For example, if for the comparison ‘Condition A - Condition B’ one protein
-    is completely missed for condition B, then `log2FC=Inf` and `adj.pvalue=0`. 
+    For example, if for the comparison `Condition A - Condition B` 
+    one protein is completely missed for condition B, then 
+    `log2FC = Inf` and `adj.pvalue = 0`. 
     `SE`, `Tvalue`, and `pvalue` will all be `NA`.
 
 - **results-annotated.txt**: same as `results.txt` but 3 more columns of
@@ -1047,7 +1051,7 @@ including:
 - `results-volcano.pdf`
 
 
-<!--
+<!-- 
 ANALYSIS OF QUANTIFICATIONS
 -------------------------------------------------------------------------------
 -->

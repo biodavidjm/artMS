@@ -166,7 +166,6 @@ artmsDataPlots <- function(input_file,
       cluster_cols = cluster_cols,
       fontfamily = "mono"
     )
-    if(verbose) message("--- Heatmap is out ")
   } else{
     heat_data_w <- heat_data_w[, labelOrder]
     pheatmap(
@@ -1143,7 +1142,6 @@ artmsVolcanoPlot <- function(mss_results,
     stop("One (or many) of the required arguments missed. 
          Please, check the help for this function to find out more")
   
-  if(verbose) message(">> Generating volcano plot from MSstats results ")
   if (PDF) {
     if (!grepl("\\.pdf", output_name)) {
       stop("File extension '.pdf' is missed for < output_name >")
