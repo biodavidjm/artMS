@@ -13,12 +13,20 @@
 #'
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
-#' @param species (char) Main species. Currently supported: human, mouse
+#' @param species (char) Select one species. Species currently supported for
+#' a full analysis (including enrichment analysis):
+#' - HUMAN
+#' - MOUSE
+#' 
+#' To find out species supported only for annotation check 
+#' `?artmsIsSpeciesSupported()`
+#' 
 #' @param output_dir (char) Name for the folder to output the results from the 
 #' function. Default is current directory (recommended to provide a new folder
 #' name).
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
-#' `TRUE` (default) or `FALSE`
+#' Only available for species HUMAN and MOUSE. 
+#' `TRUE` (default if "human" or "mouse" are the species) or `FALSE`
 #' @param l2fc_thres (int) log2fc cutoff for enrichment analysis (default,
 #' `l2fc_thres = 1.5`)
 #' @param choosePvalue (char) specify whether `pvalue` or `adjpvalue` should 
@@ -149,10 +157,18 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     stop("The < choosePvalue > argument is wrong. 
          The valid options are: <pvalue> or <adjpvalue> ")
   
+  if(!artmsIsSpeciesSupported(species)){
+    if(verbose) message("---(-) ", species, " is not supported. \n\tGene Symbol, Protein Name, and EntrezID won't be provided")
+  }
+  
+  # Because the species is known to be supported, let's keep going...
   species <- tolower(species)
-  if(!(species %in% c('human', 'mouse')))
-    stop("The < species > argument is wrong. 
-         The valid options are: <human> or <mouse> ")
+  if(!(species %in% c('human', 'mouse'))){
+    if(enrich){
+      message("-- Enrichment analysis turned off: only available for HUMAN and MOUSE")
+      enrich <- FALSE
+    }
+  }
   
   if (pathogen == "nopathogen") {
     if(verbose) message("--- No Pathogen extra in these samples (only Influenza) ")
@@ -192,6 +208,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # Removing the empty protein names
   if (any(dfmq$PROTEIN == "")) {
     dfmq <- dfmq[-which(dfmq$PROTEIN == ""), ]
+    if(verbose) message("--- Empty ID proteins removed from abundance data")
   }
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN)
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN)
@@ -272,6 +289,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     )
   if (any(dflog2fcraw$Protein == "")) {
     dflog2fcraw <- dflog2fcraw[-which(dflog2fcraw$Protein == ""), ]
+    if(verbose) message("--- Empty ID proteins removed from log2fc data")
   }
   dflog2fcraw$Protein <-
     gsub("(sp\\|)(.*)(\\|.*)", "\\2", dflog2fcraw$Protein)
@@ -671,7 +689,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   OUTreprod[is.na(OUTreprod)] <- 0
   # Make a copy to use later
   bioReplicaInfo <- OUTreprod
-  # And geht the total number of biological replicates
+  # And get the total number of biological replicates
   OUTreprod$BiorepCount <- rowSums(OUTreprod[, 2:here])
   
   # Get whether a protein is found in all conditions
@@ -972,43 +990,46 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)
   # Let's select first significance based on pvalue, by using the iPvalue
   # we are already including the imputed pvalues...
+  
   l2fcol4enrichment <-
     data.table::dcast(data = imputedDF[which(imputedDF$iPvalue < 0.05), ], 
                       Protein ~ Label, value.var = 'iLog2FC')
   
-  if (dim(l2fcol4enrichment)[1] > 0) {
-    # Let's melt now for enrichment analysis
-    l2fcol4enrichment <-
-      reshape2::melt(
-        data = l2fcol4enrichment,
-        id.vars = c('Protein'),
-        variable.name = "Comparisons"
-      )
-    l2fcol4enrichment <-
-      l2fcol4enrichment[complete.cases(l2fcol4enrichment), ]
-    # Now get ready for annotation
-    if (grepl("ptm", isPtm)) {
-      names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <-
-        'Uniprot_PTM'
-      # Take the Protein ID, but being very careful about the fluomics labeling
-      l2fcol4enrichment <- 
-        .artmsExtractUniprotId(x = l2fcol4enrichment, 
-                               uniprotPtmColumn = "Uniprot_PTM", 
-                               newColumnName = "Protein")
-      suppressMessages(
-        l2fcol4enrichment <-
-          artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
-      )
-    } else{
-      suppressMessages(
-        l2fcol4enrichment <-
-          artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
-      )
-    }
-  }
-  
   if (enrich == TRUE & dim(l2fcol4enrichment)[1] > 0) {
     if(verbose) message(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES USING GPROFILER ")
+    
+
+    
+    if (dim(l2fcol4enrichment)[1] > 0) {
+      # Let's melt now for enrichment analysis
+      l2fcol4enrichment <-
+        reshape2::melt(
+          data = l2fcol4enrichment,
+          id.vars = c('Protein'),
+          variable.name = "Comparisons"
+        )
+      l2fcol4enrichment <-
+        l2fcol4enrichment[complete.cases(l2fcol4enrichment), ]
+      # Now get ready for annotation
+      if (grepl("ptm", isPtm)) {
+        names(l2fcol4enrichment)[grep('^Protein$', names(l2fcol4enrichment))] <-
+          'Uniprot_PTM'
+        # Take the Protein ID, but being very careful about the fluomics labeling
+        l2fcol4enrichment <- 
+          .artmsExtractUniprotId(x = l2fcol4enrichment, 
+                                 uniprotPtmColumn = "Uniprot_PTM", 
+                                 newColumnName = "Protein")
+        suppressMessages(
+          l2fcol4enrichment <-
+            artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
+        )
+      } else{
+        suppressMessages(
+          l2fcol4enrichment <-
+            artmsAnnotationUniprot(l2fcol4enrichment, 'Protein', species)
+        )
+      }
+    }
     
     if (grepl("ptm", isPtm)) {
       # l2fcol4enrichment <- 
@@ -1456,7 +1477,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       )
   } else{
     stop(" WRONG isPTM SELECTED. 
-         OPTIONS AVAILABLE: global, ptmph, yesphsite ")
+         OPTIONS AVAILABLE: global, ptmph, ptmsites ")
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1679,71 +1700,76 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                              annotation_legend_side = "right")
         garbage <- dev.off()
         
-        if(verbose) message("--- Enrichment analysis of the clusters ")
+        # Pre enrichment of clusters
         cl_number <- pam.res$clustering
         dfclusters <- as.data.frame(cl_number)
         dfclusters$ids <- row.names(dfclusters)
         dfclusters$Gene <- gsub("(.*)(_)(.*)", "\\1", dfclusters$ids)
         dfclusters$Protein <- gsub("(.*)(_)(.*)", "\\3", dfclusters$ids)
         
-        # Making sure we have unique genes in each comparison 
-        # (the PTM might bring redundancy)
-        pretmp <- dfclusters[c('Gene', 'cl_number')]
-        pretmp <- unique(pretmp)
-        
-        tmp <- split(pretmp$Gene, pretmp$cl_number, drop = TRUE)
-        
-        if (species == "human") {
-          enrichgenes <-
-            artmsEnrichProfiler(
-              tmp,
-              categorySource = c(
-                'GO:BP',
-                'GO:MF',
-                'GO:CC',
-                'KEGG',
-                'REAC',
-                'CORUM',
-                'HPA',
-                'OMIM'
-              ),
-              species = 'hsapiens',
-              listOfGenes,
-              verbose = verbose
-            ) # 'HP'
-        } else if (species == "mouse") {
-          enrichgenes <-
-            artmsEnrichProfiler(
-              tmp,
-              categorySource = c('GO:BP', 
-                                 'GO:MF', 
-                                 'GO:CC', 
-                                 'KEGG', 
-                                 'REAC', 
-                                 'CORUM'),
-              species = 'mmusculus',
-              listOfGenes,
-              verbose = verbose
-            )
-        } else{
-          stop(species, " is currently not supported in the enrichment")
+        if(enrich){
+          if(verbose) message("--- Enrichment analysis of the clusters ")
+          # Making sure we have unique genes in each comparison 
+          # (the PTM might bring redundancy)
+          pretmp <- dfclusters[c('Gene', 'cl_number')]
+          pretmp <- unique(pretmp)
+          
+          tmp <- split(pretmp$Gene, pretmp$cl_number, drop = TRUE)
+          
+          if (species == "human") {
+            enrichgenes <-
+              artmsEnrichProfiler(
+                tmp,
+                categorySource = c(
+                  'GO:BP',
+                  'GO:MF',
+                  'GO:CC',
+                  'KEGG',
+                  'REAC',
+                  'CORUM',
+                  'HPA',
+                  'OMIM'
+                ),
+                species = 'hsapiens',
+                listOfGenes,
+                verbose = verbose
+              ) # 'HP'
+          } else if (species == "mouse") {
+            enrichgenes <-
+              artmsEnrichProfiler(
+                tmp,
+                categorySource = c('GO:BP', 
+                                   'GO:MF', 
+                                   'GO:CC', 
+                                   'KEGG', 
+                                   'REAC', 
+                                   'CORUM'),
+                species = 'mmusculus',
+                listOfGenes,
+                verbose = verbose
+              )
+          } else{
+            stop(species, " is currently not supported in the enrichment")
+          }
+          
+          # Write the file
+          file_clusterheatenrich_l2fc <-
+            gsub(".txt",
+                 ".log2fc-clusterheatmap-enriched.txt",
+                 log2fc_file)
+          file_clusterheatenrich_l2fc <-
+            paste0(output_dir, "/", file_clusterheatenrich_l2fc)
+          write.table(
+            enrichgenes,
+            file_clusterheatenrich_l2fc,
+            col.names = TRUE,
+            row.names = FALSE,
+            sep = "\t",
+            quote = FALSE
+          )
         }
         
-        file_clusterheatenrich_l2fc <-
-          gsub(".txt",
-               ".log2fc-clusterheatmap-enriched.txt",
-               log2fc_file)
-        file_clusterheatenrich_l2fc <-
-          paste0(output_dir, "/", file_clusterheatenrich_l2fc)
-        write.table(
-          enrichgenes,
-          file_clusterheatenrich_l2fc,
-          col.names = TRUE,
-          row.names = FALSE,
-          sep = "\t",
-          quote = FALSE
-        )
-        
+        # Print out clusters
         file_clusterheatdata_l2fc <-
           gsub(".txt", ".log2fc-clusterheatmap.txt", log2fc_file)
         file_clusterheatdata_l2fc <-
@@ -1858,7 +1884,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         "wide_iPvalue" = imputedDF_wide_pvalue
       )
     } else{
-      stop("UB is a not valid options")
+      stop(isPtm, " is not a valid option")
     }
   } else{
     stop("Contact developers")
@@ -1893,7 +1919,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(verbose) message("- ENRICHMENT files should also be out ")
   }
   
-  if(verbose) message(" >> SUPER ANALYSIS IS DONE  ")
+  if(verbose) message(" >> SUPER ANALYSIS COMPLETED")
 }
 
 
