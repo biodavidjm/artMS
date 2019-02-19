@@ -37,7 +37,6 @@
 # library(org.Sc.sgd.db)
 # library(org.Ss.eg.db)
 # library(org.Xl.eg.db)
-# library(PerformanceAnalytics)
 # library(pheatmap)
 # library(plotly)
 # library(plyr)
@@ -56,6 +55,51 @@
 
 
 # TESTING OPTIONS
+
+artmsVolcanoPlot(mss_results = artms_data_ph_msstats_results,
+                 whatPvalue = "pvalue",
+                 PDF = FALSE)
+
+# TESTING UNSUPPORTED SPECIE
+
+setwd("~/sourcecode/artms/ecoli/")
+artmsAnalysisQuantifications(log2fc_file = "results.txt", 
+                                    modelqc_file = "results_ModelQC.txt", 
+                                    species = "ecoli", 
+                                    output_dir = "testingECOLI")
+
+log2fc_file = "results.txt"
+modelqc_file = "results_ModelQC.txt"
+species = "ECOLI_STRAIN_K12"
+output_dir = "testingECOLI"
+pathogen = "nopathogen"
+enrich = TRUE
+l2fc_thres = 1
+choosePvalue = "pvalue"
+isBackground = "nobackground"
+isPtm = "global"
+mnbr = 2
+isFluomics = FALSE
+plotPvaluesLog2fcDist = TRUE
+plotAbundanceStats = TRUE
+plotReproAbundance = TRUE
+plotCorrConditions = TRUE
+plotCorrQuant = TRUE
+plotPCAabundance = TRUE
+plotFinalDistributions = TRUE
+plotPropImputation = TRUE
+plotHeatmapsChanges = TRUE
+plotTotalQuant = TRUE
+plotClusteringAnalysis = TRUE
+verbose = TRUE
+
+x = dfmq
+columnid = 'PROTEIN'
+verbose = TRUE
+
+
+artmsIsSpeciesSupported("ECOLI_STRAIN_K12")
+artmsMapUniprot2Entrez(uniprotkb = testing, species = "ECOLI_STRAIN_K12")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CREATE DATA
@@ -170,7 +214,11 @@ artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 setwd("~/sourcecode/artms/metabolomics/")
 
 artmsConvertMetabolomics(input_file = "H5THP1align_05292018.txt", 
-                         out_file = "H5THP1align_05292018-evidence.txt")
+                         out_file = "H5THP1align_05292018-evidence1.txt")
+
+artmsConvertMetabolomics(input_file = "H5THP1align_05292018.txt", 
+                         out_file = "H5THP1align_05292018-evidence2.txt", 
+                         id_file = "~/ucsf/box/projects/FluomicsModeling/data/datasets-fluomics/metabolomics_colaboration/Metabolite_IDs/archive/KEGG metabolites_HMDB.txt")
 
 artmsQualityControlMetabolomics(evidence_file = "H5THP1align_05292018-evidence.txt",
                                  keys_file = "H5THP1_05292018_keys.txt")
@@ -184,9 +232,9 @@ artmsQuantification(yaml_config_file = "metabConfig.yaml")
 ## APMS FLUOMICS
 setwd("~/sourcecode/artms/apms/")
 
-here <- read.delim("a549-PB1-keys.txt", stringsAsFactors = FALSE)
-
 artmsQuantification(yaml_config_file = "apms_config.yaml")
+
+yaml_config_file = "apms_config.yaml"
 
 artmsQualityControlEvidenceBasic(evidence_file = "a549-PB1-evidence.txt",
                                  keys_file = "a549-PB1-keys.txt",
@@ -197,12 +245,11 @@ artmsQualityControlEvidenceExtended (evidence_file = "a549-PB1-evidence.txt",
                                      keys_file = "a549-PB1-keys.txt")
 
 artmsQualityControlSummaryExtended(summary_file = "summary.txt",
-                                   keys_file = "a549-PB1-keys.txt", 
-                                   verbose = FALSE)
+                                   keys_file = "a549-PB1-keys.txt")
 
 artmsEvidenceToSAINTq(evidence_file = "a549-PB1-evidence.txt",
                       keys_file = "a549-PB1-keys.txt",
-                      verbose = TRUE)
+                      verbose = TRUE, output_dir = "saintq_input")
 
 artmsEvidenceToSaintExpress(
   evidence_file = "a549-PB1-evidence.txt",
@@ -308,61 +355,59 @@ write.table(
 
 #-------------------------------------------------------------------------------
 # PH GLOBAL:
-setwd('~/sourcecode/artms/ph/')
-contrast_file <- 'contrast.txt'
-evidence_file = "evidence.txt"
-prot_group_file = "proteinGroups.txt"
-keys_file = "keys.txt"
-contrast_file <- 'contrast.txt'
+setwd('~/sourcecode/artms/ph_full/')
+# contrast_file <- 'contrast.txt'
+# evidence_file = "evidence.txt"
+# prot_group_file = "proteinGroups.txt"
+# keys_file = "keys.txt"
+# contrast_file <- 'contrast.txt'
 
 artmsQualityControlSummaryExtended(summary_file = "summary.txt", 
                                     keys_file = "keys.txt")
 
-artmsWriteConfigYamlFile()
+artmsQualityControlEvidenceBasic(evidence_file = "evidence.txt", 
+                                   keys_file = "keys.txt", prot_exp = "PH")
+
+artmsQualityControlEvidenceExtended(evidence_file = "evidence.txt", 
+                                 keys_file = "keys.txt")
+
 
 artmsQuantification("phglobal/phglobal_config.yaml")
 
+setwd("phglobal/")
+
+artmsAnalysisQuantifications(log2fc_file = "phglobal-results.txt", 
+                             modelqc_file = "phglobal-results_ModelQC.txt", 
+                             species = "human",
+                             output_dir = "analysisPhglobal")
+
+artmsVolcanoPlot(mss_results = "phglobal-results.txt")
+
+setwd("~/sourcecode/artms/ph_full/")
 artmsMsstatsSummary(
   evidence_file = "evidence.txt",
   prot_group_file = "proteinGroups.txt",
   keys_file = "keys.txt",
-  results_file = "phglobal/phglobal-results.txt"
-)
+  results_file = "phglobal/phglobal-results.txt")
 
-artmsReplicatePlots(
-  input_file = evidence_file,
-  keys_file = keys_file,
-  replicate_file = "replicates_plots.txt",
-  prot_exp = "PH",
-  out_file = "replicate-plots.txt"
-)
 
-setwd('~/sourcecode/artms/ph/phglobal/')
-
-artmsAnalysisQuantifications(
-  log2fc_file = "phglobal-results.txt",
-  modelqc_file = "phglobal-results_ModelQC.txt",
-  species = "human",
-  output_dir = "analysis_name"
-)
 
 #-------------------------------------------------------------------------------
 # PH SITES
-setwd('~/sourcecode/artms/ph/')
+setwd('~/sourcecode/artms/ph_full/')
 
 artmsProtein2SiteConversion(
   evidence_file = "evidence.txt",
   ref_proteome_file = "uniprot_canonical.fasta",
-  output_file = "evidence-sites.txt",
-  mod_type = "ph"
+  output_file = "evidence-sites.txt", mod_type = "ph"
 )
 
-artmsQualityControlEvidenceExtended  (evidence_file = "evidence-sites.txt",
+artmsQualityControlEvidenceExtended(evidence_file = "artms_data_ph_evidence.txt",
                                      keys_file = "keys.txt")
 
 artmsQuantification(yaml_config_file = "phsites/phsites_config.yaml")
 
-setwd('~/sourcecode/artms/ph/phsites/')
+setwd('~/sourcecode/artms/ph_full/phsites/')
 artmsAnalysisQuantifications(
   log2fc_file = "phsites-results.txt",
   modelqc_file = "phsites-results_ModelQC.txt",
@@ -495,6 +540,26 @@ dataset = data_annotated
 species = "human"
 background = unique(data_annotated$Gene)
 heatmaps = TRUE
+
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# PH 3
+
+setwd("~/sourcecode/artms/ph_3/")
+# artmsWriteConfigYamlFile(config_file_name = "artms_phglobal.yaml")
+# artmsWriteConfigYamlFile(config_file_name = "artms_phsites.yaml")
+
+# PHGLOBAL
+artmsQuantification("artms_phglobal.yaml")
+
+setwd("~/sourcecode/artms/ph_3/results/phglobal/")
+
+artmsAnalysisQuantifications(log2fc_file = "phglobal-results.txt", 
+                             modelqc_file = "phglobal-results_ModelQC.txt", 
+                             species = "human", 
+                             output_dir = "analysisQ")
+
+
 
 #----------------------------------------------------------------------
 artmsIsEvidenceNewVersion(evidence_file = artms_data_ph_evidence)

@@ -4,7 +4,7 @@
 \alias{artmsAnnotationUniprot}
 \title{Annotate table with Gene Symbol and Name based on Uniprot ID(s)}
 \usage{
-artmsAnnotationUniprot(x, columnid, species)
+artmsAnnotationUniprot(x, columnid, species, verbose = TRUE)
 }
 \arguments{
 \item{x}{(data.frame) to be annotated (or file path and name)}
@@ -13,6 +13,8 @@ artmsAnnotationUniprot(x, columnid, species)
 
 \item{species}{(char) The species name. Check \code{?artmsMapUniprot2Entrez}
 to find out more about supported species.}
+
+\item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
 (data.frame) with two new columns: \code{Gene} and \code{Protein.name}
