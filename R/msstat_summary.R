@@ -51,7 +51,7 @@ artmsMsstatsSummary <- function(evidence_file,
   
   
   # Check if passing in data or if passing in files
-  if(verbose) message(">> GENERATING A GLOBAL SUMMARY >> LOADING DATA ")
+  if(verbose) message(">> GENERATING A GLOBAL SUMMARY")
   
   
   if(is.null(evidence_file) & 

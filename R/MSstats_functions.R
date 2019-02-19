@@ -104,12 +104,12 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
 .artms_filterData <- function(x, 
                               config,
                               verbose = TRUE) {
-  if(verbose) message(" >> FILTERING ")
+  if(verbose) message(">> FILTERING ")
   if (config$data$filters$protein_groups == 'remove') {
-    if(verbose) message("\tPROTEIN GROUPS\tREMOVE ")
+    if(verbose) message("-- PROTEIN GROUPS REMOVED")
     data_f <- .artms_removeMaxQProteinGroups(x)
   } else if (config$data$filters$protein_groups == 'keep') {
-    if(verbose) message("\tPROTEIN GROUPS\tIGNORE ")
+    if(verbose) message("-- PROTEIN GROUPS IGNORE ")
     data_f <- x
   } else{
     stop(
@@ -119,7 +119,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   }
   
   if (config$data$filters$contaminants) {
-    if(verbose) message("\tCONTAMINANTS\tREMOVE ")
+    if(verbose) message("-- CONTAMINANTS REMOVE ")
     data_f <- artmsFilterEvidenceContaminants(data_f)
   }
   
@@ -130,7 +130,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
         Using 'AB' as default ")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
-    if(verbose) message(sprintf("\tPROCESSING\t%s\n", 
+    if(verbose) message(sprintf("-- PROCESSING %s", 
                             config$data$filters$modification))
   } else if (config$data$filters$modification == 'UB') {
     data_f = data_f[Modifications %like% 'GlyGly']
@@ -192,8 +192,6 @@ artmsMergeEvidenceAndKeys <- function(x,
 
   if(verbose){
     message(">> MERGING FILES ")
-    message("\tIt might take a long time 
-        (depending on the size of the evidence file) ")
   }
 
   x <- .artms_checkIfFile(x)

@@ -199,9 +199,9 @@ artmsQuantification <- function(yaml_config_file,
                                  verbose = TRUE) {
   
   if(verbose){
-    message(" WELCOME to artMS (Analytical R Tools for Mass Spectrometry) ")
-    message("============================================================  ")
-    message(">> LOADING CONFIGURATION FILE")
+    message("artMS: Relative Quantification using MSstats")
+    message("--------------------------------------------")
+    message(">> READING THE CONFIGURATION FILE")
   }
   
   config <- yaml.load_file(yaml_config_file)
@@ -291,13 +291,12 @@ artmsQuantification <- function(yaml_config_file,
           contrast_file = config$files$contrasts, 
           all_conditions = unique(as.character(keys$Condition)))
     }
-    if(verbose) message('\tVERIFYING DATA AND KEYS ')
     
     if (!'IsotopeLabelType' %in% colnames(x)) {
       if(verbose) message(
         "------- + IsotopeLabelType not detected in evidence file!
-        It will be assumed that this is a label-free experiment
-        (adding IsotopeLabelType column with L value) "
+It will be assumed that this is a label-free experiment
+(adding IsotopeLabelType column with L value) "
       )
       x[, IsotopeLabelType := 'L']
     }
@@ -450,5 +449,5 @@ artmsWriteConfigYamlFile <- function(
   }else{
     return(artms_config)
   }
-
 }
+

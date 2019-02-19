@@ -105,7 +105,9 @@ The experiments supported are: ",
     }
   }
   
-  if(verbose) message(" QUALITY CONTROL -------------------\n>> LOADING FILES ")
+  if(verbose){
+    message(">> BASIC QUALITY CONTROL (evidence.txt based)")
+  } 
   
   # EVIDENCE:
   evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
@@ -127,7 +129,7 @@ The experiments supported are: ",
     log2(ekselectaBioreplica$Intensity)
   
   if(plotINTDIST){
-    if(verbose) message(">> GENERATING THE INTENSITY DISTRIBUTION PLOTS ")
+    if(verbose) message("-- Generating the intensity distribution plots")
     intDistribution <-
       paste0(output_name, ".qcplot.IntensityDistributions.pdf")
     
@@ -249,8 +251,7 @@ The experiments supported are: ",
   }
   
   if(plotREPRO){
-    if(verbose) message(">> GENERATING THE REPRODUCIBILITY PLOTS 
-      (Warning: it might take some time) ")
+    if(verbose) message("-- Generating the reproducibility plots")
     seqReproName <-
       paste0(output_name, ".qcplot.basicReproducibility.pdf")
     
@@ -275,7 +276,7 @@ The experiments supported are: ",
     colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
   if(plotCORMAT){
-    if(verbose) message(">> GENERATING CORRELATION MATRICES")
+    if(verbose) message("-- Generating correlation matrices")
     if (length(technicalReplicas) > 1) {
       # First aggregate at the protein level by summing up everything
       biorepliaggregated <-
@@ -299,7 +300,7 @@ The experiments supported are: ",
         .artms_plotCorrelationDistribution(Mtechnicalrep)
       
       # And now for clustering
-      if(verbose) message("--- By Technical replicates ")
+      if(verbose) message("---- By Technical replicates ")
       matrixCorrelationBioreplicas <-
         paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
       
@@ -334,7 +335,7 @@ The experiments supported are: ",
       print(theTechCorDis)
       if(printPDF) garbage <- dev.off()
     } else{
-      if(verbose) message("--- NO Technical Replicates detected ")
+      if(verbose) message("---- NO Technical Replicates detected ")
     }
     
     # biological replicates
@@ -376,7 +377,7 @@ The experiments supported are: ",
     
     theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
     
-    if(verbose) message("--- By Biological replicates ")
+    if(verbose) message("---- By Biological replicates ")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
     if(printPDF) pdf(matrixCorrelationBioreplicas, width = 20, height = 20)
@@ -450,7 +451,7 @@ The experiments supported are: ",
     
     theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
     
-    if(verbose) message("--- By Conditions ")
+    if(verbose) message("---- By Conditions ")
     matrixCorrelationCond <-
       paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
     if(printPDF) pdf(matrixCorrelationCond)
@@ -485,7 +486,7 @@ The experiments supported are: ",
   
   if(plotINTMISC){
     # DETAILS
-    if(verbose) message(">> GENERATING INTENSITY STATS PLOTS ")
+    if(verbose) message("-- Generating intensity stats plots")
     if (prot_exp == "APMS" | prot_exp == "AB") {
       ekselect <- evidencekeysclean[c('Feature',
                                       'Proteins',
@@ -822,7 +823,7 @@ The experiments supported are: ",
   
   if(plotPTMSTATS){
     if (prot_exp == "PH" | prot_exp == "UB") {
-      if(verbose) message(">> GENERATING PTM ", prot_exp, " STATS ")
+      if(verbose) message("-- Generating PTM ", prot_exp, " stats")
       modName <- paste0(output_name, "qcplot.ptmStats.pdf")
       
       x <-
@@ -913,5 +914,7 @@ The experiments supported are: ",
   } #plotPTMSTATS
 
   
-  if(verbose) message(">> BASIC QUALITY CONTROL ANALYSIS COMPLETED!  ")
+  if(verbose) message("-- Basic quality control analysis completed!")
 }
+
+

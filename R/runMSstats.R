@@ -24,7 +24,7 @@
                               contrasts, 
                               config,
                               verbose = TRUE) {
-  if(verbose) message(">> RUNNING MSStats")
+  if(verbose) message(">> RUNNING MSstats")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: before")

@@ -1250,7 +1250,10 @@ artmsVolcanoPlot <- function(mss_results,
     pdf(output_name, width = w, height = h)
     print(p)
     garbage <- dev.off()
+    if(verbose) message(output_name, " is ready")
   } else{
     print(p)
   }
 }
+
+

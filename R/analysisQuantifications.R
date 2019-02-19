@@ -157,7 +157,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     stop("The < choosePvalue > argument is wrong. 
          The valid options are: <pvalue> or <adjpvalue> ")
   
-  if(!artmsIsSpeciesSupported(species)){
+  if(isFALSE(artmsIsSpeciesSupported(species))){
     if(verbose) message("---(-) ", species, " is not supported. \n\tGene Symbol, Protein Name, and EntrezID won't be provided")
   }
   
@@ -727,7 +727,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     out.pca <- gsub(".txt", "-pca", log2fc_file)
     out.pca <- paste0(output_dir, "/", out.pca)
     suppressWarnings(.artms_getPCAplots(modelqcabundance, out.pca, conditions))
-    if(verbose) message("---+ PCA done! ")
   }
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1787,7 +1786,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   # End of clustering analysis
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if(verbose) message(">> WRITTING ALL THE OUTPUT FILES ")
+  if(verbose) message(">> WRITING THE OUTPUT FILES")
   
   # PRINT OUT IMPUTED
   outlog2fcImpute <- gsub(".txt", "-log2fc-long.txt", log2fc_file)
@@ -1908,7 +1907,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     headerStyle = hs
   )
   
-  if(verbose) message("--- OUTPUT FILES IN FOLDER <", output_dir, "> ")
+  if(verbose) message("Folder <", output_dir, "> ")
   if(verbose) message("- EXCEL: ", outexcel, " ")
   if(verbose) message("- Log2fc Wide: ", outlog2fc, " ")
   if(verbose) message("- Log2fc Impute: ", outlog2fc, " ")
@@ -1919,7 +1918,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(verbose) message("- ENRICHMENT files should also be out ")
   }
   
-  if(verbose) message(" >> SUPER ANALYSIS COMPLETED")
+  if(verbose) message(">> SUPER ANALYSIS COMPLETED")
 }
 
 
@@ -2272,7 +2271,6 @@ artmsGeneratePhSiteExtended <- function(df,
                                       species, 
                                       ptmis,
                                       verbose = TRUE) {
-  if(verbose) message("--- Loading abundance for proteins found in all biological replicas ")
   # Remove empty entries
   if (any(df_input$PROTEIN == "")) {
     df_input <- df_input[-which(df_input$PROTEIN == ""), ]

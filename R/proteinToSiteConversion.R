@@ -243,7 +243,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
     if(verbose) message('>> UNABLE TO MAP \t')
     if(verbose) print(unmapped_mod_seqs)
   } else{
-    if(verbose) message(">> ALL SEQUENCES MAPPED ")
+    if(verbose) message("--- ALL SEQUENCES MAPPED ")
   }
   
   final_data <-
@@ -282,14 +282,14 @@ artmsProtein2SiteConversion <- function (evidence_file,
     col.names = TRUE
   )
   
-  if(verbose) message(
-    ">> FILES OUT:\n",
-    "\t---New evidence-site file: ",
-    output_file,
-    "\n",
-    "\t---Details of the Mappings: ",
-    gsub('.txt', '-mapping.txt', output_file),
-    "\n"
-  )
-  if(verbose) message(">> CONVERSION COMPLETED  ")
+  if(verbose) 
+    message(
+      ">> FILES OUT:\n",
+      "--- New evidence-site file: ",
+      output_file,
+      "\n",
+      "--- Details of the Mappings: ",
+      gsub('.txt', '-mapping.txt', output_file)
+    )
+  if(verbose) message(">> CONVERSION COMPLETED")
 }
