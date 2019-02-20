@@ -47,7 +47,7 @@ Alternatively provided the file path name to the background gene list.}
 \itemize{
 \item \code{global} (default),
 \item \code{ptmsites} (for site specific analysis),
-\item \code{ptmph} (Jeff's script output evidence file)
+\item \code{ptmph} (Jeff Johnson script output evidence file)
 }}
 
 \item{mnbr}{(int) minimal number of biological replicates for imputation
@@ -107,9 +107,9 @@ Analysis of relative quantifications, including:
 \item Summary files in different format (xls, txt) and shapes (long, wide)
 \item Numerous summary plots
 \item Enrichment analysis using Gprofiler
-\item PCA of protein abundance
 \item PCA of quantifications
 \item Clustering analysis
+\item Basic imputation of missing values
 }
 }
 \examples{

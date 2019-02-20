@@ -57,6 +57,55 @@
 
 # TESTING OPTIONS
 
+<<<<<<< HEAD
+=======
+artmsVolcanoPlot(mss_results = artms_data_ph_msstats_results,
+                 whatPvalue = "pvalue",
+                 PDF = FALSE)
+
+# TESTING UNSUPPORTED SPECIE
+
+setwd("~/sourcecode/artms/ecoli/")
+artmsAnalysisQuantifications(log2fc_file = "results.txt", 
+                             modelqc_file = "results_ModelQC.txt", 
+                             species = "ecoli", 
+                             output_dir = "analysisQuant2", 
+                             choosePvalue = "pvalue")
+
+log2fc_file = "results.txt"
+modelqc_file = "results_ModelQC.txt"
+species = "ECOLI_STRAIN_K12"
+output_dir = "testingECOLI"
+pathogen = "nopathogen"
+enrich = TRUE
+l2fc_thres = 1
+choosePvalue = "pvalue"
+isBackground = "nobackground"
+isPtm = "global"
+mnbr = 2
+isFluomics = FALSE
+plotPvaluesLog2fcDist = TRUE
+plotAbundanceStats = TRUE
+plotReproAbundance = TRUE
+plotCorrConditions = TRUE
+plotCorrQuant = TRUE
+plotPCAabundance = TRUE
+plotFinalDistributions = TRUE
+plotPropImputation = TRUE
+plotHeatmapsChanges = TRUE
+plotTotalQuant = TRUE
+plotClusteringAnalysis = TRUE
+verbose = TRUE
+
+x = dfmq
+columnid = 'PROTEIN'
+verbose = TRUE
+
+
+artmsIsSpeciesSupported("ECOLI_STRAIN_K12")
+artmsMapUniprot2Entrez(uniprotkb = testing, species = "ECOLI_STRAIN_K12")
+
+>>>>>>> 6a1d589... Fix duplications, remove redundancy, abundance analysis
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CREATE DATA
 
@@ -223,7 +272,7 @@ artmsAnalysisQuantifications(
   log2fc_file = "a549-PB1-results.txt",
   modelqc_file = "a549-PB1-results_ModelQC.txt",
   species = "HUMAN",
-  output_dir = "analysisQ"
+  output_dir = "analysisQRazor"
 )
 
 artmsVolcanoPlot(

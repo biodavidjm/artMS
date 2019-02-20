@@ -42,28 +42,54 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
                     by.x = columnid,
                     by.y = "UNIPROT",
                     all.x = TRUE)
-  
-  # Move Gene name to the left:
-  gene_first <- preload[, c("SYMBOL", "UNIPROT", "GENENAME", "ENTREZID")]
-  dc_merged <- subset(dc_merged, select = -c(SYMBOL, GENENAME, ENTREZID))
-  send_back <-
-    merge(
-      gene_first,
-      dc_merged,
-      by.x = "UNIPROT",
-      by.y = columnid,
-      all.y = TRUE
-    )
-  names(send_back)[grep("^UNIPROT$", names(send_back))] <- "Protein"
-  names(send_back)[grep("^SYMBOL$", names(send_back))] <- "Gene"
-  names(send_back)[grep("^GENENAME$", names(send_back))] <- "ProteinName"
-  names(send_back)[grep("^ENTREZID$", names(send_back))] <- "EntrezID"
-  # Some uniprot entries might not have yet a gene name, 
-  # which will be an empty value. Replace with Entry name:
-  send_back$Gene[which(send_back$Gene == "")] <- NA
-  send_back$Gene[is.na(send_back$Gene)] <-
-    send_back$Protein[is.na(send_back$Gene)]
-  return(send_back)
+
+  if( isFALSE(artmsIsSpeciesSupported(species = species)) ){
+    if(verbose) message("---(-) Species ", species," not supported: no info about proteins will be provided")
+    keepSearchName <- paste0(columnid, "Copy")
+    y <- artmsChangeColumnName(x, columnid, keepSearchName)
+    y <- artmsChangeColumnName(y, "EntryRoot", "Protein")
+    y$Gene <- y$Protein
+    y$ProteinName <- NA
+    y$EntrezID <- NA
+    send_back <- y[c("Protein", "Gene", "ProteinName", "EntrezID")]
+    send_back <- unique(send_back)
+    y <- subset(y, select = -c(Gene, ProteinName, EntrezID))
+    send_back <- merge(send_back, y, by = "Protein")
+    return(send_back)
+  }else{
+    preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
+                                      species = species)
+    
+    dc_merged <-merge(x, 
+                      preload,
+                      by.x = "EntryRoot",
+                      by.y = "UNIPROT",
+                      all.x = TRUE)
+    
+    # Move Gene name to the left:
+    gene_first <- preload[, c("SYMBOL", "UNIPROT", "GENENAME", "ENTREZID")]
+    dc_merged <- subset(dc_merged, select = -c(SYMBOL, GENENAME, ENTREZID))
+    send_back <-
+      merge(
+        gene_first,
+        dc_merged,
+        by.x = "UNIPROT",
+        by.y = "EntryRoot",
+        all.y = TRUE
+      )
+    keepSearchName <- paste0(columnid,"Ref")
+    send_back <- artmsChangeColumnName(send_back, columnid, keepSearchName)
+    names(send_back)[grep("^UNIPROT$", names(send_back))] <- "Protein"
+    names(send_back)[grep("^SYMBOL$", names(send_back))] <- "Gene"
+    names(send_back)[grep("^GENENAME$", names(send_back))] <- "ProteinName"
+    names(send_back)[grep("^ENTREZID$", names(send_back))] <- "EntrezID"
+    # Some uniprot entries might not have yet a gene name, 
+    # which will be an empty value. Replace with Entry name:
+    send_back$Gene[which(send_back$Gene == "")] <- NA
+    send_back$Gene[is.na(send_back$Gene)] <-
+      send_back$Protein[is.na(send_back$Gene)]
+    return(send_back)
+  }
 }
 
 # ------------------------------------------------------------------------------
