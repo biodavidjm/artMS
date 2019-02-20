@@ -7,9 +7,9 @@
 #' - Summary files in different format (xls, txt) and shapes (long, wide)
 #' - Numerous summary plots
 #' - Enrichment analysis using Gprofiler
-#' - PCA of protein abundance
 #' - PCA of quantifications
 #' - Clustering analysis
+#' - Basic imputation of missing values
 #'
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
@@ -40,7 +40,7 @@
 #' @param isPtm (char) Is a ptm-site quantification? 
 #' - `global` (default), 
 #' - `ptmsites` (for site specific analysis), 
-#' - `ptmph` (Jeff's script output evidence file)
+#' - `ptmph` (Jeff Johnson script output evidence file)
 #' @param mnbr (int) minimal number of biological replicates for imputation
 #' and filtering. Default: `mnbr = 2` (Proteins must be found in one of the
 #' conditions in at least 2 of the biological replicates)
@@ -165,7 +165,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   species <- tolower(species)
   if(!(species %in% c('human', 'mouse'))){
     if(enrich){
-      message("-- Enrichment analysis turned off: only available for HUMAN and MOUSE")
+      message("--- Enrichment analysis turned off (only available for HUMAN and MOUSE)")
       enrich <- FALSE
     }
   }
@@ -228,7 +228,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       suppressMessages(dfmq2Genes <-
                          artmsAnnotationUniprot(dfmq, 'PROTEIN', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      if(verbose) message("--- TOTAL NUMBER OF GENES/PROTEINS: ",
+      if(verbose) message("--- Total number of genes/proteins: ",
           numberTotalGenes,
           " ")
       listOfGenes <- unique(dfmq2Genes$Gene)
@@ -589,47 +589,47 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   #########################################################
   # HEATMAPs: Use the mean for the heatmap
-  if(verbose) message(">> HEATMAPS OF PROTEIN ABUNDANCE ")
-  dchm_input <- abundance_dcmean
-  rownames(dchm_input) <- dchm_input$Prey
-  dfhm <- subset(dchm_input, select = -c(Prey))
-  aqui <- data.matrix(dfhm)
-  
-  outHeatMapOverall <-
-    gsub(".txt",
-         ".clustering.abundance.all-overview.pdf",
-         log2fc_file)
-  outHeatMapOverall <- paste0(output_dir, "/", outHeatMapOverall)
-  pheatmap(
-    aqui,
-    filename = outHeatMapOverall,
-    cellwidth = 20,
-    main = "Clustered Relative Abundance",
-    cluster_cols = FALSE,
-    fontfamily = "Helvetica",
-    labels_row = "",
-    fontsize = 6,
-    fontsize_row = 8,
-    fontsize_col = 8,
-    border_color = NA,
-    fontfamily = "Helvetica"
-  )
-  outHeatMapZoom <-
-    gsub(".txt", ".clustering.abundance.all-zoom.pdf", log2fc_file)
-  outHeatMapZoom <- paste0(output_dir, "/", outHeatMapZoom)
-  pheatmap(
-    aqui,
-    filename = outHeatMapZoom,
-    cellheight = 10,
-    cellwidth = 20,
-    main = "Clustered Relative Abundance",
-    cluster_cols = FALSE,
-    fontsize = 6,
-    fontsize_row = 8,
-    fontsize_col = 8,
-    border_color = NA,
-    fontfamily = "Helvetica"
-  )
+  # if(verbose) message(">> HEATMAPS OF PROTEIN ABUNDANCE ")
+  # dchm_input <- abundance_dcmean
+  # rownames(dchm_input) <- dchm_input$Prey
+  # dfhm <- subset(dchm_input, select = -c(Prey))
+  # aqui <- data.matrix(dfhm)
+  # 
+  # outHeatMapOverall <-
+  #   gsub(".txt",
+  #        ".clustering.abundance.all-overview.pdf",
+  #        log2fc_file)
+  # outHeatMapOverall <- paste0(output_dir, "/", outHeatMapOverall)
+  # pheatmap(
+  #   aqui,
+  #   filename = outHeatMapOverall,
+  #   cellwidth = 20,
+  #   main = "Clustered Relative Abundance",
+  #   cluster_cols = FALSE,
+  #   fontfamily = "Helvetica",
+  #   labels_row = "",
+  #   fontsize = 6,
+  #   fontsize_row = 8,
+  #   fontsize_col = 8,
+  #   border_color = NA,
+  #   fontfamily = "Helvetica"
+  # )
+  # outHeatMapZoom <-
+  #   gsub(".txt", ".clustering.abundance.all-zoom.pdf", log2fc_file)
+  # outHeatMapZoom <- paste0(output_dir, "/", outHeatMapZoom)
+  # pheatmap(
+  #   aqui,
+  #   filename = outHeatMapZoom,
+  #   cellheight = 10,
+  #   cellwidth = 20,
+  #   main = "Clustered Relative Abundance",
+  #   cluster_cols = FALSE,
+  #   fontsize = 6,
+  #   fontsize_row = 8,
+  #   fontsize_col = 8,
+  #   border_color = NA,
+  #   fontfamily = "Helvetica"
+  # )
   
   # Melt again the sum and mean
   abundancelongsum <-
@@ -1305,7 +1305,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # END enrichments
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  if(verbose) message(">> PRINT OUT FILES ")
   superunified <-
     merge(abundancelongsummean,
           nbr_long,
@@ -1343,7 +1342,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if(verbose) message("--- Annotating species(s) in files ")
   superunified <-
     artmsAnnotateSpecie(superunified, pathogen, species)
-  imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # THE JITTER PLOTS
@@ -1455,8 +1453,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     names(imputedDF)[grep("Label", names(imputedDF))] <-
       'Comparison'
     
-    # imputedDF$Species <- ifelse(imputedDF$Protein %in% pathogen.ids$Entry, 
-    # pathogen, species)
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
@@ -1480,9 +1476,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # boxplot of relative abundances
+  # boxplot of relative quantifications
   if(plotTotalQuant){
-    if(verbose) message(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED ")
+    if(verbose) message(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED")
     numimputedfinal <-
       gsub(".txt", ".TotalQuantifications.pdf", log2fc_file)
     numimputedfinal <- paste0("plot.", numimputedfinal)
@@ -1811,28 +1807,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     col.names = TRUE
   )
   
-  outmodeqcLong <- gsub(".txt", "-abundance-long.txt", log2fc_file)
-  outmodeqcLong <- paste0(output_dir, "/", outmodeqcLong)
-  write.table(
-    superunified,
-    outmodeqcLong,
-    quote = FALSE,
-    sep = "\t",
-    row.names = FALSE,
-    col.names = TRUE
-  )
-  
-  outmodelqc <- gsub(".txt", "-abundance-wide.txt", log2fc_file)
-  outmodelqc <- paste0(output_dir, "/", outmodelqc)
-  write.table(
-    modelqc_file_splc,
-    outmodelqc,
-    quote = FALSE,
-    sep = "\t",
-    row.names = FALSE,
-    col.names = TRUE
-  )
-  
   outexcel <- gsub(".txt", "-summary.xlsx", log2fc_file)
   outexcel <- paste0(output_dir, "/", outexcel)
   
@@ -1868,7 +1842,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       stop("<UB> is a wrong option")
     }
   } else if (!enrich) {
-    if(verbose) message("-----(-) Enrichment was not selected ")
     if (grepl("ptm", isPtm)) {
       list_of_datasets <- list(
         "log2fcImputed" = imputedDF,
@@ -1911,8 +1884,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if(verbose) message("- EXCEL: ", outexcel, " ")
   if(verbose) message("- Log2fc Wide: ", outlog2fc, " ")
   if(verbose) message("- Log2fc Impute: ", outlog2fc, " ")
-  if(verbose) message("- AbundanceLong: ", outmodeqcLong, " ")
-  if(verbose) message("- AbundanceWide: ", outmodelqc, " ")
   
   if (enrich == TRUE) {
     if(verbose) message("- ENRICHMENT files should also be out ")

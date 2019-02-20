@@ -64,9 +64,10 @@ artmsVolcanoPlot(mss_results = artms_data_ph_msstats_results,
 
 setwd("~/sourcecode/artms/ecoli/")
 artmsAnalysisQuantifications(log2fc_file = "results.txt", 
-                                    modelqc_file = "results_ModelQC.txt", 
-                                    species = "ecoli", 
-                                    output_dir = "testingECOLI")
+                             modelqc_file = "results_ModelQC.txt", 
+                             species = "ecoli", 
+                             output_dir = "analysisQuant2", 
+                             choosePvalue = "pvalue")
 
 log2fc_file = "results.txt"
 modelqc_file = "results_ModelQC.txt"
@@ -270,7 +271,7 @@ artmsAnalysisQuantifications(
   log2fc_file = "a549-PB1-results.txt",
   modelqc_file = "a549-PB1-results_ModelQC.txt",
   species = "HUMAN",
-  output_dir = "analysisQ"
+  output_dir = "analysisQRazor"
 )
 
 artmsVolcanoPlot(

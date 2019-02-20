@@ -199,6 +199,7 @@ artmsQuantification <- function(yaml_config_file,
                                  verbose = TRUE) {
   
   if(verbose){
+    message("--------------------------------------------")
     message("artMS: Relative Quantification using MSstats")
     message("--------------------------------------------")
     message(">> READING THE CONFIGURATION FILE")
@@ -231,7 +232,6 @@ artmsQuantification <- function(yaml_config_file,
   }
   
   # Quality Control
-  if(verbose) message(">> QUALITY CONTROL")
   if (config$qc$basic) {
     artmsQualityControlEvidenceBasic(
       evidence_file = config$files$evidence,
@@ -276,7 +276,19 @@ artmsQuantification <- function(yaml_config_file,
       x <- .artms_checkRawFileColumnName(x)
     }
     
+    if ( "Leading.razor.protein" %in% colnames(x) ) {
+      x$Proteins <- NULL
+      x <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
+      if(verbose) message("-- Use <Leading.razor.protein> as Protein ID")
+    }
+    # Old version of MaxQuant
+    if ( "Leading.Razor.Protein" %in% colnames(x) ) {
+      x <- artmsChangeColumnName(x, "Leading.Razor.Protein", "Proteins")
+      if(verbose) message("-- Use <Leading.Razor.Protein> as Protein ID")
+    }
+    
     x <- data.table(x)
+
     
     keys <- .artms_checkIfFile(config$files$keys)
     keys <- .artms_checkRawFileColumnName(keys)
@@ -292,12 +304,9 @@ artmsQuantification <- function(yaml_config_file,
           all_conditions = unique(as.character(keys$Condition)))
     }
     
+    if (verbose) message("-- Make the <Leading.Razor.Protein> the Protein")
+    
     if (!'IsotopeLabelType' %in% colnames(x)) {
-      if(verbose) message(
-        "------- + IsotopeLabelType not detected in evidence file!
-It will be assumed that this is a label-free experiment
-(adding IsotopeLabelType column with L value) "
-      )
       x[, IsotopeLabelType := 'L']
     }
     

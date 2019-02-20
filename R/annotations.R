@@ -43,15 +43,16 @@ artmsAnnotationUniprot <- function(x,
   
   theUniprots <- as.character(unique(x$EntryRoot))
   
-  if(isFALSE(artmsIsSpeciesSupported(species = species))){
+  if( isFALSE(artmsIsSpeciesSupported(species = species)) ){
     if(verbose) message("---(-) Species ", species," not supported: no info about proteins will be provided")
-    keepSearchName <- paste0(columnid, "ori")
+    keepSearchName <- paste0(columnid, "Copy")
     y <- artmsChangeColumnName(x, columnid, keepSearchName)
     y <- artmsChangeColumnName(y, "EntryRoot", "Protein")
     y$Gene <- y$Protein
     y$ProteinName <- NA
     y$EntrezID <- NA
     send_back <- y[c("Protein", "Gene", "ProteinName", "EntrezID")]
+    send_back <- unique(send_back)
     y <- subset(y, select = -c(Gene, ProteinName, EntrezID))
     send_back <- merge(send_back, y, by = "Protein")
     return(send_back)
