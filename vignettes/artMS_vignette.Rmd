@@ -50,8 +50,6 @@ clustering, PCA, summary plots, etc)
 and [Phosfate](http://phosfate.com/)
 
 
-
-
 ## How to install
 
 Before you begin, ensure that your system is running an `R version >= 3.5` 
