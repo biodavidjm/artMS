@@ -303,8 +303,6 @@ artmsQuantification <- function(yaml_config_file,
     }
     if(verbose) message('\tVERIFYING DATA AND KEYS ')
     
-    if (verbose) message("-- Make the <Leading.Razor.Protein> the Protein")
-    
     if (!'IsotopeLabelType' %in% colnames(x)) {
       x[, IsotopeLabelType := 'L']
     }
