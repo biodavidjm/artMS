@@ -67,6 +67,7 @@ utils::globalVariables(
     "Condition",
     "Contaminant",
     "ENTREZID",
+    "EntrezID",
     "evidencekeys",
     "experiment",
     "Experiment",
@@ -135,6 +136,7 @@ utils::globalVariables(
     "prot_names",
     "Protein",
     "PROTEIN",
+    "ProteinName",
     "proteins",
     "Proteins",
     "Proteins.mean",
@@ -251,7 +253,7 @@ artmsQuantification <- function(yaml_config_file,
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
     if(verbose)
-      message(" QUANTIFICATION: LOADING DATA----------------- ")
+      message(">> QUANTIFICATION: LOADING DATA ")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
     ## although he provided examples)
@@ -301,7 +303,6 @@ artmsQuantification <- function(yaml_config_file,
           contrast_file = config$files$contrasts, 
           all_conditions = unique(as.character(keys$Condition)))
     }
-    if(verbose) message('\tVERIFYING DATA AND KEYS ')
     
     if (!'IsotopeLabelType' %in% colnames(x)) {
       x[, IsotopeLabelType := 'L']
@@ -402,7 +403,7 @@ artmsQuantification <- function(yaml_config_file,
                                       output_name = config$files$evidence,
                                       funfunc = "sum")
     } else {
-      if(verbose) message(sprintf("\tREADING PREPROCESSED\t%s ",
+      if(verbose) message(sprintf("\t+ READING PREPROCESSED FILE: %s ",
         config$msstats$msstats_input))
       dmss <- read.delim(config$msstats$msstats_input,
                          stringsAsFactors = FALSE,
@@ -411,18 +412,19 @@ artmsQuantification <- function(yaml_config_file,
     results <- .artms_runMSstats(dmss, contrasts, config,
                                  verbose = verbose)
   } else{
-    if(verbose) message("MSstats not selected")
+    if(verbose) message("\t+ MSstats not selected")
   }
   
   ## ANNOTATING RESULT FILE
   if (config$output_extras$enabled) {
     if (!config$msstats$enabled){
-      message("MSstats was not enabled, therefore <output_extras> cannot be done!")
+      message("-- MSstats was not enabled: <output_extras> cannot be done!")
     }else{
-      .artms_writeExtras(results$ComparisonResult, config)
+      .artms_writeExtras(results = results$ComparisonResult, 
+                         config = config)
     }
   }
-  if(verbose) message(" ANALYSIS COMPLETED ")
+  if(verbose) message(">> ANALYSIS COMPLETED")
 }
 
 # ------------------------------------------------------------------------------
@@ -454,5 +456,5 @@ artmsWriteConfigYamlFile <- function(
   }else{
     return(artms_config)
   }
-
 }
+

@@ -284,15 +284,11 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
        ", file=outconfig_peptide)
 
   if(verbose){
-    message(">> NEW 4 FILES CREATED: ")
-    message("\t- saintq-config-peptides ")
-    message("\t- saintq-config-proteins ")
-    message("\t- saintq_input_peptides.txt ")
-    message("\t- saintq_input_proteins.txt  ")
-    message("--- Now get into the folder and run either:\n
-        > saintq config-saintq-peptides\n
-        or\n
-        > saintq config-saintq-proteins")
+    message(">> NEW 4 FILES CREATED:")
+    message("\t- saintq-config-peptides")
+    message("\t- saintq-config-proteins")
+    message("\t- saintq_input_peptides.txt")
+    message("\t- saintq_input_proteins.txt")
     message(">> DONE! ")
   }
 }

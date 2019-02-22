@@ -10,33 +10,8 @@ artmsMapUniprot2Entrez(uniprotkb, species)
 \item{uniprotkb}{(vector) Vector of UniprotKB IDs}
 
 \item{species}{(char) The species name. Species currently supported
-as part of artMS:
-\itemize{
-\item HUMAN
-\item MOUSE
-}
-
-And the following species can be used as well, but the user needs to
-install the corresponding org.db package:
-\itemize{
-\item ANOPHELES (\code{install.packages(org.Ag.eg.db)})
-\item ARABIDOPSIS (\code{install.packages(org.At.tair.db)})
-\item BOVINE (\code{install.packages(org.Bt.eg.db)})
-\item WORM (\code{install.packages(org.Ce.eg.db)})
-\item CANINE (\code{install.packages(org.Cf.eg.db)})
-\item FLY (\code{install.packages(org.Dm.eg.db)})
-\item ZEBRAFISH (\code{install.packages(org.Dr.eg.db)})
-\item ECOLI_STRAIN_K12 (\code{install.packages(org.EcK12.eg.db)})
-\item ECOLI_STRAIN_SAKAI (\code{install.packages(org.EcSakai.eg.db)})
-\item CHICKEN (\code{install.packages(org.Gg.eg.db)})
-\item RHESUS (\code{install.packages(org.Mmu.eg.db)})
-\item MALARIA (\code{install.packages(org.Pf.plasmo.db)})
-\item CHIMP (\code{install.packages(org.Pt.eg.db)})
-\item RAT (\code{install.packages(org.Rn.eg.db)})
-\item YEAST (\code{install.packages(org.Sc.sgd.db)})
-\item PIG (\code{install.packages(org.Ss.eg.db)})
-\item XENOPUS (\code{install.packages(org.Xl.eg.db)})
-}}
+as part of artMS: check \code{?artmsIsSpeciesSupported()} to find out the
+list of supported species`}
 }
 \value{
 (data.frame) with ENTREZID and GENENAMES mapped on UniprotKB ids
@@ -45,10 +20,11 @@ install the corresponding org.db package:
 Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 }
 \examples{
-# Load an example
+# Load an example with human proteins
 exampleID <- c("Q6P996", "B1N8M6")
 artmsMapUniprot2Entrez(uniprotkb = exampleID, 
                        species = "HUMAN")
+                       
 }
 \keyword{annotation,}
 \keyword{ids}

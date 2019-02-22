@@ -24,10 +24,11 @@
                               contrasts, 
                               config,
                               verbose = TRUE) {
-  if(verbose) message(">> MSstats STARTS RUNNING: ")
+  if(verbose) message(">> RUNNING MSstats")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
-    mssquant = dataProcess(
+    if(verbose) message("-- QC PLOT: before")
+    mssquant <- dataProcess(
       raw = dmss,
       normalization = FALSE,
       #Interference has been depracated, but it was never used anyway
@@ -64,7 +65,7 @@
       raw = dmss,
       normalization = config$msstats$normalization_method,
       nameStandards = normalization_refs,
-      #Interference has been depracated, but it was never used anyway
+      # Interference has been depracated, but it was never used anyway
       # betweenRunInterferenceScore = config$msstats$interference,
       fillIncompleteRows = TRUE,
       summaryMethod = config$msstats$summaryMethod,
@@ -76,11 +77,11 @@
   } else{
     if(verbose) message(
       sprintf(
-        ' --- NORMALIZATION METHOD: %s\n',
+        '-- Normalization method: %s',
         config$msstats$normalization_method
       )
     )
-
+  
     mssquant = dataProcess(
       raw = dmss,
       normalization = config$msstats$normalization_method,
@@ -97,6 +98,7 @@
   
   # plot the data AFTER normalization
   if (grepl('after', config$msstats$profilePlots)) {
+    if(verbose) message("-- QC PLOT: after")
     dataProcessPlots(
       data = mssquant,
       type = "ProfilePlot",
@@ -142,7 +144,7 @@
   )
   
   if(verbose) message(sprintf(
-    '\tFITTING CONTRASTS:\t%s\n',
+    '-- FITTING CONTRASTS:\t%s\n',
     paste(rownames(contrasts), collapse = ',')
   ))
   write.table(
@@ -154,6 +156,7 @@
     row.names = FALSE,
     col.names = TRUE
   )
+  if(verbose) message("-- GROUP COMPARISON")
   results <-
     groupComparison(data = mssquant, contrast.matrix = contrasts)
   write.table(
@@ -176,7 +179,7 @@
   )
   write.table(
     mssquant$RunlevelData,
-    file = gsub(".txt", "_RunlevelData.txt", config$files$output),
+    file = gsub(".txt", "_RunLevelData.txt", config$files$output),
     eol = "\n",
     sep = "\t",
     quote = FALSE,
@@ -184,7 +187,7 @@
     col.names = TRUE
   )
 
-  if(verbose) message(">> MSstats IS DONE! ")
+  if(verbose) message("-- MSstats FINISHED! ")
   
   #(1) Minimal number of biological replicates per condition
   if(verbose) message(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS ")
@@ -251,6 +254,5 @@
     row.names = FALSE,
     col.names = TRUE
   )
-  if(verbose) message(" done! ")
   return(results)
 }

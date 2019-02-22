@@ -52,7 +52,9 @@ artmsConvertMetabolomics <- function(input_file,
   if(verbose) message(">> Reading in data from: ", input_file," ")
   
   x <- fread(input_file)
-  tmp <- melt(data=x, id=c(1:7), variable.name="RawFile", value.name="Intensity")
+  tmp <- melt(data=x, id=c(seq_len(7)), 
+              variable.name="RawFile", 
+              value.name="Intensity")
   
   tmp[,'Row'] = NULL
   tmp[,'Index'] = NULL
@@ -67,7 +69,8 @@ artmsConvertMetabolomics <- function(input_file,
   if(!is.null(id_file)){
     ids <- read.delim(id_file, stringsAsFactors = FALSE, sep='\t')
     ids$KEGG <- gsub('\\\xca','',ids$KEGG)
-    for( i in 1:length(ids$KEGG)){  #### This could be optimized!!!!!
+    #### This could be optimized!!!!!
+    for( i in seq_len(length(ids$KEGG)) ){  
       idx <- tmp$'m/z' %in% ids$m.z[i]
       tmp$Proteins[idx] = ids$KEGG[i]
     }

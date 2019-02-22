@@ -18,6 +18,7 @@
   
   # Annotation
   if (config$output_extras$annotate$enabled) {
+    message(">> ANNOTATING THE RESULTS (adding gene symbols and protein names)")
     if(!is.null(config$output_extras$annotate$species)){
       results_ann <- artmsAnnotationUniprot(x = results, 
                                             columnid = 'Protein', 
@@ -28,7 +29,7 @@
                   col.names = TRUE, 
                   sep = "\t")
     } else {
-      message("--- Cannot find species name in the file name 
+      if(verbose) message("--- Cannot find species name in the file name 
 (Add specie to field 'output_extras > annotate > species' in the config file)")
       results_ann <- results
     }
@@ -42,7 +43,7 @@
     as.numeric(unlist(strsplit(config$output_extras$plots$LFC, split = " "))[2])
   
   ## This option was originally available in the config file but
-  ## it was removed for now
+  ## it was removed
   config$output_extras$plots$comparisons <- "all"
   ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   
@@ -63,10 +64,10 @@
       FDR = config$output_extras$plots$FDR
     )
   if (dim(sign_hits)[1] == 0)
-    stop("No significant hits detected in this experiment. aborting plots. ")
+    stop("--(-) No significant hits detected in this experiment. aborting plots. ")
   sign_labels <- unique(sign_hits$Label)
   if(verbose) message( sprintf(
-      "\tSELECTED HITS FOR PLOTS WITH LFC BETWEEN %s AND %s AT %s FDR:\t%s ",
+      "-- Selected hits for plots with LFC between %s and %s at %s FDR:\t%s ",
       lfc_lower,
       lfc_upper,
       config$output_extras$plots$FDR,

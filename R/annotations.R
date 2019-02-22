@@ -9,6 +9,7 @@
 #' @param columnid (char) The column with the uniprotkb ids
 #' @param species (char) The species name. Check `?artmsMapUniprot2Entrez`
 #' to find out more about supported species.
+#' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
 #' @examples
@@ -19,7 +20,10 @@
 #'                                          columnid = 'Proteins',
 #'                                          species = 'human')
 #' @export
-artmsAnnotationUniprot <- function(x, columnid, species) {
+artmsAnnotationUniprot <- function(x, 
+                                   columnid, 
+                                   species,
+                                   verbose = TRUE) {
   
   if(any(missing(x) | 
          missing(columnid) |
@@ -32,17 +36,13 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
   
   x <- .artms_checkIfFile(x)
   
-  theUniprots <- as.character(unique(x[[columnid]]))
+  # Deal with isoforms UNIPROT-1 etc
+  x$EntryRoot <- x[[columnid]]
   
-  preload <- artmsMapUniprot2Entrez(uniprotkb = theUniprots, 
-                                             species = species)
+  x$EntryRoot <- gsub("(\\w+)(-)(\\d+)", "\\1", x$EntryRoot)
   
-  dc_merged <-merge(x, 
-                    preload,
-                    by.x = columnid,
-                    by.y = "UNIPROT",
-                    all.x = TRUE)
-
+  theUniprots <- as.character(unique(x$EntryRoot))
+  
   if( isFALSE(artmsIsSpeciesSupported(species = species)) ){
     if(verbose) message("---(-) Species ", species," not supported: no info about proteins will be provided")
     keepSearchName <- paste0(columnid, "Copy")
@@ -98,36 +98,16 @@ artmsAnnotationUniprot <- function(x, columnid, species) {
 #' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #' @param uniprotkb (vector) Vector of UniprotKB IDs
 #' @param species (char) The species name. Species currently supported 
-#' as part of artMS:
-#' - HUMAN
-#' - MOUSE
-#' 
-#' And the following species can be used as well, but the user needs to 
-#' install the corresponding org.db package:
-#' - ANOPHELES (`install.packages(org.Ag.eg.db)`)
-#' - ARABIDOPSIS (`install.packages(org.At.tair.db)`)
-#' - BOVINE (`install.packages(org.Bt.eg.db)`)
-#' - WORM (`install.packages(org.Ce.eg.db)`)
-#' - CANINE (`install.packages(org.Cf.eg.db)`)
-#' - FLY (`install.packages(org.Dm.eg.db)`)
-#' - ZEBRAFISH (`install.packages(org.Dr.eg.db)`)
-#' - ECOLI_STRAIN_K12 (`install.packages(org.EcK12.eg.db)`)
-#' - ECOLI_STRAIN_SAKAI (`install.packages(org.EcSakai.eg.db)`)
-#' - CHICKEN (`install.packages(org.Gg.eg.db)`)
-#' - RHESUS (`install.packages(org.Mmu.eg.db)`)
-#' - MALARIA (`install.packages(org.Pf.plasmo.db)`)
-#' - CHIMP (`install.packages(org.Pt.eg.db)`)
-#' - RAT (`install.packages(org.Rn.eg.db)`)
-#' - YEAST (`install.packages(org.Sc.sgd.db)`)
-#' - PIG (`install.packages(org.Ss.eg.db)`)
-#' - XENOPUS (`install.packages(org.Xl.eg.db)`)
+#' as part of artMS: check `?artmsIsSpeciesSupported()` to find out the
+#' list of supported species`
 #' @return (data.frame) with ENTREZID and GENENAMES mapped on UniprotKB ids
 #' @keywords annotation, ids
 #' @examples
-#' # Load an example
+#' # Load an example with human proteins
 #' exampleID <- c("Q6P996", "B1N8M6")
 #' artmsMapUniprot2Entrez(uniprotkb = exampleID, 
 #'                        species = "HUMAN")
+#'                        
 #' @export
 artmsMapUniprot2Entrez <- function(uniprotkb, 
                                    species) {
@@ -139,24 +119,87 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
   
   if(!is.vector(uniprotkb)) stop("Argument <uniprotkb> is not a vector")
   if(!is.character(species)) stop("Argument <species> is not a vector")
+
+  if(isFALSE(artmsIsSpeciesSupported(species = species))){
+    stop("Species ", species," not supported")
+  }else{
+    thePack <- artmsIsSpeciesSupported(species = species)
+  }
+
+  suppressMessages(
+    mappings <-
+      AnnotationDbi::select(
+        eval(as.symbol(thePack)),
+        uniprotkb,
+        c("UNIPROT", "SYMBOL",
+          "GENENAME", "ENTREZID"),
+        keytype = "UNIPROT"
+      )
+  )
+
+  mappings <- unique(mappings)
+  # It migth come with 1 uniprot to many gene names: 
+  # take the first one, which should be the main gene name
+  mappings <- mappings[!duplicated(mappings$UNIPROT),]
+  return(mappings)
+}
+
+
+# ------------------------------------------------------------------------------
+#' @title Check if a species is supported and available
+#'
+#' @description Given a species name, it checkes whether is supported, and 
+#' if supported, check whether the annotation package is installed.
+#' @param species (char) The species name. Species currently supported 
+#' as part of artMS:
+#' - HUMAN
+#' - MOUSE
+#' 
+#' And the following species can be used as well, but the user needs to 
+#' install the corresponding org.db package:
+#' - ANOPHELES (`install.packages(org.Ag.eg.db)`)
+#' - BOVINE (`install.packages(org.Bt.eg.db)`)
+#' - WORM (`install.packages(org.Ce.eg.db)`)
+#' - CANINE (`install.packages(org.Cf.eg.db)`)
+#' - FLY (`install.packages(org.Dm.eg.db)`)
+#' - ZEBRAFISH (`install.packages(org.Dr.eg.db)`)
+#' - CHICKEN (`install.packages(org.Gg.eg.db)`)
+#' - RHESUS (`install.packages(org.Mmu.eg.db)`)
+#' - CHIMP (`install.packages(org.Pt.eg.db)`)
+#' - RAT (`install.packages(org.Rn.eg.db)`)
+#' - YEAST (`install.packages(org.Sc.sgd.db)`)
+#' - PIG (`install.packages(org.Ss.eg.db)`)
+#' - XENOPUS (`install.packages(org.Xl.eg.db)`)
+#' @param verbose (logical) `TRUE` (default) shows function messages
+#' @return (string) Name of the package for the given species
+#' @keywords annotation, species
+#' @examples
+#' # Should return TRUE
+#' artmsIsSpeciesSupported(species = "HUMAN")
+#' artmsIsSpeciesSupported(species = "CHIMP")
+#' @export
+artmsIsSpeciesSupported <- function(species, 
+                                    verbose = TRUE) {
+  
+  if(any(missing(species)))
+    stop("Missed (one or many) required argument(s)
+         Please, check the help of this function to find out more")
+  
+  if(!is.character(species)) stop("Argument <species> is not a vector")
   
   species <- toupper(species)
   
   LongName <- c(
     "ANOPHELES", 
-    "ARABIDOPSIS",
     "BOVINE",
     "WORM",
     "CANINE",
     "FLY",
     "ZEBRAFISH",
-    "ECOLI_STRAIN_K12",
-    "ECOLI_STRAIN_SAKAI",
     "CHICKEN",
     "HUMAN",
     "MOUSE",
     "RHESUS",
-    "MALARIA",
     "CHIMP",
     "RAT",
     "YEAST",
@@ -164,19 +207,15 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
     "XENOPUS")
   PackageName <- c(
     "org.Ag.eg.db", 
-    "org.At.tair.db",
     "org.Bt.eg.db",
     "org.Ce.eg.db",
     "org.Cf.eg.db",
     "org.Dm.eg.db",
     "org.Dr.eg.db",
-    "org.EcK12.eg.db",
-    "org.EcSakai.eg.db",
     "org.Gg.eg.db",
     "org.Hs.eg.db",
     "org.Mm.eg.db",
     "org.Mmu.eg.db",
-    "org.Pf.plasmo.db",
     "org.Pt.eg.db",
     "org.Rn.eg.db",
     "org.Sc.sgd.db",
@@ -190,29 +229,18 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
   if(species %in% OrgDB$LongName){
     thePack <- OrgDB$PackageName[which(OrgDB$LongName == species)]
     
-    if( !(thePack %in% rownames(installed.packages())) )
-      stop("---(-) The package <",thePack,"> is not installed in your system.
-           Just run: install.packages('",thePack,"') and try again")
-    
-    suppressMessages(
-      mappings <-
-        AnnotationDbi::select(
-          eval(as.symbol(thePack)),
-          uniprotkb,
-          c("UNIPROT", "SYMBOL",
-            "GENENAME", "ENTREZID"),
-          keytype = "UNIPROT"
-        )
-    )
+    if( !(thePack %in% rownames(installed.packages())) ){
+      if(verbose) message("---(-) The package <",thePack,"> is not installed in your system.
+           Just run: install.packages('", thePack,"') and try again")
+      return(FALSE)
+    } else{
+      return(thePack)
+    }
   }else{
-    stop("Specie ", species, " not supported. 
-         Please, check help to find out more about supported species")
+    return(FALSE)
   }
-  
-  mappings <- unique(mappings)
-  # It migth come with 1 uniprot to many gene names: 
-  # take the first one, which should be the main gene name
-  mappings <- mappings[!duplicated(mappings$UNIPROT),]
-  return(mappings)
 }
+
+
+
 
