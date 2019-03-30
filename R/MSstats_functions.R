@@ -44,6 +44,25 @@
 }
 
 # ------------------------------------------------------------------------------
+# @title Check the `MS/MS Count` column name on the evidence data.table
+#
+# @description Address case issue with the MS/MS Count column name
+# @param (data.frame) keys or evidence files
+# @return (data.frame) with the `MS/MS Count` column name
+# @keywords internal msmscount, columname
+.artms_checkMSMSColumnName <- function(df) {
+  if (!('MS/MS Count' %in% colnames(df))) {
+    if ("MS/MS count" %in% colnames(df)) {
+      df <- artmsChangeColumnName(df, 'MS/MS count', 'MS/MS Count')
+    } else{
+      stop("cannot find the <MS/MS Count> column")
+    }
+  }
+  return(df)
+}
+
+
+# ------------------------------------------------------------------------------
 # @title Check the `Raw file` column name on the evidence or keys data.frame
 #
 # @description Depending on how the data is loaded, the `Raw file` column
@@ -64,6 +83,7 @@
   }
   return(df)
 }
+
 
 # ------------------------------------------------------------------------------
 #' @title Change a specific column name in a given data.frame
