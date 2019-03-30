@@ -57,10 +57,13 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
   x <- fread(evidence_file, integer64 = 'double')
   keys <- fread(keys_file, integer64 = 'double')
   
+  # Check Raw.file column
   x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
-  saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
+  # Check MS.MS
+  x <- .artms_checkMSMSColumnName(x)
+  
   
   if(verbose) message('>> VERIFYING DATA AND KEYS ')
   if (any(
@@ -78,11 +81,14 @@ artmsEvidenceToSaintExpress <- function(evidence_file,
       \tRawFile\tIsotopeLabelType\tCondition\tBioReplicate\tRun\tSAINT '
     )
   }
-  x <-
-    artmsMergeEvidenceAndKeys(x, 
-                               keys, 
-                               by = c('RawFile'),
-                               verbose = verbose)
+  
+  saint_baits <- keys[, c('BioReplicate', 'Condition', 'SAINT'), with = FALSE]
+  
+  x <- artmsMergeEvidenceAndKeys(x, 
+                                 keys, 
+                                 by = c('RawFile'),
+                                 verbose = verbose)
+  
   data_f <- artmsFilterEvidenceContaminants(x = x, verbose = verbose)
   data_f <- .artms_removeMaxQProteinGroups(data_f)
   
