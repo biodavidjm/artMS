@@ -42,6 +42,21 @@ converting the \code{Proteins} column of the evidence file to an \code{Uniprot_P
 or \code{RefSeq_PTM} notation.
 In this way, each of the modified peptides can be quantified
 independently across conditions.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+WARNING: we have detected a version of MaxQuant (1.6.3.4) outputs a`
+"Modified sequence" column of the evidence file that has two important
+changes for the annotation of phosphorylation:
+\itemize{
+\item Uses \code{p} instead of \code{(ph)}
+\item The modified residue (i.e. STY) is the residue on the left of the \code{p},
+instead of the residue to the right of \code{(ph)} as usual.
+These changes significantly affect the algorithm used by this artMS function
+to extract the PTM site information. We are working on debugging the issue
+and use an alternative function independent of the "Mofified sequence"
+column. If your MaxQuant version is affected, then the column \code{mod_sites} of
+the output \code{-mapping.txt} will have many NA values for peptides with \code{p}
+modifications (and no NA values should be present)
+}
 }
 \examples{
 # Testing warning if files are not submitted

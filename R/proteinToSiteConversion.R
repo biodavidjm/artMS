@@ -4,13 +4,27 @@
 #'
 #' @description It enables the site-specific quantification of PTMs by
 #' converting the `Proteins` column of the evidence file to an `Uniprot_PTM`
-#' notation. In this way, each of the modified peptides can be quantified
-#' independently across conditions
+#' or `RefSeq_PTM` notation. 
+#' In this way, each of the modified peptides can be quantified
+#' independently across conditions. 
+#' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#' WARNING: we have detected a version of MaxQuant (1.6.3.4) outputs a`
+#' "Modified sequence" column of the evidence file that has two important 
+#' changes for the annotation of phosphorylation:
+#' - Uses `p` instead of `(ph)`
+#' - The modified residue (i.e. STY) is the residue on the left of the `p`, 
+#' instead of the residue to the right of `(ph)` as usual.
+#' These changes significantly affect the algorithm used by this artMS function
+#' to extract the PTM site information. We are working on debugging the issue
+#' and use an alternative function independent of the "Mofified sequence" 
+#' column. If your MaxQuant version is affected, then the column `mod_sites` of
+#' the output `-mapping.txt` will have many NA values for peptides with `p`
+#' modifications (and no NA values should be present)
 #' @param evidence_file (char) The evidence file name and location
 #' @param ref_proteome_file (char) The reference proteome used as database
 #' to search the `evidence.txt` file with MaxQuant. It will be used to map the
 #' modified peptide to the protein sequence and find the site location.
-#' Therefore, it does NOT need the MaxQuant's `Phospho (STY)Sites.txt`
+#' Therefore, it does not use the MaxQuant's `Phospho (STY)Sites.txt`
 #' @param output_file (char) Output file name 
 #' (`-sites-evidence.txt` recommended)
 #' @param mod_type (char) The posttranslational modification. Options:
@@ -20,7 +34,7 @@
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the `Proteins` column
 #' modified by adding the sequence site location(s) + postranslational
-#' modification(s) to the uniprot entry id.
+#' modification(s) to the uniprot entry / refseq id.
 #' 
 #' Examples: `A34890_ph3`; `Q64890_ph24_ph456`; `Q64890_ub34_ub129_ub234`;
 #' `Q64890_ac35`.
@@ -53,9 +67,13 @@ artmsProtein2SiteConversion <- function (evidence_file,
     stop("the mod_type ", mod_type, " is not supported")
   
   if(verbose) message(">> CONVERTING EVIDENCE TO PTM SITE-SPECIFIC ")
-
-  if(evidence_file == output_file) 
-    stop("<output_file> cannot be the same as <evidence_file>")
+  
+  # When the evidence file is not a data.frame, check that it does not have
+  # the same as the output file
+  if(is.vector(evidence_file)){
+    if(evidence_file == output_file) 
+      stop("<output_file> cannot be the same as <evidence_file>")
+  }
   
   if(verbose)
     message(">> PROCESSING THE EVIDENCE FILE FOR A SITE SPECIFIC ANALYSIS ")
@@ -78,6 +96,30 @@ artmsProtein2SiteConversion <- function (evidence_file,
       Check help to get the list of supported PTMs"
     )
   }
+  
+  ## map mod sites in data to index
+  if(verbose) message("--- OPENING EVIDENCE FILE ")
+  ## read in maxq. data
+  maxq_data <- .artms_checkIfFile(evidence_file)
+  maxq_data <- as.data.table(maxq_data)
+  
+  # remove contaminants, keep unique sequences, fix names
+  maxq_data <-
+    maxq_data[grep("CON__|REV__", maxq_data$Proteins, invert = TRUE), ]
+  
+  # In case the evidence file comes as data.frame
+  if("Modified sequence" %in% colnames(maxq_data)){
+    if(verbose) message("\t--(+) 'Modified sequence' column available") 
+  }else if("Modified.sequence" %in% colnames(maxq_data)){
+    setnames(maxq_data, 'Modified.sequence', 'Modified sequence')  
+  }else{
+    stop("Problem with evidence file: no <Modified sequence> column found")
+  }
+  
+  unique_peptides_in_data <-
+    unique(maxq_data[, c('Proteins', 'Modified sequence'), with = FALSE])
+  setnames(unique_peptides_in_data, 'Modified sequence', 'sequence') 
+  
   
   if(verbose) message("--- READING REFERENCE PROTEOME ")
   ## read in reference proteome
@@ -106,6 +148,11 @@ artmsProtein2SiteConversion <- function (evidence_file,
     data.table(names = p_names,
                annots = p_annots,
                seqs = p_seqs)
+  
+  # REFSEQ database
+  ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z,\\.,\\_]+)', '\\1', names)]
+  
+  # UNIPROT
   ref_table[, 
   uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
                        '\\2', names)]
@@ -130,18 +177,9 @@ artmsProtein2SiteConversion <- function (evidence_file,
       ptm_site = unlist(ptm_sites),
       res_index = unlist(indices)
     )
+
   
-  ## map mod sites in data to index
-  if(verbose) message("--- OPENING EVIDENCE FILE ")
-  ## read in maxq. data
-  maxq_data <- fread(evidence_file, integer64 = 'double')
-  # remove contaminants, keep unique sequences, fix names
-  maxq_data <-
-    maxq_data[grep("CON__|REV__", maxq_data$Proteins, invert = TRUE), ]
-  unique_peptides_in_data <-
-    unique(maxq_data[, c('Proteins', 'Modified sequence'), with = FALSE])
-  setnames(unique_peptides_in_data, 'Modified sequence', 'sequence')
-  
+  # EXTRACT PTM POSITIONS FROM MODIFIED PEPTIDES IN EVIDENCE FILE
   mod_sites <- c()
   mod_seqs <- c()
   
@@ -185,7 +223,6 @@ artmsProtein2SiteConversion <- function (evidence_file,
               peptide_index_in_protein + residues_before_site
             protein_mod_sites <- protein_indices[uniprot_ac == uac, ]
             if (!is.na(mod_site_index_in_protein)) {
-              #message(sprintf('%s\n',mod_site_id))
               mod_res <-
                 protein_mod_sites[res_index == mod_site_index_in_protein, 
                                   ptm_site]
@@ -202,7 +239,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
                 )
               mod_sites <- c(mod_sites, mod_site_id)
               mod_seqs <- c(mod_seqs, peptide_seq)
-              stopifnot(length(mod_sites) == length(mod_seqs))
+              # message("mod_site_id ", mod_site_id, " peptide_seq ",peptide_seq)
+              # stopifnot(length(mod_sites) == length(mod_seqs))
             } else{
               message(
                 sprintf(
@@ -219,6 +257,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
               )
             }
           }
+        }else{
+          message("- Protein <", uac, "> not in the sequence database\n")
         }
       }
     }
