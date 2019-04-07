@@ -276,17 +276,6 @@ artmsQuantification <- function(yaml_config_file,
       x <- .artms_checkRawFileColumnName(x)
     }
     
-    if ( "Leading.razor.protein" %in% colnames(x) ) {
-      x$Proteins <- NULL
-      x <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
-      if(verbose) message("-- Use <Leading.razor.protein> as Protein ID")
-    }
-    # Old version of MaxQuant
-    if ( "Leading.Razor.Protein" %in% colnames(x) ) {
-      x <- artmsChangeColumnName(x, "Leading.Razor.Protein", "Proteins")
-      if(verbose) message("-- Use <Leading.Razor.Protein> as Protein ID")
-    }
-    
     x <- data.table(x)
 
     

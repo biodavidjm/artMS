@@ -127,7 +127,24 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   if(verbose) message(">> FILTERING ")
   if (config$data$filters$protein_groups == 'remove') {
     if(verbose) message("-- PROTEIN GROUPS REMOVED")
+    
+    # SELECT FIRST THE LEADING RAZOR PROTEIN AS PROTEINS, DEPENDING ON THE 
+    # MAXQUANT VERSION
+    
+    if ( "Leading.razor.protein" %in% colnames(x) ) {
+      x$Proteins <- NULL
+      x <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
+      if(verbose) message("-- Use <Leading.razor.protein> as Protein ID")
+    }
+    # Old version of MaxQuant
+    if ( "Leading.Razor.Protein" %in% colnames(x) ) {
+      x$Proteins <- NULL
+      x <- artmsChangeColumnName(x, "Leading.Razor.Protein", "Proteins")
+      if(verbose) message("-- Use <Leading.Razor.Protein> as Protein ID")
+    }
+    
     data_f <- .artms_removeMaxQProteinGroups(x)
+    
   } else if (config$data$filters$protein_groups == 'keep') {
     if(verbose) message("-- PROTEIN GROUPS IGNORE ")
     data_f <- x
