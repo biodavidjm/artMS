@@ -1737,6 +1737,7 @@ Overall median CV within each condition is shown on the top and number of protei
   
   
   if (plotSP) {
+
     if(verbose) message("--- Plot Sample Preparation", appendLF = FALSE)
     if(printPDF) pdf(
       'QC-SamplePrep.pdf',
@@ -1744,57 +1745,60 @@ Overall median CV within each condition is shown on the top and number of protei
       height = 20,
       onefile = TRUE
     )
-    evidence.misscleavages <-
-      data.table(subset(evidencekeys, ms.ms.count > 0))
     
-    misscleavages.tot <-
-      evidence.misscleavages[, .N, by = list(bioreplicate)]
-    
-    misscleavages.dt <- evidence.misscleavages[, .N,
-                                               by = list(bioreplicate,
-                                                         missed.cleavages)]
-    misscleavages.dt <- merge(misscleavages.dt,
-                              misscleavages.tot,
-                              by = "bioreplicate",
-                              all = TRUE)
-    
-    misscleavages.dt$mc <-
-      as.numeric(format(
-        100 * (misscleavages.dt$N.x / misscleavages.dt$N.y),
-        digits = 5
-      ))
-    
-    na <-
-      ggplot(misscleavages.dt,
-             aes(
-               x = bioreplicate,
-               y = mc,
-               fill = as.factor(missed.cleavages),
-               label = mc
-             )) +
-      geom_bar(stat = "identity", alpha = 0.7) +
-      geom_text(
-        aes(label = round(mc, digits = 1)),
-        vjust = 0,
-        size = 10,
-        position = position_stack()
-      ) +
-      xlab("Experiment") + ylab("Fraction (percentage)") +
-      ggtitle("Missing cleavage stats") +
-      theme(legend.text = element_text(size = 20)) +
-      theme(axis.text.x = element_text(
-        angle = 90,
-        hjust = 1,
-        size = 20
-      )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
-      scale_fill_brewer(palette = "Set1")
-    print(na)
-    
-    
+    if("missed.cleavages" %in% colnames(evidencekeys)){
+      evidence.misscleavages <-
+        data.table(subset(evidencekeys, ms.ms.count > 0))
+      
+      misscleavages.tot <-
+        evidence.misscleavages[, .N, by = list(bioreplicate)]
+      
+      misscleavages.dt <- evidence.misscleavages[, .N,
+                                                 by = list(bioreplicate,
+                                                           missed.cleavages)]
+      misscleavages.dt <- merge(misscleavages.dt,
+                                misscleavages.tot,
+                                by = "bioreplicate",
+                                all = TRUE)
+      
+      misscleavages.dt$mc <-
+        as.numeric(format(
+          100 * (misscleavages.dt$N.x / misscleavages.dt$N.y),
+          digits = 5
+        ))
+      
+      na <-
+        ggplot(misscleavages.dt,
+               aes(
+                 x = bioreplicate,
+                 y = mc,
+                 fill = as.factor(missed.cleavages),
+                 label = mc
+               )) +
+        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_text(
+          aes(label = round(mc, digits = 1)),
+          vjust = 0,
+          size = 10,
+          position = position_stack()
+        ) +
+        xlab("Experiment") + ylab("Fraction (percentage)") +
+        ggtitle("Missing cleavage stats") +
+        theme(legend.text = element_text(size = 20)) +
+        theme(axis.text.x = element_text(
+          angle = 90,
+          hjust = 1,
+          size = 20
+        )) +
+        theme(axis.text.y = element_text(size = 20)) +
+        theme(axis.title.x = element_text(size = 30)) +
+        theme(axis.title.y = element_text(size = 30)) +
+        theme(plot.title = element_text(size = 40)) +
+        scale_fill_brewer(palette = "Set1")
+      print(na)
+    }
+
+
     oxMet.df <-
       plyr::ddply(
         evidencekeys,
@@ -1837,9 +1841,7 @@ Overall median CV within each condition is shown on the top and number of protei
     if(printPDF) garbage <- dev.off()
     if(verbose) message(" done ")
   }
-  
-  
-  
+
 } # END OF artmsQualityControlEvidenceExtended  
 
 
