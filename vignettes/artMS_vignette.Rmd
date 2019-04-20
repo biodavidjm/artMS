@@ -934,30 +934,83 @@ values should increase relative to the **global** analysis. Both **sites** and
 **global** ptm analysis are highly correlated due to the fact that only one 
 or two peptides drive the overall changes in PTMs for every protein.
 
-To run a site specific analysis follow these steps:
+To run a site/peptide specific analysis follow these steps:
 
-1. A pre-processing step is required for the evidence file to enable 
-the site-specific ph analysis, and the reference proteome used as a database
-when MaxQuant was run.
+1. Important pre-processing step on the 
+evidence file to enable the ptm-site/peptide-specific analysis. This step
+takes any of the Proteins id columns selected by the user
+(either `Leading razor protein`, `Leading protein`, or `Proteins`) 
+and re-annotates it to incorporate the ptm-site/peptide-specific information.
+This step is *computational expensive*, which means that it might take several
+minutes to be completed (depending on the size of the database, evidence file,
+computer power, etc)
 
-For phosphorylation
+It also requires the same reference proteome used as a fasta sequence database
+used for MaxQuant.
+
+For phosphorylation:
 
 ```
 artmsProtein2SiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
+  column_name = "Leading razor protein",
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
   output_file = "/path/to/the/output/ph-sites-evidence.txt", 
   mod_type = "PH")
 ```
+
+As a result, the IDs in the "Leading razor protein" column will contain a 
+site/peptide-specific notation. For example:
+
+Before: `P12345` 
+After: `P12345_S23_S45`
 
 For ubiquitination
 
 ```
 artmsProtein2SiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
+  column_name = "Leading razor protein",
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
   output_file = "/path/to/the/output/ub-sites-evidence.txt", 
   mod_type = "UB")
+```
+
+**Tip: How to re-annotate all the Protein columns on the same file**.
+By default, `artmsProtein2SiteConversion` doesn't allow to overwrite the 
+`evidence.txt` file for security reasons (you don't want to lose the 
+evidence file if something goes wrong). 
+However, once the "site-evidence.txt" file is generated, all the protein
+columns can be converted in the same file by enable the
+`overwrite.evidence = TRUE`. Thus, to annotate the three protein column ids,
+follow these steps:
+
+```
+# Convert 'Leading razor protein'
+artmsProtein2SiteConversion(
+  evidence_file = "/path/to/the/evidence.txt", 
+  column_name = "Leading razor protein",
+  ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
+  output_file = "/path/to/the/phsites-evidence.txt", 
+  mod_type = "PH")
+
+# Convert 'Leading protein' 
+artmsProtein2SiteConversion(
+  evidence_file = "/path/to/the/phsites-evidence.txt", # Notice this is the new file
+  column_name = "Leading proteins",
+  overwrite_evidence = TRUE, # this argument is enable
+  ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
+  output_file = "/path/to/the/phsites-evidence.txt", # Same as evidence_file
+  mod_type = "PH")
+  
+# Convert 'Proteins' 
+artmsProtein2SiteConversion(
+  evidence_file = "/path/to/the/phsites-evidence.txt", # Notice this is the new file
+  column_name = "Proteins",
+  overwrite_evidence = TRUE, # this argument is enable
+  ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
+  output_file = "/path/to/the/phsites-evidence.txt", # Same as evidence_file
+  mod_type = "PH")
 ```
 
 
@@ -972,7 +1025,7 @@ files:
   evidence : /path/to/the/evidence-site.txt
   keys : /path/to/the/keys.txt
   contrasts : /path/to/the/contrast.txt
-  output : /path/to/the/output/results_ptmSITES/sites-results.txt
+  output : /path/to/the/output/results_ptmSITES/sites-results.txt # <- this one
   .
   .
   .
