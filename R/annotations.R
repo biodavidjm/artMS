@@ -92,6 +92,84 @@ artmsAnnotationUniprot <- function(x,
   }
 }
 
+
+# ------------------------------------------------------------------------------
+# @title Select the entry 
+#
+# @description Selet the Uniprot Entry ID from a full Uniprot id. For example:
+#
+# From `sp|P55011|S12A2_HUMAN` will select `P55011`
+#
+# @param x (vector) of protein ids. If the id is a uniprot full entry, it will
+# extract the ENTRY id
+# @return (vector) with only the Entry ID (if found)
+# @keywords internal, Protein ID, Uniprot, Entry
+.artms_selectEntryFromFullUniprot <- function(x){
+  isolateIt <-  unlist(strsplit(x, ";"))
+  replaceIt <- as.character(sapply(isolateIt, function(y) gsub("(^sp|tr)(\\|)(.*)(\\|.*)", "\\3", y)))
+  if(length(replaceIt) > 1){
+    replaceIt <- paste(replaceIt, collapse = ";")
+  }
+  return(replaceIt)
+}
+
+
+# ------------------------------------------------------------------------------
+#' @title Leave only the Entry ID from a typical full Uniprot IDs in a 
+#' given column 
+#'
+#' @description Downloading a Reference Uniprot fasta database includes several 
+#' Uniprot IDs for every protein. If the regular expression available in 
+#' Maxquant is not activated, the full id will be used in the Proteins,
+#' Lead Protein, and Leading Razor Protein columns. This script leaves only the
+#' Entry ID.
+#' 
+#' For example, values in a Protein column like this:
+#' 
+#' `sp|P12345|Entry_name;sp|P54321|Entry_name2` 
+#' 
+#'  will be replace by
+#'  
+#' `P12345;P54321``
+#' 
+#' @param x (data.frame) that contains the `columnid`
+#' @param columnid (char) Column name with the full uniprot ids
+#' @return (data.frame) with only Entry IDs.
+#' 
+#' @keywords annotation, ids
+#' @examples
+#' # Example of data frame with full uniprot ids and sequences
+#' p <- c("sp|A6NIE6|RN3P2_HUMAN;sp|Q9NYV6|RRN3_HUMAN", 
+#'        "sp|A7E2V4|ZSWM8_HUMAN", 
+#'        "sp|A5A6H4|ROA1_PANTR;sp|P09651|ROA1_HUMAN;sp|Q32P51|RA1L2_HUMAN", 
+#'        "sp|A0FGR8|ESYT2_HUMAN")
+#' s <- c("ALENDFFNSPPRK", "GWGSPGRPK", "SSGPYGGGGQYFAK", "VLVALASEELAK")
+#' evidence <- data.frame(Proteins = p, Sequences = s, stringsAsFactors = FALSE)
+#' 
+#' # Replace the Proteins column with only Entry ids
+#' evidence <- artmsLeaveOnlyUniprotEntryID(x = evidence, columnid = "Proteins")
+#' @export
+artmsLeaveOnlyUniprotEntryID <- function(x, columnid){
+  
+  if(!(is.data.frame(x) | is.data.table(x))){
+    stop("<x> must be a data.frame or data.table")
+  }
+  
+  if(!is.vector(columnid)){
+    stop("<columnid> must be a valid column name")
+  }
+  
+  if(!(columnid %in% colnames(x))){
+    stop("The <columnid> is not a column of <x>. Check the name again")
+  }
+  
+  x[[columnid]] <- unlist(lapply(x[[columnid]], 
+                                 function(z) sapply(z, .artms_selectEntryFromFullUniprot)))
+  
+  return(x)
+}
+
+
 # ------------------------------------------------------------------------------
 #' @title Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #'

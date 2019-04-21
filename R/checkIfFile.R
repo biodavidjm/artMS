@@ -4,12 +4,15 @@
 #  either a path to a data file or a data object in data.frame or data.table
 #  form.
 # @param input_file (object or data.frame) The filepath/object to be checked.
+# @param dont_check_names if TRUE (default) names are not checked, otherwise
+# names will be checked
 # @param is.evidence (logical) Whether or not the file to be read in is an
 # evidence file. This will assign proper classes to the evidence file
 # when being read in.
 # @return An R data object
 # @keywords internal, file, evidence, input
 .artms_checkIfFile <- function(input_file, 
+                               dont_check_names = TRUE,
                                is.evidence = FALSE) {
   # check if already a data.frame or data.table
   if (is.data.table(input_file)) {
@@ -21,7 +24,15 @@
       if(!file.exists(input_file)){
         stop("The file ", input_file, " does not exist! ")
       }else{
-        x <- read.delim(input_file, stringsAsFactors = FALSE)
+        if(dont_check_names){
+          x <- read.delim(input_file, 
+                          stringsAsFactors = FALSE)
+        }else{
+          x <- read.delim(input_file, 
+                          stringsAsFactors = FALSE,
+                          check.names = FALSE)
+        }
+        
       }
     }else{
       stop("The input object is not valid")
@@ -81,8 +92,9 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
   if(verbose) message("--- Reading in evidence file... ")
   # read in the first line to get the header names
   cols <- readLines(evidence_file, 1)
-  cols <-
-    data.frame(V1 = unlist(strsplit(cols, "\t")), stringsAsFactors = FALSE)
+  cols <- data.frame(V1 = unlist(strsplit(cols, "\t")), 
+                     stringsAsFactors = FALSE)
+  
   cols$idx <- seq_len(dim(cols)[1])
   
   # get data frame of pre-recorded column names and their respective classes

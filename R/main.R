@@ -277,7 +277,6 @@ artmsQuantification <- function(yaml_config_file,
     }
     
     x <- data.table(x)
-
     
     keys <- .artms_checkIfFile(config$files$keys)
     keys <- .artms_checkRawFileColumnName(keys)
@@ -339,19 +338,8 @@ artmsQuantification <- function(yaml_config_file,
     }
     
     ## FORMATTING IN WIDE FORMAT TO CREATE HEATMAPS
-    if (!is.null(config$files$sequence_type)) {
-      if(verbose)
-      message(">> OLD CONFIGUATION FILE DETECTED : sequence_type DETECTED.
-        WARNING: RECOMMENDED TO ALWAYS USED modified HERE ")
-      if (config$files$sequence_type == 'modified'){
-        castFun = .artms_castMaxQToWidePTM
-      }else{
-        castFun = .artms_castMaxQToWide
-      }
-      data_w = castFun(data_f)
-    } else{
-      data_w = .artms_castMaxQToWidePTM(data_f)
-    }
+    
+    data_w <- .artms_castMaxQToWidePTM(data_f)
     
     ## HEATMAPS
     if (!is.null(config$data$sample_plots) &&

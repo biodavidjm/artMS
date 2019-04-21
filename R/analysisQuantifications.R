@@ -255,8 +255,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                          artmsAnnotationUniprot(dfmq2Genes, 'Protein', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       if(verbose) message("--- TOTAL NUMBER OF GENES/PROTEINS: ",
-          numberTotalGenes,
-          "  ")
+          numberTotalGenes, "  ")
       if (numberTotalGenes == 0) {
         stop("IDs are not recognized")
       }
@@ -1990,8 +1989,7 @@ artmsGeneratePhSiteExtended <- function(df,
     if (ptmType == "ptmph") {
       # Change the Protein name to Uniprot_PTM (if it is not there already)
       if(!any(grepl("Uniprot_PTM", colnames(imputedDFext)))) 
-        names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 
-          'Uniprot_PTM'
+        names(imputedDFext)[grep('^Protein$', names(imputedDFext))] <- 'Uniprot_PTM'
       
       # Take the Protein ID, but being very careful about the fluomics labeling
       imputedDFext <- 

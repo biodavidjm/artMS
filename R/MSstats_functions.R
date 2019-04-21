@@ -125,28 +125,40 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
                               config,
                               verbose = TRUE) {
   if(verbose) message(">> FILTERING ")
+  
+  if (config$data$filters$contaminants) {
+    x <- artmsFilterEvidenceContaminants(x)
+  }
+  
   if (config$data$filters$protein_groups == 'remove') {
-    if(verbose) message("-- PROTEIN GROUPS REMOVED")
+    if(verbose) message("-- READY TO REMOVE PROTEIN GROUPS: ")
     
     # SELECT FIRST THE LEADING RAZOR PROTEIN AS PROTEINS, DEPENDING ON THE 
     # MAXQUANT VERSION
     
+    # Address the old version of maxquant
+    if ( "Leading.Razor.Protein" %in% colnames(x) ) {
+      x <- artmsChangeColumnName(x, "Leading.Razor.Protein", "Leading.razor.protein")
+    }
+    
+    x <- artmsLeaveOnlyUniprotEntryID(x, "Proteins")
+    x <- artmsLeaveOnlyUniprotEntryID(x, "Leading.razor.protein")
+    
+    # Check: if neither old version nor new version of leading razor protein
+    # is found... stop it
     if ( "Leading.razor.protein" %in% colnames(x) ) {
       x$Proteins <- NULL
-      x <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
-      if(verbose) message("-- Use <Leading.razor.protein> as Protein ID")
-    }
-    # Old version of MaxQuant
-    if ( "Leading.Razor.Protein" %in% colnames(x) ) {
-      x$Proteins <- NULL
-      x <- artmsChangeColumnName(x, "Leading.Razor.Protein", "Proteins")
-      if(verbose) message("-- Use <Leading.Razor.Protein> as Protein ID")
+      data_f <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
+      if(verbose) message("---- Use <Leading.razor.protein> as Protein ID")
+    }else{
+      stop("<Leading razor protein> column not found. Proteins groups cannot be removed")
     }
     
-    data_f <- .artms_removeMaxQProteinGroups(x)
-    
+    # This is not necessary for now: the leading razor protein is unique
+    # data_f <- .artms_removeMaxQProteinGroups(x)
+
   } else if (config$data$filters$protein_groups == 'keep') {
-    if(verbose) message("-- PROTEIN GROUPS IGNORE ")
+    if(verbose) message("-- PROTEIN GROUPS KEPT")
     data_f <- x
   } else{
     stop(
@@ -154,11 +166,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
       (options available: keep or remove)"
     )
   }
-  
-  if (config$data$filters$contaminants) {
-    if(verbose) message("-- CONTAMINANTS REMOVE ")
-    data_f <- artmsFilterEvidenceContaminants(data_f)
-  }
+
   
   # DEAL WITH OLD CONFIGURATION FILES WHEN config$data$filters$modification 
   # COULD BE EMPTY
@@ -167,8 +175,8 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
         Using 'AB' as default ")
   } else if (config$data$filters$modification == 'AB' |
              config$data$filters$modification == 'APMS') {
-    if(verbose) message(sprintf("-- PROCESSING %s", 
-                            config$data$filters$modification))
+    if(verbose) message(sprintf("-- PROCESSING %s",
+                                config$data$filters$modification))
   } else if (config$data$filters$modification == 'UB') {
     data_f = data_f[Modifications %like% 'GlyGly']
   } else if (config$data$filters$modification == 'PH') {
@@ -201,7 +209,7 @@ artmsFilterEvidenceContaminants <- function(x,
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)
     data_selected = data_selected[-blank.idx, ]
-  if(verbose) message(">> CONTAMINANTS CON__|REV__ REMOVED ")
+  if(verbose) message("-- CONTAMINANTS CON__|REV__ REMOVED ")
   return(data_selected)
 }
 
