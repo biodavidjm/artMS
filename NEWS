@@ -1,3 +1,9 @@
+Changes in version v1.1.14 (2019-04-22)
+
++ Update artmsProtein2SiteConversion: it runs as default the "Leading razor 
+protein".
++ Update vignette
+
 Changes in version v1.1.13 (2019-04-20)
 
 + Important artmsProtein2SiteConversion update: the protein column id to be 

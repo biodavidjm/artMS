@@ -11,6 +11,7 @@
 #' independently across conditions. 
 #' 
 #' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#' 
 #' WARNING: we have detected a version of MaxQuant (>1.6.3.0) outputs a`
 #' "Modified sequence" column of the evidence file that has two important 
 #' changes for the annotation of phosphorylation:
@@ -21,13 +22,14 @@
 #' we advice the user to double check both the new evidence file with the
 #' introduce new notation and the `-mapping.txt` file and check that there
 #' are no NA values for the notation of phophopeptides.
+#' 
 #' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #' 
 #' @param evidence_file (char) The evidence file name and location
 #' @param column_name (char) The Protein Column Name to map. Options:
-#' - `Proteins`
+#' - `Leadind razor protein` (default)
 #' - `Leading protein`
-#' - `Leadind razor protein`
+#' - `Proteins`
 #' It only supports Uniprot Entry IDs and RefSeq, but it might work for
 #' other database IDs
 #' @param ref_proteome_file (char) The reference proteome used as database
@@ -57,17 +59,17 @@
 #' @examples
 #' # Testing warning if files are not submitted. 
 #' artmsProtein2SiteConversion(evidence_file = NULL, ref_proteome_file = NULL, 
-#' output_file = NULL, column_name = "Leading razor protein")
+#' output_file = NULL)
 #' @export
 artmsProtein2SiteConversion <- function (evidence_file,
                                          ref_proteome_file,
-                                        column_name = c('Leading razor protein', 
-                                                        'Leading proteins', 
-                                                        'Proteins'),
-                                            output_file,
-                                            mod_type,
-                                            overwrite_evidence = FALSE,
-                                            verbose = TRUE) {
+                                         column_name = c('Leading razor protein', 
+                                                         'Leading proteins', 
+                                                         'Proteins'),
+                                         output_file,
+                                         mod_type,
+                                         overwrite_evidence = FALSE,
+                                         verbose = TRUE) {
   
   # GLOBAL VARIABLE
   everything <- NULL 
@@ -251,7 +253,7 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
   mod_seqs <- c()
   
   if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
-   (This might take a long time depending on the size of the fasta file: be patient) ")
+   (This might take a long time depending on the size of the fasta/evidence file) ")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
@@ -325,7 +327,7 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
             }
           }
         }else{
-          message("- Protein <", uac, "> not in the sequence database\n")
+          message("- Protein <", uac, "> not in the sequence database")
         }
       }
     }
@@ -337,7 +339,7 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
       mod_sites ~ mod_seqs,
       mod_site_mapping,
       FUN = function(x)
-        paste(x, collapse = ',')
+        paste(x, collapse = ';')
     )
   
   setnames(maxq_data, 'Modified sequence', 'mod_seqs')

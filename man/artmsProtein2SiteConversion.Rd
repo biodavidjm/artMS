@@ -21,9 +21,9 @@ Therefore, it does not use the MaxQuant's \code{Phospho (STY)Sites.txt}}
 
 \item{column_name}{(char) The Protein Column Name to map. Options:
 \itemize{
-\item \code{Proteins}
+\item \code{Leadind razor protein} (default)
 \item \code{Leading protein}
-\item \code{Leadind razor protein}
+\item \code{Proteins}
 It only supports Uniprot Entry IDs and RefSeq, but it might work for
 other database IDs
 }}
@@ -63,6 +63,7 @@ In this way, each of the modified peptides can be quantified
 independently across conditions.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 WARNING: we have detected a version of MaxQuant (>1.6.3.0) outputs a`
 "Modified sequence" column of the evidence file that has two important
 changes for the annotation of phosphorylation:
@@ -74,13 +75,14 @@ We have introduced a modification to detect and address this issue, but
 we advice the user to double check both the new evidence file with the
 introduce new notation and the \code{-mapping.txt} file and check that there
 are no NA values for the notation of phophopeptides.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 \examples{
 # Testing warning if files are not submitted. 
 artmsProtein2SiteConversion(evidence_file = NULL, ref_proteome_file = NULL, 
-output_file = NULL, column_name = "Leading razor protein")
+output_file = NULL)
 }
 \keyword{ac}
 \keyword{convert,}

@@ -921,14 +921,14 @@ artmsQuantification(
 
 <a name="siteptm" />
 
-## Site-specific Quantification of Changes in Phosphorylation or Ubiquitination
+## PTM-Site/Peptide-specific Quantification of Changes (PH or UB)
 
 ***Warning: This quantification is only possible for experiments that have
 used methods to enrich phosphopeptides or ubiquitinated peptides prior to 
 the mass spectrometry analysis.***
 
 The `site-specific` analysis quantifies changes at the modified peptide level.
-This means that changes in every modified (ph or ub) peptide of a given protein
+This means that changes in every modified (PH or UB) peptide of a given protein
 will be quantified individually. The caveat is that the proportion of missing 
 values should increase relative to the **global** analysis. Both **sites** and
 **global** ptm analysis are highly correlated due to the fact that only one 
@@ -936,89 +936,90 @@ or two peptides drive the overall changes in PTMs for every protein.
 
 To run a site/peptide specific analysis follow these steps:
 
-1. Important pre-processing step on the 
-evidence file to enable the ptm-site/peptide-specific analysis. This step
-takes any of the Proteins id columns selected by the user
+1. **Important pre-processing step on the 
+evidence file to enable the ptm-site/peptide-specific analysis**. 
+This step takes any of the Proteins id columns selected by the user
 (either `Leading razor protein`, `Leading protein`, or `Proteins`) 
 and re-annotates it to incorporate the ptm-site/peptide-specific information.
+By default, this function converts the column `Leading razor protein`.
 This step is *computational expensive*, which means that it might take several
-minutes to be completed (depending on the size of the database, evidence file,
+minutes to finish (depending on the size of the fasta database, evidence file,
 computer power, etc)
 
-It also requires the same reference proteome used as a fasta sequence database
-used for MaxQuant.
+It also requires the same reference proteome (fasta sequence database) used 
+for the MaxQuant search.
 
-For phosphorylation:
+*For phosphorylation*:
 
 ```
 artmsProtein2SiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
-  column_name = "Leading razor protein",
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
   output_file = "/path/to/the/output/ph-sites-evidence.txt", 
   mod_type = "PH")
 ```
 
-As a result, the IDs in the "Leading razor protein" column will contain a 
+As a result, the IDs in the "Leading razor protein" column will contain 
 site/peptide-specific notation. For example:
 
 Before: `P12345` 
 After: `P12345_S23_S45`
 
-For ubiquitination
+*For ubiquitination*:
 
 ```
 artmsProtein2SiteConversion(
   evidence_file = "/path/to/the/evidence.txt", 
-  column_name = "Leading razor protein",
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
   output_file = "/path/to/the/output/ub-sites-evidence.txt", 
   mod_type = "UB")
 ```
 
 **Tip: How to re-annotate all the Protein columns on the same file**.
+
 By default, `artmsProtein2SiteConversion` doesn't allow to overwrite the 
 `evidence.txt` file for security reasons (you don't want to lose the 
-evidence file if something goes wrong). 
-However, once the "site-evidence.txt" file is generated, all the protein
-columns can be converted in the same file by enable the
-`overwrite.evidence = TRUE`. Thus, to annotate the three protein column ids,
+evidence file if something goes wrong). To overwrite the evidence file the
+argument `overwrite_evidence` must be turned on (`overwrite_evidence = TRUE`).
+
+If the `column_name` argument is not used, `artmsProtein2SiteConversion`
+converts the `Leading razor protein` column, which is used in the
+quantification step when `protein_groups : remove` is selected (default). However,
+if `protein_groups : keep` is used, `artMS` will use the `Proteins` column.
+To convert the `Proteins` column to the site/peptide-specific notation, then 
+add the argument `column_name = "Proteins"`.
+
+To annotate both columns of the same file, first generate the 
+"site-evidence.txt" file, and then use this same output file as the 
+`evidence_file` and activate `overwrite.evidence = TRUE`. 
+
+In summary, to annotate both the "Leading razor protein" and `Proteins` columns
 follow these steps:
 
 ```
 # Convert 'Leading razor protein'
 artmsProtein2SiteConversion(
-  evidence_file = "/path/to/the/evidence.txt", 
+  evidence_file = "/path/to/the/evidence.txt", # ORIGINAL
   column_name = "Leading razor protein",
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
-  output_file = "/path/to/the/phsites-evidence.txt", 
+  output_file = "/path/to/the/phsites-evidence.txt", # SITES VERSION
   mod_type = "PH")
 
-# Convert 'Leading protein' 
-artmsProtein2SiteConversion(
-  evidence_file = "/path/to/the/phsites-evidence.txt", # Notice this is the new file
-  column_name = "Leading proteins",
-  overwrite_evidence = TRUE, # this argument is enable
-  ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
-  output_file = "/path/to/the/phsites-evidence.txt", # Same as evidence_file
-  mod_type = "PH")
-  
 # Convert 'Proteins' 
 artmsProtein2SiteConversion(
-  evidence_file = "/path/to/the/phsites-evidence.txt", # Notice this is the new file
+  evidence_file = "/path/to/the/phsites-evidence.txt", # <- USE SITES VERSION
   column_name = "Proteins",
-  overwrite_evidence = TRUE, # this argument is enable
+  overwrite_evidence = TRUE, # <--- TURN ON
   ref_proteome_file = "/path/to/the/reference_proteome.fasta", 
-  output_file = "/path/to/the/phsites-evidence.txt", # Same as evidence_file
+  output_file = "/path/to/the/phsites-evidence.txt", # <- SITES VERSION
   mod_type = "PH")
 ```
 
 
 2. Generate a new configuration file (`phsites_config.yaml` or 
 `ubsites_config.yaml`) as [explained above](#configfile), but using the "new" 
-`ph-sites-evidence.txt`/`ub-sites-evidence.txt` file instead of the original
-`evidence.txt` file. Only two sections need to be filled up on the **default** 
-configuration (`yaml`) file:
+`sites-evidence.txt` file instead of the original
+`evidence.txt` file:
 
 ```
 files:
@@ -1034,7 +1035,7 @@ data:
   .
   .
   filters:
-    modifications : PH # Use UB for ubiquination
+    modifications : PH # <- Don't forget this one.
 ```
 
 Once the new `yaml` file has been created, execute:
