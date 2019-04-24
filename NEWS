@@ -1,3 +1,9 @@
+Changes in version v1.1.15 (2019-04-24)
+
++ artMS detects RefSeq IDs. It does not support yet enrichments and annotations
++ Update artmsAnalysisQuantifications to adjust for previous changes in PTMs: it better handles 'protein groups'
++ Doesn't remove outliers
+
 Changes in version v1.1.14 (2019-04-22)
 
 + Update artmsProtein2SiteConversion: it runs as default the "Leading razor 

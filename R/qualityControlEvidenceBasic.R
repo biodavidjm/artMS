@@ -160,8 +160,9 @@ The experiments supported are: ",
 
   
   # Feature generation: Combine Sequence and Charge.
-  evidencekeys$Feature <-
-    paste0(evidencekeys$Modified.sequence, "_", evidencekeys$Charge)
+  evidencekeys$Feature <- paste0(evidencekeys$Modified.sequence, 
+                                 "_", 
+                                 evidencekeys$Charge)
   
   # ============================================================================
   # GENERAL QUALITY CONTROL: CHECK PROPORTION OF CONTAMINANTS

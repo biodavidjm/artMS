@@ -37,14 +37,33 @@ artmsAnnotationUniprot <- function(x,
   x <- .artms_checkIfFile(x)
   
   # Deal with isoforms UNIPROT-1 etc
+  if(!columnid %in% colnames(x)){
+    stop("The column id <",columnid,"> was not found in this dataset")
+  }
   x$EntryRoot <- x[[columnid]]
+  
+  # Check first if it is uniprot:
+  isUniprot <- TRUE
+  if( length(x$EntryRoot[grep("\\w{2}_\\d{1,}\\.\\d{1,}", x$EntryRoot)]) > 100 ){
+    message("\nWarning!
+It looks like this dataset is using RefSeq as protein ID.
+RefSeq is not (yet) supported for gene annotation.\n")
+    isUniprot <- FALSE
+  }
   
   x$EntryRoot <- gsub("(\\w+)(-)(\\d+)", "\\1", x$EntryRoot)
   
+  # Deal with protein groups and PTMs: select the first ID 
+  # 1. strsplit based on ;
+  x$EntryRoot <- unlist(lapply(x$EntryRoot, function(x) unlist(strsplit(x, "\\;"))[1]))
+  # 2. now based on PTM: either STYK
+  x$EntryRoot <- unlist(lapply(x$EntryRoot, function(x) unlist(strsplit(x, "_[S|T|Y|K]"))[1]))
+  
   theUniprots <- as.character(unique(x$EntryRoot))
   
-  if( isFALSE(artmsIsSpeciesSupported(species = species)) ){
-    if(verbose) message("---(-) Species ", species," not supported: no info about proteins will be provided")
+  if( isFALSE(artmsIsSpeciesSupported(species = species)) | isFALSE(isUniprot) ){
+    if(isFALSE(artmsIsSpeciesSupported(species = species))) 
+      message("---(-) Species ", species," not supported: no info about proteins will be provided")
     keepSearchName <- paste0(columnid, "Copy")
     y <- artmsChangeColumnName(x, columnid, keepSearchName)
     y <- artmsChangeColumnName(y, "EntryRoot", "Protein")
