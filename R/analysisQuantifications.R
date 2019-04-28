@@ -106,7 +106,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                           plotTotalQuant = TRUE,
                                           plotClusteringAnalysis = TRUE,
                                           verbose = TRUE) {
-  if(verbose) message(">> ANALYSIS OF QUANTIFICATIONS ")
+  if(verbose){
+    message("---------------------------------------------")
+    message("artMS: ANALYSIS OF QUANTIFICATIONS")
+    message("---------------------------------------------")
+  }
   
   if(any(missing(log2fc_file) | 
          missing(modelqc_file) |

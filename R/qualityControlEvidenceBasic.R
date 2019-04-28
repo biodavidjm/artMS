@@ -88,13 +88,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
 
   prot_exp <- toupper(prot_exp)
   prot_exp <- match.arg(prot_exp)
-  supportedExperiments <- c('AB', 'PH', 'UB', 'APMS')
-  
-  if (any(!prot_exp %in% supportedExperiments)) {
-    stop(prot_exp, " is currently not supported.
-The experiments supported are: ",
-         sprintf('\t%s\n', supportedExperiments))
-  }
   
   if (fractions) {
     # Check that the keys file is correct
@@ -106,8 +99,10 @@ The experiments supported are: ",
   }
   
   if(verbose){
-    message(">> BASIC QUALITY CONTROL (evidence.txt based)")
-  } 
+    message("---------------------------------------------")
+    message("artMS: BASIC QUALITY CONTROL (-evidence.txt based)")
+    message("---------------------------------------------")
+  }
   
   # EVIDENCE:
   evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
@@ -129,9 +124,8 @@ The experiments supported are: ",
     log2(ekselectaBioreplica$Intensity)
   
   if(plotINTDIST){
-    if(verbose) message("-- Generating the intensity distribution plots")
-    intDistribution <-
-      paste0(output_name, ".qcplot.IntensityDistributions.pdf")
+    if(verbose) message("-- Plot: intensity distribution")
+    intDistribution <- paste0(output_name, ".qcplot.IntensityDistributions.pdf")
     
     j <- ggplot(ekselectaBioreplica, aes(BioReplicate, Intensity))
     j <- j + geom_jitter(width = 0.3, size = 0.5)
@@ -171,10 +165,9 @@ The experiments supported are: ",
   
   # Careful with old versions of MaxQuant:
   if (any(grep("Leading.Proteins", names(evidencekeys)))) {
-    evidencekeys <-
-      artmsChangeColumnName(evidencekeys, 
-                             "Leading.Proteins", 
-                             "Leading.proteins")
+    evidencekeys <- artmsChangeColumnName(evidencekeys, 
+                                          "Leading.Proteins", 
+                                          "Leading.proteins")
   }
   
   # Combine all the fractions if this is a fractioning experiment by summing
@@ -220,8 +213,8 @@ The experiments supported are: ",
     )
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
-  evidencekeysclean <-
-    artmsFilterEvidenceContaminants(x = evidencekeys, verbose = verbose)
+  evidencekeysclean <- artmsFilterEvidenceContaminants(x = evidencekeys, 
+                                                       verbose = FALSE)
   
   if (prot_exp == "UB") {
     evidencekeysclean <-
@@ -252,7 +245,7 @@ The experiments supported are: ",
   }
   
   if(plotREPRO){
-    if(verbose) message("-- Generating the reproducibility plots")
+    if(verbose) message("-- Plot: Reproducibility scatter plots")
     seqReproName <-
       paste0(output_name, ".qcplot.basicReproducibility.pdf")
     
@@ -270,14 +263,12 @@ The experiments supported are: ",
   
   # Check the number of TECHNICAL REPLICAS by 
   # checking the first technical replica
-  technicalReplicas <-
-    unique(data2matrix$Run[which(data2matrix$BioReplicate == data2matrix$BioReplicate[1])])
+  technicalReplicas <- unique(data2matrix$Run[which(data2matrix$BioReplicate == data2matrix$BioReplicate[1])])
   palette.breaks <- seq(1, 3, 0.1)
-  color.palette  <-
-    colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
+  color.palette <- colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
   if(plotCORMAT){
-    if(verbose) message("-- Generating correlation matrices")
+    if(verbose) message("-- Plot: correlation matrices")
     if (length(technicalReplicas) > 1) {
       # First aggregate at the protein level by summing up everything
       biorepliaggregated <-
@@ -301,7 +292,7 @@ The experiments supported are: ",
         .artms_plotCorrelationDistribution(Mtechnicalrep)
       
       # And now for clustering
-      if(verbose) message("---- By Technical replicates ")
+      if(verbose) message("---- by Technical replicates ")
       matrixCorrelationBioreplicas <-
         paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
       
@@ -367,18 +358,15 @@ The experiments supported are: ",
     }
     
     biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-    evidencekeyscleanDCASTbioreplicas <-
-      data.table::dcast(data = biorepliaggregated,
-                        Proteins + Feature ~ BioReplicate,
-                        value.var = "Intensity")
-    precordfBioreplicas <-
-      evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
-    Mbioreplicas <-
-      cor(precordfBioreplicas, use = "pairwise.complete.obs")
+    evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
+                                                           Proteins + Feature ~ BioReplicate,
+                                                           value.var = "Intensity")
+    precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
+    Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
     theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
     
-    if(verbose) message("---- By Biological replicates ")
+    if(verbose) message("---- by Biological replicates ")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
     if(printPDF) pdf(matrixCorrelationBioreplicas, width = 20, height = 20)
@@ -452,7 +440,7 @@ The experiments supported are: ",
     
     theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
     
-    if(verbose) message("---- By Conditions ")
+    if(verbose) message("---- by Conditions ")
     matrixCorrelationCond <-
       paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
     if(printPDF) pdf(matrixCorrelationCond)
@@ -487,7 +475,7 @@ The experiments supported are: ",
   
   if(plotINTMISC){
     # DETAILS
-    if(verbose) message("-- Generating intensity stats plots")
+    if(verbose) message("-- Plot: intensity stats")
     if (prot_exp == "APMS" | prot_exp == "AB") {
       ekselect <- evidencekeysclean[c('Feature',
                                       'Proteins',
@@ -695,8 +683,7 @@ The experiments supported are: ",
         legend.position = "none"
       ) +
       labs(x = "BioReplicate", y = "log2(Intensity)") +
-      ggtitle("Protein Intensity in BioReplicates\nExcluding contaminants. 
-              Max intensity of TR")
+      ggtitle("Protein Intensity in BioReplicates (Excluding contaminants)")
     
     pisf <-
       ggplot(ekselectaBioreplica2plot,
@@ -713,8 +700,7 @@ The experiments supported are: ",
         legend.position = "none"
       ) +
       labs(x = "Condition", y = "log2(Intensity)") +
-      ggtitle("Protein Intensity in Conditions\nExcluding contaminants. 
-              Max intensity of TR")
+      ggtitle("Protein Intensity in Conditions (Excluding contaminants)")
     
     pisg <- ggplot(ekselectaBioreplica) +
       theme(axis.text.x = element_text(
@@ -730,8 +716,7 @@ The experiments supported are: ",
         fill = "black",
         colour = "orange"
       ) +
-      ggtitle("Total Intensity in Biological Replicas\nExcluding contaminants. 
-              Max intensity of TR")
+      ggtitle("Total Intensity in Biological Replicas (Excluding contaminants)")
     
     pish <- ggplot(ekselectaBioreplica) +
       theme(axis.text.x = element_text(
@@ -747,8 +732,7 @@ The experiments supported are: ",
         fill = "black",
         colour = "green"
       ) +
-      ggtitle("Total Intensity in Conditions Excluding contaminants. 
-              Max intensity of TR")
+      ggtitle("Total Intensity in Conditions (Excluding contaminants)")
     
     pisi <- ggplot(cd, aes(x = TR, fill = Condition)) +
       geom_bar(stat = "count") +
@@ -766,7 +750,7 @@ The experiments supported are: ",
         vjust = -0.5,
         size = 2.7
       ) +
-      ggtitle("Unique Features in Technical Replicas")
+      ggtitle("Unique IDs in Technical Replicas")
     
     pisj <- ggplot(bb, aes(x = BioReplicate, fill = Condition)) +
       geom_bar(stat = "count") +
@@ -784,7 +768,7 @@ The experiments supported are: ",
         vjust = -0.5,
         size = 2.7
       ) +
-      ggtitle("Unique Features in Biological Replicas")
+      ggtitle("Unique IDs in Biological Replicas")
     
     pisk <- ggplot(b, aes(x = Condition, fill = Condition)) +
       geom_bar(stat = "count") +
@@ -802,9 +786,9 @@ The experiments supported are: ",
         vjust = -0.5,
         size = 2.7
       ) +
-      ggtitle("Unique Features in Condition")
+      ggtitle("Unique IDs in Condition")
     
-    if(verbose) message("--- ", prot_exp, " PROCESSED ")
+    if(verbose) message("---- ", prot_exp, " PROCESSED ")
     reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
     
     if(printPDF) pdf(reproName)
@@ -824,83 +808,81 @@ The experiments supported are: ",
   
   if(plotPTMSTATS){
     if (prot_exp == "PH" | prot_exp == "UB") {
-      if(verbose) message("-- Generating PTM ", prot_exp, " stats")
+      if(verbose) message("-- Plot: PTM ", prot_exp, " stats")
       modName <- paste0(output_name, "qcplot.ptmStats.pdf")
       
-      x <-
-        ggplot(evidencekeys, aes(x = BioReplicate, fill = MODIFICATION))
-      x <-
-        x + geom_bar(stat = "count",
-                     position = position_dodge(width = 0.7),
-                     width = 0.7)
+      x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = MODIFICATION))
+      x <- x + geom_bar(stat = "count",
+                        position = position_dodge(width = 0.7),
+                        width = 0.7)
+        
       x <- x + theme_minimal()
-      x <-
-        x + theme(
-          axis.text.x = element_text(
-            angle = 90,
-            hjust = 1,
-            vjust = 0.5
-          ),
-          legend.title = element_blank()
-        )
+      x <- x + theme(
+        axis.text.x = element_text(
+          angle = 90,
+          hjust = 1,
+          vjust = 0.5
+        ),
+        legend.title = element_blank()
+      )
       x <- x + ggtitle("Peptide Count in Biological Replicas")
       
-      y <-
-        ggplot(evidencekeys, aes(x = Condition, fill = MODIFICATION))
-      y <-
-        y + geom_bar(stat = "count",
-                     position = position_dodge(width = 0.7),
-                     width = 0.7)
+      y <- ggplot(evidencekeys, aes(x = Condition, fill = MODIFICATION))
+        
+      y <- y + geom_bar(stat = "count",
+                        position = position_dodge(width = 0.7),
+                        width = 0.7)
+
       y <- y + theme_minimal()
-      y <-
-        y + theme(
-          axis.text.x = element_text(
-            angle = 90,
-            hjust = 1,
-            vjust = 0.5
-          ),
-          legend.title = element_blank()
-        )
+      y <- y + theme(
+        axis.text.x = element_text(
+          angle = 90,
+          hjust = 1,
+          vjust = 0.5
+        ),
+        legend.title = element_blank()
+      )
+        
       y <- y + ggtitle("Peptide Count in Conditions")
       
-      u <-
-        ggplot(evidencekeys,
-               aes(x = BioReplicate, y = Intensity, fill = MODIFICATION))
-      u <-
-        u + geom_bar(stat = "identity",
-                     position = position_dodge(width = 0.7),
-                     width = 0.7)
+      u <- ggplot(evidencekeys,
+                  aes(x = BioReplicate, y = Intensity, fill = MODIFICATION))
+        
+      u <- u + geom_bar(stat = "identity",
+                        position = position_dodge(width = 0.7),
+                        width = 0.7)
+        
       u <- u + theme_minimal()
-      u <-
-        u + theme(
-          axis.text.x = element_text(
-            angle = 90,
-            hjust = 1,
-            vjust = 0.5
-          ),
-          legend.title = element_blank()
-        )
-      u <-
-        u + ggtitle("Total Peptide Intensity in Biological Replicas")
+      u <- u + theme(
+        axis.text.x = element_text(
+          angle = 90,
+          hjust = 1,
+          vjust = 0.5
+        ),
+        legend.title = element_blank()
+      )
+        
+      u <- u + ggtitle("Total Peptide Intensity in Biological Replicas")
+
       u <- u + scale_fill_brewer(palette = "Paired")
       
-      z <-
-        ggplot(evidencekeys,
-               aes(x = Condition, y = Intensity, fill = MODIFICATION))
-      z <-
-        z + geom_bar(stat = "identity",
-                     position = position_dodge(width = 0.7),
-                     width = 0.7)
+      z <- ggplot(evidencekeys,
+                  aes(x = Condition, y = Intensity, fill = MODIFICATION))
+        
+      z <- z + geom_bar(stat = "identity",
+                        position = position_dodge(width = 0.7),
+                        width = 0.7)
+        
       z <- z + theme_minimal()
-      z <-
-        z + theme(
-          axis.text.x = element_text(
-            angle = 90,
-            hjust = 1,
-            vjust = 0.5
-          ),
-          legend.title = element_blank()
-        )
+      z <- z + theme(
+        axis.text.x = element_text(
+          angle = 90,
+          hjust = 1,
+          vjust = 0.5
+        ),
+        legend.title = element_blank()
+      )
+        
       z <- z + ggtitle("Total Peptide Intensity in Conditions")
       z <- z + scale_fill_brewer(palette = "Paired")
       
@@ -913,9 +895,8 @@ The experiments supported are: ",
       if(printPDF) garbage <- dev.off()
     }
   } #plotPTMSTATS
-
   
-  if(verbose) message("-- Basic quality control analysis completed!")
+  if(verbose) message("<< Basic quality control analysis completed!")
 }
 
 

@@ -201,10 +201,9 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
 #' ef <- artmsFilterEvidenceContaminants(x = artms_data_ph_evidence)
 #' @export
 artmsFilterEvidenceContaminants <- function(x,
-                                             verbose = TRUE) {
+                                            verbose = TRUE) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
-  data_selected <-
-    x[grep("CON__|REV__", x$Proteins, invert = TRUE), ]
+  data_selected <- x[grep("CON__|REV__", x$Proteins, invert = TRUE), ]
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)

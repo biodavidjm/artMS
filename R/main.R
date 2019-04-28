@@ -243,12 +243,31 @@ artmsQuantification <- function(yaml_config_file,
   }
   
   if (config$qc$extended) {
-    artmsQualityControlEvidenceExtended  (
-      evidence_file = config$files$evidence,
-      keys_file = config$files$keys)
+    artmsQualityControlEvidenceExtended(evidence_file = config$files$evidence,
+                                        keys_file = config$files$keys)
   }else{
-    if(verbose) message("-- No QC extended selected")
+    if(verbose) message("-- No evidence-extended QC selected")
   }
+  
+  if(!is.null(config$qc$extendedSummary)){
+    if (config$qc$extendedSummary) {
+      if(!is.null(config$files$summary)){
+        if(file.exists(config$files$summary)){
+          artmsQualityControlSummaryExtended(summary_file = config$files$summary,
+                                              keys_file = config$files$keys)
+        }else{
+          message("\n\tWARNING:  The file ", config$files$summary, " does not exist! ")
+          message("\tQC report based on summary.txt won't be performed\n")
+        }
+      }else{
+        message("\n\tWARNING: QC Summary-based selected but file path/name not provided. Skiped\n")
+      }
+      
+    }else{
+      if(verbose) message("-- No summary-based QC selected")
+    }
+  }
+  
   
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
@@ -419,9 +438,8 @@ artmsQuantification <- function(yaml_config_file,
 #' @examples 
 #' config_empty <- artmsWriteConfigYamlFile(config_file_name = NULL)
 #' @export
-artmsWriteConfigYamlFile <- function(
-  config_file_name = "artms_config_file.yaml",
-  verbose = TRUE){
+artmsWriteConfigYamlFile <- function(config_file_name = "artms_config_file.yaml",
+                                     verbose = TRUE){
   
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){

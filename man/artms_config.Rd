@@ -11,6 +11,7 @@
 \item \code{evidence} : /path/to/the/evidence.txt
 \item \code{keys} : /path/to/the/keys.txt
 \item \code{contrasts} : /path/to/the/contrast.txt
+\item \code{summary} : /path/to/the/summary.txt
 \item \code{output} : /path/to/the/output/results/results.txt}
 }
 
@@ -18,6 +19,7 @@
 \itemize{
 \item basic: 1 # 1 = yes; 0 = no
 \item extended: 1 # 1 = yes; 0 = no
+\item extendedSummary: 0 # 1 = yes; 0 = no
 }
 }
 

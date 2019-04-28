@@ -127,8 +127,12 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                  plotSP = TRUE,
                                                  printPDF = TRUE,
                                                  verbose = TRUE) {
-  if(verbose)
-    message(">> EXTENDED QUALITY CONTROL ANALYSIS (evidence.txt based)")
+  
+  if(verbose){
+    message("---------------------------------------------")
+    message("artMS: EXTENDED QUALITY CONTROL (-evidence.txt based)")
+    message("---------------------------------------------")
+  }
   
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")

@@ -2,10 +2,12 @@ files :
   evidence : /path/to/the/evidence.txt
   keys : /path/to/the/keys.txt
   contrasts : /path/to/the/contrast.txt
-  output : /path/to/the/output/results/results.txt
+  summary: /path/to/the/summary.txt # Optional
+  output : /path/to/the/output/results/results.txt # The folder must exist
 qc:
   basic: 1 # 1 = yes; 0 = no
   extended: 1 # 1 = yes; 0 = no
+  extendedSummary: 0 # 1 = yes; 0 = no; Requires the summary file
 data:
   enabled : 1 # 1 = yes; 0 = no
   fractions: 

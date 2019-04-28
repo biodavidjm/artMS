@@ -1,3 +1,10 @@
+Changes in version v1.1.16 (2019-04-27)
+
++ The configuration file also includes the option to activate quality control 
+based on the summary.txt file 
++ Improve messages to the user
+
+
 Changes in version v1.1.15 (2019-04-24)
 
 + artMS detects RefSeq IDs. It does not support yet enrichments and annotations

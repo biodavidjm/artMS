@@ -10,11 +10,13 @@
 #' - `evidence` : /path/to/the/evidence.txt
 #' - `keys` : /path/to/the/keys.txt
 #' - `contrasts` : /path/to/the/contrast.txt
+#' - `summary` : /path/to/the/summary.txt
 #' - `output` : /path/to/the/output/results/results.txt}
 #' 
 #' \item{qc}{
 #' - basic: 1 # 1 = yes; 0 = no
 #' - extended: 1 # 1 = yes; 0 = no
+#' - extendedSummary: 0 # 1 = yes; 0 = no
 #' }
 #' 
 #' \item{data}{
