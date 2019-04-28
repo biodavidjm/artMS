@@ -49,7 +49,11 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                                                 plotMSMS = TRUE,
                                                 plotISOTOPE = TRUE,
                                                 verbose = TRUE) {
-  if(verbose) message("EXTENDED QUALITY CONTROL ANALYSIS (summary.txt based)--------------- ")
+  if(verbose){
+    message("---------------------------------------------")
+    message("artMS: EXTENDED QUALITY CONTROL (-summary.txt based)")
+    message("---------------------------------------------")
+  }
   
   if (is.null(summary_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
@@ -60,10 +64,10 @@ artmsQualityControlSummaryExtended <- function(summary_file,
          Please, check the help of this function to find out more")
   
   # Getting data ready
-  summarykeys <-
-    artmsMergeEvidenceAndKeys(summary_file, keys_file,
-                               isSummary = TRUE,
-                               verbose = verbose)
+  summarykeys <- artmsMergeEvidenceAndKeys(summary_file, keys_file,
+                                           isSummary = TRUE,
+                                           verbose = verbose)
+    
   colnames(summarykeys) <- tolower(colnames(summarykeys))
   
   if ("fraction" %in% colnames(summarykeys)) {
@@ -147,9 +151,9 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
-    if(verbose) message("--- Plot NUMBER OF MS1 SCANS", appendLF = FALSE)
+    if(verbose) message("--- Plot Number of MS1 scans", appendLF = FALSE)
     pdf(
-      'QC_Plots_summary_MS1SCANS.pdf',
+      'QCSummary_MS1SCANS.pdf',
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -251,7 +255,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotMS2) {
     if(verbose) message("--- Plot Number of MS2 scans", appendLF = FALSE)
     pdf(
-      'QC_Plots_summary_MS2.pdf',
+      'QCSummary_MS2.pdf',
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -344,15 +348,14 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(bc)
     }
     
-    summarykeys.scans <- melt(summarykeys[, seq_len(4)], 
+    summarykeys.scans <- melt(summarykeys[, 1:4], 
                               id.vars = seq_len(2))
-    bd <-
-      ggplot(summarykeys.scans,
-             aes(
-               x = interaction(variable, bioreplicate),
-               y = value,
-               fill = condition
-             )) +
+    bd <-ggplot(summarykeys.scans,
+                aes(
+                  x = interaction(variable, bioreplicate),
+                  y = value,
+                  fill = condition
+                )) +
       geom_bar(stat = "identity", alpha = 0.7) +
       geom_text(
         aes(label = round(value, digits = 0)),
@@ -383,7 +386,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotMSMS) {
     if(verbose) message("--- Plot Number of msms.identification rate", appendLF = FALSE)
     pdf(
-      'QC_Plots_summary_MSMS.pdf',
+      'QCSummary_MSMS.pdf',
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -488,7 +491,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotISOTOPE) {
     if(verbose) message("--- Plot Number of isotope patterns", appendLF = FALSE)
     pdf(
-      'QC_Plots_summary_ISOTOPE.pdf',
+      'QCSummary_ISOTOPE.pdf',
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
