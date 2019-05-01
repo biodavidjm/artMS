@@ -1054,11 +1054,11 @@ artmsPlotHeatmapQuant <- function(input_file,
                                       main = "Correlation between Conditions")
   garbage <- dev.off()
   
-  res.pca <-
-    FactoMineR::PCA(df,
-                    scale.unit = TRUE,
-                    ncp = 4,
-                    graph = FALSE)
+  res.pca <- FactoMineR::PCA(df,
+                             scale.unit = TRUE,
+                             ncp = 4,
+                             graph = FALSE)
+    
   eigenvalues <- res.pca$eig
   
   out.pca01 <- paste0(filename, "-pca01.pdf")

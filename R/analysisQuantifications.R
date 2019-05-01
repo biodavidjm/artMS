@@ -1457,8 +1457,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         
         # PCA AND CORRELATION ANALYSIS
         if(verbose) message("--- Correlation plots ")
-        df.cor.matrix <-
-          round(cor(venga, use = "pairwise.complete.obs"), 2)
+        df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
         file_corr_l2fc <- gsub(".txt", ".log2fc-corr.pdf", log2fc_file)
         file_corr_l2fc <- paste0(output_dir, "/", file_corr_l2fc)
         pdf(file_corr_l2fc, width = 12, height = 9)
@@ -1543,8 +1542,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         pam.res <- pam(vamos, k = n)
         
         cp1 <- factoextra::fviz_cluster(pam.res)
-        cp2 <-
-          factoextra::fviz_silhouette(pam.res, print.summary = FALSE)
+        cp2 <- factoextra::fviz_silhouette(pam.res, print.summary = FALSE)
         
         if(verbose) message("--- Plots to determine optimal number of clusters ")
         file_clusterplots_l2fc <-

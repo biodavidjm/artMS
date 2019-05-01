@@ -147,10 +147,10 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   
   # ----------------------------------------------------------------------------
   # DATA PREPARATION
-  evidencekeys <-
-    artmsMergeEvidenceAndKeys(evidence_file, 
-                               keys_file,
-                               verbose = verbose)
+  evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
+                                            keys_file,
+                                            verbose = verbose)
+    
   colnames(evidencekeys) <- tolower(colnames(evidencekeys))
   
   if (any(grepl("+", evidencekeys$reverse))) {
@@ -211,84 +211,68 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     )
   }
   
-  evidence3 <-
-    plyr::ddply(
-      evidence2,
-      c("condition", "potential.contaminant"),
-      plyr::summarise,
-      PSMs.mean = mean(PSMs),
-      PSMs.max = max(PSMs),
-      PSMs.min = min(PSMs),
-      PSMs.sem = sd(PSMs) / sqrt(length(PSMs)),
-      Ions.mean = mean(Ions),
-      Ions.max = max(Ions),
-      Ions.min = min(Ions),
-      Ions.sem = sd(Ions) / sqrt(length(Ions)),
-      Peptides.mean = mean(Peptides),
-      Peptides.max = max(Peptides),
-      Peptides.min = min(Peptides),
-      Peptides.sem = sd(Peptides) / sqrt(length(Peptides)),
-      Proteins.mean = mean(Proteins),
-      Proteins.max = max(Proteins),
-      Proteins.min = min(Proteins),
-      Proteins.sem = sd(Proteins) / sqrt(length(Proteins)),
-      Intensity.mean = mean(Intensity),
-      Intensity.max = max(Intensity),
-      Intensity.min = min(Intensity),
-      Intensity.sem = sd(Intensity) / sqrt(length(Intensity)),
-      PeakWidth.mean.mean = mean(PeakWidth.mean),
-      PeakWidth.mean.max = max(PeakWidth.mean),
-      PeakWidth.mean.min = min(PeakWidth.mean),
-      PeakWidth.mean.sem = sd(PeakWidth.mean) / sqrt(length(PeakWidth.mean))
-    )
-  
+  evidence3 <- plyr::ddply(evidence2,
+                           c("condition", "potential.contaminant"),
+                           plyr::summarise,
+                           PSMs.mean = mean(PSMs),
+                           PSMs.max = max(PSMs),
+                           PSMs.min = min(PSMs),
+                           PSMs.sem = sd(PSMs) / sqrt(length(PSMs)),
+                           Ions.mean = mean(Ions),
+                           Ions.max = max(Ions),
+                           Ions.min = min(Ions),
+                           Ions.sem = sd(Ions) / sqrt(length(Ions)),
+                           Peptides.mean = mean(Peptides),
+                           Peptides.max = max(Peptides),
+                           Peptides.min = min(Peptides),
+                           Peptides.sem = sd(Peptides) / sqrt(length(Peptides)),
+                           Proteins.mean = mean(Proteins),
+                           Proteins.max = max(Proteins),
+                           Proteins.min = min(Proteins),
+                           Proteins.sem = sd(Proteins) / sqrt(length(Proteins)),
+                           Intensity.mean = mean(Intensity),
+                           Intensity.max = max(Intensity),
+                           Intensity.min = min(Intensity),
+                           Intensity.sem = sd(Intensity) / sqrt(length(Intensity)),
+                           PeakWidth.mean.mean = mean(PeakWidth.mean),
+                           PeakWidth.mean.max = max(PeakWidth.mean),
+                           PeakWidth.mean.min = min(PeakWidth.mean),
+                           PeakWidth.mean.sem = sd(PeakWidth.mean) / sqrt(length(PeakWidth.mean))
+                           )
+    
   
   # - Oversampling
   ## Oversampling is calculated for peptides identified by MS/MS and detected
   ## in MS1 (i.e., peptides with intensity calculated)
-  oversampling0 <-
-    evidencekeys.dt[, .N, by = list(ms.ms.count, bioreplicate)]
-  oversampling0$MSMS.counts <-
-    findInterval(oversampling0$ms.ms.count, seq(1, 3, by = 1))
-  oversampling0 <-
-    oversampling0[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
-  oversampling0$MSMS.counts <-
-    paste("n=", oversampling0$MSMS.counts, sep = "")
-  oversampling0$MSMS.counts <-
-    gsub("n=3", "n=3+", oversampling0$MSMS.counts)
-  oversampling0.total <-
-    evidencekeys.dt[, .N, by = list(bioreplicate)]
-  oversampling0 <-
-    merge(oversampling0,
-          oversampling0.total,
-          by = "bioreplicate",
-          all = TRUE)
-  oversampling0$FxOverSamp <-
-    as.numeric(format(100 * (oversampling0$N.x / oversampling0$N.y), digits = 3))
+  oversampling0 <- evidencekeys.dt[, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling0$MSMS.counts <- findInterval(oversampling0$ms.ms.count, seq(1, 3, by = 1))
+  oversampling0 <- oversampling0[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
+  oversampling0$MSMS.counts <- paste("n=", oversampling0$MSMS.counts, sep = "")
+  oversampling0$MSMS.counts <- gsub("n=3", "n=3+", oversampling0$MSMS.counts)
+  oversampling0.total <- evidencekeys.dt[, .N, by = list(bioreplicate)]
+  oversampling0 <- merge(oversampling0,
+                         oversampling0.total,
+                         by = "bioreplicate",
+                         all = TRUE)
+    
+  oversampling0$FxOverSamp <- as.numeric(format(100 * (oversampling0$N.x / oversampling0$N.y), digits = 3))
   
-  oversampling1 <-
-    evidencekeys.dt[intensity > 0, .N, by = list(ms.ms.count, bioreplicate)]
-  oversampling1$MSMS.counts <-
-    findInterval(oversampling1$ms.ms.count, seq(1, 3, by = 1))
-  oversampling1 <-
-    oversampling1[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
-  oversampling1$MSMS.counts <-
-    paste("n=", oversampling1$MSMS.counts, sep = "")
-  oversampling1$MSMS.counts <-
-    gsub("n=3", "n=3+", oversampling1$MSMS.counts)
-  oversampling1.total <-
-    evidencekeys.dt[intensity > 0, .N, by = list(bioreplicate)]
-  oversampling1 <-
-    merge(oversampling1,
-          oversampling1.total,
-          by = "bioreplicate",
-          all = TRUE)
-  oversampling1$FxOverSamp <-
-    as.numeric(format(100 * (oversampling1$N.x / oversampling1$N.y), digits = 3))
+  oversampling1 <- evidencekeys.dt[intensity > 0, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling1$MSMS.counts <- findInterval(oversampling1$ms.ms.count, seq(1, 3, by = 1))
+  oversampling1 <- oversampling1[, list(N = sum(N)), by = list(MSMS.counts, bioreplicate)]
+  oversampling1$MSMS.counts <- paste("n=", oversampling1$MSMS.counts, sep = "")
+  oversampling1$MSMS.counts <- gsub("n=3", "n=3+", oversampling1$MSMS.counts)
+  oversampling1.total <- evidencekeys.dt[intensity > 0, .N, by = list(bioreplicate)]
+  oversampling1 <- merge(oversampling1,
+                         oversampling1.total,
+                         by = "bioreplicate",
+                         all = TRUE)
+    
+  oversampling1$FxOverSamp <- as.numeric(format(100 * (oversampling1$N.x / oversampling1$N.y), digits = 3))
   
-  oversampling2 <-
-    evidencekeys.dt[intensity > 0 &
-                      ms.ms.count > 0, .N, by = list(ms.ms.count, bioreplicate)]
+  oversampling2 <- evidencekeys.dt[intensity > 0 &
+                                     ms.ms.count > 0, .N, by = list(ms.ms.count, bioreplicate)]
+    
   oversampling2$MSMS.counts <-
     findInterval(oversampling2$ms.ms.count, seq(1, 3, by = 1))
   oversampling2 <-
