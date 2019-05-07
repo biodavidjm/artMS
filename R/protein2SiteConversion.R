@@ -71,12 +71,6 @@ artmsProtein2SiteConversion <- function (evidence_file,
                                          overwrite_evidence = FALSE,
                                          verbose = TRUE) {
   
-  # GLOBAL VARIABLE
-  everything <- NULL 
-  # From the dplyr package. R has a problem seeing 
-  # this option of dplyr as just an option
-  
-  
   if(is.null(evidence_file) & 
      is.null(ref_proteome_file) & 
      is.null(output_file)){

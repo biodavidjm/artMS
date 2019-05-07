@@ -5,7 +5,7 @@
 #' @importFrom cluster pam
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
-#' @importFrom dplyr mutate desc count arrange desc
+#' @importFrom dplyr mutate desc count arrange desc everything
 #' @rawNamespace import(data.table, except = c(melt))
 #' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
