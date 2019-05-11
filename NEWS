@@ -1,3 +1,8 @@
+New version 1.2.2 (2019-05-11)
+
++ Fix: add PH check for new maxquant versions in basic QC plot function
++ New function to add error bars in plots
+
 New version 1.2.1 (2019-05-07)
 
 + Fix artmsProtein2SiteConversion package dependency

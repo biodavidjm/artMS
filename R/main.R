@@ -28,12 +28,12 @@
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
 #' rename, summarise, select, add_heatmap))
-#' @importFrom plyr ddply summarise
+#' @importFrom plyr ddply summarise rename
 #' @import RColorBrewer
 #' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
-#' kmeans median order.dendrogram phyper as.dist complete.cases
+#' kmeans median order.dendrogram phyper as.dist complete.cases qt
 #' @import stringr
 #' @importFrom tidyr unnest
 #' @import UpSetR
