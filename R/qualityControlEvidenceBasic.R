@@ -109,19 +109,17 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                              keys_file,
                                              verbose = verbose)
   
-  ekselecta <-
-    aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
-              data = evidencekeys,
-              FUN = sum)
-  ekselectaBioreplica <-
-    aggregate(Intensity ~ Proteins + Condition + BioReplicate,
-              data = ekselecta,
-              FUN = sum)
+  ekselecta <- aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
+                         data = evidencekeys,
+                         FUN = sum)
+  
+  ekselectaBioreplica <- aggregate(Intensity ~ Proteins + Condition + BioReplicate,
+                                   data = ekselecta,
+                                   FUN = sum)
   
   # Checking the overall distribution of intensities before anything else
   # Based on Intensity
-  ekselectaBioreplica$Abundance <-
-    log2(ekselectaBioreplica$Intensity)
+  ekselectaBioreplica$Abundance <- log2(ekselectaBioreplica$Intensity)
   
   if(plotINTDIST){
     if(verbose) message("-- Plot: intensity distribution")
@@ -152,6 +150,20 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     if(printPDF) garbage <- dev.off()
   }
 
+  if (prot_exp == "PH") {
+    if( length(grep("(ph)", evidencekeys$Modified.sequence) ) < 100){
+      message("\n____________________________________________________________")
+      message("| WARNING: ")
+      message("| The version of MaxQuant that generated this evidence file")
+      message("| introduced changes in the <Modified Sequence> column that requires some changes.")
+      message("| Basically, the phosphorylation site is indicated as 'XXXpSXXX' instead of 'XXXS(ph)XXX> as before.")
+      message("| Next: Applyng changes to return to the previous version")
+      message("____________________________________________________________\n")
+      evidencekeys$Modified.sequence <- gsub("pS", "S(ph)", evidencekeys$Modified.sequence)
+      evidencekeys$Modified.sequence <- gsub("pT", "T(ph)", evidencekeys$Modified.sequence)
+      evidencekeys$Modified.sequence <- gsub("pY", "Y(ph)", evidencekeys$Modified.sequence)
+    }
+  }
   
   # Feature generation: Combine Sequence and Charge.
   evidencekeys$Feature <- paste0(evidencekeys$Modified.sequence, 
@@ -183,34 +195,26 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       )
   }
   
-  evigeneral <-
-    evidencekeys[c(
-      'Feature',
-      'Proteins',
-      'Leading.proteins',
-      'Intensity',
-      'Condition',
-      'BioReplicate',
-      'Run'
-    )]
+  evigeneral <- evidencekeys[c('Feature',
+                               'Proteins',
+                               'Leading.proteins',
+                               'Intensity',
+                               'Condition',
+                               'BioReplicate',
+                               'Run')]
+    
   
   # Now let's classify the proteins as contaminants and no contaminants
-  evigeneral$Contaminant <-
-    ifelse(
-      grepl("CON_|REV_", evigeneral$Leading.proteins),
-      ifelse(grepl("REV_", evigeneral$Leading.proteins), "REV", "CON"),
-      "PROT"
-    )
+  evigeneral$Contaminant <- ifelse(grepl("CON_|REV_", evigeneral$Leading.proteins),
+                                   ifelse(grepl("REV_", evigeneral$Leading.proteins), "REV", "CON"),
+                                   "PROT")
   
   # AGGREGATE ALL THE INTENSITIES PER PROTEIN, summing everything up
   evigeneral$Intensity <- as.numeric(evigeneral$Intensity)
   
-  evisummary <-
-    aggregate(
-      Intensity ~ Condition + BioReplicate + Contaminant + Run,
-      data = evigeneral,
-      FUN = sum
-    )
+  evisummary <- aggregate(Intensity ~ Condition + BioReplicate + Contaminant + Run,
+                          data = evigeneral,
+                          FUN = sum)
   
   # CLEANING THE EVIDENCE OF CONTAMINANTS
   evidencekeysclean <- artmsFilterEvidenceContaminants(x = evidencekeys, 
@@ -230,26 +234,23 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     evidencekeysclean <-
       evidencekeysclean[grep("(gl)", evidencekeysclean$Modified.sequence), ]
   } else if (prot_exp == "PH") {
-    evidencekeysclean <-
-      evidencekeysclean[c(
-        'Feature',
-        'Modified.sequence',
-        'Proteins',
-        'Intensity',
-        'Condition',
-        'BioReplicate',
-        'Run'
-      )]
-    evidencekeysclean <-
-      evidencekeysclean[grep("(ph)", evidencekeysclean$Modified.sequence), ]
+    evidencekeysclean <- evidencekeysclean[c(
+      'Feature',
+      'Modified.sequence',
+      'Proteins',
+      'Intensity',
+      'Condition',
+      'BioReplicate',
+      'Run'
+    )]
+    evidencekeysclean <- evidencekeysclean[grep("(ph)", evidencekeysclean$Modified.sequence),]
   }
   
   if(plotREPRO){
     if(verbose) message("-- Plot: Reproducibility scatter plots")
     seqReproName <-
       paste0(output_name, ".qcplot.basicReproducibility.pdf")
-    
-    
+
     if(printPDF) pdf(seqReproName)
       .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
     if(printPDF) garbage <- dev.off()
@@ -288,8 +289,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       Mtechnicalrep <-
         cor(precordfBioreplicas, use = "pairwise.complete.obs")
       
-      theTechCorDis <-
-        .artms_plotCorrelationDistribution(Mtechnicalrep)
+      theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
       
       # And now for clustering
       if(verbose) message("---- by Technical replicates ")
@@ -484,18 +484,18 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                       'BioReplicate',
                                       'Run')]
       # Aggregate the technical replicas
-      ekselecta <-
-        aggregate(
-          Intensity ~ Proteins + Condition + BioReplicate + Run,
-          data = ekselect,
-          FUN = sum
-        )
-      ekselectaBioreplica <-
-        aggregate(
-          Intensity ~ Proteins + Condition + BioReplicate + Run,
-          data = ekselecta,
-          FUN = sum
-        )
+      ekselecta <- aggregate(
+        Intensity ~ Proteins + Condition + BioReplicate + Run,
+        data = ekselect,
+        FUN = sum
+      )
+        
+      ekselectaBioreplica <- aggregate(
+        Intensity ~ Proteins + Condition + BioReplicate + Run,
+        data = ekselecta,
+        FUN = sum
+      )
+        
       # Select Unique number of proteins per Condition
       ac <- ekselecta[c('Proteins', 'Condition')]
       b <- unique(ac)
@@ -550,56 +550,52 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                "ub",
                "other")
     } else if (prot_exp == "PH") {
-      ekselectall <-
-        evidencekeysclean[c(
-          'Feature',
-          'Modified.sequence',
-          'Proteins',
-          'Intensity',
-          'Condition',
-          'BioReplicate',
-          'Run'
-        )]
-      ekselectgly <-
-        ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
+      ekselectall <- evidencekeysclean[c(
+        'Feature',
+        'Modified.sequence',
+        'Proteins',
+        'Intensity',
+        'Condition',
+        'BioReplicate',
+        'Run'
+      )]
+        
+      ekselectgly <- ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
+        
       # SUM UP all the peptide intensities for all the proteins: 
       # only one intensity value per protein and biological data
-      ekselectaBioreplica <-
-        aggregate(
-          Intensity ~ Proteins + Condition + BioReplicate + Run,
-          data = ekselectgly,
-          FUN = sum
-        )
+      ekselectaBioreplica <- aggregate(
+        Intensity ~ Proteins + Condition + BioReplicate + Run,
+        data = ekselectgly,
+        FUN = sum
+      )
+        
       # Select Unique number of proteins per Condition
       ac <- ekselectaBioreplica[c('Proteins', 'Condition')]
       b <- unique(ac)
       # Select Unique number of proteins per Biological Replica
-      bc <-
-        ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate')]
+      bc <- ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate')]
       bb <- unique(bc)
       # Select unique number of proteins in Technical Replicates
-      cc <-
-        ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate', 'Run')]
-      cc$TR <-
-        paste0(ekselectaBioreplica$BioReplicate,
-               "_",
-               ekselectaBioreplica$Run)
+      cc <- ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate', 'Run')]
+      cc$TR <- paste0(ekselectaBioreplica$BioReplicate,
+                      "_",
+                      ekselectaBioreplica$Run)
       ccc <- cc[c('Proteins', 'Condition', 'TR')]
       cd <- unique(ccc)
       
       # Check the total number of modified and non-modified residues to plot
-      evidencekeys$MODIFICATION <-
-        ifelse(grepl("(ph)", evidencekeys$Modified.sequence),
-               "ph",
-               "other")
+      evidencekeys$MODIFICATION <- ifelse(grepl("(ph)", evidencekeys$Modified.sequence),
+                                          "ph",
+                                          "other")
+        
     } else {
       stop("Proteomics experiment not recognized ")
     }
     
     #QC: SUM of intensities per biological replica (peptides vs contaminant)
-    pisa <-
-      ggplot(evisummary,
-             aes(x = BioReplicate, y = Intensity, fill = Contaminant)) +
+    pisa <- ggplot(evisummary,
+                   aes(x = BioReplicate, y = Intensity, fill = Contaminant)) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 0.7),
                width = 0.7) +
@@ -612,6 +608,22 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       legend.title = element_blank()) +
       ggtitle("QC: Total Sum of Intensities in BioReplicates") +
       scale_fill_brewer(palette = "Paired")
+    
+    pisalog <- ggplot(evisummary,
+                   aes(x = BioReplicate, y = log2(Intensity), fill = Contaminant)) +
+      geom_bar(stat = "identity",
+               position = position_dodge(width = 0.7),
+               width = 0.7) +
+      theme_minimal() +
+      theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        vjust = 0.5
+      ),
+      legend.title = element_blank()) +
+      ggtitle("QC: Total Sum of Intensities in BioReplicates") +
+      scale_fill_brewer(palette = "Paired")
+      
     
     #QC: SUM of intensities per condition (peptides vs contaminant)
     pisb <-
@@ -793,6 +805,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     
     if(printPDF) pdf(reproName)
     print(pisa)
+    print(pisalog)
     print(pisb)
     print(pisc)
     print(pisd)
