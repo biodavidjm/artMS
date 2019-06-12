@@ -5,12 +5,12 @@
 \title{Extended Quality Control of the MaxQuant evidence.txt file}
 \usage{
 artmsQualityControlEvidenceExtended(evidence_file, keys_file,
-  plotPSM = TRUE, plotIONS = TRUE, plotTYPE = TRUE,
-  plotPEPTIDES = TRUE, plotPROTEINS = TRUE, plotPIO = TRUE,
-  plotCS = TRUE, plotME = TRUE, plotMOCD = TRUE, plotPEPICV = TRUE,
-  plotPEPDETECT = TRUE, plotPROTICV = TRUE, plotPROTDETECT = TRUE,
-  plotIDoverlap = TRUE, plotIC = TRUE, plotSP = TRUE,
-  printPDF = TRUE, verbose = TRUE)
+  isSILAC = FALSE, plotPSM = TRUE, plotIONS = TRUE,
+  plotTYPE = TRUE, plotPEPTIDES = TRUE, plotPROTEINS = TRUE,
+  plotPIO = TRUE, plotCS = TRUE, plotME = TRUE, plotMOCD = TRUE,
+  plotPEPICV = TRUE, plotPEPDETECT = TRUE, plotPROTICV = TRUE,
+  plotPROTDETECT = TRUE, plotIDoverlap = TRUE, plotIC = TRUE,
+  plotSP = TRUE, printPDF = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -18,6 +18,8 @@ data.frame}
 
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
+
+\item{isSILAC}{if \code{TRUE} processes SILAC input files. Default is \code{FALSE}}
 
 \item{plotPSM}{(logical) \code{TRUE} generates peptide-spectrum-matches (PSMs)
 statistics plot: Page 1 shows the number of PSMs confidently identified

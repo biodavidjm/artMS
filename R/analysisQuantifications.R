@@ -380,39 +380,45 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       ggplot(dflog2fc, aes(x = log2FC, fill = Label)) +
       geom_histogram(bins = 100,
                      alpha = .4,
-                     col = "black") +
+                     col = "black", 
+                     na.rm = TRUE) +
       labs(title = "Distribution log2FC", x = "log2FC")
     
     plotDFdistAll <- ggplot(dflog2fc, aes(x = log2FC)) +
       geom_histogram(bins = 100,
                      alpha = .4,
-                     col = "black") +
+                     col = "black", 
+                     na.rm = TRUE) +
       labs(title = "Distribution log2FC", x = "log2FC")
     
     plotDFdistiLog <- ggplot(dflog2fc, aes(x = iLog2FC)) +
       geom_histogram(bins = 100,
                      alpha = .4,
-                     col = "black") +
+                     col = "black", 
+                     na.rm = TRUE) +
       labs(title = "Distribution ilog2FC (imputed + nonimputed", x = "iLog2FC")
     
     plotPvalues <-
       ggplot(dflog2fc[is.finite(dflog2fc$pvalue), ], aes(x = pvalue)) +
       geom_histogram(bins = 50,
                      alpha = .4,
-                     col = "black") +
+                     col = "black",
+                     na.rm = TRUE) +
       labs(title = "Distribution p-values", x = "p-values")
     
     plotAdjustedPvalues <-
       ggplot(dflog2fc[-which(dflog2fc$adj.pvalue == 0), ], aes(x = adj.pvalue)) +
       geom_histogram(bins = 150,
                      alpha = .4,
-                     col = "black") +
+                     col = "black",
+                     na.rm = TRUE) +
       labs(title = "Distribution adj.pvalues", x = "adj.values")
     
     plotAdjustedIpvalues <- ggplot(dflog2fc, aes(x = iPvalue)) +
       geom_histogram(bins = 150,
                      alpha = .4,
-                     col = "black") +
+                     col = "black",
+                     na.rm = TRUE) +
       labs(title = "Distribution imputed p-values", x = "iPvalues")
     
     
@@ -809,12 +815,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                           ymin = ymin,
                           xmax = 4,
                           xmin = 3)) +
-      geom_rect() +
+      geom_rect(na.rm = TRUE) +
       coord_polar(theta = "y") +
       xlim(c(0, 4)) +
       labs(title = "Proportion of Imputed Intensity values")
     p2 <- ggplot(dat, aes(x = category, y = count, fill = category)) +
-      geom_bar(stat = "identity") +
+      geom_bar(stat = "identity",
+               na.rm = TRUE) +
       labs(title = "Proportion of Imputed Intensity values")
     
     outImputation <- gsub(".txt", ".imputation.pdf", log2fc_file)
@@ -1297,13 +1304,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
             colour = Species
           )
         ) #superunifiedfiltered %>% arrange(Species)
-      j <- j + geom_jitter(width = 0.3)
+      j <- j + geom_jitter(width = 0.3, na.rm = TRUE)
       j <- j + scale_colour_manual(values = c("red", "lightblue"))
     } else if (species == "mouse") {
       j <-
         ggplot(superunifiedfiltered %>% arrange(Species),
                aes(Condition, AbMean))
-      j <- j + geom_jitter(aes(colour = Species), width = 0.3)
+      j <- j + geom_jitter(aes(colour = Species), width = 0.3, na.rm = TRUE)
       j <- j + scale_colour_manual(values = c("azure3", "red"))
     }
     j <- j + theme_minimal()
@@ -2316,7 +2323,8 @@ artmsGeneratePhSiteExtended <- function(df,
   x <- x[c('Protein', 'Comparison')]
   y <- unique(x)
   z <- ggplot(y, aes(x = Comparison, fill = Comparison))
-  z <- z + geom_bar(stat = "count")
+  z <- z + geom_bar(stat = "count",
+                    na.rm = TRUE)
   z <-
     z + theme(axis.text.x = element_text(
       angle = 90,

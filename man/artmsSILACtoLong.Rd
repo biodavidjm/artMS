@@ -4,12 +4,13 @@
 \alias{artmsSILACtoLong}
 \title{Convert the SILAC evidence file to MSstats format}
 \usage{
-artmsSILACtoLong(evidence_file, output, verbose = TRUE)
+artmsSILACtoLong(evidence_file, output = NULL, verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char) Text filepath to the evidence file}
 
-\item{output}{(char) Text filepath of the output name}
+\item{output}{(char) Text filepath of the output name. If NULL it does not
+write the output}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
