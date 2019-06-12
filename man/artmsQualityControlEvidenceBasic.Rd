@@ -6,9 +6,10 @@
 \usage{
 artmsQualityControlEvidenceBasic(evidence_file, keys_file,
   prot_exp = c("AB", "PH", "UB", "APMS"), fractions = 0,
-  output_name = "qcPlots_evidence", plotINTDIST = TRUE,
-  plotREPRO = TRUE, plotCORMAT = TRUE, plotINTMISC = TRUE,
-  plotPTMSTATS = TRUE, printPDF = TRUE, verbose = TRUE)
+  output_name = "qcPlots_evidence", isSILAC = FALSE,
+  plotINTDIST = TRUE, plotREPRO = TRUE, plotCORMAT = TRUE,
+  plotINTMISC = TRUE, plotPTMSTATS = TRUE, printPDF = TRUE,
+  verbose = TRUE)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or
@@ -33,6 +34,8 @@ data.frame}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcPlots_evidence"}
+
+\item{isSILAC}{if \code{TRUE} processes SILAC input files. Default is \code{FALSE}}
 
 \item{plotINTDIST}{if \code{TRUE} (default) plots both \emph{Box-dot plot}
 and \emph{Jitter plot} of biological replicates based on MS (raw)
@@ -82,6 +85,7 @@ Quality Control analysis of the MaxQuant evidence file
 artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
                                  keys_file = artms_data_ph_keys, 
                                  prot_exp =  "PH", 
+                                 isSILAC = FALSE,
                                  plotINTDIST = FALSE,
                                  plotREPRO = TRUE,
                                  plotCORMAT = FALSE,

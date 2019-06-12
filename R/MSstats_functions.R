@@ -203,11 +203,17 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
 artmsFilterEvidenceContaminants <- function(x,
                                             verbose = TRUE) {
   # Remove contaminants and reversed sequences (labeled by MaxQuant)
+  
+  x <- .artms_checkIfFile(x)
+  x <- .artms_checkRawFileColumnName(x)
+  
   data_selected <- x[grep("CON__|REV__", x$Proteins, invert = TRUE), ]
+  
   # Remove empty proteins names
   blank.idx <- which(data_selected$Proteins == "")
   if (length(blank.idx) > 0)
     data_selected = data_selected[-blank.idx, ]
+  
   if(verbose) message("-- CONTAMINANTS CON__|REV__ REMOVED ")
   return(data_selected)
 }
@@ -290,7 +296,17 @@ artmsMergeEvidenceAndKeys <- function(x,
       }
     }
   }
+  
   x <- merge(x, keys, by = by)
+  
+  # Make the 0 values, NA values
+  if(any(x$Intensity == 0, na.rm = TRUE)){
+    zero_values <- length(x$Intensity[(x$Intensity == 0)])
+    total_values <- length(x$Intensity)
+    x$Intensity[(x$Intensity == 0)] <- NA
+    message("---- (r) ", zero_values, " peptides with Intensity = 0 out of ", total_values, " replaced by NAs")
+  }
+  
   return(x)
 }
 
@@ -302,7 +318,8 @@ artmsMergeEvidenceAndKeys <- function(x,
 #' compatible with MSstats. It basically modifies the Raw.files adding the
 #' Heavy and Light label
 #' @param evidence_file (char) Text filepath to the evidence file
-#' @param output (char) Text filepath of the output name
+#' @param output (char) Text filepath of the output name. If NULL it does not
+#' write the output
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with SILAC data processed for MSstats (and output file)
 #' @keywords convert, silac, evidence
@@ -312,8 +329,9 @@ artmsMergeEvidenceAndKeys <- function(x,
 #' }
 #' @export
 artmsSILACtoLong <- function(evidence_file, 
-                              output,
-                              verbose = TRUE) {
+                             output = NULL,
+                             verbose = TRUE) {
+  
   file <- Sys.glob(evidence_file)
   if(verbose) message(sprintf('>> PROCESSING SILAC EVIDENCE FILE '))
   tmp <- fread(file, integer64 = 'double')
@@ -328,17 +346,75 @@ artmsSILACtoLong <- function(evidence_file,
   levels(tmp_long$IsotopeLabelType) = c('L', 'H')
   tmp_long[!is.na(tmp_long$Intensity) &&
              tmp_long$Intensity < 1, ]$Intensity = NA
-  write.table(
-    tmp_long,
-    file = output,
-    sep = '\t',
-    quote = FALSE,
-    row.names = FALSE,
-    col.names = TRUE
-  )
-  if(verbose) message("--- File ", output, " is ready ")
+  
+  if(!is.null(output)){
+    write.table(
+      tmp_long,
+      file = output,
+      sep = '\t',
+      quote = FALSE,
+      row.names = FALSE,
+      col.names = TRUE
+    )
+    if(verbose) message("--- File ", output, " is ready ")
+  }
+  colnames(tmp_long) <- gsub(" ", ".", colnames(tmp_long))
+  colnames(tmp_long) <- gsub("/", ".", colnames(tmp_long))
+  colnames(tmp_long) <- gsub("\\(", ".", colnames(tmp_long))
+  colnames(tmp_long) <- gsub("\\)", ".", colnames(tmp_long))
+  tmp_long <- as.data.frame(tmp_long)
   return(tmp_long)
 }
+
+
+# ------------------------------------------------------------------------------
+# @title Merge keys and Evidence from SILAC experiments
+#
+# @description Merge keys and Evidence from SILAC experiments
+# @param evisilac (char) Output from artmsSILACtoLong
+# @param keysilac (char) keys files with SILAC details
+# @return df with both evidence and keys from silac merge
+# @keywords internal, silac, merge
+.artmsMergeSilacEvidenceKeys <- function(evisilac, 
+                                         keysilac){
+  
+  
+  evisilac <- .artms_checkIfFile(evisilac)
+  evisilac <- .artms_checkRawFileColumnName(evisilac)
+  
+  keys <- .artms_checkIfFile(keysilac)
+  keys <- .artms_checkRawFileColumnName(keys)
+  
+  # Check the labels from the keys file
+  hlvalues <- unique(keys$IsotopeLabelType)
+  hl2find <- c("L","H")
+  
+  if(length(setdiff(hlvalues, hl2find)) > 0){
+    stop("The IsotopeLabelType available in the keys file are not from a 
+         SILAC experiment: they must be H and L")
+  }
+  
+  evisilac$RawFile = paste(evisilac$RawFile, 
+                           evisilac$IsotopeLabelType, 
+                           sep = '')
+  keysilac$RawFile = paste(keysilac$RawFile, 
+                       keysilac$IsotopeLabelType, 
+                       sep = '')
+  keysilac$Run = paste(keysilac$IsotopeLabelType, 
+                   keysilac$Run , 
+                   sep = '')
+  
+  evisilac$IsotopeLabelType = 'L'
+  keysilac$IsotopeLabelType = 'L'
+  
+  df <- artmsMergeEvidenceAndKeys(evisilac, 
+                                 keysilac, 
+                                 by = c('RawFile', 'IsotopeLabelType'),
+                                 verbose = FALSE)
+  return(df)
+}
+
+
 
 # ------------------------------------------------------------------------------
 # @title Pretty Labels for Heatmaps
@@ -349,11 +425,11 @@ artmsSILACtoLong <- function(evidence_file,
 # @param gene_names (car) Gene symbol
 # @return Pretty labels for a heatmap
 # @keywords internal, plots, pretty
-.artms_prettyPrintHeatmapLabels <-
-  function(uniprot_acs, uniprot_ids, gene_names) {
-    result = paste(uniprot_acs, uniprot_ids, gene_names, sep = ' ')
-    return(result)
-  }
+.artms_prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names) {
+  result = paste(uniprot_acs, uniprot_ids, gene_names, sep = ' ')
+  return(result)
+}
+  
 
 # ------------------------------------------------------------------------------
 # @title Remove protein groups

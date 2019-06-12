@@ -202,7 +202,7 @@ artmsQuantification <- function(yaml_config_file,
     message("--------------------------------------------")
     message("artMS: Relative Quantification using MSstats")
     message("--------------------------------------------")
-    message(">> READING THE CONFIGURATION FILE")
+    message(">> Reading the configuration file")
   }
   
   config <- yaml.load_file(yaml_config_file)
@@ -227,8 +227,7 @@ artmsQuantification <- function(yaml_config_file,
   
   # LET'S HELP THE DISTRACTED USER
   if (!(is.null(config$data$filters$modification))) {
-    config$data$filters$modification <-
-      toupper(config$data$filters$modification)
+    config$data$filters$modification <- toupper(config$data$filters$modification)
   }
   
   # Quality Control
@@ -237,14 +236,16 @@ artmsQuantification <- function(yaml_config_file,
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
-      fractions = config$data$fractions$enabled)
+      fractions = config$data$fractions$enabled,
+      isSILAC = config$data$silac$enabled)
   }else{
     if(verbose) message("-- No QC basic selected")
   }
   
   if (config$qc$extended) {
     artmsQualityControlEvidenceExtended(evidence_file = config$files$evidence,
-                                        keys_file = config$files$keys)
+                                        keys_file = config$files$keys,
+                                        isSILAC = config$data$silac$enabled)
   }else{
     if(verbose) message("-- No evidence-extended QC selected")
   }
@@ -305,10 +306,9 @@ artmsQuantification <- function(yaml_config_file,
     # Let's make sure that the contrast file is right
     if (config$msstats$enabled) {
       # Read in contrast file
-      contrasts <-
-        .artms_writeContrast(
-          contrast_file = config$files$contrasts, 
-          all_conditions = unique(as.character(keys$Condition)))
+      contrasts <- .artms_writeContrast(
+        contrast_file = config$files$contrasts, 
+        all_conditions = unique(as.character(keys$Condition)))
     }
     
     if (!'IsotopeLabelType' %in% colnames(x)) {
@@ -316,25 +316,17 @@ artmsQuantification <- function(yaml_config_file,
     }
     
     # HACK FOR SILAC DATA
+    # 1. Make a function of this part
+    # 2. Use it in Quality controls.
     if (!is.null(config$data$silac$enabled)) {
       if (config$data$silac$enabled) {
-        x$RawFile = paste(x$RawFile, x$IsotopeLabelType, sep = '')
-        keys$RawFile = paste(keys$RawFile, keys$IsotopeLabelType, sep =
-                               '')
-        keys$Run = paste(keys$IsotopeLabelType, keys$Run , sep = '')
-        x$IsotopeLabelType = 'L'
-        keys$IsotopeLabelType = 'L'
-        x <-
-          artmsMergeEvidenceAndKeys(x, 
-                                     keys, 
-                                     by = c('RawFile', 'IsotopeLabelType'),
-                                     verbose = verbose)
+        x <- .artmsMergeSilacEvidenceKeys(evisilac = x,
+                                          keysilac = keys)
       } else{
-        x <-
-          artmsMergeEvidenceAndKeys(x, 
-                                     keys, 
-                                     by = c('RawFile', 'IsotopeLabelType'),
-                                     verbose = verbose)
+        x <- artmsMergeEvidenceAndKeys(x, 
+                                       keys, 
+                                       by = c('RawFile', 'IsotopeLabelType'),
+                                       verbose = verbose)
       }
     } else{
       x <-
@@ -383,10 +375,10 @@ artmsQuantification <- function(yaml_config_file,
     keys <- data.table(keys)
 
     # Read in contrast file
-    contrasts <-
-      .artms_writeContrast(
-        contrast_file = config$files$contrasts, 
-        all_conditions= unique(as.character(keys$Condition)))
+    contrasts <- .artms_writeContrast(
+      contrast_file = config$files$contrasts, 
+      all_conditions= unique(as.character(keys$Condition)))
+      
     
     selectedConditions <- as.character(colnames(contrasts))
     

@@ -1,3 +1,11 @@
+New version 1.2.3 (2019-06-11)
+
++ Fix: Refactored code to better handle SILAC data in QC and quantifications
++ New function to hack SILAC data
++ Keeps adding `na.rm = TRUE` to ggplots 
++ Improves QC plots
++ Overall code formating (going back to my prefered style)
+
 New version 1.2.2 (2019-05-11)
 
 + Fix: add PH check for new maxquant versions in basic QC plot function

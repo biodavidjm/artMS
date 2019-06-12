@@ -67,7 +67,7 @@ artmsDataPlots <- function(input_file,
     p <-
       ggplot(data = subject_data,
              aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, colour = FEATURE))
-    p <- p + geom_point(size = 2) +
+    p <- p + geom_point(size = 2, na.rm = TRUE) +
       facet_wrap(
         facets = ~ GROUP_ORIGINAL,
         drop = TRUE,
@@ -443,7 +443,7 @@ artmsPlotHeatmapQuant <- function(input_file,
                 digits = 2)
         # message("r:\t",corr_coef," ")
         p1 <- ggplot(bdc, aes(x = tr1, y = tr2))
-        p1 <- p1 + geom_point() + geom_rug() + 
+        p1 <- p1 + geom_point(na.rm = TRUE) + geom_rug() + 
           geom_density_2d(colour = 'lightgreen')
         p1 <-
           p1 + geom_smooth(colour = "green",
@@ -532,7 +532,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <-
             ggplot(bcfinal, aes(x = bcfinal[[br1]], y = bcfinal[[br2]]))
           p2 <-
-            p2 + geom_point()  + geom_rug() + geom_density_2d(colour = 'red')
+            p2 + geom_point(na.rm = TRUE)  + geom_rug() + geom_density_2d(colour = 'red')
           p2 <-
             p2 + geom_smooth(colour = "red",
                              fill = "lightgreen",
@@ -579,7 +579,8 @@ artmsPlotHeatmapQuant <- function(input_file,
                         aes(x = SUBJECT_ORIGINAL, 
                             y = ABUNDANCE, 
                             fill = ABUNDANCE))
-  p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL))
+  p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL),
+                          na.rm = TRUE)
   p1 <- p1 + theme_linedraw()
   p1 <-
     p1 + theme(
@@ -600,7 +601,8 @@ artmsPlotHeatmapQuant <- function(input_file,
       y = ABUNDANCE,
       fill = ABUNDANCE
     ))
-  p2 <- p2 + geom_boxplot(aes(fill = GROUP_ORIGINAL))
+  p2 <- p2 + geom_boxplot(aes(fill = GROUP_ORIGINAL),
+                          na.rm = TRUE)
   p2 <- p2 + theme_linedraw()
   p2 <-
     p2 + theme(
@@ -631,7 +633,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicate'
   z <-
     ggplot2::ggplot(y, aes(x = BioReplicate, fill = BioReplicate))
-  z <- z + geom_bar(stat = "count")
+  z <- z + geom_bar(stat = "count", na.rm = TRUE)
   z <-
     z + theme(axis.text.x = element_text(
       angle = 90,
@@ -652,7 +654,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   b <- unique(a)
   names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
   c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
-  c <- c + geom_bar(stat = "count")
+  c <- c + geom_bar(stat = "count", na.rm = TRUE)
   c <-
     c + theme(axis.text.x = element_text(
       angle = 90,
@@ -735,7 +737,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         np <- length(unique(bdc$PROTEIN))
         corr_coef <- round(cor(bdc$tr1, bdc$tr2), digits = 2)
         p1 <- ggplot2::ggplot(bdc, aes(x = tr1, y = tr2))
-        p1 <- p1 + geom_point()
+        p1 <- p1 + geom_point(na.rm = TRUE)
         p1 <-
           p1 + geom_smooth(colour = "green",
                            fill = "lightblue",
@@ -793,7 +795,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           
           corr_coef <- round(cor(bc[[br1]], bc[[br2]]), digits = 2)
           p2 <- ggplot2::ggplot(bc, aes(x = bc[[br1]], y = bc[[br2]]))
-          p2 <- p2 + geom_point()
+          p2 <- p2 + geom_point(na.rm = TRUE)
           p2 <-
             p2 + geom_smooth(colour = "red",
                              fill = "lightgreen",
@@ -898,7 +900,7 @@ artmsPlotHeatmapQuant <- function(input_file,
           
           p2 <-
             ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
-          p2 <- p2 + geom_point()
+          p2 <- p2 + geom_point(na.rm = TRUE)
           p2 <-
             p2 + geom_smooth(colour = "blue",
                              fill = "lightblue",
@@ -980,7 +982,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         
         p3 <-
           ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
-        p3 <- p3 + geom_point() + geom_rug() + geom_density_2d()
+        p3 <- p3 + geom_point(na.rm = TRUE) + geom_rug() + geom_density_2d()
         p3 <-
           p3 + geom_smooth(colour = "red",
                            fill = "lightblue",
@@ -1253,20 +1255,22 @@ artmsVolcanoPlot <- function(mss_results,
   
   if (whatPvalue == "adj.pvalue") {
     p <- ggplot(mss_results, aes(x = log2FC, y = -log10(adj.pvalue)))
-    p <- p + geom_point(colour = 'grey') +
+    p <- p + geom_point(colour = 'grey', na.rm = TRUE) +
       geom_point(
         data = mss_results[mss_results$adj.pvalue <= FDR &
                              mss_results$log2FC >= lfc_upper, ],
         aes(x = log2FC, y = -log10(adj.pvalue)),
         colour = 'red',
-        size = 2
+        size = 1,
+        na.rm = TRUE
       ) +
       geom_point(
         data = mss_results[mss_results$adj.pvalue <= FDR &
                              mss_results$log2FC <= lfc_lower, ],
         aes(x = log2FC, y = -log10(adj.pvalue)),
         colour = 'blue',
-        size = 2
+        size = 1,
+        na.rm = TRUE
       ) +
       geom_vline(xintercept = c(lfc_lower, lfc_upper),
                  lty = 'dashed') +
@@ -1278,20 +1282,22 @@ artmsVolcanoPlot <- function(mss_results,
                  scales = 'fixed')
   } else{
     p <- ggplot(mss_results, aes(x = log2FC, y = -log10(pvalue)))
-    p <- p + geom_point(colour = 'grey') +
+    p <- p + geom_point(colour = 'grey', na.rm = TRUE) +
       geom_point(
         data = mss_results[mss_results$pvalue <= FDR &
                              mss_results$log2FC >= lfc_upper, ],
         aes(x = log2FC, y = -log10(pvalue)),
         colour = 'red',
-        size = 2
+        size = 1,
+        na.rm = TRUE
       ) +
       geom_point(
         data = mss_results[mss_results$pvalue <= FDR &
                              mss_results$log2FC <= lfc_lower, ],
         aes(x = log2FC, y = -log10(pvalue)),
         colour = 'blue',
-        size = 2
+        size = 1,
+        na.rm = TRUE
       ) +
       geom_vline(xintercept = c(lfc_lower, lfc_upper),
                  lty = 'dashed') +
