@@ -2041,10 +2041,10 @@ artmsGeneratePhSiteExtended <- function(df,
   # Take the abundance values for all the proteins
   abu2imp <- .artms_loadModelqcBasic(dfmq)
   # Aggregate the technical replica by choosing the maximum value
-  abu2imp2 <-
-    aggregate(Abundance ~ Protein + Condition + BioReplicate,
-              data = abu2imp,
-              FUN = mean)
+  abu2imp2 <- aggregate(Abundance ~ Protein + Condition + BioReplicate,
+                        data = abu2imp,
+                        FUN = mean)
+    
   
   # Check things that will be imputed
   # dfdc.ni <- data.table::dcast(data=abu2imp2, 
@@ -2061,7 +2061,7 @@ artmsGeneratePhSiteExtended <- function(df,
   # Grab the bottom 30 intensities in the dataset
   dfmqOrdered <- dfmq[order(dfmq$ABUNDANCE, decreasing = FALSE), ]
   
-  numberFromBottom <- 10
+  numberFromBottom <- 5
   abuBottom <- head(dfmqOrdered$ABUNDANCE, n = numberFromBottom)
   
   theMin <- abuBottom[1]
@@ -2072,13 +2072,12 @@ artmsGeneratePhSiteExtended <- function(df,
   
   # dcast on abundance and fill with random numbers between the minimum and q05
   suppressWarnings(
-    dfdc.im <-
-      data.table::dcast(
-        data = abu2imp2,
-        Protein ~ BioReplicate,
-        value.var = "Abundance",
-        fill = sample(numbers2sample, replace = FALSE)
-      )
+    dfdc.im <- data.table::dcast(data = abu2imp2,
+                                 Protein ~ BioReplicate,
+                                 value.var = "Abundance",
+                                 fill = sample(numbers2sample, 
+                                               replace = FALSE)
+    )
   )
   
   # Needs to aggregate on biological replicas
