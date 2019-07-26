@@ -38,13 +38,13 @@ package `MaxQuant`.
 
 # How to install
 
-We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.5` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
+We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.6` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
 
 ```
 getRversion()
 ```
 
-If the outcome is `>= 3.5.0`, congratulations! you can move forward
+If the outcome is `>= 3.6.0`, congratulations! you can move forward
 
 *If it is not, then you need to [install the latest version of R in your system](https://www.r-project.org/)*. After updating to the latest R version, open RStudio and try again `getRversion()` to make sure it worked.
 
@@ -66,7 +66,7 @@ Why Bioconductor? [Here you can find a nice summary of good reasons](https://bio
 
 (***Warning***: not stable, but it has the latest)
 
-Assuming that you have an `R (>= 3.5)` version running on your system, 
+Assuming that you have an `R (>= 3.6)` version running on your system, 
 follow these steps:
 
 
