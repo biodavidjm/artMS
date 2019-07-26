@@ -1,8 +1,8 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.3.3
-Date: 2019-06-11
+Version: 1.3.4
+Date: 2019-07-25
 Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
@@ -16,7 +16,7 @@ Description: artMS provides a set of tools for the analysis of proteomics
 License: GPL (>= 3) + file LICENSE
 URL: https://github.com/biodavidjm/artMS
 BugReports: https://github.com/biodavidjm/artMS/issues
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.6.0)
 Imports:
   AnnotationDbi,
   biomaRt,
