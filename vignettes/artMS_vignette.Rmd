@@ -52,12 +52,12 @@ and [Phosfate](http://phosfate.com/)
 
 ## How to install
 
-Before you begin, ensure that your system is running an `R version >= 3.5` 
+Before you begin, ensure that your system is running an `R version >= 3.6` 
 or the installation of `artMS` won't work. 
 You can check the R version running on your system 
 by executing the function `getRversion()`
 
-If the outcome is `>= 3.5.0`, congratulations! you can move forward. 
+If the outcome is `>= 3.6.0`, congratulations! you can move forward. 
 If it is not, then you need to 
 [install the latest version of R in your system](https://www.r-project.org/).
 
@@ -77,7 +77,7 @@ Instructions to install the package are available
 
 (***Warning***: not stable, but it has the latest)
 
-Assuming that you have an `R (>= 3.5)` version running on your system, 
+Assuming that you have an `R (>= 3.6)` version running on your system, 
 follow these steps:
 
 ```
