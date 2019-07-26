@@ -250,6 +250,11 @@ artmsMergeEvidenceAndKeys <- function(x,
   x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
+  # Make sure that the Intensity column is not empty
+  if(all(is.na(x$Intensity))){
+    stop("The <Intensity> column of the evidence file is empty. artMS cannot continue")
+  }
+  
   if(any(grepl("Experiment", colnames(keys)))){
     keys <- artmsChangeColumnName(keys, "Experiment", "ExperimentKeys")
   }

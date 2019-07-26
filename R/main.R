@@ -329,11 +329,10 @@ artmsQuantification <- function(yaml_config_file,
                                        verbose = verbose)
       }
     } else{
-      x <-
-        artmsMergeEvidenceAndKeys(x, 
-                                   keys, 
-                                   by = c('RawFile', 'IsotopeLabelType'),
-                                   verbose = verbose)
+      x <- artmsMergeEvidenceAndKeys(x, 
+                                     keys, 
+                                     by = c('RawFile', 'IsotopeLabelType'),
+                                     verbose = verbose)
     }
     
     ## fix for weird converted values from fread
