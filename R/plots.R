@@ -843,12 +843,10 @@ artmsPlotHeatmapQuant <- function(input_file,
   function(x, numberBiologicalReplicas) {
     # Before jumping to merging biological replicas:
     # Technical replicas: aggregate on the technical replicas
-    b <-
-      aggregate(
-        ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-        data = x,
-        FUN = mean
-      ) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+                   data = x,
+                   FUN = mean)
+      
     # Aggregate now the CONDITIONS on the biological replicas:
     
     # One way to do this would be to be very stringent, 
@@ -861,13 +859,10 @@ artmsPlotHeatmapQuant <- function(input_file,
     # fun.aggregate = allBiologicalReplicas, fill = 0)
     
     # Or a most relaxed way:
-    datadc <-
-      data.table::dcast(
-        data = b,
-        PROTEIN ~ GROUP_ORIGINAL,
-        value.var = 'ABUNDANCE',
-        fun.aggregate = mean
-      ) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    datadc <- data.table::dcast(data = b,
+                                PROTEIN ~ GROUP_ORIGINAL,
+                                value.var = 'ABUNDANCE',
+                                fun.aggregate = mean) 
     
     # before <- dim(datadc)[1]
     # l <- dim(datadc)[2]
@@ -898,28 +893,21 @@ artmsPlotHeatmapQuant <- function(input_file,
                       use = "complete.obs"), digits = 2)
           # cat ("r:",corr_coef,"\n")
           
-          p2 <-
-            ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
+          p2 <- ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
           p2 <- p2 + geom_point(na.rm = TRUE)
-          p2 <-
-            p2 + geom_smooth(colour = "blue",
-                             fill = "lightblue",
-                             method = 'lm')
+          p2 <- p2 + geom_smooth(colour = "blue",
+                                 fill = "lightblue",
+                                 method = 'lm')
           p2 <- p2 + theme_light()
-          p2 <-
-            p2 + labs(
-              title = paste(
-                "CORRELATION between CONDITIONS:\n",
-                br1,
-                "and",
-                br2,
-                "\n(n = ",
-                npt,
-                " r = ",
-                corr_coef,
-                ")"
-              )
-            )
+          p2 <- p2 + labs(title = paste("CORRELATION between CONDITIONS:\n",
+                                        br1,
+                                        "and",
+                                        br2,
+                                        "\n(n = ",
+                                        npt,
+                                        " r = ",
+                                        corr_coef,
+                                        ")"))
           p2 <- p2 + labs(x = br1)
           p2 <- p2 + labs(y = br2)
           print(p2)

@@ -1,3 +1,8 @@
+New version 1.2.6 (2019-08-01)
+
++ Optimize Analysis of Quantifications: adding check points when enrichment
+tool gProfileR is not available; clean up code; fix bugs
+
 New version 1.2.5 (2019-07-25)
 
 + Update vignette and readme
