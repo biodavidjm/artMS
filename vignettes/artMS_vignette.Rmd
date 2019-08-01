@@ -63,21 +63,11 @@ If it is not, then you need to
 
 Two options to install `r Biocpkg("artMS")`:
 
-- **Official BioConductor releases (recommended)**
-
-`r Biocpkg("artMS")` is available in 
-[BioConductor](https://www.bioconductor.org/). 
-Instructions to install the package are available 
-`r Biocpkg("artMS", label = "here")`.
+- **Official BioConductor releases (recommended)**. `r Biocpkg("artMS")` is available in [BioConductor](https://www.bioconductor.org/). Instructions on how to install the package are available `r Biocpkg("artMS", label = "here")`.
 
 (Why Bioconductor? [Here you can find a nice summary of many good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor)).
 
-
-- **Development version from Github**
-
-(***Warning***: not stable, but it has the latest)
-
-Assuming that you have an `R (>= 3.6)` version running on your system, 
+- **Development version from Github**. (***Warning***: not stable, but it has the latest). Assuming that you have an `R (>= 3.6)` version running on your system, 
 follow these steps:
 
 ```
@@ -92,8 +82,6 @@ workspace as follows:
 ```{r library}
 library(artMS)
 ```
-
-
 
 ## Input files
 

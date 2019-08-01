@@ -128,8 +128,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 plotIC = TRUE,
                                                 plotSP = TRUE,
                                                 printPDF = TRUE,
-                                                verbose = TRUE)
-                                                  {
+                                                verbose = TRUE){
   
   keysilac = NULL
   
@@ -1675,7 +1674,11 @@ Overall median CV within each condition is shown on the top and number of protei
     peptintmtx <- subset(evidencekeys,
                          !is.na(intensity),
                          select = c("bioreplicate", "sequence", "intensity"))
+
+    peptintmtx$intensity <- as.integer64(peptintmtx$intensity)
+  
     peptintmtx <- data.table::dcast(peptintmtx, sequence ~ bioreplicate, sum, value.var = "intensity")
+    
     peptintmtx <- as.matrix(peptintmtx[, -1])
     peptintmtx <- log2(peptintmtx)
     peptintmtx[!is.finite(peptintmtx)] <- NA
@@ -1722,7 +1725,8 @@ Overall median CV within each condition is shown on the top and number of protei
       !is.na(intensity),
       select = c("bioreplicate", "proteins", "intensity")
     )
-      
+    
+    protintmtx$intensity <- as.integer64(protintmtx$intensity)
     protintmtx <- data.table::dcast(protintmtx, proteins ~ bioreplicate, sum, value.var = "intensity")
     protintmtx <- as.matrix(protintmtx[, -1])
     protintmtx <- log2(protintmtx)

@@ -19,7 +19,7 @@ setwd("phglobal/")
 artmsAnalysisQuantifications(log2fc_file = "phglobal-results.txt", 
                              modelqc_file = "phglobal-results_ModelQC.txt", 
                              species = "human",
-                             output_dir = "analysisPhglobal")
+                             output_dir = "analysisPhglobalTest")
 
 setwd("analysisPhglobal_adjpvalue/")
 
@@ -188,6 +188,25 @@ artmsAnalysisQuantifications(log2fc_file = "ab-results.txt",
 ##############################################################################
 # CASE STUDY: APMS
 ##############################################################################
+
+# Regarding the controls, I prepared 4 replicates for each control control_HIVwt, 
+# control_HIVwt_MG132 etc. However when I performed the final analysis 
+# I combined the three baits (CUL5, ELOB and CBFB) for running the SAINT 
+# analysis. Since I had 4 replicates of each control for each bait 
+# (in total 12 replicates, I decided to use only 2 replicates that I 
+#   prepared in parallel with each bait). Then I ran SAINT together 
+# for all the three baits and had 6 controls for each condition.
+# Please let me know if this makes sense. 
+
+# The CUL5mock condition is not a control, only the ones that are labeled
+# with control. CUL5mock condition was used to determine interactors of CUL5 
+# in the absence of HIV infection. 
+# So this is the way how I analyzed the data:
+# 1. Use SAINT to determine specific interactions of CUL5 int he presence
+# and absence of HIV infection
+# 2. Using MSstats to determine differences in interactors between CUL5mock
+# and CUL5wt.
+
 
 setwd("~/artMS_Manuscript/CaseStudy_APMS_PXD009012/")
 
