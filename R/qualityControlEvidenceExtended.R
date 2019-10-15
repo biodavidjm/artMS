@@ -1876,8 +1876,10 @@ Overall median CV within each condition is shown on the top and number of protei
       scale_fill_brewer(palette = "Spectral")
     print(nb)
     if(printPDF) garbage <- dev.off()
-    if(verbose) message(" done ")
+    if(verbose) message("... done")
   }
+  
+  if(verbose) message(">> QC extended completed")
 
 } # END OF artmsQualityControlEvidenceExtended  
 

@@ -111,47 +111,38 @@
         fun.aggregate = sum,
         sep = "___"
       )
-    predmss_melt <-
-      reshape2::melt(
-        data = predmss_dc,
-        id.vars = c('Proteins', 
-                    'PeptideSequence', 
-                    'Charge', 
-                    'IsotopeLabelType'),
-        value.name = "Intensity"
-      )
+    predmss_melt <- data.table::melt(data = predmss_dc,
+                                     id.vars = c('Proteins', 
+                                                 'PeptideSequence', 
+                                                 'Charge', 
+                                                 'IsotopeLabelType'),
+                                     value.name = "Intensity")
+
     # And put back the condition, bioreplicate and run columns
-    predmss_melt$Condition <-
-      gsub("(.*)(___)(.*)(___)(.*)", "\\1", predmss_melt$variable)
-    predmss_melt$BioReplicate <-
-      gsub("(.*)(___)(.*)(___)(.*)", "\\3", predmss_melt$variable)
-    predmss_melt$Run <-
-      gsub("(.*)(___)(.*)(___)(.*)", "\\5", predmss_melt$variable)
+    predmss_melt$Condition <- gsub("(.*)(___)(.*)(___)(.*)", "\\1", predmss_melt$variable)
+    predmss_melt$BioReplicate <- gsub("(.*)(___)(.*)(___)(.*)", "\\3", predmss_melt$variable)
+    predmss_melt$Run <- gsub("(.*)(___)(.*)(___)(.*)", "\\5", predmss_melt$variable)
     
     # After the data has been aggregated, then we add the columns
     predmss_melt$ProductCharge <- NA
     predmss_melt$FragmentIon <- NA
     
     # Names required by MSstats
-    predmss_melt <-
-      artmsChangeColumnName(predmss_melt, "Proteins", "ProteinName")
-    predmss_melt <-
-      artmsChangeColumnName(predmss_melt, "Charge", "PrecursorCharge")
-    
+    predmss_melt <- artmsChangeColumnName(predmss_melt, "Proteins", "ProteinName")
+      
+    predmss_melt <- artmsChangeColumnName(predmss_melt, "Charge", "PrecursorCharge")
+
     # And re-sort it as msstats likes it
-    dmss <-
-      predmss_melt[, c(
-        "ProteinName",
-        "PeptideSequence",
-        "PrecursorCharge",
-        "FragmentIon",
-        "ProductCharge",
-        "IsotopeLabelType",
-        "Condition",
-        "BioReplicate",
-        "Run",
-        "Intensity"
-      )]
+    dmss <- predmss_melt[, c("ProteinName",
+                             "PeptideSequence",
+                             "PrecursorCharge",
+                             "FragmentIon",
+                             "ProductCharge",
+                             "IsotopeLabelType",
+                             "Condition",
+                             "BioReplicate",
+                             "Run",
+                             "Intensity")]
     
     ## sanity check for zero's
     if (nrow(dmss[!is.na(dmss$Intensity) &
@@ -161,14 +152,13 @@
     
     dmss <- as.data.frame(dmss)
     if(verbose) message("-- Write out the MSstats input file (-mss.txt) ")
-    write.table(
-      dmss,
-      file = gsub('.txt', '-mss.txt', output_name),
-      eol = "\n",
-      sep = "\t",
-      quote = FALSE,
-      row.names = FALSE,
-      col.names = TRUE
-    )
+    write.table(dmss,
+                file = gsub('.txt', '-mss.txt', output_name),
+                eol = "\n",
+                sep = "\t",
+                quote = FALSE,
+                row.names = FALSE,
+                col.names = TRUE)
+      
     return(dmss)
 }

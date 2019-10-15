@@ -345,13 +345,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedL2FCmelted <- .artms_imputeMissingValues(dflog2fcinfinites, dfmq)
     
     # Merge with the original log2fc values to impute...
-    theImputedL2FC <-
-      merge(
-        dflog2fcinfinites,
-        imputedL2FCmelted,
-        by = c("Protein", "Label"),
-        all.x = TRUE
-      )
+    theImputedL2FC <- merge(dflog2fcinfinites,
+                            imputedL2FCmelted,
+                            by = c("Protein", "Label"),
+                            all.x = TRUE)
+      
     theImputedL2FC$imputed <- "yes"
   }
   
@@ -578,12 +576,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                         fill = 0)
   
   # Melt again the sum and mean
-  abundancelongsum <- reshape2::melt(abundance_dcsum,
+  abundancelongsum <- data.table::melt(abundance_dcsum,
                                      id.vars = c('Prey'),
                                      value.name = 'Abundance',
                                      variable.name = 'Bait')
   
-  abundancelongmean <- reshape2::melt(abundance_dcmean,
+  abundancelongmean <- data.table::melt(abundance_dcmean,
                                       id.vars = c('Prey'),
                                       value.name = 'Abundance',
                                       variable.name = 'Bait')
@@ -605,7 +603,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                 value.var = 'Abundance',
                                 fun.aggregate = length,
                                 fill = 0)
-  nbr_long <- reshape2::melt(nbr_wide,
+  nbr_long <- data.table::melt(nbr_wide,
                              id.vars = c('Prey'),
                              value.name = 'Abundance',
                              variable.name = 'Bait')
@@ -901,7 +899,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     
     if (dim(l2fcol4enrichment)[1] > 0) {
       # Let's melt now for enrichment analysis
-      l2fcol4enrichment <- reshape2::melt(data = l2fcol4enrichment,
+      l2fcol4enrichment <- data.table::melt(data = l2fcol4enrichment,
                                           id.vars = c('Protein'),
                                           variable.name = "Comparisons")
       l2fcol4enrichment <- l2fcol4enrichment[complete.cases(l2fcol4enrichment), ]
@@ -2022,16 +2020,14 @@ artmsGeneratePhSiteExtended <- function(df,
   
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
-  dfdc.melt <-
-    reshape2::melt(
-      dfdc.im,
-      id.vars = c('Protein'),
-      value.name = 'Abundance',
-      variable.name = 'BioReplicate'
-    )
+  dfdc.melt <- data.table::melt(dfdc.im,
+                                id.vars = c('Protein'),
+                                value.name = 'Abundance',
+                                variable.name = 'BioReplicate')
+
   # 2. Get the condition
-  dfdc.melt$Condition <-
-    gsub("(.*)(-)(.*)", "\\1", dfdc.melt$BioReplicate)
+  dfdc.melt$Condition <- gsub("(.*)(-)(.*)", "\\1", dfdc.melt$BioReplicate)
+    
   # 3. Dcast and Aggregate on the condition, taking the mean
   dfdc.final <-
     data.table::dcast(
@@ -2041,8 +2037,8 @@ artmsGeneratePhSiteExtended <- function(df,
       fun.aggregate = mean
     )
   # 4. Filter by proteins to impute
-  dfdc.final <-
-    dfdc.final[which(dfdc.final$Protein %in% ids2impute), ]
+  dfdc.final <- dfdc.final[which(dfdc.final$Protein %in% ids2impute), ]
+    
   
   for (c in contrast) {
     # message("\t",c," --> ")
@@ -2061,17 +2057,16 @@ artmsGeneratePhSiteExtended <- function(df,
     dfdc.final[grepl("Protein|l2fc_", colnames(dfdc.final))]
   
   # Melt again
-  imputedL2FCmelted <-
-    reshape2::melt(
-      imputedL2FCValues,
-      id.vars = c('Protein'),
-      variable.name = 'Label',
-      value.name = 'iLog2FC'
-    )
+  imputedL2FCmelted <- data.table::melt(imputedL2FCValues,
+                                        id.vars = c('Protein'),
+                                        variable.name = 'Label',
+                                        value.name = 'iLog2FC')
+    
+    
   # Now let's get it ready for merging with the values to be 
   # imputed at dflog2fcinfinites
-  imputedL2FCmelted$Label <-
-    gsub("l2fc_", "", imputedL2FCmelted$Label)
+  imputedL2FCmelted$Label <- gsub("l2fc_", "", imputedL2FCmelted$Label)
+    
   
   # And let's add p-values
   samplingPvalue <- seq(from = 0.01, to = 0.05, by = .0000001)
@@ -2235,11 +2230,11 @@ artmsGeneratePhSiteExtended <- function(df,
   # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
   # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
   
-  input_melt = reshape2::melt(data = df_input[, c('Protein', 
+  input_melt = data.table::melt(data = df_input[, c('Protein', 
                                                   'Label', 
                                                   'log2FC', 
                                                   'adj.pvalue'), ], 
-                              id.vars = c('Protein', 'Label'))
+                                id.vars = c('Protein', 'Label'))
   input_dcast = data.table::dcast(Protein ~ Label + variable,
                                   data = input_melt,
                                   value.var = c('value'))

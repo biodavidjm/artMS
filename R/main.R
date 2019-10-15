@@ -6,7 +6,7 @@
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
 #' @importFrom dplyr mutate desc count arrange desc everything
-#' @rawNamespace import(data.table, except = c(melt))
+#' @import data.table
 #' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
 #' @importFrom FactoMineR PCA
@@ -30,7 +30,6 @@
 #' rename, summarise, select, add_heatmap))
 #' @importFrom plyr ddply summarise rename
 #' @import RColorBrewer
-#' @importFrom reshape2 melt
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
 #' kmeans median order.dendrogram phyper as.dist complete.cases qt
@@ -198,13 +197,6 @@ utils::globalVariables(
 artmsQuantification <- function(yaml_config_file,
                                  verbose = TRUE) {
   
-  if(verbose){
-    message("--------------------------------------------")
-    message("artMS: Relative Quantification using MSstats")
-    message("--------------------------------------------")
-    message(">> Reading the configuration file")
-  }
-  
   config <- yaml.load_file(yaml_config_file)
   
   # CHECK POINT: DO THE FILES EXIST?
@@ -267,6 +259,13 @@ artmsQuantification <- function(yaml_config_file,
     }else{
       if(verbose) message("-- No summary-based QC selected")
     }
+  }
+  
+  if(verbose){
+    message("--------------------------------------------")
+    message("artMS: Relative Quantification using MSstats")
+    message("--------------------------------------------")
+    message(">> Reading the configuration file")
   }
   
   
