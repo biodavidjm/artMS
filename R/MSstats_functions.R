@@ -342,8 +342,9 @@ artmsSILACtoLong <- function(evidence_file,
   tmp <- fread(file, integer64 = 'double')
   
   # reshape the data and split the heavy and light data
-  tmp_long <- reshape2::melt(tmp, measure.vars = c('Intensity L', 
-                                                   'Intensity H'))
+  tmp_long <- data.table::melt(tmp, 
+                                measure.vars = c("Intensity L", "Intensity H"))
+  
   tmp_long[, Intensity := NULL]
   setnames(tmp_long, 'value', 'Intensity')
   setnames(tmp_long, 'variable', 'IsotopeLabelType')
@@ -478,10 +479,10 @@ artmsSILACtoLong <- function(evidence_file,
 #'                          species = "human")
 #' @export
 artmsResultsWide <- function(results_msstats,
-                              output_file = NULL,
-                              select_pvalues = c("adjpvalue", "pvalue"),
-                              species,
-                              verbose = TRUE) {
+                             output_file = NULL,
+                             select_pvalues = c("adjpvalue", "pvalue"),
+                             species,
+                             verbose = TRUE) {
   
   if(any(missing(results_msstats) | 
          missing(species)))
@@ -494,8 +495,8 @@ artmsResultsWide <- function(results_msstats,
   select_pvalues <- match.arg(select_pvalues)
   pvals <- if(select_pvalues == "adjpvalue") "adj.pvalue" else "pvalue"
   selectedColumns <- c('Protein', 'Label', 'log2FC', pvals)
-  input_l <- reshape2::melt(data = results_msstats[,selectedColumns], 
-                            id.vars = c('Protein', 'Label'))
+  input_l <- data.table::melt(data = results_msstats[,selectedColumns], 
+                              id.vars = c('Protein', 'Label'))
   
   ## then cast to get combinations of LFCV/PVAl and Label as columns
   input_w <- data.table::dcast(Protein ~ Label + variable,

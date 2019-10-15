@@ -52,9 +52,9 @@ artmsConvertMetabolomics <- function(input_file,
   if(verbose) message(">> Reading in data from: ", input_file," ")
   
   x <- fread(input_file)
-  tmp <- melt(data=x, id=c(seq_len(7)), 
-              variable.name="RawFile", 
-              value.name="Intensity")
+  tmp <- data.table::melt(data=x, id=c(seq_len(7)), 
+                          variable.name="RawFile", 
+                          value.name="Intensity")
   
   tmp[,'Row'] = NULL
   tmp[,'Index'] = NULL

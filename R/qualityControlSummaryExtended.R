@@ -348,8 +348,8 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(bc)
     }
     
-    summarykeys.scans <- melt(summarykeys[, 1:4], 
-                              id.vars = seq_len(2))
+    summarykeys.scans <- data.table::melt(summarykeys[, 1:4], 
+                                          id.vars = seq_len(2))
     bd <-ggplot(summarykeys.scans,
                 aes(
                   x = interaction(variable, bioreplicate),

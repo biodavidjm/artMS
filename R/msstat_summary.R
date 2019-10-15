@@ -75,15 +75,14 @@ artmsMsstatsSummary <- function(evidence_file,
   if( any(grepl("MS.MS.count", colnames(dat))) ){
     dat <- artmsChangeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
   }
-  dat.sc <-
-    data.table::dcast(
-      data = dat,
-      Proteins ~ BioReplicate,
-      value.var = "MS.MS.Count",
-      max,
-      fill = NA_real_
-    )
+  dat.sc <-data.table::dcast(data = dat,
+                             Proteins ~ BioReplicate,
+                             value.var = "MS.MS.Count",
+                             max,
+                             fill = NA_real_)
+    
   names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
+  
   # get INTENSITIES
   message("--- Summarizing Intensities ")
   dat.intensity <- data.table::dcast(data = dat,
@@ -91,8 +90,7 @@ artmsMsstatsSummary <- function(evidence_file,
                                      value.var = "Intensity",
                                      max,
                                      fill = NA_real_)
-  names(dat.intensity)[-1] <-
-    paste0(names(dat.intensity)[-1], "_Intensity")
+  names(dat.intensity)[-1] <- paste0(names(dat.intensity)[-1], "_Intensity")
   
   # find the UNIQUE PEPTIDE columns
   message("--- Summarizing Unique Peptides ")
@@ -110,23 +108,22 @@ artmsMsstatsSummary <- function(evidence_file,
   
   # convert RESULTS to WIDE format
   message(">> Converting Results to Wide format ")
-  results_l = melt(data = 
-                     results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
-                             with = FALSE], id.vars = c("Protein", "Label"))
+  results_l = data.table::melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
+                                              with = FALSE], id.vars = c("Protein", "Label"))
+                     
   ## then cast to get combinations of LFCV/PVAl and Label as columns
-  results_w <-
-    data.table::dcast(Protein ~ Label + variable,
-          data = results_l,
-          value.var = c("value"))
+  results_w <- data.table::dcast(Protein ~ Label + variable,
+                                 data = results_l,
+                                 value.var = c("value"))
+    
   names(results_w)[1] = "Proteins"
   
   # Combine them all together
   message(">> Bringing it all together ")
-  results_summary = Reduce(
-    function(...)
-      merge(..., by = "Proteins", all.x = TRUE),
-    list(pg.uniqPep, results_w, dat.sc, dat.intensity)
-  )
+  results_summary = Reduce(function(...)
+    merge(..., by = "Proteins", all.x = TRUE),
+    list(pg.uniqPep, results_w, dat.sc, dat.intensity))
+    
   names(results_summary)[grep("Proteins", names(results_summary))] = "Protein"
   
   # write out summary

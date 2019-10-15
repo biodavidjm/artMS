@@ -9,8 +9,7 @@
 # @keywords plot, correlation
 .artms_plotCorrelationDistribution <- function(MatrixCorrelations) {
 
-  cor.data <-
-    MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]
+  cor.data <- MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]
   cor.data <- as.data.frame(cor.data)
   colnames(cor.data) <- "pearson"
   
