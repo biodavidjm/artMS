@@ -162,6 +162,27 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
     stop("Problem with evidence file: <Modified sequence> column not found")
   }
   
+  # Fix PROTEIN id when coming with the full uniprot id
+  
+  if(any(grepl("(^sp\\|)(.*)(\\|.*)", maxq_data$Proteins)))
+    maxq_data$Proteins <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", maxq_data$Proteins)
+  
+  if(any(grepl("(^sp\\|)(.*)(\\|.*)", maxq_data$`Leading proteins`)))
+    maxq_data$`Leading proteins` <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", maxq_data$`Leading proteins`)
+  
+  if(any(grepl("(^sp\\|)(.*)(\\|.*)", maxq_data$`Leading razor protein`)))
+    maxq_data$`Leading razor protein` <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", maxq_data$`Leading razor protein`)
+  
+  if(any(grepl("(^tr\\|)(.*)(\\|.*)", maxq_data$Proteins)))
+    maxq_data$Proteins <- gsub("(tr\\|)(.*)(\\|.*)", "\\2", maxq_data$Proteins)
+  
+  if(any(grepl("(^tr\\|)(.*)(\\|.*)", maxq_data$`Leading proteins`)))
+    maxq_data$`Leading proteins` <- gsub("(tr\\|)(.*)(\\|.*)", "\\2", maxq_data$`Leading proteins`)
+  
+  if(any(grepl("(^tr\\|)(.*)(\\|.*)", maxq_data$`Leading razor protein`)))
+    maxq_data$`Leading razor protein` <- gsub("(tr\\|)(.*)(\\|.*)", "\\2", maxq_data$`Leading razor protein`)
+  
+  
   if (mod_type == 'PH') {
     if(length(grep("(ph)", maxq_data$`Modified sequence`)) == 1){
       message("\n____________________________________________________________")
@@ -179,15 +200,14 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
   
   if(verbose) message("--- READING REFERENCE PROTEOME ")
   ## read in reference proteome
-  ref_proteome <- read.fasta(
-    file = ref_proteome_file,
-    seqtype = "AA",
-    as.string = TRUE,
-    set.attributes = TRUE,
-    legacy.mode = TRUE,
-    seqonly = FALSE,
-    strip.desc = FALSE
-  )
+  ref_proteome <- read.fasta(file = ref_proteome_file,
+                             seqtype = "AA",
+                             as.string = TRUE,
+                             set.attributes = TRUE,
+                             legacy.mode = TRUE,
+                             seqonly = FALSE,
+                             strip.desc = FALSE)
+    
   
   ## make mod-site index
   p_seqs <- c()
@@ -200,10 +220,10 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
     p_annots <- c(p_annots, attr(e, 'Annot'))
   }
   
-  ref_table <-
-    data.table(names = p_names,
-               annots = p_annots,
-               seqs = p_seqs)
+  ref_table <- data.table(names = p_names,
+                          annots = p_annots,
+                          seqs = p_seqs)
+    
   
   # REFSEQ database
   ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z,\\.,\\_]+)', '\\1', names)]
@@ -214,33 +234,32 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
                                '\\2', names)]
   
   # get all indicies/locations of the mod_residue S|T|Y
-  indices <-
-    lapply(ref_table$seqs, function(x)
-      as.vector(str_locate_all(x, pattern = mod_residue)[[1]][, 1]))
+  indices <- lapply(ref_table$seqs, function(x)
+    as.vector(str_locate_all(x, pattern = mod_residue)[[1]][, 1]))
+    
   # list which residue it actually finds at each location
-  ptm_sites <-
-    lapply(ref_table$seqs, function(x)
-      as.vector(str_match_all(x, pattern = mod_residue)))
+  ptm_sites <- lapply(ref_table$seqs, function(x)
+    as.vector(str_match_all(x, pattern = mod_residue)))
+    
   # get the number of residue locations per string
   lengths <- unlist(lapply(indices, FUN = length))
   # repeate the uniprot_ac as many times as a residue (S|T|Y) is found
   keys <- rep(ref_table$uniprot_ac, lengths)
   # combine the list of the exploded proteins (above) and add in which sites
   # are found as well as the location the residue was found in
-  protein_indices <-
-    data.table(
-      uniprot_ac = keys,
-      ptm_site = unlist(ptm_sites),
-      res_index = unlist(indices)
-    )
+  protein_indices <-   data.table(uniprot_ac = keys,
+                                  ptm_site = unlist(ptm_sites),
+                                  res_index = unlist(indices))
+    
+  
   
   # ---------------------------------------------------------------------------
   # EXTRACT PTM POSITIONS FROM MODIFIED PEPTIDES IN EVIDENCE FILE
   # ---------------------------------------------------------------------------
   
   
-  unique_peptides_in_data <-
-    unique(maxq_data[, c(column_name, 'Modified sequence'), with = FALSE])
+  unique_peptides_in_data <- unique(maxq_data[, c(column_name, 'Modified sequence'), with = FALSE])
+    
   setnames(unique_peptides_in_data, 'Modified sequence', 'sequence') 
   
   mod_sites <- c()
@@ -261,17 +280,15 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
       uniprot_acs <- entry[[column_name]]
       # separates the ambiguous cases (;) and appends the site info to all 
       # the proteins
-      uniprot_acs <-
-        str_split(string = uniprot_acs, pattern = ';')[[1]]
+      uniprot_acs <- str_split(string = uniprot_acs, pattern = ';')[[1]]
       
       for (uac in uniprot_acs) {
         # find the protein's full sequence based on the uniprot_ac
         protein_seq <- ref_table[uniprot_ac == uac, ]$seqs
         if (length(protein_seq) > 0) {
           ## get the position of the peptide in the protein sequence
-          peptide_index_in_protein <-
-            str_locate(protein_seq, peptide_seq_clean)[[1]][1]
-          
+          peptide_index_in_protein <- str_locate(protein_seq, peptide_seq_clean)[[1]][1]
+
           for (m in seq_len(length(mod_sites_in_peptide))) {
             mod_site <- mod_sites_in_peptide[m]
             peptide_seq_before_site <-
@@ -327,21 +344,26 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
     }
   }
   
-  mod_site_mapping <- data.table(mod_sites, mod_seqs)
-  mod_site_mapping_agg <-
-    aggregate(
-      mod_sites ~ mod_seqs,
-      mod_site_mapping,
-      FUN = function(x)
-        paste(x, collapse = ';')
-    )
+  # CHECK that the mapping went well
+  if(is.null(mod_seqs))
+    stop("Protein IDs from evidence file and sequence database do not match. 
+         Are you sure that you are using the right sequence database?")
   
+  if(is.null(mod_sites))
+    stop("Protein IDs from evidence file and sequence database do not match. 
+         Are you sure that you are using the right sequence database?")
+  
+  mod_site_mapping <- data.table(mod_sites, mod_seqs)
+  mod_site_mapping_agg <- aggregate(mod_sites ~ mod_seqs,
+                                    mod_site_mapping,
+                                    FUN = function(x) paste(x, collapse = ';'))
+    
   setnames(maxq_data, 'Modified sequence', 'mod_seqs')
-  unmapped_mod_seqs <-
-    maxq_data[!(mod_seqs %in% mod_site_mapping_agg$mod_seqs) &
-                grepl('(gl)', mod_seqs) & !grepl('REV__|CON__', eval(column_name)), ]
-  unmapped_mod_seqs <-
-    unique(unmapped_mod_seqs[, c('mod_seqs', column_name), with = FALSE])
+  unmapped_mod_seqs <- maxq_data[!(mod_seqs %in% mod_site_mapping_agg$mod_seqs) &
+                                   grepl('(gl)', mod_seqs) & !grepl('REV__|CON__', eval(column_name)), ]
+    
+  unmapped_mod_seqs <- unique(unmapped_mod_seqs[, c('mod_seqs', column_name), with = FALSE])
+  
   if (dim(unmapped_mod_seqs)[1] > 0) {
     if(verbose) message('>> UNABLE TO MAP \t')
     if(verbose) print(unmapped_mod_seqs)
