@@ -143,12 +143,6 @@ then make the argument 'overwrite_evidence = TRUE'")
   if("Leading Proteins" %in% colnames(maxq_data))
     setnames(maxq_data, 'Leading Proteins', 'Leading proteins')
   
-  # Check if the protein has already been annotated;
-  if( length( grep("_S", maxq_data[[column_name]]) ) > 10 ) 
-    stop("The protein column <", column_name, "> seems to be already converted 
-to ptm-site/peptide specific notation.
-Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
-  
   # remove contaminants, keep unique sequences, fix names
   maxq_data <- maxq_data[grep("CON__|REV__", maxq_data$Proteins, invert = TRUE), ]
   maxq_data <- maxq_data[grep("CON__|REV__", maxq_data$`Leading proteins`, invert = TRUE), ]
@@ -181,6 +175,19 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
   
   if(any(grepl("(^tr\\|)(.*)(\\|.*)", maxq_data$`Leading razor protein`)))
     maxq_data$`Leading razor protein` <- gsub("(tr\\|)(.*)(\\|.*)", "\\2", maxq_data$`Leading razor protein`)
+  
+  # PH: Check if the protein has already been annotated;
+  if( length( grep("_S\\d", maxq_data[[column_name]]) ) > 10 ) 
+    stop("The protein column <", column_name, "> seems to be already converted 
+to ptm-site/peptide specific notation.
+Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
+  
+  # UB: check annotated already
+  if( length( grep("_K\\d", maxq_data[[column_name]]) ) > 10 ) 
+    stop("The protein column <", column_name, "> seems to be already converted 
+to ptm-site/peptide specific notation.
+Otherwise, notice that this function only support Uniprot Entry Id or Refseq.
+If the proteins are still Uniprot Entry IDs and the file has not been converted already, please, contact artMS developers")
   
   
   if (mod_type == 'PH') {
@@ -229,9 +236,9 @@ Otherwise, notice that this function only support Uniprot Entry Id or Refseq")
   ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z,\\.,\\_]+)', '\\1', names)]
   
   # UNIPROT
-  ref_table[, 
-            uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
-                               '\\2', names)]
+  ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
+                                 '\\2', names)]
+            
   
   # get all indicies/locations of the mod_residue S|T|Y
   indices <- lapply(ref_table$seqs, function(x)
