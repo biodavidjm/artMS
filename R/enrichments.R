@@ -18,7 +18,7 @@
   
   listOfConditions <- unique(df$Comparisons)
   
-  complexEnrichmentConditions <- NULL
+  complexEnrichmentConditions <- data.frame()
   
   for (i in seq_len(length(listOfConditions))) {
     condi <- listOfConditions[i]
