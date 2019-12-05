@@ -348,7 +348,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     theImputedL2FC <- merge(dflog2fcinfinites,
                             imputedL2FCmelted,
                             by = c("Protein", "Label"),
-                            all.x = TRUE)
+                            all = FALSE)
+    # check size of theImputedL2FC compared with dflog2fcinfinites to see if we lost rows during imputation
+    # possibly we were unable to impute rows after removing outliers
+    if (nrow(theImputedL2FC) != nrow (dflog2fcinfinites)){
+      numMissing = nrow (dflog2fcinfinites) - nrow(theImputedL2FC)
+      message(" WARNING:  Failed to impute values for ", numMissing, "rows. Possibly due to outlier removal")
+    }
       
     theImputedL2FC$imputed <- "yes"
   }
