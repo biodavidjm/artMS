@@ -226,8 +226,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   # # Remove outliers
-  if(verbose) message("--- Removing outliers (10 < abundance < 40) ")
-  dfmq <- dfmq[which(dfmq$ABUNDANCE > 10 & dfmq$ABUNDANCE < 40), ]
+  if(verbose) message("--- Removing outliers (3 standard deviations of mean of abundance ) ")
+  std <- sd(dfmq$ABUNDANCE)
+  m <- mean(dfmq$ABUNDANCE)
+  uplim <- m+3*std
+  lowlim <- m-3*std
+  dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
   
   # First, let's take the conditions, which will be used later in several places
   conditions <- unique(dfmq$GROUP_ORIGINAL)
