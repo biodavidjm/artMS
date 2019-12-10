@@ -86,6 +86,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                          modelqc_file,
                                          species,
                                          output_dir = ".",
+                                         outliers="iqc"
                                          enrich = TRUE,
                                          l2fc_thres = 1.5,
                                          choosePvalue = c("adjpvalue","pvalue"),
@@ -157,6 +158,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
          The valid options are: <global> or <ptmsites> ")
   }
   
+  outliers <- match.arg(outliers)
+  if(!(outliers %in% c('iqc', 'std', 'keep')))
+    stop("The < outliers > argument is wrong. 
+         The valid options are: <iqc>, <std> or <keep> ")
+  
   choosePvalue <- match.arg(choosePvalue)
   if(!(choosePvalue %in% c('pvalue', 'adjpvalue')))
     stop("The < choosePvalue > argument is wrong. 
@@ -226,13 +232,23 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   # # Remove outliers
-  if(verbose) message("--- Removing outliers (3 standard deviations of mean of abundance ) ")
-  std <- sd(dfmq$ABUNDANCE)
-  m <- mean(dfmq$ABUNDANCE)
-  uplim <- m+3*std
-  lowlim <- m-3*std
-  dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
-  
+  if(verbose) message("--- Removing outliers ")
+  if(outliers == "iqc"){
+    iqr <- IQR(dfmq$ABUNDANCE)
+    m <- mean(dfmq$ABUNDANCE)
+    uplim <- m+3*iqr
+    lowlim <- m-3*iqr
+    dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
+  }else if(outliers == "std"){
+    std <- sd(dfmq$ABUNANCE)
+    m <- mean(dfmq$ABUNDANCE)
+    uplim <- m+3*std
+    lowlim <- m-3*std
+    dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
+  }else{
+    dfmq <- dfmq
+  }
+
   # First, let's take the conditions, which will be used later in several places
   conditions <- unique(dfmq$GROUP_ORIGINAL)
   numberConditions <- length(conditions)
