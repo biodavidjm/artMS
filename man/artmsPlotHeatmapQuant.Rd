@@ -5,11 +5,19 @@
 \title{Outputs a heatmap of the MSStats results created using the log2fold
 changes}
 \usage{
-artmsPlotHeatmapQuant(input_file,
-  output_file = "quantifications_heatmap.pdf", species, labels = "*",
-  cluster_cols = FALSE, display = "log2FC", lfc_lower = -2,
-  lfc_upper = 2, whatPvalue = "adj.pvalue", FDR = 0.05,
-  verbose = TRUE)
+artmsPlotHeatmapQuant(
+  input_file,
+  output_file = "quantifications_heatmap.pdf",
+  species,
+  labels = "*",
+  cluster_cols = FALSE,
+  display = "log2FC",
+  lfc_lower = -2,
+  lfc_upper = 2,
+  whatPvalue = "adj.pvalue",
+  FDR = 0.05,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{input_file}{(char) MSstats \code{results.txt} file and location (or

@@ -4,8 +4,13 @@
 \alias{artmsEnrichProfiler}
 \title{Enrichment analysis using GprofileR}
 \usage{
-artmsEnrichProfiler(x, categorySource = c("GO"), species,
-  background = NA, verbose = TRUE)
+artmsEnrichProfiler(
+  x,
+  categorySource = c("GO"),
+  species,
+  background = NA,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{(list, data.frame) List of protein ids. It can be anything:

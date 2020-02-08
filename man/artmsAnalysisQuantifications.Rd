@@ -4,17 +4,33 @@
 \alias{artmsAnalysisQuantifications}
 \title{Analysis of the Relative Quantifications}
 \usage{
-artmsAnalysisQuantifications(log2fc_file, modelqc_file, species,
-  output_dir = ".", enrich = TRUE, l2fc_thres = 1.5,
+artmsAnalysisQuantifications(
+  log2fc_file,
+  modelqc_file,
+  species,
+  output_dir = "analysis_quant",
+  outliers = c("keep", "iqr", "std"),
+  enrich = TRUE,
+  l2fc_thres = 1,
   choosePvalue = c("adjpvalue", "pvalue"),
-  isBackground = "nobackground", isPtm = "global", mnbr = 2,
-  isFluomics = FALSE, pathogen = "nopathogen",
-  plotPvaluesLog2fcDist = TRUE, plotAbundanceStats = TRUE,
-  plotReproAbundance = TRUE, plotCorrConditions = TRUE,
-  plotCorrQuant = TRUE, plotPCAabundance = TRUE,
-  plotFinalDistributions = TRUE, plotPropImputation = TRUE,
-  plotHeatmapsChanges = TRUE, plotTotalQuant = TRUE,
-  plotClusteringAnalysis = TRUE, verbose = TRUE)
+  isBackground = "nobackground",
+  isPtm = "global",
+  mnbr = 2,
+  isFluomics = FALSE,
+  pathogen = "nopathogen",
+  plotPvaluesLog2fcDist = TRUE,
+  plotAbundanceStats = TRUE,
+  plotReproAbundance = TRUE,
+  plotCorrConditions = TRUE,
+  plotCorrQuant = TRUE,
+  plotPCAabundance = TRUE,
+  plotFinalDistributions = TRUE,
+  plotPropImputation = TRUE,
+  plotHeatmapsChanges = TRUE,
+  plotTotalQuant = TRUE,
+  plotClusteringAnalysis = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{log2fc_file}{(char) MSstats results file location}
@@ -34,6 +50,13 @@ To find out species supported only for annotation check
 \item{output_dir}{(char) Name for the folder to output the results from the
 function. Default is current directory (recommended to provide a new folder
 name).}
+
+\item{outliers}{(char) It allows to keep or remove outliers. Options:
+\itemize{
+\item \code{keep} (default): it keeps outliers 'keep', 'iqr', 'std'
+\item \code{iqr} (recommended): remove outliers +/- 6 x Interquartile Range (IQR)
+\item \code{std} : 6 x standard deviation
+}}
 
 \item{enrich}{(logical) Performed enrichment analysis using GprofileR?
 Only available for species HUMAN and MOUSE.

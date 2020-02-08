@@ -4,12 +4,21 @@
 \alias{artmsQualityControlEvidenceBasic}
 \title{Quality Control analysis of the MaxQuant evidence file}
 \usage{
-artmsQualityControlEvidenceBasic(evidence_file, keys_file,
-  prot_exp = c("AB", "PH", "UB", "APMS"), fractions = 0,
-  output_name = "qcPlots_evidence", isSILAC = FALSE,
-  plotINTDIST = TRUE, plotREPRO = TRUE, plotCORMAT = TRUE,
-  plotINTMISC = TRUE, plotPTMSTATS = TRUE, printPDF = TRUE,
-  verbose = TRUE)
+artmsQualityControlEvidenceBasic(
+  evidence_file,
+  keys_file,
+  prot_exp = c("AB", "PH", "UB", "APMS"),
+  fractions = 0,
+  output_name = "qcPlots_evidence",
+  isSILAC = FALSE,
+  plotINTDIST = TRUE,
+  plotREPRO = TRUE,
+  plotCORMAT = TRUE,
+  plotINTMISC = TRUE,
+  plotPTMSTATS = TRUE,
+  printPDF = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or

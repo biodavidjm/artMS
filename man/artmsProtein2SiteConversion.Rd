@@ -6,10 +6,15 @@
 file selected by the user to mod-site-specific notation:
 \code{ProteinID} to \code{ProteinID_AAnumber} notation}
 \usage{
-artmsProtein2SiteConversion(evidence_file, ref_proteome_file,
-  column_name = c("Leading razor protein", "Leading proteins",
-  "Proteins"), output_file, mod_type, overwrite_evidence = FALSE,
-  verbose = TRUE)
+artmsProtein2SiteConversion(
+  evidence_file,
+  ref_proteome_file,
+  column_name = c("Leading razor protein", "Leading proteins", "Proteins"),
+  output_file,
+  mod_type,
+  overwrite_evidence = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char) The evidence file name and location}
@@ -17,12 +22,12 @@ artmsProtein2SiteConversion(evidence_file, ref_proteome_file,
 \item{ref_proteome_file}{(char) The reference proteome used as database
 to search the \code{evidence.txt} file with MaxQuant. It will be used to map the
 modified peptide to the protein sequence and find the site location.
-Therefore, it does not use the MaxQuant's \code{Phospho (STY)Sites.txt}}
+Therefore, it does not use the MaxQuant's \verb{Phospho (STY)Sites.txt}}
 
 \item{column_name}{(char) The Protein Column Name to map. Options:
 \itemize{
-\item \code{Leadind razor protein} (default)
-\item \code{Leading protein}
+\item \verb{Leadind razor protein} (default)
+\item \verb{Leading protein}
 \item \code{Proteins}
 It only supports Uniprot Entry IDs and RefSeq, but it might work for
 other database IDs

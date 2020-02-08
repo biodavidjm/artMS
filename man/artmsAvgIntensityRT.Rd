@@ -4,8 +4,13 @@
 \alias{artmsAvgIntensityRT}
 \title{Summarize average intensity and retention time per protein}
 \usage{
-artmsAvgIntensityRT(evidence_file, protein_file = NULL,
-  output_file = FALSE, species, verbose = TRUE)
+artmsAvgIntensityRT(
+  evidence_file,
+  protein_file = NULL,
+  output_file = FALSE,
+  species,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data

@@ -13,11 +13,11 @@ biological (or technical) replicate}
 experiments}
 
 \item{Condition}{Label for conditions. VERY IMPORTANT: Only alpha-numeric
-characters and \code{underscore (_)} are allowed}
+characters and \verb{underscore (_)} are allowed}
 
 \item{BioReplicate}{Label for the Biological replicates. VERY IMPORTANT:
 Use the same labeling for bioreplicate as the Condition, but adding a
-\code{dash (-)} corresponding to the number of biological replicate.
+\verb{dash (-)} corresponding to the number of biological replicate.
 For example, for \code{Condition} \code{"Cal"}, use \code{Cal-1}, \code{Cal-2}, \code{Cal-3}, etc
 for the bioreplicates}
 

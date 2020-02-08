@@ -4,9 +4,15 @@
 \alias{artmsEvidenceToSAINTq}
 \title{MaxQuant evidence file to SAINTq format}
 \usage{
-artmsEvidenceToSAINTq(evidence_file, keys_file, output_dir = ".",
-  sc_option = c("all", "msspc"), fractions = FALSE,
-  quant_variable = c("msint", "msspc"), verbose = TRUE)
+artmsEvidenceToSAINTq(
+  evidence_file,
+  keys_file,
+  output_dir = ".",
+  sc_option = c("all", "msspc"),
+  fractions = FALSE,
+  quant_variable = c("msint", "msspc"),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name,
@@ -43,7 +49,7 @@ The input files requires to run SAINTq
 }
 \description{
 Converts the MaxQuant evidence file to the required files
-by SAINTq. The user can choose to use either peptides with \code{spectral counts}
+by SAINTq. The user can choose to use either peptides with \verb{spectral counts}
 (use \code{msspc}) or the all the peptides (use \code{all}) for the analysis.
 The quantitative can be also chosen (either MS Intensity or Spectral Counts)
 }
@@ -60,11 +66,11 @@ the folling files:
 Then \code{cd} into the new folder and run either of the following two options
 (assuming that \code{saintq} is installed in your linux/unix/mac os x system):
 
-\code{> saintq config-saintq-peptides}
+\verb{> saintq config-saintq-peptides}
 
 or
 
-\code{> saintq config-saintq-proteins}
+\verb{> saintq config-saintq-proteins}
 }
 \examples{
 # Testing that the files cannot be empty

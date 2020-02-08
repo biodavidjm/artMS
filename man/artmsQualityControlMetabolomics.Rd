@@ -4,10 +4,18 @@
 \alias{artmsQualityControlMetabolomics}
 \title{Quality Control analysis of the evidence-like metabolomics dataset}
 \usage{
-artmsQualityControlMetabolomics(evidence_file, keys_file,
-  met_exp = c("MV"), output_name = "qcPlots_metab",
-  plotINTDIST = TRUE, plotREPRO = TRUE, plotCORMAT = TRUE,
-  plotINTMISC = TRUE, printPDF = TRUE, verbose = TRUE)
+artmsQualityControlMetabolomics(
+  evidence_file,
+  keys_file,
+  met_exp = c("MV"),
+  output_name = "qcPlots_metab",
+  plotINTDIST = TRUE,
+  plotREPRO = TRUE,
+  plotCORMAT = TRUE,
+  plotINTMISC = TRUE,
+  printPDF = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The evidence file path and name, or

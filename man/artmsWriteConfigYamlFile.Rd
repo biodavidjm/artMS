@@ -4,8 +4,10 @@
 \alias{artmsWriteConfigYamlFile}
 \title{Write out a template file of the artMS configuration file (yaml)}
 \usage{
-artmsWriteConfigYamlFile(config_file_name = "artms_config_file.yaml",
-  verbose = TRUE)
+artmsWriteConfigYamlFile(
+  config_file_name = "artms_config_file.yaml",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{config_file_name}{(char) The name for the configuration file. It must

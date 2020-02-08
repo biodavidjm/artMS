@@ -4,8 +4,13 @@
 \alias{artmsGeneratePhSiteExtended}
 \title{Generate ph-site specific detailed file}
 \usage{
-artmsGeneratePhSiteExtended(df, pathogen = "nopathogen", species,
-  ptmType, output_name)
+artmsGeneratePhSiteExtended(
+  df,
+  pathogen = "nopathogen",
+  species,
+  ptmType,
+  output_name
+)
 }
 \arguments{
 \item{df}{(data.frame) of log2fc and imputed values}

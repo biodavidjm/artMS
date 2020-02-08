@@ -1,3 +1,13 @@
+New version 1.5.3 (2020-02-08)
++ artmsAnalysisQuantifications(), several updates:
+   - change default value for "l2fc_thres" to 1
+   - change defult value for "output_dir" to "analysis_quant"
+   - NEW option: "outliers". It allows to remove outliers from abundance data
++ Fix bug affecting artmsQualityControlSummaryExtended()
+
+New version 1.5.2 (2019-12-06)
++ Fixed a crash when impute fails due to missing outlier data (part 2)
+
 New version 1.5.1 (2019-12-06)
 + Fixed a crash when impute fails due to missing outlier data
 

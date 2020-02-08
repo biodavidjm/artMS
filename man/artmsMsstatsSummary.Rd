@@ -4,8 +4,14 @@
 \alias{artmsMsstatsSummary}
 \title{Summarize the MSStats results and data quantification}
 \usage{
-artmsMsstatsSummary(evidence_file, prot_group_file, keys_file,
-  results_file, return_df = FALSE, verbose = TRUE)
+artmsMsstatsSummary(
+  evidence_file,
+  prot_group_file,
+  keys_file,
+  results_file,
+  return_df = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char or data.frame) The filepath to the MaxQuant

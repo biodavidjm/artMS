@@ -4,8 +4,12 @@
 \alias{artmsSpectralCounts}
 \title{Outputs the spectral counts from the MaxQuant evidence file.}
 \usage{
-artmsSpectralCounts(evidence_file, keys_file, output_file = NULL,
-  verbose = TRUE)
+artmsSpectralCounts(
+  evidence_file,
+  keys_file,
+  output_file = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char) Maxquant evidence file or data object}
