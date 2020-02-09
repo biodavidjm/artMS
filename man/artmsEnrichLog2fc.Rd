@@ -4,11 +4,17 @@
 \alias{artmsEnrichLog2fc}
 \title{Enrichment of changes in protein abundance or PTMs}
 \usage{
-artmsEnrichLog2fc(dataset, species, background, heatmaps = FALSE,
-  output_name = "enrichment.txt", verbose = TRUE)
+artmsEnrichLog2fc(
+  dataset,
+  species,
+  background,
+  heatmaps = FALSE,
+  output_name = "enrichment.txt",
+  verbose = TRUE
+)
 }
 \arguments{
-\item{dataset}{(data.frame) with a \code{Gene} and \code{Comparison or Label} (with
+\item{dataset}{(data.frame) with a \code{Gene} and \verb{Comparison or Label} (with
 the name of the comparisons specified in the contrast file) columns}
 
 \item{species}{(char) Specie, only supported "human" or "mouse"}

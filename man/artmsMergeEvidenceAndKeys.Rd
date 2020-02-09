@@ -4,8 +4,13 @@
 \alias{artmsMergeEvidenceAndKeys}
 \title{Merge evidence.txt (or summary.txt) with keys.txt files}
 \usage{
-artmsMergeEvidenceAndKeys(x, keys, by = c("RawFile"),
-  isSummary = FALSE, verbose = TRUE)
+artmsMergeEvidenceAndKeys(
+  x,
+  keys,
+  by = c("RawFile"),
+  isSummary = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{(data.frame or char) The evidence data, either as data.frame or

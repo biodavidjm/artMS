@@ -4,8 +4,14 @@
 \alias{artmsEvidenceToSaintExpress}
 \title{MaxQuant evidence file to SAINTexpress format}
 \usage{
-artmsEvidenceToSaintExpress(evidence_file, keys_file, ref_proteome_file,
-  quant_variable = c("msspc", "msint"), output_file, verbose = TRUE)
+artmsEvidenceToSaintExpress(
+  evidence_file,
+  keys_file,
+  ref_proteome_file,
+  quant_variable = c("msspc", "msint"),
+  output_file,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{evidence_file}{(char) The evidence file path and name}
@@ -36,7 +42,7 @@ The 3 required files by SAINTexpress:
 }
 \description{
 Converts the MaxQuant evidence file to the 3 required files
-by SAINTexpress. One can choose to either use the \code{spectral counts}
+by SAINTexpress. One can choose to either use the \verb{spectral counts}
 (use \code{msspc}) or the \code{intensities} (use \code{msint}) for the analysis.
 }
 \examples{

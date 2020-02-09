@@ -1107,6 +1107,10 @@ ANALYSIS OF QUANTIFICATIONS
 Comprehensive analysis of the quantifications outputs obtained from the function
 [artmsQuantification()](#relquan) section to find out more). It includes:
 
+`artmsAnalysisQuantifications()` performs a comprehensive analysis of the 
+quantifications outputs obtained from the function 
+[artmsQuantification()](#relquan). It includes:
+
 - Annotations
 - Summary files in different formats (xls, txt) and shapes (long, wide)
 - Basic Imputation (see *Notes on Imputation* and input option **`mnbr`** below)
@@ -1123,7 +1127,8 @@ It takes as input two files generated from the previous quantification step
 ([artmsQuantification()](#relquan))
 
 - `-results.txt` : MSstats quantification results
-- `-results_ModelQC.txt` : MSstats normalized abundance values. It will be used to extract details about reproducibility.
+- `-results_ModelQC.txt` : MSstats normalized abundance values. 
+It will be used to extract details about reproducibility.
 
 To run this analysis:
 
@@ -1153,6 +1158,10 @@ Spectrometry (`APMS`), and global analysis of posttranslational modifications
    + `"ptmsites"`: use for site specific PTM analysis.
 - `species`: this downstream analysis supports (for now) `"human"` and 
 `"mouse"` only.
+- `outliers`: outliers can be kept (default) or could be removed from the abundance data. Options:
+   + `keep`: keeps the outliers 
+   + `iqr`: removes any outlier outside 6 times interquartile range from the mean (recommended) 
+   + `std`: it removes any outliers outside 6x the standard deviation from the mean
 - `enrich`: If `TRUE`, it will perform enrichment analysis using `gProfileR`
 - `isBackground`. If `enrich = TRUE`, the user can provide a background 
 gene list (add the file path as well)

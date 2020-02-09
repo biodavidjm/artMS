@@ -4,9 +4,16 @@
 \alias{artmsQualityControlSummaryExtended}
 \title{Quality Control of the MaxQuant summary.txt file}
 \usage{
-artmsQualityControlSummaryExtended(summary_file, keys_file,
-  isFractions = FALSE, plotMS1SCANS = TRUE, plotMS2 = TRUE,
-  plotMSMS = TRUE, plotISOTOPE = TRUE, verbose = TRUE)
+artmsQualityControlSummaryExtended(
+  summary_file,
+  keys_file,
+  isFractions = FALSE,
+  plotMS1SCANS = TRUE,
+  plotMS2 = TRUE,
+  plotMSMS = TRUE,
+  plotISOTOPE = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{summary_file}{(char or data.frame) The evidence file path and name, or
@@ -30,7 +37,7 @@ If replicates are present, Page 2 shows the mean number of MS1 scans per
 condition with error bar showing the standard error of the mean.
 If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
 
-\item{plotMSMS}{(logical) \code{TRUE} generates MS2 identification rate (%) plot:
+\item{plotMSMS}{(logical) \code{TRUE} generates MS2 identification rate (\%) plot:
 Page 1 shows the fraction of MS2 scans confidently identified in each
 BioReplicate. If replicates are present, Page 2 shows the mean rate of MS2
 scans confidently identified per condition with error bar showing the

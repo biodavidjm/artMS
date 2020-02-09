@@ -24,7 +24,7 @@ Entry ID.
 
 For example, values in a Protein column like this:
 
-\code{sp|P12345|Entry_name;sp|P54321|Entry_name2}
+\verb{sp|P12345|Entry_name;sp|P54321|Entry_name2}
 
 will be replace by
 

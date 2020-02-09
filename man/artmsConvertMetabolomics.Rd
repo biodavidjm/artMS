@@ -5,8 +5,7 @@
 \title{Convert Markview Metabolomics file (alignment table) into
 a artMS compatible format}
 \usage{
-artmsConvertMetabolomics(input_file, out_file, id_file = NULL,
-  verbose = TRUE)
+artmsConvertMetabolomics(input_file, out_file, id_file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{input_file}{(char) Markview input file}

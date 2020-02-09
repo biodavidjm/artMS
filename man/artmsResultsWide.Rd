@@ -4,8 +4,13 @@
 \alias{artmsResultsWide}
 \title{Reshape the MSstats results file from long to wide format}
 \usage{
-artmsResultsWide(results_msstats, output_file = NULL,
-  select_pvalues = c("adjpvalue", "pvalue"), species, verbose = TRUE)
+artmsResultsWide(
+  results_msstats,
+  output_file = NULL,
+  select_pvalues = c("adjpvalue", "pvalue"),
+  species,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{results_msstats}{(char) Input file name and location

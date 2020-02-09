@@ -24,6 +24,10 @@
 #' @param output_dir (char) Name for the folder to output the results from the 
 #' function. Default is current directory (recommended to provide a new folder
 #' name).
+#' @param outliers (char) It allows to keep or remove outliers. Options:
+#' - `keep` (default): it keeps outliers 'keep', 'iqr', 'std'
+#' - `iqr` (recommended): remove outliers +/- 6 x Interquartile Range (IQR)
+#' - `std` : 6 x standard deviation
 #' @param enrich (logical) Performed enrichment analysis using GprofileR?
 #' Only available for species HUMAN and MOUSE. 
 #' `TRUE` (default if "human" or "mouse" are the species) or `FALSE`
@@ -85,9 +89,10 @@
 artmsAnalysisQuantifications <- function(log2fc_file,
                                          modelqc_file,
                                          species,
-                                         output_dir = ".",
+                                         output_dir = "analysis_quant",
+                                         outliers = c("keep", "iqr", "std"),
                                          enrich = TRUE,
-                                         l2fc_thres = 1.5,
+                                         l2fc_thres = 1,
                                          choosePvalue = c("adjpvalue","pvalue"),
                                          isBackground = "nobackground",
                                          isPtm = "global",
@@ -157,10 +162,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
          The valid options are: <global> or <ptmsites> ")
   }
   
+  outliers <- tolower(outliers)
+  outliers <- match.arg(outliers)
+  
+  choosePvalue <- tolower(choosePvalue)
   choosePvalue <- match.arg(choosePvalue)
-  if(!(choosePvalue %in% c('pvalue', 'adjpvalue')))
-    stop("The < choosePvalue > argument is wrong. 
-         The valid options are: <pvalue> or <adjpvalue> ")
   
   # CHECK IF THE SPECIES IS SUPPORTED
   if(isFALSE(artmsIsSpeciesSupported(species))){
@@ -226,9 +232,83 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   # # Remove outliers
-  if(verbose) message("--- Removing outliers (10 < abundance < 40) ")
-  dfmq <- dfmq[which(dfmq$ABUNDANCE > 10 & dfmq$ABUNDANCE < 40), ]
-  
+  if (outliers == "iqr" | outliers == "std"){
+
+    if(outliers == "iqr"){
+      if(verbose) message("--- Removing outliers (based on 6xIQR cutoff)")
+      iqr <- IQR(dfmq$ABUNDANCE)
+      m <- mean(dfmq$ABUNDANCE)
+      uplim <- m+(6*iqr)
+      lowlim <- m-(6*iqr)
+    }else if(outliers == "std"){
+      if(verbose) message("--- Removing outliers (based on 6xSTD cutoff)")
+      std <- sd(dfmq$ABUNDANCE)
+      m <- mean(dfmq$ABUNDANCE)
+      uplim <- m+3*std
+      lowlim <- m-3*std
+    }
+
+    # Record outliers for plotting
+    dfmq$outliers <- ifelse(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim, "no", "yes")
+    
+    outliers_number <- length(dfmq$outliers[which(dfmq$outliers == "yes")])
+    
+    # Report outliers removed
+    if (outliers_number == 0){
+      if(verbose) message("------> No outliers have been removed")
+    }else{
+      if(verbose) message("------> Total outliers removed: ", outliers_number)
+      out.outliers <- gsub(".txt", paste0("-outliers-removed-",outliers,".txt"), log2fc_file)
+      out.outliers <- paste0(output_dir, "/", out.outliers)
+      dfmq.outliers <- dfmq[which(dfmq$outliers == "yes"),]
+      write.table(
+        dfmq.outliers,
+        out.outliers,
+        quote = FALSE,
+        sep = "\t",
+        row.names = FALSE,
+        col.names = TRUE
+      )
+      
+      # PLOT Outliers
+      k <- ggplot(dfmq, aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, color = outliers))
+      k <- k + geom_jitter(width = 0.3, size = 0.5)
+      k <- k + theme_minimal()
+      k <- k + ggtitle("Distribution of ABUNDANCE with outliers")
+      k <-k + theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        vjust = 0.5
+      ))
+      
+      # Distribution without ouliers
+      l <- ggplot(dfmq[which(dfmq$outliers == "no"),], aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE))
+      l <- l + geom_jitter(width = 0.3, size = 0.5)
+      l <- l + theme_minimal()
+      l <- l + ggtitle("Distribution of ABUNDANCE (outliers removed)")
+      l <- l + theme(axis.text.x = element_text(
+        angle = 90,
+        hjust = 1,
+        vjust = 0.5
+      ))
+      
+      out.outliers <- gsub(".txt", paste0("-outliers-removed-",outliers,".pdf"), log2fc_file)
+      out.outliers <- paste0(output_dir, "/", out.outliers)
+      pdf(out.outliers)
+      plot(k)
+      plot(l)
+      garbage <- dev.off()
+      
+      if(verbose) message("------> Check table and plot to find out more about outliers removed")
+
+      # Remove outliers
+      dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
+    }
+  }else{
+    if(verbose) message("--- Outliers kept (user selection)")
+    dfmq <- dfmq
+  }
+
   # First, let's take the conditions, which will be used later in several places
   conditions <- unique(dfmq$GROUP_ORIGINAL)
   numberConditions <- length(conditions)
@@ -291,29 +371,27 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dflog2fcraw$Protein <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dflog2fcraw$Protein)
   dflog2fcraw$Protein <- gsub("(.*)(\\|.*)", "\\1", dflog2fcraw$Protein)
   
-  
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC), ]
   
-  # Removing outliers?
-  cutofflog2fc <- 14
+  
+  
+  # Removing log2fc outliers?
+  cutofflog2fc <- 15
   if(verbose) message(
-    "--- Removing outliers (",
+    "--- Removing log2fc outliers (",
     paste0("-", cutofflog2fc, " < log2fc < +", cutofflog2fc),
     ") "
   )
-  # filtermorethan10 <-
-  #   length(dflog2fcfinites$log2FC[abs(dflog2fcfinites$log2FC) > cutofflog2fc])
-  # if (filtermorethan10 > 0) {
-  #   if(verbose) message(
-  #     "------ (-) Removing [",
-  #     filtermorethan10,
-  #     "] protein ids with a abs(log2fc) >",
-  #     cutofflog2fc,
-  #     " "
-  #   )
-  #   dflog2fcfinites <-
-  #     dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc), ]
-  # }
+  
+  filtermorethan10 <- length(dflog2fcfinites$log2FC[abs(dflog2fcfinites$log2FC) > cutofflog2fc])
+  if (filtermorethan10 > 0) {
+    if(verbose) message("------ (-) Removing [",
+                        filtermorethan10,
+                        "] protein ids with a abs(log2fc) >",
+                        cutofflog2fc, 
+                        " ")
+    dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc), ]
+  }
   
   # IMPUTING MISSING VALUES
   # When a value is completely missed in one of the conditions,
@@ -544,7 +622,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if(plotCorrQuant){
     # Relationship between log2fc comparisons
-    if(verbose) message(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values ")
+    if(verbose) message(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values)")
     if (length(unique(dflog2fc$Label)) > 1) {
       relaChanges <- gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
       relaChanges <- paste0("plot.", relaChanges)

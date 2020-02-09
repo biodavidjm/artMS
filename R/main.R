@@ -32,7 +32,7 @@
 #' @import RColorBrewer
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
-#' kmeans median order.dendrogram phyper as.dist complete.cases qt
+#' kmeans median order.dendrogram phyper as.dist complete.cases qt IQR
 #' @import stringr
 #' @importFrom tidyr unnest
 #' @import UpSetR

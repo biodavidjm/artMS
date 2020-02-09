@@ -29,13 +29,6 @@ package `MaxQuant`.
 
 
 
-
-
-
-
-
-
-
 # How to install
 
 We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.6` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
@@ -52,7 +45,8 @@ Two options to install `artMS`
 
 ## Official BioConductor releases (recommended)
 
-`artMS` is available on [BioConductor](https://www.bioconductor.org/). Run the following lines:
+`artMS` is available on [BioConductor](https://www.bioconductor.org/). 
+Run the following lines:
 
 ```
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -115,8 +109,11 @@ There are multiple options:
 some very useful guides for beginners can be found <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/" target="blank">here</a>
 and <a href="https://github.com/Bioconductor/Contributions/blob/master/CONTRIBUTING.md" target="blank">there</a> (or even <a href="http://lmgtfy.com/?q=how+to+contribute+to+a+github+project" target="blank">beyond</a>)
 
-
-
 ## Tips
 
 Do you need to remember the basics of markdown? [Check out this fantastic link](https://commonmark.org/help/tutorial/index.html).
+
+
+## artMS Help available online
+
+The vignette can also be accessed at [https://artms.org](https://artms.org)
