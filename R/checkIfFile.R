@@ -16,23 +16,17 @@
                                is.evidence = FALSE) {
   # check if already a data.frame or data.table
   if (is.data.table(input_file)) {
-    x <- data.table(input_file)
+    x <- data.table(input_file, check.names = !dont_check_names)
   } else if (is.data.frame(input_file)) {
-    x <- data.frame(input_file)
+    x <- data.frame(input_file, check.names = !dont_check_names)
   } else if (is.vector(input_file)){
     if(length(input_file) == 1){
       if(!file.exists(input_file)){
         stop("The file ", input_file, " does not exist! ")
       }else{
-        if(dont_check_names){
-          x <- read.delim(input_file, 
-                          stringsAsFactors = FALSE)
-        }else{
-          x <- read.delim(input_file, 
-                          stringsAsFactors = FALSE,
-                          check.names = FALSE)
-        }
-        
+        read.delim(input_file,
+                   stringsAsFactors = FALSE,
+                   check.names = !dont_check_names)
       }
     }else{
       stop("The input object is not valid")

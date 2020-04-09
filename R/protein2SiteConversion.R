@@ -133,7 +133,7 @@ then make the argument 'overwrite_evidence = TRUE'")
   ## map mod sites in data to index
   if(verbose) message("--- OPENING EVIDENCE FILE ")
   ## read in maxq. data
-  maxq_data <- .artms_checkIfFile(evidence_file, dont_check_names = FALSE)
+  maxq_data <- .artms_checkIfFile(evidence_file, dont_check_names = TRUE)
   maxq_data <- as.data.table(maxq_data)
   
   # Check maxquant version:
