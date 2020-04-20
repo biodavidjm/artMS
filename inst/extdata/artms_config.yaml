@@ -39,7 +39,7 @@ output_extras :
   plots:
     volcano: 1
     heatmap: 1
-    LFC : -1.5 1.5 # Range of minimal log2fc
-    FDR : 0.05
+    LFC : -1 1 # Range of minimal log2fc
+    FDR : 0.05 # adjusted p-value, false discovery rate
     heatmap_cluster_cols : 0
     heatmap_display : log2FC # log2FC or pvalue

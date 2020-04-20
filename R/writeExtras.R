@@ -37,10 +37,8 @@
     results_ann <- results
   }
   
-  lfc_lower <-
-    as.numeric(unlist(strsplit(config$output_extras$plots$LFC, split = " "))[1])
-  lfc_upper <-
-    as.numeric(unlist(strsplit(config$output_extras$plots$LFC, split = " "))[2])
+  lfc_lower <- as.numeric(unlist(strsplit(config$output_extras$plots$LFC, split = " "))[1])
+  lfc_upper <- as.numeric(unlist(strsplit(config$output_extras$plots$LFC, split = " "))[2])
   
   ## This option was originally available in the config file but
   ## it was removed
@@ -79,20 +77,16 @@
       # Heatmap only for > 1 comparison
       if (dim(sign_hits)[1] > 1) {
         if(verbose) message(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES ")
-        heat_labels <-
-          .artms_prettyPrintHeatmapLabels(
-            uniprot_acs = sign_hits$Protein,
-            uniprot_ids = sign_hits$name,
-            gene_names = sign_hits$Gene.names
-          )
-        heat_data_w <-
-          .artms_plotHeat(
-            mss_F = sign_hits,
-            out_file =  gsub('.txt', '-sign.pdf', config$files$output),
-            names = heat_labels,
-            cluster_cols = config$output_extras$plots$heatmap_cluster_cols,
-            display = config$output_extras$plots$heatmap_display,
-            verbose = verbose)
+        heat_labels <- .artms_prettyPrintHeatmapLabels(uniprot_acs = sign_hits$Protein,
+                                                       uniprot_ids = sign_hits$name,
+                                                       gene_names = sign_hits$Gene.names)
+          
+        heat_data_w <- .artms_plotHeat(mss_F = sign_hits,
+                                       out_file =  gsub('.txt', '-sign.pdf', config$files$output),
+                                       names = heat_labels,
+                                       cluster_cols = config$output_extras$plots$heatmap_cluster_cols,
+                                       display = config$output_extras$plots$heatmap_display,
+                                       verbose = verbose)
       }
     }
   }
