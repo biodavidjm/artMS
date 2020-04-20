@@ -7,6 +7,7 @@
 artmsQualityControlSummaryExtended(
   summary_file,
   keys_file,
+  output_name = "qcExtended_summary",
   isFractions = FALSE,
   plotMS1SCANS = TRUE,
   plotMS2 = TRUE,
@@ -21,6 +22,9 @@ data.frame}
 
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
+
+\item{output_name}{(char) prefix output name (no extension).
+Default: "qcExtended_summary"}
 
 \item{isFractions}{(logical) \code{TRUE} if it is a 2D experiment (fractions).
 Default: \code{FALSE}}

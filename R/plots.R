@@ -998,8 +998,119 @@ artmsPlotHeatmapQuant <- function(input_file,
   }
 }
 
+# ------------------------------------------------------------------------------
+# @title Pretty Labels for Heatmaps
+#
+# @description Generates pretty labels for the heatmaps.
+# @param uniprot_acs (char) Uniprot accession id
+# @param uniprot_ids (char) Uniprot entry id
+# @param gene_names (car) Gene symbol
+# @return Pretty labels for a heatmap
+# @keywords internal, plots, pretty
+.artms_prettyPrintHeatmapLabels <- function(uniprot_acs, uniprot_ids, gene_names) {
+  result = paste(uniprot_acs, uniprot_ids, gene_names, sep = ' ')
+  return(result)
+}
 
-## 
+# ------------------------------------------------------------------------------
+# @title Barplot of peptide counts per biological replicate
+#
+# @description Total number of unique peptide identified per biological
+# replicate
+# @param data_f (char) Evidence file (same structure as the original)
+# @param config (yaml.object) Configuration object
+# @return (pdf) Barplot of peptide counts
+# @keywords barplot, counts, peptides
+.artms_samplePeptideBarplot <- function(data_f, config) {
+  # set up data into ggplot compatible format
+  data_f <- data.table(data_f,
+                       labels = paste(data_f$RawFile, 
+                                      data_f$Condition, 
+                                      data_f$BioReplicate))
+  
+  data_f <- data_f[with(data_f, order(labels, decreasing = TRUE)), ]
+  
+  # plot the peptide counts for all the samples TOGETHER
+  p <- ggplot(data = data_f, aes(x = labels))
+  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90,
+                                                         hjust = 1,
+                                                         family = 'mono'
+  )) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
+  
+  ggsave(filename = gsub('.txt', '-peptidecounts.pdf', config$files$output),
+         plot = p,
+         width = 8,
+         height = 10)
+  
+  
+  w <- 10
+  h <- ceiling((7 / 5 + 2) * ceiling(length(unique(data_f$Condition)) / 5))
+  # plot the peptide counts for all the samples PER BAIT
+  p <- ggplot(data = data_f, aes(x = as.factor(BioReplicate)))
+  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90,
+                                                         hjust = 1,
+                                                         family = 'mono' )) + 
+    ggtitle('Unique peptides per run\n after filtering') + 
+    facet_wrap( ~ Condition, scales = 'free', ncol = 5)  + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  ggsave(filename = gsub('.txt', '-peptidecounts-perBait.pdf', config$files$output),
+         plot = p,
+         width = w,
+         height = h)
+}
+
+
+# ------------------------------------------------------------------------------
+# @title Select significant hits
+#
+# @description Filtered data.frame with significant values (log2fc > 2 |
+# log2fc < -2; adj.pvalue < 0.05) from the MSstats results
+# @param mss_results (data.frame) of MSstats results
+# @param labels (vector) of selected labels. Default: all (`*`)
+# @param LFC (vector, int) with the negative and positive threshold. Default:
+# c(-2, 2)
+# @param whatPvalue (char) `pvalue` or `adj.pvalue` (default)?
+# @param FDR (int) false discovery rate (adj.pvalue) threshold. Default: 0.05
+# @return (data.frame) only with significant hits
+# @keywords internal, significant, selections
+.artms_significantHits <- function(mss_results,
+                                   labels = '*',
+                                   LFC = c(-2, 2),
+                                   whatPvalue = 'adj.pvalue',
+                                   FDR = 0.05) {
+  selected_results <- mss_results[grep(labels, mss_results$Label),]
+  
+  if (whatPvalue == "adj.pvalue") {
+    significant_proteins <-
+      selected_results[(
+        !is.na(selected_results$log2FC) &
+          selected_results$adj.pvalue <= FDR &
+          (
+            selected_results$log2FC >= LFC[2] |
+              selected_results$log2FC <= LFC[1]
+          )
+      ), 'Protein']
+  } else if (whatPvalue == "pvalue") {
+    significant_proteins <-
+      selected_results[(
+        !is.na(selected_results$log2FC) &
+          selected_results$pvalue <= FDR &
+          (
+            selected_results$log2FC >= LFC[2] |
+              selected_results$log2FC <= LFC[1]
+          )
+      ), 'Protein']
+  } else{
+    stop("The whatPvalue argument is wrong. Valid options: pvalue or adj.pvalue")
+  }
+  
+  significant_results <-
+    selected_results[selected_results$Protein %in% significant_proteins,]
+  return(significant_results)
+}
+
+
 
 # ------------------------------------------------------------------------------
 # @title Summary stats for plots

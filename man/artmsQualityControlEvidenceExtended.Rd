@@ -7,6 +7,7 @@
 artmsQualityControlEvidenceExtended(
   evidence_file,
   keys_file,
+  output_name = "qcExtended_evidence",
   isSILAC = FALSE,
   plotPSM = TRUE,
   plotIONS = TRUE,
@@ -22,7 +23,7 @@ artmsQualityControlEvidenceExtended(
   plotPROTICV = TRUE,
   plotPROTDETECT = TRUE,
   plotIDoverlap = TRUE,
-  plotIC = TRUE,
+  plotPCA = TRUE,
   plotSP = TRUE,
   printPDF = TRUE,
   verbose = TRUE
@@ -34,6 +35,9 @@ data.frame}
 
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
+
+\item{output_name}{(char) prefix output name (no extension).
+Default: "qcExtended_evidence"}
 
 \item{isSILAC}{if \code{TRUE} processes SILAC input files. Default is \code{FALSE}}
 
@@ -131,10 +135,10 @@ MULTI-SECPEP).}
 heatmap overlap: Pages 1 and 2 show pairwise peptide and protein overlap
 between any 2 BioReplicates, respectively.}
 
-\item{plotIC}{(logical) \code{TRUE} generates pairwise intensity correlation:
+\item{plotPCA}{(logical) \code{TRUE} generates PCA and pairwise intensity correlation:
 Page 1 and 3 show pairwise peptide and protein intensity correlation and
 scatter plot between any 2 BioReplicates, respectively. Page 2 and 4 show
-principal component analysis at the intensity level for both peptide and
+Principal Component Analysis at the intensity level for both peptide and
 proteins, respectively.}
 
 \item{plotSP}{(logical)  \code{TRUE} generates sample quality metrics: Page 1

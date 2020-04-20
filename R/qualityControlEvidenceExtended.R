@@ -7,6 +7,8 @@
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
+#' @param output_name (char) prefix output name (no extension).
+#' Default: "qcExtended_evidence"
 #' @param isSILAC if `TRUE` processes SILAC input files. Default is `FALSE`
 #' @param plotPSM (logical) `TRUE` generates peptide-spectrum-matches (PSMs) 
 #' statistics plot: Page 1 shows the number of PSMs confidently identified 
@@ -88,10 +90,10 @@
 #' @param plotIDoverlap (logical) `TRUE` generates pairwise identification 
 #' heatmap overlap: Pages 1 and 2 show pairwise peptide and protein overlap 
 #' between any 2 BioReplicates, respectively. 
-#' @param plotIC (logical) `TRUE` generates pairwise intensity correlation: 
+#' @param plotPCA (logical) `TRUE` generates PCA and pairwise intensity correlation: 
 #' Page 1 and 3 show pairwise peptide and protein intensity correlation and 
 #' scatter plot between any 2 BioReplicates, respectively. Page 2 and 4 show 
-#' principal component analysis at the intensity level for both peptide and 
+#' Principal Component Analysis at the intensity level for both peptide and 
 #' proteins, respectively. 
 #' @param plotSP (logical)  `TRUE` generates sample quality metrics: Page 1 
 #' shows missing cleavage distribution of all peptides confidently identified 
@@ -110,6 +112,7 @@
 #' @export
 artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 keys_file,
+                                                output_name = "qcExtended_evidence",
                                                 isSILAC = FALSE,
                                                 plotPSM = TRUE,
                                                 plotIONS = TRUE,
@@ -125,7 +128,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 plotPROTICV = TRUE,
                                                 plotPROTDETECT = TRUE,
                                                 plotIDoverlap = TRUE,
-                                                plotIC = TRUE,
+                                                plotPCA = TRUE,
                                                 plotSP = TRUE,
                                                 printPDF = TRUE,
                                                 verbose = TRUE){
@@ -356,7 +359,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPSM) {
     if(verbose) message("--- Plot PSM", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PSM.pdf',
+      paste0(output_name,'.qcplot.PSM.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -383,7 +386,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       ) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
-      labs(title = "Number of PSMs",           
+      labs(title = "Number of Peptide-spectrum-matches (PSMs)",           
            subtitle = "bottom = Potential contaminants; top = non-contaminants") +
       theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
@@ -486,7 +489,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot IONS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_IONS.pdf',
+      paste0(output_name,'.qcplot.Ions.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -615,7 +618,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot TYPE", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_TYPE.pdf',
+      paste0(output_name,'.qcplot.Type.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -664,7 +667,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PEPTIDES", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PEPTIDES.pdf',
+      paste0(output_name,'.qcplot.Peptides.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -832,7 +835,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PROTEINS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PROTEINS.pdf',
+      paste0(output_name,'.qcplot.Proteins.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -961,7 +964,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Plot Ion Oversampling", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PepIonOversampling.pdf',
+      paste0(output_name,'.qcplot.PepIonOversampling.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1076,7 +1079,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Charge State", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_CHARGESTATE.pdf',
+      paste0(output_name,'.qcplot.ChargeState.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1121,7 +1124,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotME) {
     if(verbose) message("--- Plot Mass Error", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_MASSERROR.pdf',
+      paste0(output_name,'.qcplot.MassError.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1169,7 +1172,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Mass-over-Charge distribution", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_MZ.pdf',
+      paste0(output_name,'.qcplot.MZ.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1211,7 +1214,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPEPICV) {
     if(verbose) message("--- Plot Peptide Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PEPINT.pdf',
+      paste0(output_name,'.qcplot.PeptideIntensityCV.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1309,7 +1312,7 @@ Overall median CV within each bin/condition is shown on the top and number of fe
   if (plotPEPDETECT) {
     if(verbose) message("--- Plot Peptide Detection (using modified.sequence)", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PepDetect.pdf',
+      paste0(output_name,'.qcplot.PeptideDetection.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1350,7 +1353,7 @@ Overall median CV within each bin/condition is shown on the top and number of fe
   if (plotPROTICV) {
     if(verbose) message("--- Plot Protein Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_ProtInt.pdf',
+      paste0(output_name,'.qcplot.ProteinIntensityCV.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1438,7 +1441,7 @@ Overall median CV within each condition is shown on the top and number of protei
   if (plotPROTDETECT) {
     if(verbose) message("--- Plot Protein Detection", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_ProtDetect.pdf',
+      paste0(output_name,'.qcplot.ProteinDetection.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1529,7 +1532,7 @@ Overall median CV within each condition is shown on the top and number of protei
   if (plotIDoverlap) {
     if(verbose) message("--- Plot ID overlap", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC-ID-Overlap.pdf',
+      paste0(output_name,'.qcplot.ID-Overlap.pdf'),
       width = 20, #nsamples * 3
       height = 20,
       onefile = TRUE
@@ -1662,10 +1665,10 @@ Overall median CV within each condition is shown on the top and number of protei
   }
   
   
-  if (plotIC) {
-    if(verbose) message("--- Plot Inter-Correlation")
+  if (plotPCA) {
+    if(verbose) message("--- Plot PCA and Inter-Correlation")
     if(printPDF) pdf(
-      'QC-IntCorrelation.pdf',
+      paste0(output_name,'.qcplot.PCA.pdf'),
       width = 10, #nsamples * 3
       height = 10,
       onefile = TRUE
@@ -1777,7 +1780,7 @@ Overall median CV within each condition is shown on the top and number of protei
 
     if(verbose) message("--- Plot Sample Preparation", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC-SamplePrep.pdf',
+      paste0(output_name,'.qcplot.SamplePrep.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1924,13 +1927,11 @@ Overall median CV within each condition is shown on the top and number of protei
                        lapply(y, function(y)
                          length(intersect(x, y)) / length(union(x, y)))
                      }, pept)
-  m <-
-    matrix(
-      unlist(pepmatch),
-      nrow = length(pept),
-      ncol = length(pept),
-      byrow = TRUE
-    )
+  m <- matrix(unlist(pepmatch),
+              nrow = length(pept),
+              ncol = length(pept),
+              byrow = TRUE)
+    
   colnames(m) <- rownames(m) <- names(pept)
   ans <- list(Peptides = pept, M = m)
   return(ans)

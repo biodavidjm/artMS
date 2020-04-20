@@ -9,6 +9,8 @@
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
+#' @param output_name (char) prefix output name (no extension).
+#' Default: "qcExtended_summary"
 #' @param isFractions (logical) `TRUE` if it is a 2D experiment (fractions).
 #' Default: `FALSE`
 #' @param plotMS1SCANS (logical) `TRUE` generates MS1 scan counts plot: 
@@ -43,6 +45,7 @@
 #' @export
 artmsQualityControlSummaryExtended <- function(summary_file,
                                                 keys_file,
+                                                output_name = "qcExtended_summary",
                                                 isFractions = FALSE,
                                                 plotMS1SCANS = TRUE,
                                                 plotMS2 = TRUE,
@@ -153,7 +156,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotMS1SCANS) {
     if(verbose) message("--- Plot Number of MS1 scans", appendLF = FALSE)
     pdf(
-      'QCSummary_MS1SCANS.pdf',
+      paste0(output_name,'.qcplot.MS1scans.pdf'),
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -255,7 +258,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotMS2) {
     if(verbose) message("--- Plot Number of MS2 scans", appendLF = FALSE)
     pdf(
-      'QCSummary_MS2.pdf',
+      paste0(output_name,'.qcplot.MS2scans.pdf'),
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -386,7 +389,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotMSMS) {
     if(verbose) message("--- Plot Number of msms.identification rate", appendLF = FALSE)
     pdf(
-      'QCSummary_MSMS.pdf',
+      paste0(output_name,'.qcplot.MSMS.pdf'),
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
@@ -491,7 +494,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   if (plotISOTOPE) {
     if(verbose) message("--- Plot Number of isotope patterns", appendLF = FALSE)
     pdf(
-      'QCSummary_ISOTOPE.pdf',
+      paste0(output_name,'.qcplot.Isotope.pdf'),
       width = nsamples * 3,
       height = 20,
       onefile = TRUE
