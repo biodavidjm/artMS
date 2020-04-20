@@ -49,12 +49,13 @@ utils::globalVariables(
     "Abundance",
     "ABUNDANCE",
     "adj.pvalue",
+    "artms_config",
     "artms_data_corum_mito_database",
     "artms_data_pathogen_LPN",
     "artms_data_pathogen_TB",
-    "artms_config",
     "bin.all",
     "bin.condition",
+    "BiorepCount",
     "BioReplicate",
     "bioreplicate",
     "category",
@@ -62,6 +63,7 @@ utils::globalVariables(
     "cluster",
     "Comparison",
     "ComplexName",
+    "CondCount",
     "condition",
     "Condition",
     "Contaminant",
@@ -150,8 +152,6 @@ utils::globalVariables(
     "quantile",
     "RawFile",
     "rect",
-    "BiorepCount",
-    "CondCount",
     "res_index",
     "retention.length",
     "reverse",
@@ -221,6 +221,11 @@ artmsQuantification <- function(yaml_config_file,
   if (!(is.null(config$data$filters$modification))) {
     config$data$filters$modification <- toupper(config$data$filters$modification)
   }
+  
+  session <- sessionInfo()
+  sink("artms_sessionInfo_quantification.txt")
+  print(session)
+  sink()
   
   # Quality Control
   if (config$qc$basic) {

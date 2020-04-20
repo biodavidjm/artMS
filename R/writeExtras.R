@@ -63,35 +63,37 @@
       LFC = c(lfc_lower, lfc_upper),
       FDR = config$output_extras$plots$FDR
     )
-  if (dim(sign_hits)[1] == 0)
-    stop("--(-) No significant hits detected in this experiment. aborting plots. ")
-  sign_labels <- unique(sign_hits$Label)
-  if(verbose) message( sprintf(
+  if (dim(sign_hits)[1] == 0){
+    message("--(-) No significant hits detected in this experiment. aborting plots. ")
+  }else{
+    sign_labels <- unique(sign_hits$Label)
+    if(verbose) message( sprintf(
       "-- Selected hits for plots with LFC between %s and %s at %s FDR:\t%s ",
       lfc_lower,
       lfc_upper,
       config$output_extras$plots$FDR,
       nrow(sign_hits) / length(sign_labels)))
-  
-  ## REPRESENTING RESULTS AS HEATMAP, if enabled
-  if (config$output_extras$plots$heatmap) {
-    # Heatmap only for > 1 comparison
-    if (dim(sign_hits)[1] > 1) {
-      if(verbose) message(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES ")
-      heat_labels <-
-        .artms_prettyPrintHeatmapLabels(
-          uniprot_acs = sign_hits$Protein,
-          uniprot_ids = sign_hits$name,
-          gene_names = sign_hits$Gene.names
-        )
-      heat_data_w <-
-        .artms_plotHeat(
-          mss_F = sign_hits,
-          out_file =  gsub('.txt', '-sign.pdf', config$files$output),
-          names = heat_labels,
-          cluster_cols = config$output_extras$plots$heatmap_cluster_cols,
-          display = config$output_extras$plots$heatmap_display,
-          verbose = verbose)
+    
+    ## REPRESENTING RESULTS AS HEATMAP, if enabled
+    if (config$output_extras$plots$heatmap) {
+      # Heatmap only for > 1 comparison
+      if (dim(sign_hits)[1] > 1) {
+        if(verbose) message(">> PLOTTING HEATMAP FOR SIGNIFICANT CHANGES ")
+        heat_labels <-
+          .artms_prettyPrintHeatmapLabels(
+            uniprot_acs = sign_hits$Protein,
+            uniprot_ids = sign_hits$name,
+            gene_names = sign_hits$Gene.names
+          )
+        heat_data_w <-
+          .artms_plotHeat(
+            mss_F = sign_hits,
+            out_file =  gsub('.txt', '-sign.pdf', config$files$output),
+            names = heat_labels,
+            cluster_cols = config$output_extras$plots$heatmap_cluster_cols,
+            display = config$output_extras$plots$heatmap_display,
+            verbose = verbose)
+      }
     }
   }
   

@@ -198,7 +198,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   session <- sessionInfo()
-  sink("sessionInfoArtMS.txt")
+  sink("artms_sessionInfo_analysisQuant.txt")
   print(session)
   sink()
   
