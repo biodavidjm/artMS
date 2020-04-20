@@ -1,3 +1,4 @@
+utils::globalVariables(c("Organism"))
 # ------------------------------------------------------------------------------
 #' @importFrom scales percent
 #' @title Quality Control analysis of the MaxQuant evidence file
@@ -9,22 +10,23 @@
 #' @param keys_file (char or data.frame) The keys file path and name or 
 #' data.frame
 #' @param output_name (char) prefix output name (no extension).
-#' Default: "qcPlots_evidence"
+#' Default: "qcBasic_evidence"
 #' @param prot_exp (char) Proteomics experiment. 4 options available:
 #' - `APMS`: affinity purification mass spectrometry
 #' - `AB`: protein abundance
 #' - `PH`: protein phosphorylation
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
+#' - `AC`: protein acetylation
 #' @param fractions (binary) Is a fractionated experiment?
 #' - 1 yes
 #' - 0 no (default)
 #' @param isSILAC if `TRUE` processes SILAC input files. Default is `FALSE`
-#' @param plotINTDIST if `TRUE` (default) plots both *Box-dot plot* 
+#' @param plotINTDIST if `TRUE` plots both *Box-dot plot* 
 #' and *Jitter plot* of biological replicates based on MS (raw) 
-#' intensity values.
-#' @param plotREPRO if `TRUE` (default) plots a correlation dotplot for all the 
+#' intensity values, otherwise `FALSE` (default) 
+#' @param plotREPRO if `TRUE` plots a correlation dotplot for all the 
 #' combinations of biological replicates of conditions, based on MS Intensity 
-#' values using features (peptide+charge)
+#' values using features (peptide+charge). Otherwise `FALSE` (default)
 #' @param plotCORMAT if `TRUE` (default) plots a 
 #' - *Correlation matrix* for all the biological replicates using 
 #' MS Intensity values, 
@@ -75,12 +77,12 @@
 #' @export
 artmsQualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
-                             prot_exp = c('AB', 'PH', 'UB', 'APMS'),
+                             prot_exp = c('AB', 'PH', 'UB', 'AC', 'APMS'),
                              fractions = 0,
-                             output_name = "qcPlots_evidence",
+                             output_name = "qcBasic_evidence",
                              isSILAC = FALSE,
-                             plotINTDIST = TRUE,
-                             plotREPRO = TRUE,
+                             plotINTDIST = FALSE,
+                             plotREPRO = FALSE,
                              plotCORMAT = TRUE,
                              plotINTMISC = TRUE,
                              plotPTMSTATS = TRUE,
@@ -170,36 +172,50 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # them up
   if (fractions) {
     # Sum up all the fractions first
-    evidencekeys <-
-      aggregate(
-        Intensity~Feature+Proteins+Leading.proteins+Condition+BioReplicate +
-          Run,
-        data = evidencekeys,
-        FUN = sum
-      )
+    evidencekeys <- aggregate(Intensity~Feature+Proteins+Leading.proteins+Condition+BioReplicate+Run,
+                              data = evidencekeys, 
+                              FUN = sum)
   }
   
   
+  # Check the total number of modified and non-modified residues to plot
   if (prot_exp == "UB") {
     # Check the total number of modified and non-modified residues to plot
-    evidencekeys$PTM <-
-      ifelse(grepl("(gl)", evidencekeys$Modified.sequence),
-             "ub",
-             "other")
+    evidencekeys$PTM <- ifelse(grepl("(gl)", evidencekeys$Modified.sequence),
+                               "ub",
+                               "other")
   } else if (prot_exp == "PH") {
-    # Check the total number of modified and non-modified residues to plot
     evidencekeys$PTM <- ifelse(grepl("(ph)", evidencekeys$Modified.sequence),
                                "ph",
                                "other")
+  } else if (prot_exp == "AC") {
+    evidencekeys$PTM <- ifelse(grepl("(ac)", evidencekeys$Modified.sequence),
+                               "ac",
+                               "other")
   }
   
-  evigeneral <- evidencekeys[c('Feature',
-                               'Proteins',
-                               'Leading.proteins',
-                               'Intensity',
-                               'Condition',
-                               'BioReplicate',
-                               'Run')]
+  flag_organism <- FALSE
+  if("Organism" %in% colnames(evidencekeys)){
+    flag_organism <- TRUE
+    columns_selected <- c('Feature',
+                          'Proteins',
+                          'Leading.proteins',
+                          'Intensity',
+                          'Condition',
+                          'BioReplicate',
+                          'Run',
+                          'Organism')
+  }else{
+    columns_selected <- c('Feature',
+                          'Proteins',
+                          'Leading.proteins',
+                          'Intensity',
+                          'Condition',
+                          'BioReplicate',
+                          'Run')
+  }
+  
+  evigeneral <- evidencekeys[columns_selected]
   
   evigeneral$TechReplica <- paste(evigeneral$BioReplicate, evigeneral$Run, sep = "-")
   
@@ -214,11 +230,16 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # AGGREGATE ALL THE INTENSITIES PER PROTEIN, summing everything up
   evigeneral$Intensity <- as.numeric(evigeneral$Intensity)
   
-  evisummary <- aggregate(
-    Intensity ~ Condition + BioReplicate + Contaminant + Run,
-    data = evigeneral,
-    FUN = sum
-  )
+  if(flag_organism){
+    evisummary <- aggregate(Intensity ~ Condition + BioReplicate + Contaminant + Run + Organism,
+                            data = evigeneral,
+                            FUN = sum)
+  } else {
+    evisummary <- aggregate(Intensity ~ Condition + BioReplicate + Contaminant + Run,
+                            data = evigeneral,
+                            FUN = sum)
+  }
+
   
   # Combine Bioreplicate+Run for plotting
   evisummary$TechReplica <- paste(evisummary$BioReplicate, 
@@ -239,9 +260,8 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       'BioReplicate',
       'Run'
     )]
-    
     evidencekeysclean <- evidencekeysclean[grep("(gl)", evidencekeysclean$Modified.sequence), ]
-  } else if (prot_exp == "PH") {
+  }else if (prot_exp == "PH") {
     evidencekeysclean <- evidencekeysclean[c(
       'Feature',
       'Modified.sequence',
@@ -251,8 +271,18 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       'BioReplicate',
       'Run'
     )]
-    
     evidencekeysclean <- evidencekeysclean[grep("(ph)", evidencekeysclean$Modified.sequence), ]
+  }else if (prot_exp == "AC") {
+    evidencekeysclean <- evidencekeysclean[c(
+      'Feature',
+      'Modified.sequence',
+      'Proteins',
+      'Intensity',
+      'Condition',
+      'BioReplicate',
+      'Run'
+    )]
+    evidencekeysclean <- evidencekeysclean[grep("(ac)", evidencekeysclean$Modified.sequence), ]
   }
   
   
@@ -306,7 +336,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
 
   if(plotREPRO){
     if(verbose) message("-- Plot: Reproducibility scatter plots")
-    seqReproName <- paste0(output_name, ".qcplot.basicReproducibility.pdf")
+    seqReproName <- paste0(output_name, ".qcplot.BasicReproducibility.pdf")
 
     if(printPDF) pdf(seqReproName)
       .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
@@ -340,7 +370,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       
       # And now for clustering
       if(verbose) message("---- by Technical replicates ")
-      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.correlationMatrixTR.pdf")
+      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.CorrelationMatrixTR.pdf")
       
       if(printPDF) pdf(matrixCorrelationBioreplicas,
           width = 20,
@@ -411,7 +441,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
     
     if(verbose) message("---- by Biological replicates ")
-      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
+      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.CorrelationMatrixBR.pdf")
     if(printPDF) pdf(matrixCorrelationBioreplicas, width = 20, height = 20)
       corrplot(
         Mbioreplicas,
@@ -480,7 +510,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
     
     if(verbose) message("---- by Conditions ")
-    matrixCorrelationCond <- paste0(output_name, ".qcplot.correlationMatrixConditions.pdf")
+    matrixCorrelationCond <- paste0(output_name, ".qcplot.CorrelationMatrixConditions.pdf")
     if(printPDF) pdf(matrixCorrelationCond)
       corrplot(
         Mcond,
@@ -541,12 +571,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       # Select Unique number of proteins per Biological Replica
       bc <- ekselecta[c('Proteins', 'Condition', 'BioReplicate')]
       bb <- unique(bc)
+    
+      
       # Select unique number of proteins in Technical Replicates
       cc <- ekselecta[c('Proteins', 'Condition', 'BioReplicate', 'Run')]
       cc$TR <- paste0(ekselecta$BioReplicate, "_", ekselecta$Run)
       ccc <- cc[c('Proteins', 'Condition', 'TR')]
       cd <- unique(ccc)
-    } else if (prot_exp == "UB") {
+    } else if (prot_exp == "UB" | prot_exp == "PH" | prot_exp == "AC") {
       ekselectall <- evidencekeysclean[c(
         'Feature',
         'Modified.sequence',
@@ -556,8 +588,17 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         'BioReplicate',
         'Run'
       )]
-        
-      ekselectgly <- ekselectall[grep("(gl)", ekselectall$Modified.sequence), ]
+      
+      if(prot_exp == "UB"){
+        ekselectgly <- ekselectall[grep("(gl)", ekselectall$Modified.sequence), ]
+      }else if(prot_exp == "PH"){
+        ekselectgly <- ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
+      }else if(prot_exp == "AC"){
+        ekselectgly <- ekselectall[grep("(ac)", ekselectall$Modified.sequence), ]
+      }else{
+        stop("Impossible error. Please report to developers (artms.help@gmail.com)")
+      }
+      
       # Select the REDUNDANT peptides with the meanimum intensity
       ekselectaBioreplica <- aggregate(
         Intensity ~ Proteins + Condition + BioReplicate + Run,
@@ -580,49 +621,22 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       cd <- unique(ccc)
       
       # Check the total number of modified and non-modified residues to plot
-      evidencekeys$PTM <-
-        ifelse(grepl("(gl)", evidencekeys$Modified.sequence),
-               "ub",
-               "other")
-    } else if (prot_exp == "PH") {
-      ekselectall <- evidencekeysclean[c(
-        'Feature',
-        'Modified.sequence',
-        'Proteins',
-        'Intensity',
-        'Condition',
-        'BioReplicate',
-        'Run'
-      )]
-        
-      ekselectgly <- ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
-      # SUM UP all the peptide intensities for all the proteins: 
-      # only one intensity value per protein and biological data
-      ekselectaBioreplica <- aggregate(
-        Intensity ~ Proteins + Condition + BioReplicate + Run,
-        data = ekselectgly,
-        FUN = sum
-      )
-        
-      # Select Unique number of proteins per Condition
-      ac <- ekselectaBioreplica[c('Proteins', 'Condition')]
-      b <- unique(ac)
-      # Select Unique number of proteins per Biological Replica
-      bc <- ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate')]
-      bb <- unique(bc)
-      # Select unique number of proteins in Technical Replicates
-      cc <- ekselectaBioreplica[c('Proteins', 'Condition', 'BioReplicate', 'Run')]
-      cc$TR <- paste0(ekselectaBioreplica$BioReplicate,
-                      "_",
-                      ekselectaBioreplica$Run)
-      ccc <- cc[c('Proteins', 'Condition', 'TR')]
-      cd <- unique(ccc)
-      
-      # Check the total number of modified and non-modified residues to plot
-      evidencekeys$PTM <- ifelse(grepl("(ph)", evidencekeys$Modified.sequence),
-                                          "ph",
-                                          "other")
-    } else {
+      if(prot_exp == "UB"){
+        evidencekeys$PTM <- ifelse(grepl("(gl)", evidencekeys$Modified.sequence),
+                                   "ub",
+                                   "other")
+      }else if(prot_exp == "PH"){
+        evidencekeys$PTM <- ifelse(grepl("(ph)", evidencekeys$Modified.sequence),
+                                   "ph",
+                                   "other")
+      }else if(prot_exp == "AC"){
+        evidencekeys$PTM <- ifelse(grepl("(ac)", evidencekeys$Modified.sequence),
+                                   "ac",
+                                   "other")
+      }else{
+        stop("Impossible error. Please report to developers (artms.help@gmail.com)")
+      }
+    }else {
       stop("Proteomics experiment not recognized ")
     }
     
@@ -961,8 +975,67 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       ) +
       ggtitle("Unique IDs in Condition")
     
+    if(flag_organism){
+      #QC: SUM of intensities per biological replica (peptides vs contaminant)
+      pisorganism <- ggplot(evisummary,
+                            aes(x = BioReplicate, y = Intensity, fill = Organism)) +
+        geom_bar(stat = "identity",
+                 position = position_dodge(width = 0.7),
+                 width = 0.7,
+                 na.rm = TRUE) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1,
+                                         vjust = 0.5,
+                                         size = 8), 
+              legend.title = element_blank()) +
+        ggtitle("QC: Total Sum of Intensities in BioReplicates") +
+        scale_fill_brewer(palette = "Paired")
+      
+      #QC: SUM of intensities per technical replicate (peptides vs contaminant)
+      if(technicalReplicas){
+        pisorganismtech <- ggplot(evisummary,
+                                  aes(x = TechReplica, y = Intensity, fill = Organism)) +
+          geom_bar(stat = "identity",
+                   position = position_dodge(width = 0.7),
+                   width = 0.7,
+                   na.rm = TRUE) +
+          theme_minimal() +
+          theme(axis.text.x = element_text(
+            angle = 90,
+            hjust = 1,
+            vjust = 0.5,
+            size = 4
+          ),
+          legend.title = element_blank()) +
+          ggtitle("QC: Total Sum of Intensities in Technical Replicates") +
+          scale_fill_brewer(palette = "Paired")
+      }
+      
+      oo <- evigeneral[c('Proteins', 'Condition', 'BioReplicate', 'Organism')]
+      oo <- unique(oo)
+      oo <- oo[-which(is.na(oo$Organism)),]
+      
+      pisorganismcounts <- ggplot(oo, aes(x = BioReplicate, fill = Organism)) +
+        geom_bar(stat = "count", na.rm = TRUE) +
+        theme(axis.text.x = element_text(angle = 90,
+                                         hjust = 1,
+                                         vjust = 0.5,
+                                         size = 8),
+              legend.title = element_blank()) +
+        geom_text(
+          stat = 'count',
+          aes(label = ..count..),
+          # vjust = -0.5,
+          hjust = 1,
+          size = 2.7,
+          angle = 90
+        ) +
+        ggtitle("Unique IDs in Biological Replicas by Organism")
+    }
+    
     if(verbose) message("---- ", prot_exp, " PROCESSED ")
-    reproName <- paste0(output_name, ".qcplot.intensityStats.pdf")
+    reproName <- paste0(output_name, ".qcplot.IntensityStats.pdf")
     
     if(printPDF) pdf(reproName, width = 10, height = 6)
       print(pisa)
@@ -981,13 +1054,18 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       if(technicalReplicas) print(pisi)
       print(pisj)
       print(pisk)
+      if(flag_organism){
+        print(pisorganism)
+        if(technicalReplicas) pisorganismtech
+        print(pisorganismcounts)
+      } 
     if(printPDF) garbage <- dev.off()
   }# ends plotINTMISC
   
   if(plotPTMSTATS){
-    if (prot_exp == "PH" | prot_exp == "UB") {
+    if (prot_exp == "PH" | prot_exp == "UB" | prot_exp == "AC") {
       if(verbose) message("-- Plot: PTM ", prot_exp, " stats")
-      modName <- paste0(output_name, ".qcplot.ptmStats.pdf")
+      modName <- paste0(output_name, ".qcplot.PTMStats.pdf")
       
       x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = PTM))
       x <- x + geom_bar(stat = "count",

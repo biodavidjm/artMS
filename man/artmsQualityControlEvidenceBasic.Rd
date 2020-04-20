@@ -7,12 +7,12 @@
 artmsQualityControlEvidenceBasic(
   evidence_file,
   keys_file,
-  prot_exp = c("AB", "PH", "UB", "APMS"),
+  prot_exp = c("AB", "PH", "UB", "AC", "APMS"),
   fractions = 0,
-  output_name = "qcPlots_evidence",
+  output_name = "qcBasic_evidence",
   isSILAC = FALSE,
-  plotINTDIST = TRUE,
-  plotREPRO = TRUE,
+  plotINTDIST = FALSE,
+  plotREPRO = FALSE,
   plotCORMAT = TRUE,
   plotINTMISC = TRUE,
   plotPTMSTATS = TRUE,
@@ -33,6 +33,7 @@ data.frame}
 \item \code{AB}: protein abundance
 \item \code{PH}: protein phosphorylation
 \item \code{UB}: protein ubiquitination (aka ubiquitylation)
+\item \code{AC}: protein acetylation
 }}
 
 \item{fractions}{(binary) Is a fractionated experiment?
@@ -42,17 +43,17 @@ data.frame}
 }}
 
 \item{output_name}{(char) prefix output name (no extension).
-Default: "qcPlots_evidence"}
+Default: "qcBasic_evidence"}
 
 \item{isSILAC}{if \code{TRUE} processes SILAC input files. Default is \code{FALSE}}
 
-\item{plotINTDIST}{if \code{TRUE} (default) plots both \emph{Box-dot plot}
+\item{plotINTDIST}{if \code{TRUE} plots both \emph{Box-dot plot}
 and \emph{Jitter plot} of biological replicates based on MS (raw)
-intensity values.}
+intensity values, otherwise \code{FALSE} (default)}
 
-\item{plotREPRO}{if \code{TRUE} (default) plots a correlation dotplot for all the
+\item{plotREPRO}{if \code{TRUE} plots a correlation dotplot for all the
 combinations of biological replicates of conditions, based on MS Intensity
-values using features (peptide+charge)}
+values using features (peptide+charge). Otherwise \code{FALSE} (default)}
 
 \item{plotCORMAT}{if \code{TRUE} (default) plots a
 \itemize{

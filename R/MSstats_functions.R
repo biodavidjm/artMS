@@ -181,6 +181,8 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
     data_f = data_f[Modifications %like% 'GlyGly']
   } else if (config$data$filters$modification == 'PH') {
     data_f = data_f[Modifications %like% 'Phospho']
+  } else if (config$data$filters$modification == 'AC') {
+    data_f = data_f[Modifications %like% 'Acetyl']
   } else{
     stop("The config > data > filters > modification ",
          config$data$filters$modification," is not valid option")
