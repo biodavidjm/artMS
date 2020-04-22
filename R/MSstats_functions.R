@@ -12,11 +12,11 @@ utils::globalVariables(
 # @title Long to Wide format selecting the `Modified.sequence` column of the
 # evidence file
 #
-# @description Facilitates applying the dcast function, i.e., takes long-format
+# @description Facilitates applying the pivot_wider function, i.e., takes long-format
 # data and casts it into wide-format data.
 # @param d_long (data.frame) in long format
 # @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
-# @keywords internal, data.frame, dcast, ptm
+# @keywords internal, data.frame, pivot_wider, ptm
 .artms_castMaxQToWidePTM <- function(d_long) {
   # Old data.table approach
   # data_w <- data.table::dcast(
@@ -343,19 +343,27 @@ artmsSILACtoLong <- function(evidence_file,
   
   file <- Sys.glob(evidence_file)
   if(verbose) message(sprintf('>> PROCESSING SILAC EVIDENCE FILE '))
-  tmp <- fread(file, integer64 = 'double')
+
+  # LEGACY reshape the data and split the heavy and light data
+  # tmp <- fread(file, integer64 = 'double')
+  # tmp_long <- data.table::melt(tmp, 
+  #                               measure.vars = c("Intensity L", "Intensity H"))
+  # tmp_long[, Intensity := NULL]
+  # setnames(tmp_long, 'value', 'Intensity')
+  # setnames(tmp_long, 'variable', 'IsotopeLabelType')
+  # setnames(tmp_long, 'Raw file', 'Raw.file')
+  # levels(tmp_long$IsotopeLabelType) = c('L', 'H')
+  # tmp_long[!(is.na(tmp_long$Intensity) && tmp_long$Intensity < 1), ]$Intensity = NA
   
-  # reshape the data and split the heavy and light data
-  tmp_long <- data.table::melt(tmp, 
-                                measure.vars = c("Intensity L", "Intensity H"))
+  tmp <- read.delim(file, stringsAsFactors = FALSE)
+  tmp <- dplyr::select (tmp,-c(Intensity))
   
-  tmp_long[, Intensity := NULL]
-  setnames(tmp_long, 'value', 'Intensity')
-  setnames(tmp_long, 'variable', 'IsotopeLabelType')
-  setnames(tmp_long, 'Raw file', 'Raw.file')
+  tmp_long <- tmp %>% 
+    tidyr::pivot_longer(cols = c(`Intensity.L`, `Intensity.H`), 
+                        names_to = "IsotopeLabelType", 
+                        values_to = "Intensity")
+
   levels(tmp_long$IsotopeLabelType) = c('L', 'H')
-  tmp_long[!is.na(tmp_long$Intensity) &&
-             tmp_long$Intensity < 1, ]$Intensity = NA
   
   if(!is.null(output)){
     write.table(
@@ -368,10 +376,10 @@ artmsSILACtoLong <- function(evidence_file,
     )
     if(verbose) message("--- File ", output, " is ready ")
   }
-  colnames(tmp_long) <- gsub(" ", ".", colnames(tmp_long))
-  colnames(tmp_long) <- gsub("/", ".", colnames(tmp_long))
-  colnames(tmp_long) <- gsub("\\(", ".", colnames(tmp_long))
-  colnames(tmp_long) <- gsub("\\)", ".", colnames(tmp_long))
+  # colnames(tmp_long) <- gsub(" ", ".", colnames(tmp_long))
+  # colnames(tmp_long) <- gsub("/", ".", colnames(tmp_long))
+  # colnames(tmp_long) <- gsub("\\(", ".", colnames(tmp_long))
+  # colnames(tmp_long) <- gsub("\\)", ".", colnames(tmp_long))
   tmp_long <- as.data.frame(tmp_long)
   return(tmp_long)
 }
