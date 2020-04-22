@@ -167,14 +167,26 @@
 "artms_data_ph_contrast"
 
 
-#' MSstats results file example
+#' MSstats results example
 #'
 #' @description Relative quantification results obtained running MSstats
-#' on a PH datasets (global analysis). Changes in protein phosphorylation
-#' were quantified between two conditions
+#' on the available PH datasets (global analysis). 
+#' Changes in protein phosphorylation were quantified between two conditions
+#' (check `artms_data_ph_contrast`)
 #'
 #' @format A data frame resulting from running the lastest version of MSstats
 "artms_data_ph_msstats_results"
+
+#' MSstats modelQC example
+#'
+#' @description Normalized data obtained from the `artmsQuantification()` step
+#' of the PH dataset (global analysis)
+#'
+#' @format A data frame resulting from running the lastest version of
+#' `MSstats::groupComparison` function required as input for 
+#' artmsAnalysisQuantifications()
+"artms_data_ph_msstats_modelqc"
+
 
 #' Random data set
 #'
