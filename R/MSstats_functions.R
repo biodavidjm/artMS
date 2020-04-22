@@ -1,27 +1,15 @@
+
+utils::globalVariables(
+  c("Charge",
+    "Modified.sequence",
+    "RawFile_IsotopeLabelType",
+    "AbMean"))
+    
+
 # ==============================================================================
-## Small MSstats-related Functions
+# Small MSstats-related Functions
 
-# ------------------------------------------------------------------------------
-# @title Long to Wide format using the `Sequence` column of the evidence file
-#
-# @description Facilitates applying the dcast function, i.e., takes long-format
-# data and casts it into wide-format data.
-# @param d_long (data.frame) in long format
-# @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
-# @keywords internal, data.frame, dcast
-.artms_castMaxQToWide <- function(d_long) {
-  data_w <-
-    data.table::dcast(
-      Proteins + Sequence + Charge ~ RawFile + IsotopeLabelType,
-      data = d_long,
-      value.var = 'Intensity',
-      fun.aggregate = sum,
-      fill = NA
-    )
-  return(data_w)
-}
 
-# ------------------------------------------------------------------------------
 # @title Long to Wide format selecting the `Modified.sequence` column of the
 # evidence file
 #
@@ -31,19 +19,32 @@
 # @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
 # @keywords internal, data.frame, dcast, ptm
 .artms_castMaxQToWidePTM <- function(d_long) {
-  data_w <-
-    data.table::dcast(
-      Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType,
-      data = d_long,
-      value.var = 'Intensity',
-      fun.aggregate = sum,
-      fill = NA
-    )
-  setnames(data_w, 2, 'Sequence')
+  # Old data.table approach
+  # data_w <- data.table::dcast(
+  #   Proteins + Modified.sequence + Charge ~ RawFile + IsotopeLabelType,
+  #   data = d_long,
+  #   value.var = 'Intensity',
+  #   fun.aggregate = sum,
+  #   fill = NA
+  # )
+
+  data_w <- d_long %>%
+      dplyr::mutate(RawFile_IsotopeLabelType = paste(RawFile, IsotopeLabelType, sep = "_")) %>%
+      dplyr::select(Proteins, Modified.sequence, Charge, RawFile_IsotopeLabelType, Intensity) %>%
+      tidyr::pivot_wider(names_from = RawFile_IsotopeLabelType,
+                values_from = Intensity,
+                values_fn = list(Intensity = sum)) %>%
+      dplyr::arrange(Proteins)
+  
+  #artmsChangeColumnName is faster than dplyr rename
+  data_w <- artmsChangeColumnName(data_w, 
+                                  oldname = "Modified.sequence", 
+                                  newname = "Sequence")
+
   return(data_w)
 }
 
-# ------------------------------------------------------------------------------
+
 # @title Check the `MS/MS Count` column name on the evidence data.table
 #
 # @description Address case issue with the MS/MS Count column name
@@ -62,7 +63,7 @@
 }
 
 
-# ------------------------------------------------------------------------------
+
 # @title Check the `Raw file` column name on the evidence or keys data.frame
 #
 # @description Depending on how the data is loaded, the `Raw file` column
@@ -85,7 +86,7 @@
 }
 
 
-# ------------------------------------------------------------------------------
+
 #' @title Change a specific column name in a given data.frame
 #'
 #' @description Making easier to change a column name in any data.frame
@@ -111,7 +112,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   return(dataset)
 }
 
-# ------------------------------------------------------------------------------
+
 # @title Filtering data
 #
 # @description Apply the filtering options, i.e., remove protein groups and/or
@@ -190,7 +191,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   return(data_f)
 }
 
-# ------------------------------------------------------------------------------
+
 #' @title Remove contaminants and empty proteins from the MaxQuant evidence file
 #'
 #' @description Remove contaminants and erronously identified 'reverse'
@@ -220,7 +221,7 @@ artmsFilterEvidenceContaminants <- function(x,
   return(data_selected)
 }
 
-# ------------------------------------------------------------------------------
+
 #' @title Merge evidence.txt (or summary.txt) with keys.txt files 
 #' @description Merge the evidence and keys files on the given columns
 #' @param x (data.frame or char) The evidence data, either as data.frame or
@@ -320,7 +321,7 @@ artmsMergeEvidenceAndKeys <- function(x,
 }
 
 
-# ------------------------------------------------------------------------------
+
 #' @title Convert the SILAC evidence file to MSstats format
 #'
 #' @description Converting the evidence file from a SILAC search to a format
@@ -377,7 +378,7 @@ artmsSILACtoLong <- function(evidence_file,
 }
 
 
-# ------------------------------------------------------------------------------
+
 # @title Merge keys and Evidence from SILAC experiments
 #
 # @description Merge keys and Evidence from SILAC experiments
@@ -425,7 +426,7 @@ artmsSILACtoLong <- function(evidence_file,
 }
   
 
-# ------------------------------------------------------------------------------
+
 # @title Remove protein groups
 #
 # @description Remove the group of proteins ids separated by separated by `;`
@@ -438,7 +439,7 @@ artmsSILACtoLong <- function(evidence_file,
 }
 
 
-# ------------------------------------------------------------------------------
+
 #' @title Reshape the MSstats results file from long to wide format
 #'
 #' @description Converts the normal MSStats results.txt file into "wide" format
@@ -509,45 +510,7 @@ artmsResultsWide <- function(results_msstats,
   }
 }
 
-# ------------------------------------------------------------------------------
-# @title Correlation heatmaps of all the individual features
-# @description Correlation heatmap using intensity values across all the
-# conditions
-# @param data_w (data.frame) resulting from the `.artms_castMaxQToWidePTM`
-# function
-# @param keys (data.frame) of the keys
-# @param config (yaml.object) Configuration object (yaml loaded)
-# @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
-# @keywords internal, heatmap, intensity, comparisons
-.artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
-  mat = log2(data_w[, 4:ncol(data_w), with = FALSE])
-  mat[is.na(mat)] = 0
-  mat_cor = cor(mat, method = 'pearson', use = 'everything')
-  ## we want to make informarive row names so order by 
-  ## RawFile because that's how data_w is ordered
-  ordered_keys = keys[with(keys, order(RawFile)), ] 
-  mat_names = paste(ordered_keys$Condition,
-                    ordered_keys$BioReplicate,
-                    ordered_keys$Run)
-  colnames(mat_cor) = mat_names
-  rownames(mat_cor) = mat_names
-  colors_pos = colorRampPalette(RColorBrewer::brewer.pal("Blues", n = 5))(10)
-  colors_neg = rev(colorRampPalette(RColorBrewer::brewer.pal("Reds", n =
-                                                               5))(10))
-  colors_tot = c(colors_neg, colors_pos)
-  pheatmap(
-    mat = mat_cor,
-    cellwidth = 10,
-    cellheight = 10,
-    scale = 'none',
-    filename = gsub('.txt', '-heatmap.pdf', config$files$output),
-    color = colors_tot,
-    breaks = seq(from = -1, to = 1, by = .1),
-    fontfamily = "mono"
-  )
-}
 
-# ------------------------------------------------------------------------------
 #' @title Outputs the spectral counts from the MaxQuant evidence file.
 #'
 #' @description Outputs the spectral counts from the MaxQuant evidence file.
@@ -622,7 +585,7 @@ artmsSpectralCounts <- function(evidence_file,
   }
 }
 
-# ------------------------------------------------------------------------------
+
 # @title Remove white spaces
 #
 # @description Remove white spaces
@@ -633,7 +596,7 @@ artmsSpectralCounts <- function(evidence_file,
   gsub("^\\s+|\\s+$", "", x)
 }
 
-# ------------------------------------------------------------------------------
+
 # @title Generate the contrast matrix required by MSstats from a txt file
 # @description It simplifies the process of creating the contrast file
 # @param contrast_file The text filepath of contrasts
@@ -644,76 +607,84 @@ artmsSpectralCounts <- function(evidence_file,
 # @keywords check, contrast
 .artms_writeContrast <- function(contrast_file, 
                                  all_conditions = NULL) {
+
+  if(file.exists(contrast_file)){
     input_contrasts <- readLines(contrast_file, warn = FALSE)
-    #remove empty lines
-    input_contrasts <-
-      input_contrasts[vapply(input_contrasts, nchar, FUN.VALUE = 0) > 0]
-    
-    # check if contrast_file is old-format (i.e the contrast_file is a matrix)
-    headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
-    if (length(headers) > 1) {
-      newinput_contrasts <- c()
-      for (i in 2:length(input_contrasts)) {
-        newinput_contrasts <-
-          c(newinput_contrasts, unlist(strsplit(input_contrasts[i], 
-                                                split = "\t"))[1])
-      }
-      input_contrasts <- newinput_contrasts
+  }else{
+    # It assumes it is an already opened file
+    input_contrasts <- contrast_file
+    if(!is.character(input_contrasts)) stop("CONTRAST file/data is NULL")
+    if(!grepl("-", input_contrasts)) stop("CONTRAST file/data not according guidelines")
+  }
+
+  #remove empty lines
+  input_contrasts <- input_contrasts[vapply(input_contrasts, nchar, FUN.VALUE = 0) > 0]
+  
+  # check if contrast_file is old-format (i.e the contrast_file is a matrix)
+  headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
+  if (length(headers) > 1) {
+    newinput_contrasts <- c()
+    for (i in 2:length(input_contrasts)) {
+      newinput_contrasts <-
+        c(newinput_contrasts, unlist(strsplit(input_contrasts[i], 
+                                              split = "\t"))[1])
     }
-    
-    # validate the input
-    input_contrasts <- trimws(input_contrasts)
-    valid <- TRUE
-    accepted_chars <- c(LETTERS, letters, 0:9, '-', '_')
-    for (x in input_contrasts) {
-      if (x != "") {
-        characs <- unlist(strsplit(x, split = ''))
-        not_allowed_count <-
-          length(which(!(characs %in% accepted_chars)))
-        if (not_allowed_count > 0) {
-          valid <- FALSE
-          stop(paste(x, " is not a valid input"))
-        }
-        
-        dash_count <- length(which(characs == '-'))
-        if (dash_count != 1) {
-          valid <- FALSE
-          stop(paste(x, "needs to contain exactly 1 '-'"))
-        }
-      }
-    }
-    
-    if (valid) {
-      mat <- t(as.data.frame(strsplit(input_contrasts, split = '-')))
-      rownames(mat) <- NULL
-      conds <- sort(unique(c(mat[, 1], mat[, 2])))
-      contrast_matrix <-
-        matrix(0, nrow = nrow(mat), ncol = length(conds))
-      colnames(contrast_matrix) <- conds
-      rownames(contrast_matrix) <- input_contrasts
-      
-      for (i in seq_len(nrow(mat)) ) {
-        cond1 <- mat[i, 1]
-        cond2 <- mat[i, 2]
-        contrast_matrix[i, cond1] <- 1
-        contrast_matrix[i, cond2] <- -1
+    input_contrasts <- newinput_contrasts
+  }
+  
+  # validate the input
+  input_contrasts <- trimws(input_contrasts)
+  valid <- TRUE
+  accepted_chars <- c(LETTERS, letters, 0:9, '-', '_')
+  for (x in input_contrasts) {
+    if (x != "") {
+      characs <- unlist(strsplit(x, split = ''))
+      not_allowed_count <-
+        length(which(!(characs %in% accepted_chars)))
+      if (not_allowed_count > 0) {
+        valid <- FALSE
+        stop(paste(x, " is not a valid input"))
       }
       
-      # check if conditions are all found in Evidence/Key
-      if (!is.null(all_conditions)) {
-        d <- setdiff(conds, all_conditions)
-        if (length(d) > 0) {
-          msg <-
-            paste("These conditions are not found in the dataset:",
-                  paste(d, collapse = ","))
-          stop(msg)
-        }
+      dash_count <- length(which(characs == '-'))
+      if (dash_count != 1) {
+        valid <- FALSE
+        stop(paste(x, "needs to contain exactly 1 '-'"))
       }
-      return (contrast_matrix)
-    } else{
-      stop(
-        'Something went wrong while generating the contrast file.
-        Please, let the developers know at <artms.help@gmail.com>'
-      )
     }
+  }
+  
+  if (valid) {
+    mat <- t(as.data.frame(strsplit(input_contrasts, split = '-')))
+    rownames(mat) <- NULL
+    conds <- sort(unique(c(mat[, 1], mat[, 2])))
+    contrast_matrix <-
+      matrix(0, nrow = nrow(mat), ncol = length(conds))
+    colnames(contrast_matrix) <- conds
+    rownames(contrast_matrix) <- input_contrasts
+    
+    for (i in seq_len(nrow(mat)) ) {
+      cond1 <- mat[i, 1]
+      cond2 <- mat[i, 2]
+      contrast_matrix[i, cond1] <- 1
+      contrast_matrix[i, cond2] <- -1
+    }
+    
+    # check if conditions are all found in Evidence/Key
+    if (!is.null(all_conditions)) {
+      d <- setdiff(conds, all_conditions)
+      if (length(d) > 0) {
+        msg <-
+          paste("These conditions are not found in the dataset:",
+                paste(d, collapse = ","))
+        stop(msg)
+      }
+    }
+    return (contrast_matrix)
+  } else{
+    stop(
+      'Something went wrong while generating the contrast file.
+      Please, let the developers know at <artms.help@gmail.com>'
+    )
+  }
 }

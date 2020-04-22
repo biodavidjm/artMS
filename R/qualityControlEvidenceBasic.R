@@ -99,7 +99,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   prot_exp <- toupper(prot_exp)
   prot_exp <- match.arg(prot_exp)
   
-  
   # ---------------------------------------------------------------------------
   # GETTING DATA.FRAMES READY
   
@@ -294,10 +293,9 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # Check the number of TECHNICAL REPLICAS by 
   # checking the first technical replica
   technicalReplicas <- FALSE
-  if(length(unique(evisummary$BioReplicate)) < length(unique(evisummary$Run)))
+  if(length(unique(evisummary$BioReplicate)) < length(unique(evisummary$Run))){
     technicalReplicas <- TRUE
-  
-  # ---------------------------------------------------------------------------
+  }
   
   
   #################
@@ -311,28 +309,22 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     j <- ggplot(ekselectaBioreplica, aes(BioReplicate, Intensity))
     j <- j + geom_jitter(width = 0.3, size = 0.5)
     j <- j + theme_minimal()
-    j <-
-      j + theme(axis.text.x = element_text(
-        angle = 90,
-        hjust = 1,
-        vjust = 0.5
-      ))
+    j <- j + theme(axis.text.x = element_text(angle = 90,
+                                              hjust = 1,
+                                              vjust = 0.5))
     # Based on Abundance
     k <- ggplot(ekselectaBioreplica, aes(BioReplicate, Abundance))
     k <- k + geom_jitter(width = 0.3, size = 0.5)
     k <- k + theme_minimal()
-    k <-
-      k + theme(axis.text.x = element_text(
-        angle = 90,
-        hjust = 1,
-        vjust = 0.5
-      ))
+    k <- k + theme(axis.text.x = element_text(angle = 90,
+                                              hjust = 1,
+                                              vjust = 0.5))
+      
     if(printPDF) pdf(intDistribution)
       plot(j)
       plot(k)
     if(printPDF) garbage <- dev.off()
   }
-
 
   if(plotREPRO){
     if(verbose) message("-- Plot: Reproducibility scatter plots")

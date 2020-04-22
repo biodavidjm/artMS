@@ -4,10 +4,13 @@
 \alias{artmsQuantification}
 \title{Relative quantification using MSstats}
 \usage{
-artmsQuantification(yaml_config_file, verbose = TRUE)
+artmsQuantification(yaml_config_file, data_object = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{yaml_config_file}{(char) The yaml file name and location}
+
+\item{data_object}{(logical) flag to indicate whether the configuration file
+is a string to a file that should be opened or}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

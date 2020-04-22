@@ -380,13 +380,13 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @keywords internal, plot, qc, quality, control
 .artms_plotReproducibilityEvidence <- function(data,
                                                verbose = TRUE) {
-  data <-
-    data[c('Feature',
-           'Proteins',
-           'Intensity',
-           'Condition',
-           'BioReplicate',
-           'Run')]
+  data <- data[c('Feature',
+                 'Proteins',
+                 'Intensity',
+                 'Condition',
+                 'BioReplicate',
+                 'Run')]
+    
   condi <- unique(data$Condition)
   
   # Progress bar
@@ -406,8 +406,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     
     for (eBioreplica in bioreplicasAll) {
       # message('\tChecking for technical replicas in ',eBioreplica, " ")
-      biorepli <-
-        conditionOne[conditionOne$BioReplicate == eBioreplica, ]
+      biorepli <- conditionOne[conditionOne$BioReplicate == eBioreplica, ]
       here <- unique(biorepli$Run)
       
       if (length(here) > 1) {
@@ -422,19 +421,16 @@ artmsPlotHeatmapQuant <- function(input_file,
         
         # Let's select unique features per TECHNICAL REPLICAS, 
         # and sum them up (the same feature might have been many differnt times)
-        biorepliaggregated <-
-          aggregate(
-            Intensity ~ Feature+Proteins+Condition+BioReplicate+Run+TR,
-            data = biorepli,
-            FUN = sum
-          )
-        biorepliaggregated$Intensity <-
-          log2(biorepliaggregated$Intensity)
-        bdc <-
-          data.table::dcast(data = biorepliaggregated,
-                            Feature + Proteins ~ TR,
-                            value.var = 'Intensity')
-        
+        biorepliaggregated <- aggregate(Intensity ~ Feature+Proteins+Condition+BioReplicate+Run+TR,
+                                        data = biorepli,
+                                        FUN = sum)
+          
+          
+        biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
+        bdc <- data.table::dcast(data = biorepliaggregated,
+                                 Feature + Proteins ~ TR,
+                                 value.var = 'Intensity')
+          
         # Get the number of proteins
         np <- dim(bdc)[1]
         corr_coef <-
@@ -1011,6 +1007,52 @@ artmsPlotHeatmapQuant <- function(input_file,
   result = paste(uniprot_acs, uniprot_ids, gene_names, sep = ' ')
   return(result)
 }
+
+
+# @title Correlation heatmaps of all the individual features
+# @description Correlation heatmap using intensity values across all the
+# conditions
+# @param data_w (data.frame) resulting from the `.artms_castMaxQToWidePTM`
+# function
+# @param keys (data.frame) of the keys
+# @param config (yaml.object) Configuration object (yaml loaded)
+# @return (pdf) A correlation heatmap (suffix `-heatmap.pdf`)
+# @keywords internal, heatmap, intensity, comparisons
+.artms_sampleCorrelationHeatmap <- function (data_w, keys, config) {
+  # data_w <- data.table::as.data.table(data_w2)
+  # mat = log2(data_w[, 4:ncol(data_w), with = TRUE])
+  # mat[is.na(mat)] = 0
+  # mat_cor = cor(mat, method = 'pearson', use = 'everything')
+  
+  data_w <- log2(data_w[,4:ncol(data_w)])
+  data_w[is.na(data_w)] <- 0
+  mat_cor <- cor(data_w, method = 'pearson', use = 'everything')
+  
+  ## we want to make informarive row names so order by 
+  ## RawFile because that's how data_w is ordered
+  keys <- as.data.frame(keys)
+  ordered_keys <- keys[with(keys, order(RawFile)), ] 
+  mat_names <- paste(ordered_keys$Condition,
+                    ordered_keys$BioReplicate,
+                    ordered_keys$Run)
+  colnames(mat_cor) <- mat_names
+  rownames(mat_cor) <- mat_names
+  colors_pos <- colorRampPalette(RColorBrewer::brewer.pal("Blues", n = 5))(10)
+  colors_neg <- rev(colorRampPalette(RColorBrewer::brewer.pal("Reds", n = 5))(10))
+  colors_tot <- c(colors_neg, colors_pos)
+  pheatmap(
+    mat = mat_cor,
+    cellwidth = 10,
+    cellheight = 10,
+    scale = 'none',
+    filename = gsub('.txt', '-heatmap.pdf', config$files$output),
+    color = colors_tot,
+    breaks = seq(from = -1, to = 1, by = .1),
+    fontfamily = "mono"
+  )
+}
+
+
 
 # ------------------------------------------------------------------------------
 # @title Barplot of peptide counts per biological replicate

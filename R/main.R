@@ -185,6 +185,8 @@ utils::globalVariables(
 #' - quantifications (log2fc, pvalues, etc)
 #' - normalized abundance values
 #' @param yaml_config_file (char) The yaml file name and location
+#' @param data_object (logical) flag to indicate whether the configuration file
+#' is a string to a file that should be opened or 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The relative quantification of the conditions and comparisons
 #' specified in the keys/contrast file resulting from running MSstats, in
@@ -195,27 +197,38 @@ utils::globalVariables(
 #' }
 #' @export
 artmsQuantification <- function(yaml_config_file,
-                                 verbose = TRUE) {
+                                data_object = FALSE,
+                                verbose = TRUE) {
   
-  config <- yaml.load_file(yaml_config_file)
+  # Debugging:
+  # yaml_config_file <- artms_data_ph_config
+  # verbose = TRUE
   
-  # CHECK POINT: DO THE FILES EXIST?
-  if(!file.exists(config$files$contrasts)){
-    stop("the file ", config$files$contrasts, " does not exist! ")
+  # Check if the yaml file is already open first
+  if(data_object){
+    config <- yaml_config_file
+  }else{
+    config <- yaml.load_file(yaml_config_file)
   }
   
-  if(!file.exists(config$files$evidence)){
-    stop("the file ", config$files$evidence, " does not exist! ")
+  # CHECK POINT: it's a file or an object
+  if(!data_object){
+    if(!file.exists(config$files$contrasts)){
+      stop("the file ", config$files$contrasts, " does not exist! ")
+    }
+    
+    if(!file.exists(config$files$evidence)){
+      stop("the file ", config$files$evidence, " does not exist! ")
+    }
+    
+    if(!file.exists(config$files$keys)){
+      stop("the file ", config$files$keys, " does not exist! ")
+    }
   }
-  
-  if(!file.exists(config$files$keys)){
-    stop("the file ", config$files$keys, " does not exist! ")
-  }
-  
+
   if(!(grepl("\\.txt$", config$files$output))){
     stop("the file ", config$files$output, " must have extension .txt " )
   }
-  
   
   # LET'S HELP THE DISTRACTED USER
   if (!(is.null(config$data$filters$modification))) {
@@ -356,8 +369,7 @@ artmsQuantification <- function(yaml_config_file,
     data_w <- .artms_castMaxQToWidePTM(data_f)
     
     ## HEATMAPS
-    if (!is.null(config$data$sample_plots) &&
-        config$data$sample_plots) {
+    if (!is.null(config$data$sample_plots) && config$data$sample_plots) {
       keys_in_data <- keys[keys$RawFile %in% unique(x$RawFile), ]
       .artms_sampleCorrelationHeatmap(data_w = data_w,
                                       keys = keys_in_data,
@@ -375,14 +387,13 @@ artmsQuantification <- function(yaml_config_file,
     # Load the keys files
     keys <- .artms_checkIfFile(config$files$keys)
     keys <- .artms_checkRawFileColumnName(keys)
-    keys <- data.table(keys)
+    # keys <- data.table(keys)
 
     # Read in contrast file
     contrasts <- .artms_writeContrast(
       contrast_file = config$files$contrasts, 
       all_conditions= unique(as.character(keys$Condition)))
-      
-    
+
     selectedConditions <- as.character(colnames(contrasts))
     
     if (is.null(config$msstats$msstats_input)) {
@@ -392,15 +403,18 @@ artmsQuantification <- function(yaml_config_file,
       dmss <- .artms_getMSstatsFormat(data_f = data_f,
                                       fraction = config$data$fractions$enabled,
                                       output_name = config$files$evidence,
+                                      data_object = data_object,
                                       funfunc = "sum")
     } else {
       if(verbose) message(sprintf("\t+ READING PREPROCESSED FILE: %s ",
-        config$msstats$msstats_input))
+                                  config$msstats$msstats_input))
       dmss <- read.delim(config$msstats$msstats_input,
                          stringsAsFactors = FALSE,
                          sep = '\t')
     }
-    results <- .artms_runMSstats(dmss, contrasts, config,
+    results <- .artms_runMSstats(dmss, 
+                                 contrasts, 
+                                 config,
                                  verbose = verbose)
   } else{
     if(verbose) message("\t+ MSstats not selected")
