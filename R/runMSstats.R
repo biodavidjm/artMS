@@ -157,8 +157,7 @@
     col.names = TRUE
   )
   if(verbose) message("-- GROUP COMPARISON")
-  results <-
-    groupComparison(data = mssquant, contrast.matrix = contrasts)
+  results <- groupComparison(data = mssquant, contrast.matrix = contrasts)
   write.table(
     results$ComparisonResult,
     file = config$files$output,

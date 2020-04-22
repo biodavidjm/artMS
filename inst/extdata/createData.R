@@ -87,20 +87,22 @@ artms_data_ph_config$data$filters$modifications <- "PH"
 save(artms_data_ph_config, 
      file = "data/artms_data_ph_config.RData")
 
-# Reduced version of the results-----
-artms_data_ph_msstats_results <- read.delim("~/sourcecode/artms/extdata/artms_data_ph_msstats_results.txt",
-                                            stringsAsFactors = FALSE)
-  
-save(artms_data_ph_msstats_results,
-     file = 'data/artms_data_ph_msstats_results.RData',
+# Results -----
+
+artms_data_ph_quantifications <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
+                                             data_object = TRUE)
+
+artms_data_ph_msstats_results <- artms_data_ph_quantifications$ComparisonResult
+artms_data_ph_msstats_modelqc <- artms_data_ph_quantifications$ModelQC
+
+save(artms_data_ph_msstats_results, 
+     file = "data/artms_data_ph_msstats_results.RData",
      compress = 'xz')
 
-artms_data_ph_proteinGroups <-
-  read.delim("~/sourcecode/artms/ph/proteinGroups.txt",
-             stringsAsFactors = FALSE)
-save(artms_data_ph_proteinGroups,
-     file = 'data/artms_data_ph_proteinGroups.RData',
+save(artms_data_ph_msstats_modelqc, 
+     file = "data/artms_data_ph_msstats_modelqc.RData",
      compress = 'xz')
+
 
 # CORUM dataset----
 artms_data_corum_mito_database <- read.delim("inst/extdata/20170801_corum_mitoT.txt", 

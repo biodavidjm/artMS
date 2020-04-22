@@ -5,7 +5,7 @@
 #' @importFrom cluster pam
 #' @import ComplexHeatmap
 #' @importFrom corrplot corrplot
-#' @importFrom dplyr mutate desc count arrange desc everything
+#' @importFrom dplyr mutate desc count arrange desc everything one_of
 #' @import data.table
 #' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
 #' fviz_nbclust get_dist fviz_silhouette fviz_cluster
@@ -416,6 +416,7 @@ artmsQuantification <- function(yaml_config_file,
                                  contrasts, 
                                  config,
                                  verbose = verbose)
+    if(data_object) return(results)
   } else{
     if(verbose) message("\t+ MSstats not selected")
   }

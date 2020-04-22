@@ -1,12 +1,11 @@
 
 utils::globalVariables(
-  c("Charge",
+  c("AbMean",
+    "Charge",
+    "Label_variable",
     "Modified.sequence",
-    "RawFile_IsotopeLabelType",
-    "AbMean"))
-    
+    "RawFile_IsotopeLabelType"))
 
-# ==============================================================================
 # Small MSstats-related Functions
 
 
@@ -473,8 +472,14 @@ artmsResultsWide <- function(results_msstats,
                              species,
                              verbose = TRUE) {
   
-  if(any(missing(results_msstats) | 
-         missing(species)))
+  # Debug
+  # results_msstats = artms_data_ph_msstats_results
+  # output_file = NULL
+  # select_pvalues = "pvalue"
+  # species = "human"
+  # verbose = TRUE
+  
+  if(any(missing(results_msstats) | missing(species)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
@@ -484,16 +489,33 @@ artmsResultsWide <- function(results_msstats,
   select_pvalues <- match.arg(select_pvalues)
   pvals <- if(select_pvalues == "adjpvalue") "adj.pvalue" else "pvalue"
   selectedColumns <- c('Protein', 'Label', 'log2FC', pvals)
-  input_l <- data.table::melt(data = results_msstats[,selectedColumns], 
-                              id.vars = c('Protein', 'Label'))
   
-  ## then cast to get combinations of LFCV/PVAl and Label as columns
-  input_w <- data.table::dcast(Protein ~ Label + variable,
-                               data = input_l,
-                               value.var = c('value'))
+  # input_l <- data.table::melt(data = results_msstats[,selectedColumns], 
+  #                             id.vars = c('Protein', 'Label'))
+  
+  input_l <- results_msstats %>%
+    dplyr::select(one_of(selectedColumns)) %>%
+    tidyr::pivot_longer(
+      cols = -c(Protein, Label), 
+      names_to = "variable", 
+      values_to = "value")
+  
+  
+  # ## then cast to get combinations of LFCV/PVAl and Label as columns
+  # input_w <- data.table::dcast(Protein ~ Label + variable,
+  #                              data = input_l,
+  #                              value.var = c('value'))
+  
+  input_w <- input_l %>% 
+    dplyr::mutate(Label_variable = paste(Label, variable, sep = "_")) %>%
+    dplyr::select(Protein, Label_variable, value) %>%
+    tidyr::pivot_wider(names_from = Label_variable,
+                       values_from = value)
+  
   suppressMessages(input_w <- artmsAnnotationUniprot(input_w, 
                                                       "Protein", 
                                                       species))
+
   if (!is.null(output_file)) {
     write.table(
       input_w,
