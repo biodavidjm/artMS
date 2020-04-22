@@ -77,6 +77,7 @@
 #' }
 "artms_config"
 
+
 #' CORUM Protein Complexes database use for complex enrichment analysis
 #' 
 #' @description The list of protein complexes has been enriched with
@@ -156,6 +157,16 @@
 #' }
 "artms_data_ph_keys"
 
+#' Contrast example for the PH dataset
+#'
+#' @description Contrast file with the relative quantification to be performed
+#' for the two conditions available in the example dataset: "Cal33-HSC6". 
+#' See vignette for more details on how to prepare the contrast file.
+#'
+#' @format list with one comparison: "Cal33-HSC6"
+"artms_data_ph_contrast"
+
+
 #' MSstats results file example
 #'
 #' @description Relative quantification results obtained running MSstats
@@ -177,5 +188,70 @@
 #' }
 "artms_data_randomDF"
 
+
+
+#' artMS configuration for the available PH dataset
+#' 
+#' @description The configuration file with default options to run the
+#' available PH dataset with `artmsQuantification()``
+#' 
+#' @format The configuration (`yaml`) file contains the following sections:
+#' \describe{
+#' \item{files}{ 
+#' - `evidence` : artms_data_ph_evidence
+#' - `keys` : artms_data_ph_keys
+#' - `contrasts` : artms_data_ph_contrast
+#' - `summary` : 
+#' - `output` : "results.txt"
+#' }
+#' 
+#' \item{qc}{
+#' - basic: 0
+#' - extended: 0
+#' - extendedSummary: 0 =
+#' }
+#' 
+#' \item{data}{
+#' - enabled : 1 
+#' - fractions: 
+#'   - enabled : 0 
+#' - silac: 
+#'   - enabled : 0 
+#' - filters: 
+#'      - enabled : 1
+#' - contaminants : 1
+#' - protein_groups : remove 
+#' - modifications : PH 
+#' - sample_plots : 1 
+#' }
+#' 
+#' \item{msstats}{
+#' -  enabled : 1
+#' -  msstats_input : # blank if not previous msstats input file is available
+#' -  profilePlots : none # before, after, before-after, none
+#' -  normalization_method : equalizeMedians 
+#' -  normalization_reference :  #should be a value in the Protein column
+#' -  summaryMethod : TMP 
+#' -  censoredInt : NA
+#' -  cutoffCensored : minFeature 
+#' -  MBimpute : 1 
+#' -  feature_subset: all 
+#' }
+#' 
+#' \item{output_extras}{
+#' - output_extras :
+#'   - enabled : 1 
+#' - annotate :  
+#'   - enabled: 1 
+#' - species : HUMAN  
+#' - plots:
+#'   - volcano: 1
+#'   - heatmap: 1
+#'   - LFC : -1 1 
+#'   - FDR : 0.05
+#'   - heatmap_cluster_cols : 0
+#'   - heatmap_display : log2FC}
+#' }
+"artms_data_ph_config"
 
 
