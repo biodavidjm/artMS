@@ -90,10 +90,22 @@ save(artms_data_ph_config,
 # Results -----
 
 artms_data_ph_quantifications <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
-                                             data_object = TRUE)
+                                                     data_object = TRUE)
 
-artms_data_ph_msstats_results <- artms_data_ph_quantifications$ComparisonResult
-artms_data_ph_msstats_modelqc <- artms_data_ph_quantifications$ModelQC
+artms_data_ph_msstats_results <- as.data.frame(artms_data_ph_quantifications$ComparisonResult)
+artms_data_ph_msstats_results$Protein <- as.character(artms_data_ph_msstats_results$Protein)
+artms_data_ph_msstats_results$Label <- as.character(artms_data_ph_msstats_results$Label)
+artms_data_ph_msstats_results$issue <- as.character(artms_data_ph_msstats_results$issue)
+
+artms_data_ph_msstats_modelqc <- as.data.frame(artms_data_ph_quantifications$ModelQC)
+artms_data_ph_msstats_modelqc$RUN <- as.integer(artms_data_ph_msstats_modelqc$RUN)
+artms_data_ph_msstats_modelqc$PROTEIN <- as.character(artms_data_ph_msstats_modelqc$PROTEIN)
+artms_data_ph_msstats_modelqc$originalRUN <- as.integer(artms_data_ph_msstats_modelqc$originalRUN)
+artms_data_ph_msstats_modelqc$GROUP <- as.character(artms_data_ph_msstats_modelqc$GROUP)
+artms_data_ph_msstats_modelqc$GROUP_ORIGINAL <- as.character(artms_data_ph_msstats_modelqc$GROUP_ORIGINAL)
+artms_data_ph_msstats_modelqc$SUBJECT <- as.character(artms_data_ph_msstats_modelqc$SUBJECT)
+artms_data_ph_msstats_modelqc$SUBJECT_NESTED <- as.character(artms_data_ph_msstats_modelqc$SUBJECT_NESTED)
+artms_data_ph_msstats_modelqc$SUBJECT_ORIGINAL <- as.character(artms_data_ph_msstats_modelqc$SUBJECT_ORIGINAL)
 
 save(artms_data_ph_msstats_results, 
      file = "data/artms_data_ph_msstats_results.RData",
