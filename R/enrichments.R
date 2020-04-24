@@ -1,6 +1,7 @@
 # Everything about enrichments (including plots)
 
-# ------------------------------------------------------------------------------
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Enrich for Protein Complexes using CORUM
 #
 # @description Enrich for Protein Complexes using CORUM
@@ -39,7 +40,7 @@
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Enrichment of changes in protein abundance or PTMs
 #'
 #' @description Enrichment analysis of the selected proteins
@@ -104,23 +105,20 @@ artmsEnrichLog2fc <- function(dataset,
   tmp = split(pretmp$Gene, pretmp$Comparisons, drop = TRUE)
   
   if (species == "human") {
-    enrichgenes <-
-      artmsEnrichProfiler(
-        tmp,
-        categorySource = c(
-          'GO:BP',
-          'GO:MF',
-          'GO:CC',
-          'KEGG',
-          'REAC',
-          'CORUM',
-          'HPA',
-          'OMIM'
-        ),
-        species = 'hsapiens',
-        background,
-        verbose = verbose
-      ) # 'HP'
+    enrichgenes <- artmsEnrichProfiler(x = tmp,
+                                       categorySource = c(
+                                         'GO:BP',
+                                         'GO:MF',
+                                         'GO:CC',
+                                         'KEGG',
+                                         'REAC',
+                                         'CORUM',
+                                         'HPA',
+                                         'OMIM'
+                                       ),
+                                       species = 'hsapiens',
+                                       background = background,
+                                       verbose = verbose) # 'HP'
   } else if (species == "mouse") {
     enrichgenes <-
       artmsEnrichProfiler(
@@ -154,7 +152,7 @@ artmsEnrichLog2fc <- function(dataset,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot Corum Enrichment results
 #
 # @description Heatmap of significant enrichment
@@ -189,43 +187,57 @@ artmsEnrichLog2fc <- function(dataset,
     
     x$p_value <- -log10(x$p_value)
     
-    toplot <- data.table::dcast(data = x,
-                                ComplexName ~ Comparisons,
-                                value.var = "p_value",
-                                fun.aggregate = sum,
-                                fill = 0)
+    ##LEGACY
+    # toplot <- data.table::dcast(data = x,
+    #                             ComplexName ~ Comparisons,
+    #                             value.var = "p_value",
+    #                             fun.aggregate = sum,
+    #                             fill = 0)
+    
+    toplot <- x %>% tidyr::pivot_wider(id_cols = ComplexName, 
+                                        names_from = Comparisons, 
+                                        values_from = p_value, 
+                                        values_fn = list(p_value = sum) )
+    
+    toplot <- as.data.frame(toplot)
     
     rownames(toplot) <- toplot$ComplexName
     toplotmatrix <- subset(toplot, select = -c(ComplexName))
-    x <- data.matrix(toplotmatrix)
+
+    xmatrix <- data.matrix(toplotmatrix)
     
     # HEATMAP
-    palette.breaks <- seq(1, 3, 0.1)
-    color.palette  <-
-      colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
-    pheatmap::pheatmap(
-      x,
-      filename = outfile,
-      cluster_rows = TRUE,
-      cluster_cols = FALSE,
-      cellheight = 10,
-      cellwidth = 25,
-      main = theTitle,
-      fontsize = 6,
-      fontsize_row = 8,
-      fontsize_col = 12,
-      border_color = 'black',
-      fontfamily = "Helvetica",
-      treeheight_row = FALSE,
-      treeheight_col = FALSE,
-      color = color.palette
-    )
+    palette.breaks <- seq(1, 4, 0.1)
+    color.palette  <- colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
+    
+    if(var(xmatrix[,1]) == 0){
+      message("----Heatmap of Corum enrichment is not possible")
+    }else{
+      pheatmap::pheatmap(
+        xmatrix,
+        filename = outfile,
+        cluster_rows = TRUE,
+        cluster_cols = FALSE,
+        cellheight = 10,
+        cellwidth = 25,
+        main = theTitle,
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 12,
+        border_color = 'black',
+        fontfamily = "Helvetica",
+        treeheight_row = FALSE,
+        treeheight_col = FALSE,
+        # color = color.palette
+      )
+    }
+
   } else{
     message("---(-) Not enough enriched comparisons to plot the heatmap ")
   }
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Enrichment analysis using GprofileR
 #'
 #' @description This function simplifies the enrichment analysis performed by
@@ -303,50 +315,50 @@ artmsEnrichLog2fc <- function(dataset,
 #'                                    background = unique(data_annotated$Gene))
 #' @export
 artmsEnrichProfiler <- function(x,
-                                 categorySource = c('GO'),
-                                 species,
-                                 background = NA,
-                                 verbose = TRUE) {
-    
+                                categorySource = c('GO'),
+                                species,
+                                background = NA,
+                                verbose = TRUE) {
+                                 
   if(any(missing(x) | missing(species)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler")
-  if(verbose) message("---+ Enrichment analysis using gProfiler...", 
-                      appendLF = FALSE) 
-  enrichData <- gprofiler(
-    x,
-    organism = species,
-    # "scerevisiae","hsapiens", "mmusculus"
-    ordered_query = FALSE,
-    significant = TRUE,
-    exclude_iea = TRUE,
-    # do you want to exclude electronic annotations (IEA)?
-    underrep = FALSE,
-    evcodes = FALSE,
-    region_query = FALSE,
-    max_p_value = 0.05,
-    min_set_size = 0,
-    max_set_size = 0,
-    min_isect_size = 0,
-    correction_method = "analytical",
-    #Options: "gSCS", "fdr", "bonferroni"
-    hier_filtering = "none",
-    domain_size = "known",
-    # annotated or known
-    custom_bg = background,
-    numeric_ns = "",
-    png_fn = NULL,
-    include_graph = TRUE,
-    src_filter = categorySource
+  suppressWarnings(gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler"))
+  if(verbose) message("---+ Enrichment analysis using gProfiler...", appendLF = FALSE) 
+  suppressWarnings(
+    enrichData <- gprofiler(x,
+                            organism = species,
+                            # "scerevisiae","hsapiens", "mmusculus"
+                            ordered_query = FALSE,
+                            significant = TRUE,
+                            exclude_iea = TRUE,
+                            # do you want to exclude electronic annotations (IEA)?
+                            underrep = FALSE,
+                            evcodes = FALSE,
+                            region_query = FALSE,
+                            max_p_value = 0.05,
+                            min_set_size = 0,
+                            max_set_size = 0,
+                            min_isect_size = 0,
+                            correction_method = "analytical",
+                            #Options: "gSCS", "fdr", "bonferroni"
+                            hier_filtering = "none",
+                            domain_size = "known",
+                            # annotated or known
+                            custom_bg = background,
+                            numeric_ns = "",
+                            png_fn = NULL,
+                            include_graph = TRUE,
+                            src_filter = categorySource)
   )
+    
   if(verbose) message("done! ")
   return(enrichData)
 }
 
 # Little function to
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Simplify the gProfiler output
 #
 # @description Simplify the output from `artmsEnrichProfiler` resulted from
@@ -374,7 +386,7 @@ artmsEnrichProfiler <- function(x,
   return(sendBack)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot and save heatmaps of the significant enrichment results
 #
 # @description plot and save heatmaps of the significant enrichment results
@@ -385,11 +397,19 @@ artmsEnrichProfiler <- function(x,
 .artms_EnrichmentPlotHeatmaps <- function(x, 
                                           out_file) {
   # formatting data to heatmap compatible format
-  x <- dcast(x,
-             term.name ~ query.number,
-             value.var = 'p.value',
-             max,
-             fill = 1)
+  
+  ##LEGACY
+  # x <- dcast(x,
+  #            term.name ~ query.number,
+  #            value.var = 'p.value',
+  #            max,
+  #            fill = 1)
+  
+  x <- x %>% tidyr::pivot_wider(id_cols = term.name, 
+                                names_from = query.number, 
+                                values_from = p.value,
+                                values_fn = list(p.value = max),
+                                values_fill = list(p.value = 1))
   
   # Let's stop this thing if there is not enough terms (we need at least 2)
   if (dim(x)[1] < 2) {
@@ -456,7 +476,7 @@ artmsEnrichProfiler <- function(x,
   
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Enrichment analysis of Protein Complexes (based on CORUM database)
 #
 # @description Enrichment analysis of Protein Complexes

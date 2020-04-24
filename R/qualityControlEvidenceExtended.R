@@ -133,7 +133,34 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 printPDF = TRUE,
                                                 verbose = TRUE){
   
+  # Local variables
   keysilac = NULL
+  
+  # DEBUG
+  # evidence_file = artms_data_ph_evidence
+  # keys_file = artms_data_ph_keys
+  # output_name = "qcExtended_evidence"
+  # isSILAC = FALSE
+  # plotPSM = TRUE
+  # plotIONS = TRUE
+  # plotTYPE = TRUE
+  # plotPEPTIDES = TRUE
+  # plotPROTEINS = TRUE
+  # plotPIO = TRUE
+  # plotCS = TRUE
+  # plotME = TRUE
+  # plotMOCD = TRUE
+  # plotPEPICV = TRUE
+  # plotPEPDETECT = TRUE
+  # plotPROTICV = TRUE
+  # plotPROTDETECT = TRUE
+  # plotIDoverlap = TRUE
+  # plotPCA = TRUE
+  # plotSP = TRUE
+  # printPDF = FALSE
+  # verbose = TRUE
+  
+  
   
   if(verbose){
     message("---------------------------------------------")
@@ -374,20 +401,19 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
-      geom_text(
-        aes(label = round(PSMs, digits = 0)),
-        # hjust = 0.5,
-        # vjust = -0.5,
-        # size = 2,
-        hjust = 1,
-        size = 2.7,
-        angle = 90,
-        position = position_dodge(width = 1)
-      ) +
+      geom_text(aes(label = round(PSMs, digits = 0)),
+                # hjust = 0.5,
+                # vjust = -0.5,
+                # size = 2,
+                hjust = 1,
+                size = 2.7,
+                angle = 90,
+                position = position_dodge(width = 1)) +
       facet_wrap( ~ potential.contaminant, ncol = 1) +
       xlab("Experiment") + ylab("Counts") +
       labs(title = "Number of Peptide-spectrum-matches (PSMs)",           
-           subtitle = "bottom = Potential contaminants; top = non-contaminants") +
+           subtitle = "bottom = Potential contaminants; top = non-contaminants",
+           fill = "Conditions") +
       theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
@@ -1680,7 +1706,18 @@ Overall median CV within each condition is shown on the top and number of protei
 
     peptintmtx$intensity <- as.integer64(peptintmtx$intensity)
   
-    peptintmtx <- data.table::dcast(peptintmtx, sequence ~ bioreplicate, sum, value.var = "intensity")
+    ##LEGACY
+    # peptintmtx <- data.table::dcast(peptintmtx, 
+    #                                 sequence ~ bioreplicate, 
+    #                                 sum, 
+    #                                 value.var = "intensity")
+    
+    peptintmtx <- peptintmtx %>% 
+      tidyr::pivot_wider(id_cols = sequence, 
+                         names_from = bioreplicate, 
+                         values_from = intensity, 
+                         values_fn = list(intensity = sum))
+    
     
     peptintmtx <- as.matrix(peptintmtx[, -1])
     peptintmtx <- log2(peptintmtx)
@@ -1730,7 +1767,19 @@ Overall median CV within each condition is shown on the top and number of protei
     )
     
     protintmtx$intensity <- as.integer64(protintmtx$intensity)
-    protintmtx <- data.table::dcast(protintmtx, proteins ~ bioreplicate, sum, value.var = "intensity")
+    ##LEGACY
+    # protintmtx <- data.table::dcast(protintmtx, 
+    #                                 proteins ~ bioreplicate, 
+    #                                 sum, 
+    #                                 value.var = "intensity")
+
+    protintmtx <- protintmtx %>% 
+      tidyr::pivot_wider(id_cols = proteins, 
+                         names_from = bioreplicate, 
+                         values_from = intensity, 
+                         values_fn = list(intensity = sum ))
+    
+    
     protintmtx <- as.matrix(protintmtx[, -1])
     protintmtx <- log2(protintmtx)
     protintmtx[!is.finite(protintmtx)] <- NA

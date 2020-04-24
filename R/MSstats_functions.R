@@ -2,6 +2,8 @@
 utils::globalVariables(
   c("AbMean",
     "Charge",
+    "Intensity.H",
+    "Intensity.L",
     "Label_variable",
     "Modified.sequence",
     "RawFile_IsotopeLabelType"))
@@ -31,8 +33,9 @@ utils::globalVariables(
       dplyr::mutate(RawFile_IsotopeLabelType = paste(RawFile, IsotopeLabelType, sep = "_")) %>%
       dplyr::select(Proteins, Modified.sequence, Charge, RawFile_IsotopeLabelType, Intensity) %>%
       tidyr::pivot_wider(names_from = RawFile_IsotopeLabelType,
-                values_from = Intensity,
-                values_fn = list(Intensity = sum)) %>%
+                         values_from = Intensity,
+                         values_fn = list(Intensity = sum)) %>%
+                
       dplyr::arrange(Proteins)
   
   #artmsChangeColumnName is faster than dplyr rename
@@ -269,11 +272,11 @@ artmsMergeEvidenceAndKeys <- function(x,
     }
   }
   
-  requiredColumns <- c('RawFile',
-                   'IsotopeLabelType',
-                   'Condition',
-                   'BioReplicate', 
-                   'Run')
+  requiredColumns <- c('RawFile', 'IsotopeLabelType',
+                       'Condition',
+                       'BioReplicate', 
+                       'Run')
+                   
   # Check that the keys file is correct
   if (any(!requiredColumns %in% colnames(keys))) {
     stop('Column names in keys not conform to schema. Required columns:\n', 
@@ -425,10 +428,10 @@ artmsSILACtoLong <- function(evidence_file,
   evisilac$IsotopeLabelType = 'L'
   keysilac$IsotopeLabelType = 'L'
   
-  df <- artmsMergeEvidenceAndKeys(evisilac, 
-                                 keysilac, 
-                                 by = c('RawFile', 'IsotopeLabelType'),
-                                 verbose = FALSE)
+  df <- artmsMergeEvidenceAndKeys(x = evisilac, 
+                                  keys =  keysilac,
+                                  by = c('RawFile', 'IsotopeLabelType'),
+                                  verbose = FALSE)
   return(df)
 }
   

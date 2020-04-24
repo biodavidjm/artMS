@@ -9,8 +9,7 @@ artmsQualityControlMetabolomics(
   keys_file,
   met_exp = c("MV"),
   output_name = "qcPlots_metab",
-  plotINTDIST = TRUE,
-  plotREPRO = TRUE,
+  plotINTDIST = FALSE,
   plotCORMAT = TRUE,
   plotINTMISC = TRUE,
   printPDF = TRUE,
@@ -24,7 +23,7 @@ data.frame}
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
 
-\item{met_exp}{(char) Proteomics experiment. Only one option available
+\item{met_exp}{(char) Metabolomics experiment. Only one option available
 (so far):
 \itemize{
 \item \code{MV}: Markview output
@@ -36,10 +35,6 @@ Default: "qcPlots_metab"}
 \item{plotINTDIST}{if \code{TRUE} (default) plots both \emph{Box-dot plot}
 and \emph{Jitter plot} of biological replicates based on MS (raw)
 intensity values.}
-
-\item{plotREPRO}{if \code{TRUE} (default) plots a correlation dotplot for all the
-combinations of biological replicates of conditions, based on MS Intensity
-values using features (mz_rt+charge)}
 
 \item{plotCORMAT}{if \code{TRUE} (default) generates up to 3 pdf files for
 technical replicates, biological replicates, and conditions. Each pdf file

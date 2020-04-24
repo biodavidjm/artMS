@@ -1,4 +1,5 @@
-# ------------------------------------------------------------------------------
+
+# 
 #' @title Analysis of the Relative Quantifications
 #'
 #' @description Analysis of relative quantifications, including:
@@ -75,6 +76,8 @@
 #' quantifications per comparison
 #' @param plotClusteringAnalysis (logical) if `TRUE` performs clustering
 #' analysis between quantified comparisons (more than 1 comparison required)
+#' @param data_object (logical) flag to indicate whether the required files 
+#' are data objects. Default is FALSE
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) summary of quantifications, including annotations, 
 #' enrichments, etc
@@ -110,8 +113,38 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                          plotHeatmapsChanges = TRUE,
                                          plotTotalQuant = TRUE,
                                          plotClusteringAnalysis = TRUE,
+                                         data_object = FALSE,
                                          verbose = TRUE
                                          ) {
+  
+  ## DEBUG
+  # log2fc_file = artms_data_ph_msstats_results
+  # modelqc_file = artms_data_ph_msstats_modelqc
+  # species = "human"
+  # output_dir = "analysis_quant"
+  # outliers = "keep"
+  # enrich = TRUE
+  # l2fc_thres = 1
+  # choosePvalue = "pvalue"
+  # isBackground = "nobackground"
+  # isPtm = "global"
+  # mnbr = 2
+  # isFluomics = FALSE
+  # pathogen = "nopathogen"
+  # plotPvaluesLog2fcDist = TRUE
+  # plotAbundanceStats = TRUE
+  # plotReproAbundance = TRUE
+  # plotCorrConditions = TRUE
+  # plotCorrQuant = TRUE
+  # plotPCAabundance = TRUE
+  # plotFinalDistributions = TRUE
+  # plotPropImputation = TRUE
+  # plotHeatmapsChanges = TRUE
+  # plotTotalQuant = TRUE
+  # plotClusteringAnalysis = TRUE
+  # data_object = TRUE
+  # verbose = TRUE
+  
   if(verbose){
     message("---------------------------------------------")
     message("artMS: ANALYSIS OF QUANTIFICATIONS")
@@ -133,12 +166,18 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # Checking arguments
 
   # CHECK POINT: DO THE FILES EXIST?
-  if(!file.exists(log2fc_file)){
-    stop("THE FILE ", log2fc_file, " DOES NOT EXIST ")
+  if (!is.logical(data_object)) {
+    stop(" Argument <data_object> must be logical (TRUE or FALSE) ")
   }
   
-  if(!file.exists(modelqc_file)){
-    stop("THE FILE ", modelqc_file, " DOES NOT EXIST ")
+  if(!data_object){
+    if(!file.exists(log2fc_file)){
+      stop("THE FILE ", log2fc_file, " DOES NOT EXIST ")
+    }
+    
+    if(!file.exists(modelqc_file)){
+      stop("THE FILE ", modelqc_file, " DOES NOT EXIST ")
+    }
   }
   
   if (!is.logical(enrich)) {
@@ -209,13 +248,31 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     dir.create(output_dir, recursive = TRUE)
   }
   
-  # LOADING ABUNDANCE
+  # open log2fc----
+  if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
+  if(data_object){
+    dflog2fcraw <- log2fc_file
+    log2fc_file <- "analysis-results.txt"
+  }else{
+    dflog2fcraw <- read.delim(log2fc_file,
+                              header = TRUE,
+                              sep = "\t",
+                              stringsAsFactors = FALSE)
+  }
+  
+  
+  # modelqc ----
   if(verbose) message(">> LOADING modelqc FILE (ABUNDANCE) ")
-  dfmq <- read.delim(modelqc_file,
-                     header = TRUE,
-                     sep = "\t",
-                     stringsAsFactors = FALSE
-                     )
+  if(data_object){
+    dfmq <- modelqc_file
+    remove(modelqc_file)
+  }else{
+    dfmq <- read.delim(modelqc_file,
+                       header = TRUE,
+                       sep = "\t",
+                       stringsAsFactors = FALSE)
+  }
+
   
   # Removing the empty protein names
   if (any(dfmq$PROTEIN == "")) {
@@ -320,9 +377,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if (isPtm == "global") {
       suppressMessages(dfmq2Genes <- artmsAnnotationUniprot(dfmq, 'PROTEIN', species))
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
-      if(verbose) message("--- Total number of genes/proteins: ",
-          numberTotalGenes,
-          " ")
+      if(verbose) message("--- Total number of genes/proteins: ", numberTotalGenes, " ")
       listOfGenes <- unique(dfmq2Genes$Gene)
     } else if (grepl("ptm", isPtm)) {
       dfmq2Genes <- dfmq[c('PROTEIN', 'GROUP_ORIGINAL')] 
@@ -356,14 +411,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   backgroundNumber <- length(listOfGenes)
   
-  #-----------------------------------------------------------------------------
-  # LOG2FC
-  if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
-  dflog2fcraw <- read.delim(log2fc_file,
-                            header = TRUE,
-                            sep = "\t",
-                            stringsAsFactors = FALSE
-                            )
+  
+  # log2fc----
+  
   if (any(dflog2fcraw$Protein == "")) {
     dflog2fcraw <- dflog2fcraw[-which(dflog2fcraw$Protein == ""), ]
     if(verbose) message("--- Empty ID proteins removed from log2fc data")
@@ -372,7 +422,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dflog2fcraw$Protein <- gsub("(.*)(\\|.*)", "\\1", dflog2fcraw$Protein)
   
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC), ]
-  
   
   
   # Removing log2fc outliers?
@@ -420,7 +469,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   } else {
     if(verbose) message("--- Number of +/- INF values: ", dim(dflog2fcinfinites)[1], " ")
     
-    imputedL2FCmelted <- .artms_imputeMissingValues(dflog2fcinfinites, dfmq)
+    imputedL2FCmelted <- .artms_imputeMissingValues(dflog2fcinfinites = dflog2fcinfinites, 
+                                                    dfmq = dfmq)
     
     # Merge with the original log2fc values to impute...
     theImputedL2FC <- merge(dflog2fcinfinites,
@@ -605,7 +655,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     reproName <- paste0("plot.", reproName)
     reproName <- paste0(output_dir, "/", reproName)
     pdf(reproName)
-    .artms_plotReproducibilityAbundance(dfmq, verbose = verbose)
+    .artms_plotReproducibilityAbundance(x = dfmq, verbose = verbose)
     garbage <- dev.off()
   }
   
@@ -616,7 +666,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     relaCond <- paste0("plot.", relaCond)
     relaCond <- paste0(output_dir, "/", relaCond)
     pdf(relaCond)
-    .artms_plotCorrelationConditions(dfmq, numberBioReplicas)
+    .artms_plotCorrelationConditions(x = dfmq, 
+                                     numberBiologicalReplicas = numberBioReplicas)
     garbage <- dev.off()
   }
   
@@ -643,74 +694,123 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # TECHNICAL REPLICAS: if there are technical replicas means that we will find
   # two values for the same protein in the same bioreplica, therefore we need to
   # aggregate first just in case:
-  abundance <- aggregate(Abundance ~ Prey + Bait + BioReplicate,
-                         data = abundance,
-                         FUN = mean)
+  ##LEGACY
+  # abundance <- aggregate(Abundance ~ Prey + Bait + BioReplicate,
+  #                        data = abundance,
+  #                        FUN = mean)
+  # abundance_dcmean <- data.table::dcast(abundance,
+  #                                       Prey ~ Bait,
+  #                                       value.var = 'Abundance',
+  #                                       fun.aggregate = mean,
+  #                                       fill = 0)
   
   # Let's aggregate to get the sum of the abundance, we will use it later.
-  abundance_dcsum <- data.table::dcast(abundance,
-                                       Prey ~ Bait,
-                                       value.var = 'Abundance',
-                                       fun.aggregate = sum,
-                                       fill = 0)
-  abundance_dcmean <- data.table::dcast(abundance,
-                                        Prey ~ Bait,
-                                        value.var = 'Abundance',
-                                        fun.aggregate = mean,
-                                        fill = 0)
+  # abundance_dcsum <- data.table::dcast(abundance,
+  #                                      Prey ~ Bait,
+  #                                      value.var = 'Abundance',
+  #                                      fun.aggregate = sum,
+  #                                      fill = 0)
   
+  abundance_dcsum <- abundance %>% pivot_wider(names_from = Bait, 
+                                                id_cols = Prey,
+                                                values_from = Abundance, 
+                                                values_fn = list(Abundance = sum),
+                                                values_fill = list(Abundance = 0))
+  
+  abundance_dcmean <- abundance %>% pivot_wider(names_from = Bait, 
+                                                 id_cols = Prey,
+                                                 values_from = Abundance, 
+                                                 values_fn = list(Abundance = mean),
+                                                 values_fill = list(Abundance = 0))
+                                               
   # Melt again the sum and mean
-  abundancelongsum <- data.table::melt(abundance_dcsum,
-                                     id.vars = c('Prey'),
-                                     value.name = 'Abundance',
-                                     variable.name = 'Bait')
+  ##LEGACY
+  # abundancelongsum <- data.table::melt(abundance_dcsum,
+  #                                    id.vars = c('Prey'),
+  #                                    value.name = 'Abundance',
+  #                                    variable.name = 'Bait')
+  # 
+  # abundancelongmean <- data.table::melt(abundance_dcmean,
+  #                                     id.vars = c('Prey'),
+  #                                     value.name = 'Abundance',
+  #                                     variable.name = 'Bait')
   
-  abundancelongmean <- data.table::melt(abundance_dcmean,
-                                      id.vars = c('Prey'),
-                                      value.name = 'Abundance',
-                                      variable.name = 'Bait')
+  abundancelongsum <- abundance_dcsum %>% pivot_longer(cols = -Prey, 
+                                                        names_to = "Bait", 
+                                                        values_to = "AbSum")
+  
+  abundancelongmean <- abundance_dcmean %>% pivot_longer(cols = -Prey, 
+                                                           names_to = "Bait", 
+                                                           values_to = "AbMean")
   
   # We dont need the 0 values
-  abundancelongsum <- abundancelongsum[!(abundancelongsum$Abundance == 0), ]
-  abundancelongmean <- abundancelongmean[!(abundancelongmean$Abundance == 0), ]
-  # Rename and merge:
-  names(abundancelongsum)[grep('Abundance', names(abundancelongsum))] <- 'AbSum'
-  names(abundancelongmean)[grep('Abundance', names(abundancelongmean))] <- 'AbMean'
+  abundancelongsum <- abundancelongsum[!(abundancelongsum$AbSum == 0), ]
+  abundancelongmean <- abundancelongmean[!(abundancelongmean$AbMean == 0), ]
   
   abundancelongsummean <- merge(abundancelongsum, abundancelongmean, by = c('Prey', 'Bait'))
+  
+  remove(abundancelongsum, abundancelongmean, abundance_dcsum, abundance_dcmean)
   
   # REPRODUCIBILITY AND SPECIFICY PARATEMERS
   
   # Get the number of bioreplicates based on abundance data
-  nbr_wide <- data.table::dcast(abundance,
-                                Prey ~ Bait,
-                                value.var = 'Abundance',
-                                fun.aggregate = length,
-                                fill = 0)
-  nbr_long <- data.table::melt(nbr_wide,
-                             id.vars = c('Prey'),
-                             value.name = 'Abundance',
-                             variable.name = 'Bait')
   
-  nbr_long <- nbr_long[!(nbr_long$Abundance == 0), ]
+  ##LEGACY
+  # nbr_wide <- data.table::dcast(abundance,
+  #                               Prey ~ Bait,
+  #                               value.var = 'Abundance',
+  #                               fun.aggregate = length,
+  #                               fill = 0)
+  # nbr_long <- data.table::melt(nbr_wide,
+  #                            id.vars = c('Prey'),
+  #                            value.name = 'Abundance',
+  #                            variable.name = 'Bait')
+  # 
+  # nbr_long <- nbr_long[!(nbr_long$BioRep == 0), ]
+  # names(nbr_long)[grep('Abundance', names(nbr_long))] <- 'BioRep'
   
-  names(nbr_long)[grep('Abundance', names(nbr_long))] <- 'BioRep'
+  nbr_wide <- abundance %>% pivot_wider(names_from = Bait, 
+                                         id_cols = Prey,
+                                         values_from = Abundance, 
+                                         values_fn = list(Abundance = length),
+                                         values_fill = list(Abundance = 0))
   
+  nbr_long <- nbr_wide %>% pivot_longer(cols = -Prey, 
+                                        names_to = "Bait", 
+                                        values_to = "BioRep")
+  
+  nbr_long <- nbr_long[!(nbr_long$BioRep == 0), ]
+                                                       
+
   # Get the number of replicates in long format
-  OUTreprod <- data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
+  ##LEGACY
+  # OUTreprod <- data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
+  # OUTreprod[is.na(OUTreprod)] <- 0
+  
+  OUTreprod <- abundance %>% pivot_wider(id_cols = Prey, 
+                                        names_from = Bait, 
+                                        values_from = Abundance, 
+                                        values_fn = list(Abundance = length), 
+                                        values_fill = list(Abundance = 0))
+  # Make a copy for conditions
+  OUTreproCondition <- OUTreprod
+  
   here <- dim(OUTreprod)[2]
-  OUTreprod[is.na(OUTreprod)] <- 0
+  
   # Make a copy to use later
   bioReplicaInfo <- OUTreprod
+  
   # And get the total number of biological replicates
   OUTreprod$BiorepCount <- rowSums(OUTreprod[, 2:here])
   
   # Get whether a protein is found in all conditions
   reprospec2merge <- subset(OUTreprod, select = c(Prey, BiorepCount))
   
-  OUTreproCondition <- data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
+  ##LEGACY
+  # OUTreproCondition <- data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
+  # OUTreproCondition[is.na(OUTreproCondition)] <- 0
+  
   thedim <- dim(OUTreproCondition)[2]
-  OUTreproCondition[is.na(OUTreproCondition)] <- 0
   thepreys <- subset(OUTreproCondition, select = c(Prey))
   thevalues <- subset(OUTreproCondition, select = -c(Prey))
   thevalues[thevalues > 0] <- 1
@@ -739,7 +839,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ANNOTATIONS
-  modelqc_file_splc <- .artms_mergeAbNbr(dfmq, nbr_wide, species)
+  modelqc_file_splc <- .artms_mergeAbNbr(df_input =  dfmq, 
+                                         repro =  nbr_wide, 
+                                         species =  species)
   
   if(verbose) message(">>> ANNOTATIONS ")
   # Now get ready for annotation
@@ -760,7 +862,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if(verbose) message("--- Relative Quantifications (Log2fc) ")
   # Prepare output of changes
-  log2fc_file_splc <- .artms_mergeChangesNbr(dflog2fc, nbr_wide, species)
+  log2fc_file_splc <- .artms_mergeChangesNbr(df_input = dflog2fc, 
+                                             repro =  nbr_wide, 
+                                             species =  species,
+                                             choosePvalue = choosePvalue)
+  
   # Now get ready for annotation
   if (grepl("ptm", isPtm)) {
     names(log2fc_file_splc)[grep('^Protein$', names(log2fc_file_splc))] <- 'Uniprot_PTM'
@@ -792,29 +898,24 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     
     
   if(verbose) message("--- Merging Changes with bioReplica Info ")
-  imputedDF <-
-    merge(
-      imputedDF,
-      bioReplicaInfo,
-      by.x = 'Protein',
-      by.y = 'Prey',
-      all.x = TRUE
-    )
+  imputedDF <- merge(imputedDF,
+                     bioReplicaInfo,
+                     by.x = 'Protein',
+                     by.y = 'Prey',
+                     all.x = TRUE)
   
   if(verbose) message("--- Removing NA ")
     imputedDF <- imputedDF[!is.na(imputedDF$log2FC), ]
   
   if(verbose) message("--- Add labeling of condition more abundant in the quantification ")
-  imputedDF$CMA <- mapply(.artms_selectTheOneLog2fc,
-                          imputedDF$iLog2FC,
-                          imputedDF$Label)
+    imputedDF$CMA <- mapply(.artms_selectTheOneLog2fc,
+                            imputedDF$iLog2FC,
+                            imputedDF$Label)
   
-  if(verbose) message(
-    "--- Removing proteins not found in a minimal number (",
-    mnbr,
-    ") of biological replicates "
-  )
-  
+  if(verbose) message("--- Removing proteins not found in a minimal number (",
+                      mnbr,
+                      ") of biological replicates ")
+
   imputedDF <- .artms_RemoveProtBelowThres(imputedDF, mnbr)
   
   if(verbose) message("--- Filtering is done! ")
@@ -825,14 +926,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     distributionsFilteredOut <- gsub(".txt", ".distributionsFil.pdf", log2fc_file)
     distributionsFilteredOut <- paste0(output_dir, "/", distributionsFilteredOut)
     pdf(distributionsFilteredOut)
-    hist(imputedDF$iLog2FC,
-         breaks = 1000,
-         main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
-         xlab = "log2fc")
-    hist(imputedDF$iPvalue,
-         breaks = 1000,
-         main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
-         xlab = "p-value")
+      hist(imputedDF$iLog2FC,
+           breaks = 1000,
+           main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
+           xlab = "log2fc")
+      hist(imputedDF$iPvalue,
+           breaks = 1000,
+           main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
+           xlab = "p-value")
     garbage <- dev.off()
   }
   
@@ -874,9 +975,16 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if(plotHeatmapsChanges){
     if(verbose) message(">> HEATMAPS OF CHANGES (log2fc) ")
-    l2fcol <- data.table::dcast(data = imputedDF, 
-                                Protein ~ Label, 
-                                value.var = 'iLog2FC')
+    
+    ##LEGACY
+    # l2fcol <- data.table::dcast(data = imputedDF, 
+    #                             Protein ~ Label, 
+    #                             value.var = 'iLog2FC')
+    l2fcol <- imputedDF %>% tidyr::pivot_wider(id_cols = Protein, 
+                                                names_from = Label, 
+                                                values_from = iLog2FC)
+    
+    l2fcol <- as.data.frame(l2fcol)
     rownames(l2fcol) <- l2fcol$Protein
     l2fcol <- within(l2fcol, rm(Protein))
     l2fcol[is.na(l2fcol)] <- 0
@@ -884,10 +992,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if (numberConditions > 1) {
       l2fcolmatrix <- data.matrix(l2fcol)
       if(verbose) message("--- All changes ")
-      outHeatMapOverallL2fc <-
-        gsub(".txt",
-             ".clustering.log2fc.all-overview.pdf",
-             log2fc_file)
+      outHeatMapOverallL2fc <- gsub(".txt",
+                                    ".clustering.log2fc.all-overview.pdf",
+                                    log2fc_file)
+        
       outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
       pheatmap(
         l2fcolmatrix,
@@ -922,9 +1030,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       # Only significant pvalues
       if(verbose) message("--- Only significant changes ")
       imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05), ]
-      l2fcolSignificants <- data.table::dcast(data = imputedDFsig, 
-                                              Protein ~ Label, 
-                                              value.var = 'iLog2FC')
+      ##LEGACY
+      # l2fcolSignificants <- data.table::dcast(data = imputedDFsig, 
+      #                                         Protein ~ Label, 
+      #                                         value.var = 'iLog2FC')
+      l2fcolSignificants <- imputedDFsig %>% tidyr::pivot_wider(id_cols = Protein, 
+                                                 names_from = Label, 
+                                                 values_from = iLog2FC)
+      l2fcolSignificants <- as.data.frame(l2fcolSignificants)
       rownames(l2fcolSignificants) <- l2fcolSignificants$Protein
       l2fcolSignificants <- within(l2fcolSignificants, rm(Protein))
       l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
@@ -948,10 +1061,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         border_color = NA,
         fontfamily = "Helvetica"
       )
-      outHeatMapZoomL2fc <-
-        gsub(".txt",
-             ".clustering.log2fcSign.all-zoom.pdf",
-             log2fc_file)
+      outHeatMapZoomL2fc <- gsub(".txt",
+                                 ".clustering.log2fcSign.all-zoom.pdf",
+                                 log2fc_file)
+        
       outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
       pheatmap(
         l2fcolSignificantsmatrix,
@@ -974,18 +1087,36 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # Let's select first significance based on pvalue, by using the iPvalue
   # we are already including the imputed pvalues...
   
-  l2fcol4enrichment <- data.table::dcast(data = imputedDF[which(imputedDF$iPvalue < 0.05), ], 
-                                         Protein ~ Label, 
-                                         value.var = 'iLog2FC')
+  ##LEGACY
+  # l2fcol4enrichment <- data.table::dcast(data = imputedDF[which(imputedDF$iPvalue < 0.05), ], 
+  #                                        Protein ~ Label, 
+  #                                        value.var = 'iLog2FC')
+  
+  l2fcol4enrichment <- imputedDF %>% 
+    dplyr::filter(iPvalue < 0.05) %>%
+    tidyr::pivot_wider(id_cols = Protein, 
+                       names_from = Label, 
+                       values_from = iLog2FC)
+  
+  l2fcol4enrichment <- as.data.frame(l2fcol4enrichment)
   
   if (enrich == TRUE & dim(l2fcol4enrichment)[1] > 0) {
     if(verbose) message(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES USING GPROFILER ")
     
     if (dim(l2fcol4enrichment)[1] > 0) {
       # Let's melt now for enrichment analysis
-      l2fcol4enrichment <- data.table::melt(data = l2fcol4enrichment,
-                                          id.vars = c('Protein'),
-                                          variable.name = "Comparisons")
+      ##LEGACY
+      # l2fcol4enrichment <- data.table::melt(data = l2fcol4enrichment,
+      #                                     id.vars = c('Protein'),
+      #                                     variable.name = "Comparisons")
+      
+      l2fcol4enrichment <- l2fcol4enrichment %>%
+        tidyr::pivot_longer(cols = -Protein, 
+                            names_to = "Comparisons", 
+                            values_to = "value")
+      
+      l2fcol4enrichment <- as.data.frame(l2fcol4enrichment)
+      
       l2fcol4enrichment <- l2fcol4enrichment[complete.cases(l2fcol4enrichment), ]
       # Now get ready for annotation
       if (grepl("ptm", isPtm)) {
@@ -1023,7 +1154,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # ALL SIGNIFICANT CHANGES log2fc
     # GPROFILER
     if(verbose) message("1) Enrichment of ALL significant Changes ")
-    filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= l2fc_thres),]
+      filallsig_log2fc_long <- l2fcol4enrichment[which(abs(l2fcol4enrichment$value) >= l2fc_thres),]
     
     if (dim(filallsig_log2fc_long)[1] > 0) {
       out.mac.allsig <- gsub(".txt", "-enrich-MAC-allsignificants.txt", log2fc_file)
@@ -1062,8 +1193,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       if(verbose) message("---+ Corum Protein Complex Enrichment Analysis ")
       
       # CORUM
-      allsigComplexEnriched <-
-        .artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
+      allsigComplexEnriched <- .artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
       
       if (dim(allsigComplexEnriched)[1] > 0) {
         out.mac.allsig.corum <-
@@ -1107,8 +1237,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # GPROFILER
     if(verbose) message("2) Enrichment of selected POSITIVE significant changes ")
     
-    filpos_log2fc_long <-
-      l2fcol4enrichment[which(l2fcol4enrichment$value >= l2fc_thres),]
+    filpos_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value >= l2fc_thres),]
     
     if (dim(filpos_log2fc_long)[1] > 0) {
       out.mac.pos <- gsub(".txt", "-enrich-MAC-positives.txt", log2fc_file)
@@ -1146,8 +1275,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       if(verbose) message("---+ Corum Protein Complex Enrichment Analysis ")
       
       # CORUM
-      positiveComplexEnriched <-
-        .artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
+      positiveComplexEnriched <- .artms_enrichForComplexes(filpos_log2fc_long, backgroundNumber)
       
       if (dim(positiveComplexEnriched)[1] > 0) {
         out.mac.pos.corum <-
@@ -1168,12 +1296,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       
       # And the heatmap
       if (dim(positiveComplexEnriched)[1] > 2) {
-        out.mac.pos.corum.pdf <-
-          gsub(".txt",
-               "-enrich-MAC-positives-corum.pdf",
-               log2fc_file)
-        out.mac.pos.corum.pdf <-
-          paste0(output_dir, "/", out.mac.pos.corum.pdf)
+        out.mac.pos.corum.pdf <- gsub(".txt",
+                                      "-enrich-MAC-positives-corum.pdf",
+                                      log2fc_file)
+          
+        out.mac.pos.corum.pdf <- paste0(output_dir, "/", out.mac.pos.corum.pdf)
         # out.mac.pos.corum.pdf <- 'whatever.corum.positive.pdf'
         .artms_plotCorumEnrichment(
           positiveComplexEnriched,
@@ -1193,8 +1320,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # NEGATIVE log2fc
     if(verbose) message("3) Enrichment of selected NEGATIVE significant changes ")
     
-    filneg_log2fc_long <-
-      l2fcol4enrichment[which(l2fcol4enrichment$value <= -l2fc_thres),]
+    filneg_log2fc_long <- l2fcol4enrichment[which(l2fcol4enrichment$value <= -l2fc_thres),]
     
     if (dim(filneg_log2fc_long)[1] > 0) {
       out.mac.neg <- gsub(".txt", "-enrich-MAC-negatives.txt", log2fc_file)
@@ -1231,7 +1357,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       if(verbose) message("---+ Corum Protein Complex Enrichment Analysis ")
       
       negativesComplexEnriched <- .artms_enrichForComplexes(filneg_log2fc_long, backgroundNumber)
-        
       
       if (dim(negativesComplexEnriched)[1] > 0) {
         out.mac.neg.corum <- gsub(".txt",
@@ -1256,9 +1381,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                       log2fc_file)
           
         out.mac.neg.corum.pdf <- paste0(output_dir, "/", out.mac.neg.corum.pdf)
-        .artms_plotCorumEnrichment(negativesComplexEnriched,
-                                   out.mac.neg.corum.pdf,
-                                   "MAC- Protein Complex Enrichment")
+        .artms_plotCorumEnrichment(x = negativesComplexEnriched, 
+                                   outfile = out.mac.neg.corum.pdf, 
+                                   theTitle = "MAC- Protein Complex Enrichment")
           
       } else{
         if(verbose) message("\t-----(-) Not enough negative corum complexes to plot ")
@@ -1310,19 +1435,15 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if (isFluomics == TRUE) {
     if(verbose) message(">> JITTERED PLOT ")
     # Filter by number of biological replicas > 1
-    superunifiedfiltered <-
-      superunified[which(superunified$BioRep > 1), ]
+    superunifiedfiltered <- superunified[which(superunified$BioRep > 1), ]
     # Filter less than
-    superunifiedfiltered <-
-      superunifiedfiltered[which(superunifiedfiltered$AbMean < 30 &
-                                   superunifiedfiltered$AbMean > 10),]
+    superunifiedfiltered <- superunifiedfiltered[which(superunifiedfiltered$AbMean < 30 &
+                                                         superunifiedfiltered$AbMean > 10),]
+      
     # Removing carry overs
-    superunifiedfiltered <-
-      superunifiedfiltered[!(
-        grepl("H1N1|H3N2|H5N1", superunifiedfiltered$Protein) &
-          grepl("MOCK", superunifiedfiltered$Condition)
-      ), ]
-    
+    superunifiedfiltered <- superunifiedfiltered[!(grepl("H1N1|H3N2|H5N1", superunifiedfiltered$Protein) &
+                                                     grepl("MOCK", superunifiedfiltered$Condition)), ]
+      
     abuJittered <- gsub(".txt", ".abundanceGrouped.pdf", log2fc_file)
     abuJittered <- paste0("plot.", abuJittered)
     abuJittered <- paste0(output_dir, "/", abuJittered)
@@ -1382,20 +1503,34 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <-
-      data.table::dcast(
-        data = imputedDF,
-        Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
-        value.var = 'iLog2FC',
-        fill = 0
-      )
-    imputedDF_wide_pvalue <-
-      data.table::dcast(
-        data = imputedDF,
-        Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
-        value.var = 'iPvalue',
-        fill = 0
-      )
+    ## LEGACY NOT TESTED!
+    # imputedDF_wide_log2fc <- data.table::dcast(
+    #   data = imputedDF,
+    #   Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
+    #   value.var = 'iLog2FC',
+    #   fill = 0
+    # )
+    
+    imputedDF_wide_log2fc <- imputedDF %>%
+      tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID, Uniprot_PTM), 
+                         names_from = Comparison, 
+                         values_from = iLog2FC, 
+                         values_fill = list(iLog2FC = 0))
+      
+    ##LEGACY NOT TESTED!
+    # imputedDF_wide_pvalue <-
+    #   data.table::dcast(
+    #     data = imputedDF,
+    #     Gene + Protein + EntrezID + Uniprot_PTM ~ Comparison,
+    #     value.var = 'iPvalue',
+    #     fill = 0
+    #   )
+    
+    imputedDF_wide_pvalue <- imputedDF %>%
+      tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID, Uniprot_PTM), 
+                         names_from = Comparison, 
+                         values_from = iPvalue, 
+                         values_fill = list(iPvalue = 0))
     
   } else if (isPtm == "global") {
     suppressMessages(imputedDF <- artmsAnnotationUniprot(imputedDF, 
@@ -1406,20 +1541,31 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
     
     # Wide version of imputedDF
-    imputedDF_wide_log2fc <-
-      data.table::dcast(
-        data = imputedDF,
-        Gene + Protein + EntrezID ~ Comparison,
-        value.var = 'iLog2FC',
-        fill = 0
-      )
-    imputedDF_wide_pvalue <-
-      data.table::dcast(
-        data = imputedDF,
-        Gene + Protein + EntrezID ~ Comparison,
-        value.var = 'iPvalue',
-        fill = 0
-      )
+    ##LEGACY
+    # imputedDF_wide_log2fc <- data.table::dcast(data = imputedDF,
+    #                                            Gene + Protein + EntrezID ~ Comparison,
+    #                                            value.var = 'iLog2FC',
+    #                                            fill = 0)
+    
+    imputedDF_wide_log2fc <- imputedDF %>%
+      tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID), 
+                         names_from = Comparison, 
+                         values_from = iLog2FC, 
+                         values_fill = list(iLog2FC = 0))
+    
+    # LEGACY
+    # imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF,
+    #                                            Gene + Protein + EntrezID ~ Comparison,
+    #                                            value.var = 'iPvalue',
+    #                                            fill = 0)
+    
+    imputedDF_wide_pvalue <- imputedDF %>%
+      tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID), 
+                         names_from = Comparison, 
+                         values_from = iPvalue, 
+                         values_fill = list(iPvalue = 0))
+      
+      
   } else{
     stop(" WRONG isPTM SELECTED. 
          OPTIONS AVAILABLE: global, ptmph, ptmsites ")
@@ -1444,33 +1590,43 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       
       # PRE-CLUSTERING
       # GET THE LIST OF SIGNIFICANTS FOR THE EXPERIMENT(S)
-      list_of_significants <-
-        unique(imputedDF$Protein[which(abs(imputedDF$iLog2FC > 1) &
-                                         imputedDF$iPvalue < 0.05)])
+      list_of_significants <- unique(imputedDF$Protein[which(abs(imputedDF$iLog2FC > 1) &
+                                                               imputedDF$iPvalue < 0.05)])
+        
       
       # AND APPLY THE FILTER
-      data.select <-
-        imputedDF[which(imputedDF$Protein %in% list_of_significants), ]
+      data.select <- imputedDF[which(imputedDF$Protein %in% list_of_significants), ]
       
       # GENE BASED -> heatmaps
-      hasdc <-
-        data.table::dcast(
-          data = data.select[which(data.select$imputed == "no"), ],
-          Gene + Protein ~ Comparison,
-          value.var = "iLog2FC",
-          fun.aggregate = median,
-          fill = 0
-        )
-      
+      ##LEGACY
+      # hasdc <- data.table::dcast(data = data.select[which(data.select$imputed == "no"), ],
+      #                            Gene + Protein ~ Comparison,
+      #                            value.var = "iLog2FC",
+      #                            fun.aggregate = median,
+      #                            fill = 0)
       # EXPERIMENT BASED -> PCA
-      hasdcexp <-
-        data.table::dcast(
-          data = data.select[which(data.select$imputed == "no"), ],
-          Comparison ~ Gene + Protein,
-          value.var = "iLog2FC",
-          fun.aggregate = median,
-          fill = 0
-        )
+      # hasdcexp <- data.table::dcast(data = data.select[which(data.select$imputed == "no"), ],
+      #                               Comparison ~ Gene + Protein,
+      #                               value.var = "iLog2FC",
+      #                               fun.aggregate = median,
+      #                               fill = 0)
+      
+      hasdc <- data.select %>% dplyr::filter(imputed == "no") %>%
+        tidyr::pivot_wider(id_cols = c(Gene, Protein), 
+                           names_from = Comparison, 
+                           values_from = iLog2FC, 
+                           values_fn = list(iLog2FC = median))
+      
+      hasdcexp <- data.select %>% dplyr::filter(imputed == "no") %>%
+        dplyr::mutate(Gene_Protein = paste(Gene, Protein, sep = "_")) %>%
+        tidyr::pivot_wider(id_cols = Comparison, 
+                           names_from = Gene_Protein, 
+                           values_from = iLog2FC, 
+                           values_fn = list(iLog2FC = median))
+        
+      hasdc <- as.data.frame(hasdc)
+      hasdcexp <- as.data.frame(hasdcexp)
+
     
       # CLUSTERING ANALYSIS
       # GENE BASED
@@ -1544,7 +1700,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         e2 <- factoextra::fviz_nbclust(venga, cluster::pam, method = "wss") +
           geom_vline(xintercept = 4, linetype = 2) +
           labs(subtitle = "PAM Elbow method")
-          
         
         # Silhouette method
         k1 <- factoextra::fviz_nbclust(venga, kmeans, method = "silhouette") +
@@ -1834,7 +1989,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
 }
 
 
-# ------------------------------------------------------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Adding a column with the species name
 #'
 #' @description Adding the species name to every protein.
@@ -1885,7 +2040,7 @@ artmsAnnotateSpecie <- function(df,
   return(df)
 }
 
-# ------------------------------------------------------------------------------
+# 
 #' @title Generate ph-site specific detailed file
 #'
 #' @description Generate extended detailed ph-site file, where every line is a
@@ -1911,11 +2066,18 @@ artmsAnnotateSpecie <- function(df,
 #'                              output_name = log2fc_file)
 #' }
 #' @export
-artmsGeneratePhSiteExtended <- function(df, 
-                                         pathogen = "nopathogen", 
-                                         species, 
-                                         ptmType,
-                                         output_name) {
+artmsGeneratePhSiteExtended <- function(df,
+                                        pathogen = "nopathogen", 
+                                        species, 
+                                        ptmType,
+                                        output_name) {
+                                         
+  # #Debug
+  # df = artms_data_ph_msstats_results
+  # pathogen = "nopathogen"
+  # species = "human"
+  # ptmType = "ptmsites"
+  # output_name = ""
   
   if(any(missing(df) | 
          missing(species) | 
@@ -1971,8 +2133,7 @@ artmsGeneratePhSiteExtended <- function(df,
       
     # 3. Create independent columns for each of them
     imputedDFext <-
-      imputedDFext %>% dplyr::mutate(
-        PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
+      imputedDFext %>% dplyr::mutate(PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
       
       # 4. And take the labels:
       imputedDFext$Protein <-
@@ -2026,7 +2187,7 @@ artmsGeneratePhSiteExtended <- function(df,
   }
 
 
-# ------------------------------------------------------------------------------
+# 
 # @title Imputing missing values
 #
 # @description When a value is completely missed in one of the conditions,
@@ -2062,6 +2223,7 @@ artmsGeneratePhSiteExtended <- function(df,
   
   # Take the abundance values for all the proteins
   abu2imp <- .artms_loadModelqcBasic(dfmq)
+  
   # Aggregate the technical replica by choosing the maximum value
   abu2imp2 <- aggregate(Abundance ~ Protein + Condition + BioReplicate,
                         data = abu2imp,
@@ -2092,34 +2254,60 @@ artmsGeneratePhSiteExtended <- function(df,
   # Generating the numbers from which we are going to sample
   numbers2sample <- seq(from = theMin, to = theMax, by = .00001)
   
-  # dcast on abundance and fill with random numbers between the minimum and q05
-  suppressWarnings(
-    dfdc.im <- data.table::dcast(data = abu2imp2,
-                                 Protein ~ BioReplicate,
-                                 value.var = "Abundance",
-                                 fill = sample(numbers2sample, 
-                                               replace = FALSE)
-    )
-  )
+  ##LEGACY
+  # # dcast on abundance and fill with random numbers between the minimum and q05
+  # suppressWarnings(
+  #   dfdc.im <- data.table::dcast(data = abu2imp2,
+  #                                Protein ~ BioReplicate,
+  #                                value.var = "Abundance",
+  #                                fill = sample(numbers2sample, 
+  #                                              replace = FALSE)
+  #   )
+  # )
+  
+  dfdc.im <- abu2imp %>% 
+    dplyr::select(-Condition) %>%
+    tidyr::pivot_wider(names_from = BioReplicate,
+                       values_from = Abundance)
+  # Fill in missing values
+  dfdc.im[is.na(dfdc.im)] <- sample(numbers2sample, 
+                                      size = sum(is.na(dfdc.im)), 
+                                      replace = TRUE)
+  
+                    
   
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
-  dfdc.melt <- data.table::melt(dfdc.im,
-                                id.vars = c('Protein'),
-                                value.name = 'Abundance',
-                                variable.name = 'BioReplicate')
+  # Legacy
+  # dfdc.melt <- data.table::melt(dfdc.im,
+  #                               id.vars = c('Protein'),
+  #                               value.name = 'Abundance',
+  #                               variable.name = 'BioReplicate')
+  
+  dfdc.melt <- dfdc.im %>% 
+    tidyr::pivot_longer(cols = -c(Protein), 
+                        names_to = "BioReplicate", 
+                        values_to = "Abundance")
 
   # 2. Get the condition
   dfdc.melt$Condition <- gsub("(.*)(-)(.*)", "\\1", dfdc.melt$BioReplicate)
     
   # 3. Dcast and Aggregate on the condition, taking the mean
-  dfdc.final <-
-    data.table::dcast(
-      data = dfdc.melt,
-      Protein ~ Condition,
-      value.var = 'Abundance',
-      fun.aggregate = mean
-    )
+  ##LEGACY
+  # dfdc.final <-
+  #   data.table::dcast(
+  #     data = dfdc.melt,
+  #     Protein ~ Condition,
+  #     value.var = 'Abundance',
+  #     fun.aggregate = mean
+  #   )
+  
+  dfdc.final <- dfdc.melt %>% 
+    dplyr::select(-BioReplicate) %>%
+    tidyr::pivot_wider(names_from = Condition, 
+                values_from = Abundance,
+                values_fn = list(Abundance = mean))
+                                           
   # 4. Filter by proteins to impute
   dfdc.final <- dfdc.final[which(dfdc.final$Protein %in% ids2impute), ]
     
@@ -2137,14 +2325,19 @@ artmsGeneratePhSiteExtended <- function(df,
   }
   
   # Select only log2fc columns
-  imputedL2FCValues <-
-    dfdc.final[grepl("Protein|l2fc_", colnames(dfdc.final))]
+  imputedL2FCValues <- dfdc.final[grepl("Protein|l2fc_", colnames(dfdc.final))]
   
   # Melt again
-  imputedL2FCmelted <- data.table::melt(imputedL2FCValues,
-                                        id.vars = c('Protein'),
-                                        variable.name = 'Label',
-                                        value.name = 'iLog2FC')
+  # LEGACY
+  # imputedL2FCmelted <- data.table::melt(imputedL2FCValues,
+  #                                       id.vars = c('Protein'),
+  #                                       variable.name = 'Label',
+  #                                       value.name = 'iLog2FC')
+  
+  imputedL2FCmelted <- imputedL2FCValues %>%
+    tidyr::pivot_longer(cols = -Protein,
+                        names_to = "Label",
+                        values_to = "iLog2FC")
     
     
   # Now let's get it ready for merging with the values to be 
@@ -2155,15 +2348,15 @@ artmsGeneratePhSiteExtended <- function(df,
   # And let's add p-values
   samplingPvalue <- seq(from = 0.01, to = 0.05, by = .0000001)
   # And add imputed pvalues
-  imputedL2FCmelted$iPvalue <-
-    sample(samplingPvalue,
-           size = nrow(imputedL2FCmelted),
-           replace = FALSE)
+  imputedL2FCmelted$iPvalue <- sample(samplingPvalue,
+                                      size = nrow(imputedL2FCmelted),
+                                      replace = FALSE)
+    
   
   return (imputedL2FCmelted)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Load limited columns from abundance (modelqc) annotated
 #
 # @description Load limited columns from abundance (modelqc) annotated
@@ -2186,33 +2379,40 @@ artmsGeneratePhSiteExtended <- function(df,
   df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN)
   
   # Technical replicas: aggregate on the mean the technical replicas
-  b <- aggregate(
-    ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-    data = df_input,
-    FUN = mean
-  )
+  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+                 data = df_input,
+                 FUN = mean)
   
-  datadc <- data.table::dcast(
-    data = b,
-    PROTEIN ~ GROUP_ORIGINAL,
-    value.var = 'ABUNDANCE',
-    fun.aggregate = mean
-  )
+  ##LEGACY
+  # datadc <- data.table::dcast(data = b,
+  #                             PROTEIN ~ GROUP_ORIGINAL,
+  #                             value.var = 'ABUNDANCE',
+  #                             fun.aggregate = mean)
+  
+  datadc <- b %>% pivot_wider(id_cols = PROTEIN, 
+                              names_from = GROUP_ORIGINAL, 
+                              values_from = ABUNDANCE, 
+                              values_fn = list(ABUNDANCE = mean))
+                               
+    
   
   names(datadc)[grep('PROTEIN', names(datadc))] <- 'Protein'
+  
   if (grepl("ptm", ptmis)) {
     # if is a PTM dataset we don't need the real gene names for now,
     # we need to use the Uniprot_ptm notation
     datadc$Gene <- datadc$Protein
     send_back <- datadc
   } else{
-    suppressMessages(send_back <- artmsAnnotationUniprot(datadc, 'Protein', species))
+    suppressMessages(send_back <- artmsAnnotationUniprot(x =  datadc, 
+                                                         columnid = 'Protein', 
+                                                         species = species))
   }
   return(send_back)
 }
 
 
-#------------------------------------------------------------------------------
+#
 # @title Load the basic ModelQC file
 #
 # @param x (data.frame) of the ModelQC file
@@ -2249,7 +2449,7 @@ artmsGeneratePhSiteExtended <- function(df,
   return(x)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Merge abundance and number of biological replicates per condition
 #
 # @description Merge abundance and number of biological replicates
@@ -2264,29 +2464,31 @@ artmsGeneratePhSiteExtended <- function(df,
   if (any(df_input$PROTEIN == "")) {
     df_input <- df_input[-which(df_input$PROTEIN == ""), ]
   }
-  df_input$PROTEIN <-
-    gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN)
+  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN)
   df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN)
   
   # TECHNICAL REPLICAS: if there are technical replicas, 
   # this means that we will find
   # two values for the same protein in the same bioreplica, 
   # therefore we need to aggregate first just in case:
-  df_input <-
-    aggregate(
-      ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-      data = df_input,
-      FUN = mean
-    )
+  df_input <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+                        data = df_input,
+                        FUN = mean)
+    
+  ##LEGACY
+  # dc_input <- data.table::dcast( data = df_input[, c('PROTEIN', 'ABUNDANCE', 'GROUP_ORIGINAL')],
+  #                                PROTEIN ~ GROUP_ORIGINAL,
+  #                                value.var = 'ABUNDANCE',
+  #                                fun.aggregate = mean,
+  #                                fill = 0)
   
-  dc_input <-
-    data.table::dcast(
-      data = df_input[, c('PROTEIN', 'ABUNDANCE', 'GROUP_ORIGINAL')],
-      PROTEIN ~ GROUP_ORIGINAL,
-      value.var = 'ABUNDANCE',
-      fun.aggregate = mean,
-      fill = 0
-    )
+  dc_input <- df_input %>% pivot_wider(id_cols = PROTEIN, 
+                                        names_from = GROUP_ORIGINAL, 
+                                        values_from = ABUNDANCE, 
+                                        values_fn = list(ABUNDANCE = mean), 
+                                        values_fill = list(ABUNDANCE = 0))
+   
+    
   names(dc_input)[grep('PROTEIN', names(dc_input))] <- 'Protein'
   
   colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
@@ -2296,7 +2498,7 @@ artmsGeneratePhSiteExtended <- function(df,
   return(dc_input)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Merge changes (log2fc) and number of biological replicates per
 # condition
 #
@@ -2305,23 +2507,41 @@ artmsGeneratePhSiteExtended <- function(df,
 # @param df_input Changes data.frame
 # @param repro Reproducibility data.frame
 # @param species Species for annotation purposes
+# @param choosePvalue pvalue to use when making wider the dataframe
 # @return Merged data.frame of changes and reproducibility information
 # @keywords changes, log2fc, reproducibility, merging
-.artms_mergeChangesNbr <- function (df_input, repro, species) {
+.artms_mergeChangesNbr <- function (df_input, repro, species, choosePvalue) {
   # # Remove the weird empty proteins
   # if(any(df_input$Protein == "")){ df_input <- 
   # df_input[-which(df_input$Protein == ""),]}
   # df_input$Protein <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$Protein )
   # df_input$Protein <- gsub("(.*)(\\|.*)", "\\1", df_input$Protein )
   
-  input_melt = data.table::melt(data = df_input[, c('Protein', 
-                                                  'Label', 
-                                                  'log2FC', 
-                                                  'adj.pvalue'), ], 
-                                id.vars = c('Protein', 'Label'))
-  input_dcast = data.table::dcast(Protein ~ Label + variable,
-                                  data = input_melt,
-                                  value.var = c('value'))
+  ##LEGACY
+  # input_melt = data.table::melt(data = df_input[, c('Protein', 
+  #                                                 'Label', 
+  #                                                 'log2FC', 
+  #                                                 'adj.pvalue'), ], 
+  #                               id.vars = c('Protein', 'Label'))
+  
+  input_melt <- df_input %>%
+    dplyr::select(c(Protein, 
+                    Label, 
+                    log2FC, 
+                    !!!choosePvalue)) %>%
+    tidyr::pivot_longer(cols = -c(Protein, Label), 
+                 names_to = "variable", 
+                 values_to = "value")
+  ##LEGACY
+  # input_dcast <- data.table::dcast(Protein ~ Label + variable,
+  #                                 data = input_melt,
+  #                                 value.var = c('value'))
+  
+  input_dcast <- input_melt %>% 
+    dplyr::mutate(Label_variable = paste(Label, variable, sep = "_")) %>%
+    tidyr::pivot_wider(id_cols = c(Protein),
+                       names_from = Label_variable, 
+                       values_from = value)
   
   colnames(repro) <- paste("NumBR", colnames(repro), sep = "_")
   colnames(repro)[1] <- 'Protein'
@@ -2331,7 +2551,7 @@ artmsGeneratePhSiteExtended <- function(df,
   return(input_dcast)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Plot the total number of quantified proteins in each condition
 #
 # @description
@@ -2360,7 +2580,7 @@ artmsGeneratePhSiteExtended <- function(df,
   print(z)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Filter: Remove proteins below some threshold of minimal reproducibility
 #
 # @description If a protein is not found in a minimal number of
@@ -2378,17 +2598,14 @@ artmsGeneratePhSiteExtended <- function(df,
     # If the condition is not met, i.e., if all the proteins are
     # found in at least X biological replicas, then
     # it would remove the whole thing.
-    if (dim(dfi[which((dfi[[ax]] < mnbr) &
-                      (dfi[[ay]] < mnbr)), ])[1] > 0) {
-      dfi <-
-        dfi[-which(((dfi[[ax]] < mnbr) &
-                      (dfi[[ay]] < mnbr)) & (dfi$Label == onlyonecomp)), ]
+    if (dim(dfi[which((dfi[[ax]] < mnbr) & (dfi[[ay]] < mnbr)), ])[1] > 0) {
+      dfi <- dfi[-which(((dfi[[ax]] < mnbr) & (dfi[[ay]] < mnbr)) & (dfi$Label == onlyonecomp)), ]
     }
   }
   return(dfi)
 }
 
-# ------------------------------------------------------------------------------
+# 
 # @title Select and label the condition more abundant in a quantification
 #
 # @description Select and label the condition more abundant in a quantification
@@ -2414,7 +2631,7 @@ artmsGeneratePhSiteExtended <- function(df,
 
 
 
-# ------------------------------------------------------------------------------
+# 
 # @title Extract Uniprot ID from a UNIPROT_PTM  identifier
 #
 # @param x The data.frame with the uniprot_ptm column

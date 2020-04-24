@@ -54,13 +54,11 @@
   
   ## select data points  by LFC & FDR criterium in single condition and
   ## adding corresponding data points from the other conditions
-  sign_hits <-
-    .artms_significantHits(
-      results_ann,
-      labels = selected_labels,
-      LFC = c(lfc_lower, lfc_upper),
-      FDR = config$output_extras$plots$FDR
-    )
+  sign_hits <- .artms_significantHits(results_ann,
+                                      labels = selected_labels,
+                                      LFC = c(lfc_lower, lfc_upper),
+                                      FDR = config$output_extras$plots$FDR)
+
   if (dim(sign_hits)[1] == 0){
     message("--(-) No significant hits detected in this experiment. aborting plots. ")
   }else{

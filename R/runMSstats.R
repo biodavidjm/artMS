@@ -24,6 +24,7 @@
                               contrasts, 
                               config,
                               verbose = TRUE) {
+  
   if(verbose) message(">> RUNNING MSstats")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
@@ -143,10 +144,8 @@
     col.names = TRUE
   )
   
-  if(verbose) message(sprintf(
-    '-- FITTING CONTRASTS:\t%s\n',
-    paste(rownames(contrasts), collapse = ',')
-  ))
+  if(verbose) message(sprintf('-- FITTING CONTRASTS:\t%s\n',paste(rownames(contrasts), collapse = ',')))
+  
   write.table(
     mssquant$ProcessedData,
     file = gsub('.txt', '-mss-normalized.txt', config$files$output),
@@ -156,8 +155,10 @@
     row.names = FALSE,
     col.names = TRUE
   )
+  
   if(verbose) message("-- GROUP COMPARISON")
   results <- groupComparison(data = mssquant, contrast.matrix = contrasts)
+  
   write.table(
     results$ComparisonResult,
     file = config$files$output,
@@ -190,30 +191,26 @@
   
   #(1) Minimal number of biological replicates per condition
   if(verbose) message(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS ")
-  results.ss1 <-
-    designSampleSize(
-      data = results$fittedmodel,
-      numSample = TRUE,
-      desiredFC = c(1.25, 2),
-      FDR = 0.05,
-      power = 0.95
-    )
-  results.ss2 <-
-    designSampleSize(
-      data = results$fittedmodel,
-      numSample = TRUE,
-      desiredFC = c(1.25, 2),
-      FDR = 0.05,
-      power = 0.9
-    )
-  results.ss3 <-
-    designSampleSize(
-      data = results$fittedmodel,
-      numSample = TRUE,
-      desiredFC = c(1.25, 2),
-      FDR = 0.05,
-      power = 0.8
-    )
+  results.ss1 <- designSampleSize(data = results$fittedmodel,
+                                  numSample = TRUE,
+                                  desiredFC = c(1.25, 2),
+                                  FDR = 0.05,
+                                  power = 0.95)
+    
+    
+  results.ss2 <- designSampleSize(data = results$fittedmodel,
+                                  numSample = TRUE,
+                                  desiredFC = c(1.25, 2),
+                                  FDR = 0.05,
+                                  power = 0.9)
+  
+  results.ss3 <- designSampleSize(data = results$fittedmodel,
+                                  numSample = TRUE,
+                                  desiredFC = c(1.25, 2),
+                                  FDR = 0.05,
+                                  power = 0.8)
+    
+    
   results.ss <- rbind(results.ss1, results.ss2, results.ss3)
   write.table(
     results.ss,

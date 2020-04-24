@@ -9,15 +9,12 @@
 #' data.frame
 #' @param output_name (char) prefix output name (no extension).
 #' Default: "qcPlots_metab"
-#' @param met_exp (char) Proteomics experiment. Only one option available
+#' @param met_exp (char) Metabolomics experiment. Only one option available
 #' (so far):
 #' - `MV`: Markview output
 #' @param plotINTDIST if `TRUE` (default) plots both *Box-dot plot* 
 #' and *Jitter plot* of biological replicates based on MS (raw) 
 #' intensity values.
-#' @param plotREPRO if `TRUE` (default) plots a correlation dotplot for all the 
-#' combinations of biological replicates of conditions, based on MS Intensity 
-#' values using features (mz_rt+charge)
 #' @param plotCORMAT if `TRUE` (default) generates up to 3 pdf files for 
 #' technical replicates, biological replicates, and conditions. Each pdf file 
 #' contains: 
@@ -50,8 +47,7 @@ artmsQualityControlMetabolomics <- function(evidence_file,
                              keys_file,
                              met_exp = c('MV'),
                              output_name = "qcPlots_metab",
-                             plotINTDIST = TRUE,
-                             plotREPRO = TRUE,
+                             plotINTDIST = FALSE,
                              plotCORMAT = TRUE,
                              plotINTMISC = TRUE,
                              printPDF = TRUE,
@@ -77,14 +73,14 @@ artmsQualityControlMetabolomics <- function(evidence_file,
   
   # remove 
   
-  ekselecta <-
-    aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
-              data = evidencekeys,
-              FUN = sum)
-  ekselectaBioreplica <-
-    aggregate(Intensity ~ Proteins + Condition + BioReplicate,
-              data = ekselecta,
-              FUN = sum)
+  ekselecta <- aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
+                         data = evidencekeys,
+                         FUN = sum)
+    
+  ekselectaBioreplica <- aggregate(Intensity ~ Proteins + Condition + BioReplicate,
+                                   data = ekselecta,
+                                   FUN = sum)
+    
   
   # Checking the overall distribution of intensities before anything else
   # Based on Intensity
@@ -122,23 +118,19 @@ artmsQualityControlMetabolomics <- function(evidence_file,
   }
   
   # Feature generation: Combine Sequence and Charge.
-  evidencekeys$Feature <- 
-    paste0(evidencekeys$Modified.sequence, "_", evidencekeys$Charge)
+  evidencekeys$Feature <- paste0(evidencekeys$Modified.sequence, "_", evidencekeys$Charge)
   
   # ============================================================================
   # GENERAL QUALITY CONTROL: CHECK PROPORTION OF IntDetectionS
   # sum of total intensities, label them as IntDetections and non-IntDetections
   # and plot intensities for each group
 
-  evigeneral <-
-    evidencekeys[c(
-      'Feature',
-      'Proteins',
-      'Intensity',
-      'Condition',
-      'BioReplicate',
-      'Run'
-    )]
+  evigeneral <- evidencekeys[c('Feature',
+                               'Proteins',
+                               'Intensity',
+                               'Condition',
+                               'BioReplicate',
+                               'Run')]
   
   # Now let's classify the proteins as INT and INT
   evigeneral$IntDetection <- ifelse( evigeneral$Intensity > 0, "INT", "NOINT")
@@ -153,20 +145,13 @@ artmsQualityControlMetabolomics <- function(evidence_file,
     )
   
   # CLEANING THE EVIDENCE OF NOINT
-  if( any( dim(evidencekeys[which(evidencekeys$Intensity == 0),])[1] > 0 ) )
+  if( any( dim(evidencekeys[which(evidencekeys$Intensity == 0),])[1] > 0 ) ){
     evidencekeysclean <- evidencekeys[-which(evidencekeys$Intensity == 0),]
-  
-  if(plotREPRO){
-    if(verbose) message(">> GENERATING THE REPRODUCIBILITY PLOTS 
-      (Warning: it might take some time) ")
-    seqReproName <-
-      paste0(output_name, ".qcplot.plotREPRO.pdf")
-    
-    if(printPDF) pdf(seqReproName)
-    .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
-    if(printPDF) garbage <- dev.off()
+  }else{
+    evidencekeysclean <- evidencekeys
   }
-  
+    
+
   # Create matrix of reproducibility TECHNICAL REPLICAS
   data2matrix <- evidencekeysclean
   # Make sure that the Intensity is numeric
@@ -174,35 +159,36 @@ artmsQualityControlMetabolomics <- function(evidence_file,
   
   # Check the number of TECHNICAL REPLICAS by 
   # checking the first technical replica
-  technicalReplicas <-
-    unique(data2matrix$Run[which(data2matrix$BioReplicate == data2matrix$BioReplicate[1])])
+  technicalReplicas <- unique(data2matrix$Run[which(data2matrix$BioReplicate == data2matrix$BioReplicate[1])])
   palette.breaks <- seq(1, 3, 0.1)
-  color.palette  <-
-    colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
+  color.palette  <- colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
   if(plotCORMAT){
     if(verbose) message(">> GENERATING CORRELATION MATRICES ")
     if (length(technicalReplicas) > 1) {
       # First aggregate at the protein level by summing up everything
-      biorepliaggregated <-
-        aggregate(
-          Intensity ~ Feature + Proteins + Condition + BioReplicate + Run,
-          data = data2matrix,
-          FUN = sum
-        )
-      biorepliaggregated$Intensity <-
-        log2(biorepliaggregated$Intensity)
-      evidencekeyscleanDCASTbioreplicas <-
-        data.table::dcast(data = biorepliaggregated,
-                          Proteins + Feature ~ BioReplicate + Run,
-                          value.var = "Intensity")
-      precordfBioreplicas <-
-        evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
-      Mtechnicalrep <-
-        cor(precordfBioreplicas, use = "pairwise.complete.obs")
+      biorepliaggregated <- aggregate(Intensity ~ Feature + Proteins + Condition + BioReplicate + Run,
+                                      data = data2matrix,
+                                      FUN = sum)
+        
+        
+      biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
       
-      theTechCorDis <-
-        .artms_plotCorrelationDistribution(Mtechnicalrep)
+      ##LEGACY
+      # evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
+      #                                                        Proteins + Feature ~ BioReplicate + Run,
+      #                                                        value.var = "Intensity")
+      
+      evidencekeyscleanDCASTbioreplicas <- biorepliaggregated %>% 
+        dplyr::mutate(BioReplicate_Run = paste(BioReplicate, Run, sep = "_")) %>%
+        tidyr::pivot_wider(id_cols = c(Proteins, Feature), 
+                           names_from = BioReplicate_Run, 
+                           values_from = Intensity)
+        
+      precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
+      Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
+      
+      theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
       
       # And now for clustering
       if(verbose) message("--- By Technical replicates ")

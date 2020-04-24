@@ -47,12 +47,13 @@
 #'                                    output_dir = NULL)
 #' @export
 artmsEvidenceToSAINTq    <- function(evidence_file,
-                                         keys_file,
-                                         output_dir = ".",
-                                         sc_option = c("all", "msspc"),
-                                         fractions = FALSE,
-                                         quant_variable = c('msint','msspc'),
-                                         verbose = TRUE){
+                                     keys_file,
+                                     output_dir = "artms_saintq",
+                                     sc_option = c("all", "msspc"),
+                                     fractions = FALSE,
+                                     quant_variable = c('msint','msspc'),
+                                     verbose = TRUE){
+                                         
 
   if(verbose){
     message(">> GENERATING A SAINTq INPUT FILE ")
@@ -179,14 +180,32 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
                        FUN = paste, collapse="|" )
   
   # Using Intensities for both Peptides and Proteins
-  protBiorepIntensity  <- data.table::dcast(
-    data=data_f2_fa[,c("Proteins","BioReplicate","Intensity")], 
-    Proteins~BioReplicate, 
-    value.var = "Intensity", sum, na.rm = TRUE, fill=0 )
-  peptideBiorepIntensity <- data.table::dcast(
-    data=data_f2_fa[,c("Proteins","Sequence","BioReplicate","Intensity")], 
-    Proteins+Sequence~BioReplicate, 
-    value.var = "Intensity", fun.aggregate = sum, na.rm = TRUE, fill=0 )
+  ##LEGACY
+  # protBiorepIntensity  <- data.table::dcast(data=data_f2_fa[,c("Proteins","BioReplicate","Intensity")], 
+  #                                           Proteins~BioReplicate, 
+  #                                           value.var = "Intensity", sum, na.rm = TRUE, fill=0 )
+  
+  protBiorepIntensity <- data_f2_fa[,c("Proteins","BioReplicate","Intensity")] %>%
+    tidyr::pivot_wider(id_cols = c(Proteins, BioReplicate), 
+                       names_from = BioReplicate, 
+                       values_from = Intensity, 
+                       values_fn = list(Intensity = sum), 
+                       values_fill = list(Intensity = 0))
+  protBiorepIntensity[is.na(protBiorepIntensity)] <- 0
+  
+  ##LEGACY
+  # peptideBiorepIntensity <- data.table::dcast(
+  #   data=data_f2_fa[,c("Proteins","Sequence","BioReplicate","Intensity")], 
+  #   Proteins+Sequence~BioReplicate, 
+  #   value.var = "Intensity", fun.aggregate = sum, na.rm = TRUE, fill=0 )
+  
+  peptideBiorepIntensity <- data_f2_fa[,c("Proteins", "Sequence", "BioReplicate","Intensity")] %>%
+    tidyr::pivot_wider(id_cols = c(Proteins, Sequence), 
+                       names_from = BioReplicate, 
+                       values_from = Intensity, 
+                       values_fn = list(Intensity = sum), 
+                       values_fill = list(Intensity = 0))
+  peptideBiorepIntensity[is.na(peptideBiorepIntensity)] <- 0
 
   # PROTEINS: extra step to add the information about peptides
   almost <- merge(protBiorepIntensity, protPep, by="Proteins")

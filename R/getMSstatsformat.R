@@ -22,6 +22,7 @@
                                     funfunc = "sum",
                                     data_object = data_object,
                                     verbose = TRUE) {
+  
   if(verbose) message(">> CONVERTING THE DATA TO MSSTATS FORMAT ")
 
   if(any(missing(data_f) | 
@@ -100,21 +101,34 @@
   if(verbose)
     message("-- Adding NA values for missing values (required by MSstats) ")
   
-  predmss_dc <- data.table::dcast(data = setDT(predmss),
-                                  Proteins+PeptideSequence+Charge+IsotopeLabelType~Condition+
-                                    BioReplicate + Run,
-                                  value.var = "Intensity",
-                                  fun.aggregate = sum,
-                                  sep = "___")
-    
-    
-  predmss_melt <- data.table::melt(data = predmss_dc,
-                                   id.vars = c('Proteins', 
-                                               'PeptideSequence', 
-                                               'Charge', 
-                                               'IsotopeLabelType'),
-                                   value.name = "Intensity")
-
+  ##LEGACY
+  # predmss_dc <- data.table::dcast(data = setDT(predmss),
+  #                                 Proteins+PeptideSequence+Charge+IsotopeLabelType~Condition+
+  #                                   BioReplicate + Run,
+  #                                 value.var = "Intensity",
+  #                                 fun.aggregate = sum,
+  #                                 sep = "___")
+  predmss_dc <- predmss %>% 
+    dplyr::mutate(Condition_BioReplicate_Run = paste(Condition, BioReplicate, Run, sep = "___") ) %>%
+    tidyr::pivot_wider(id_cols = c(Proteins, PeptideSequence, Charge, IsotopeLabelType), 
+                       names_from = Condition_BioReplicate_Run, 
+                       values_from = Intensity, 
+                       values_fn = list(Intensity = sum), values_fill = list(Intensity = 0))
+                    
+  
+  ##LEGACY
+  # predmss_melt <- data.table::melt(data = predmss_dc,
+  #                                  id.vars = c('Proteins', 
+  #                                              'PeptideSequence', 
+  #                                              'Charge', 
+  #                                              'IsotopeLabelType'),
+  #                                  value.name = "Intensity")
+  
+  predmss_melt <- predmss_dc %>%
+    tidyr::pivot_longer(cols = -c(Proteins, PeptideSequence, Charge, IsotopeLabelType), 
+                        names_to = "variable", 
+                        values_to = "Intensity")
+  
   # And put back the condition, bioreplicate and run columns
   predmss_melt$Condition <- gsub("(.*)(___)(.*)(___)(.*)", "\\1", predmss_melt$variable)
   predmss_melt$BioReplicate <- gsub("(.*)(___)(.*)(___)(.*)", "\\3", predmss_melt$variable)

@@ -7,7 +7,7 @@
 artmsEvidenceToSAINTq(
   evidence_file,
   keys_file,
-  output_dir = ".",
+  output_dir = "artms_saintq",
   sc_option = c("all", "msspc"),
   fractions = FALSE,
   quant_variable = c("msint", "msspc"),

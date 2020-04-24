@@ -46,8 +46,8 @@ artmsAnnotationUniprot <- function(x,
   isUniprot <- TRUE
   if( length(x$EntryRoot[grep("\\w{2}_\\d{1,}\\.\\d{1,}", x$EntryRoot)]) > 100 ){
     message("\nWarning!
-It looks like this dataset is using RefSeq as protein ID.
-RefSeq is not (yet) supported for gene annotation.\n")
+    It looks like this dataset is using RefSeq as protein ID.
+    RefSeq is not (yet) supported for gene annotation.\n")
     isUniprot <- FALSE
   }
   
@@ -105,8 +105,7 @@ RefSeq is not (yet) supported for gene annotation.\n")
     # Some uniprot entries might not have yet a gene name, 
     # which will be an empty value. Replace with Entry name:
     send_back$Gene[which(send_back$Gene == "")] <- NA
-    send_back$Gene[is.na(send_back$Gene)] <-
-      send_back$Protein[is.na(send_back$Gene)]
+    send_back$Gene[is.na(send_back$Gene)] <- send_back$Protein[is.na(send_back$Gene)]
     return(send_back)
   }
 }

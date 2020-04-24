@@ -29,6 +29,7 @@ artmsAnalysisQuantifications(
   plotHeatmapsChanges = TRUE,
   plotTotalQuant = TRUE,
   plotClusteringAnalysis = TRUE,
+  data_object = FALSE,
   verbose = TRUE
 )
 }
@@ -125,6 +126,9 @@ quantifications per comparison}
 
 \item{plotClusteringAnalysis}{(logical) if \code{TRUE} performs clustering
 analysis between quantified comparisons (more than 1 comparison required)}
+
+\item{data_object}{(logical) flag to indicate whether the required files
+are data objects. Default is FALSE}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

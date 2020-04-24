@@ -34,7 +34,7 @@
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
 #' kmeans median order.dendrogram phyper as.dist complete.cases qt IQR
 #' @import stringr
-#' @importFrom tidyr unnest
+#' @importFrom tidyr unnest pivot_wider pivot_longer
 #' @import UpSetR
 #' @importFrom utils combn read.delim sessionInfo write.table setTxtProgressBar 
 #' txtProgressBar head globalVariables
@@ -53,6 +53,7 @@ utils::globalVariables(
     "artms_data_corum_mito_database",
     "artms_data_pathogen_LPN",
     "artms_data_pathogen_TB",
+    "Bait",
     "bin.all",
     "bin.condition",
     "BiorepCount",
@@ -177,7 +178,8 @@ utils::globalVariables(
   )
 )
 
-# ------------------------------------------------------------------------------
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Relative quantification using MSstats
 #'
 #' @description Relative quantification using MSstats including:
@@ -202,6 +204,7 @@ artmsQuantification <- function(yaml_config_file,
   
   # Debugging:
   # yaml_config_file <- artms_data_ph_config
+  # data_object = TRUE
   # verbose = TRUE
   
   # Check if the yaml file is already open first
@@ -376,6 +379,7 @@ artmsQuantification <- function(yaml_config_file,
                                       config = config)
       .artms_samplePeptideBarplot(data_f, config)
     }
+    
   }else{
     if(verbose) 
       message("-- Data not selected (will require to load evidence-mss.txt file)")
@@ -390,10 +394,9 @@ artmsQuantification <- function(yaml_config_file,
     # keys <- data.table(keys)
 
     # Read in contrast file
-    contrasts <- .artms_writeContrast(
-      contrast_file = config$files$contrasts, 
-      all_conditions= unique(as.character(keys$Condition)))
-
+    contrasts <- .artms_writeContrast(contrast_file = config$files$contrasts, 
+                                      all_conditions= unique(as.character(keys$Condition)))
+      
     selectedConditions <- as.character(colnames(contrasts))
     
     if (is.null(config$msstats$msstats_input)) {
@@ -412,11 +415,15 @@ artmsQuantification <- function(yaml_config_file,
                          stringsAsFactors = FALSE,
                          sep = '\t')
     }
-    results <- .artms_runMSstats(dmss, 
-                                 contrasts, 
-                                 config,
+    
+    results <- .artms_runMSstats(dmss = dmss, 
+                                 contrasts = contrasts, 
+                                 config = config,
                                  verbose = verbose)
-    if(data_object) return(results)
+    if(data_object){
+      return(results)
+    } 
+    
   } else{
     if(verbose) message("\t+ MSstats not selected")
   }
@@ -433,7 +440,7 @@ artmsQuantification <- function(yaml_config_file,
   if(verbose) message(">> ANALYSIS COMPLETED")
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Write out a template file of the artMS configuration file (yaml)
 #' 
 #' @description Creates a template file of the artMS configuration file, which

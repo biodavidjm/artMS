@@ -351,8 +351,17 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       print(bc)
     }
     
-    summarykeys.scans <- data.table::melt(summarykeys[, 1:4], 
-                                          id.vars = seq_len(2))
+    summarykeys.reduced <- summarykeys[, 1:4]
+    
+    ## LEGACY
+    # summarykeys.scans1 <- data.table::melt(summarykeys.reduced, 
+    #                                       id.vars = seq_len(2))
+    
+    summarykeys.scans <- summarykeys.reduced %>%
+      tidyr::pivot_longer(cols = -c(condition, bioreplicate), 
+                          names_to = "variable", values_to = "value")
+    
+    
     bd <-ggplot(summarykeys.scans,
                 aes(
                   x = interaction(variable, bioreplicate),

@@ -36,11 +36,11 @@
 #'                       results_file = NULL)
 #' @export
 artmsMsstatsSummary <- function(evidence_file,
-                                  prot_group_file,
-                                  keys_file,
-                                  results_file,
-                                  return_df = FALSE,
-                                  verbose = TRUE) {
+                                prot_group_file,
+                                keys_file,
+                                results_file,
+                                return_df = FALSE,
+                                verbose = TRUE) {
   
   if(any(missing(evidence_file) | 
          missing(prot_group_file) |
@@ -75,21 +75,38 @@ artmsMsstatsSummary <- function(evidence_file,
   if( any(grepl("MS.MS.count", colnames(dat))) ){
     dat <- artmsChangeColumnName(dataset = dat, "MS.MS.count", "MS.MS.Count")
   }
-  dat.sc <-data.table::dcast(data = dat,
-                             Proteins ~ BioReplicate,
-                             value.var = "MS.MS.Count",
-                             max,
-                             fill = NA_real_)
+  # dat.sc <- data.table::dcast(data = dat,
+  #                            Proteins ~ BioReplicate,
+  #                            value.var = "MS.MS.Count",
+  #                            max,
+  #                            fill = NA_real_)
+  
+  dat.sc <- dat %>% 
+    tidyr::pivot_wider(id_cols = Proteins, 
+                       names_from = BioReplicate, 
+                       values_from = MS.MS.Count, 
+                       values_fn = list(MS.MS.Count = max))
+  dat.sc <- as.data.frame(dat.sc)
+  
     
   names(dat.sc)[-1] <- paste0(names(dat.sc)[-1], "_SC")
   
   # get INTENSITIES
   message("--- Summarizing Intensities ")
-  dat.intensity <- data.table::dcast(data = dat,
-                                     Proteins ~ BioReplicate,
-                                     value.var = "Intensity",
-                                     max,
-                                     fill = NA_real_)
+  ##LEGACY
+  # dat.intensity1 <- data.table::dcast(data = dat,
+  #                                    Proteins ~ BioReplicate,
+  #                                    value.var = "Intensity",
+  #                                    max,
+  #                                    fill = NA_real_)
+  
+  dat.intensity <- dat %>%
+    tidyr::pivot_wider(id_cols = Proteins, 
+                       names_from = BioReplicate, 
+                       values_from = Intensity, 
+                       values_fn = list(Intensity = max))
+  dat.intensity <- as.data.frame(dat.intensity)
+  
   names(dat.intensity)[-1] <- paste0(names(dat.intensity)[-1], "_Intensity")
   
   # find the UNIQUE PEPTIDE columns
@@ -108,13 +125,30 @@ artmsMsstatsSummary <- function(evidence_file,
   
   # convert RESULTS to WIDE format
   message(">> Converting Results to Wide format ")
-  results_l = data.table::melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
-                                              with = FALSE], id.vars = c("Protein", "Label"))
+  
+  ##LEGACY
+  # results_l1 = data.table::melt(data = results[, c("Protein", "Label", "log2FC", "adj.pvalue"), 
+  #                                             with = FALSE], id.vars = c("Protein", "Label"))
+  
+  results_l <- results %>%
+    dplyr::select(c(Protein, Label, log2FC, adj.pvalue)) %>%
+    tidyr::pivot_longer(cols = -c(Protein, Label), 
+                        values_to = "value", 
+                        names_to = "variable")
                      
   ## then cast to get combinations of LFCV/PVAl and Label as columns
-  results_w <- data.table::dcast(Protein ~ Label + variable,
-                                 data = results_l,
-                                 value.var = c("value"))
+  ##LEGACY
+  # results_w <- data.table::dcast(Protein ~ Label + variable,
+  #                                data = results_l,
+  #                                value.var = c("value"))
+  
+  results_w <- results_l %>%
+    dplyr::mutate(Label_variable = paste(Label, variable, sep = "_")) %>%
+    tidyr::pivot_wider(id_cols = Protein, 
+                       names_from = Label_variable, 
+                       values_from = value)
+  
+  
     
   names(results_w)[1] = "Proteins"
   

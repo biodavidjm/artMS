@@ -91,6 +91,21 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   # Define global variables
   TechReplica = ..prop.. = ..x.. = PTM = keysilac = NULL
+  
+  # #Debug
+  # evidence_file <- artms_data_ph_evidence
+  # keys_file <- artms_data_ph_keys
+  # prot_exp = "PH"
+  # fractions = 0
+  # output_name = "qcBasic_evidence"
+  # isSILAC = FALSE
+  # plotINTDIST = TRUE
+  # plotREPRO = TRUE
+  # plotCORMAT = TRUE
+  # plotINTMISC = TRUE
+  # plotPTMSTATS = TRUE
+  # printPDF = FALSE
+  # verbose = TRUE
 
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("Evidence and keys cannot be NULL")
@@ -297,14 +312,13 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     technicalReplicas <- TRUE
   }
   
-  
   #################
   # PLOT TIME
   #################
   
   if(plotINTDIST){
     if(verbose) message("-- Plot: intensity distribution")
-    intDistribution <- paste0(output_name, ".qcplot.IntensityDistributions.pdf")
+      intDistribution <- paste0(output_name, ".qcplot.IntensityDistributions.pdf")
     
     j <- ggplot(ekselectaBioreplica, aes(BioReplicate, Intensity))
     j <- j + geom_jitter(width = 0.3, size = 0.5)
@@ -331,12 +345,11 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     seqReproName <- paste0(output_name, ".qcplot.BasicReproducibility.pdf")
 
     if(printPDF) pdf(seqReproName)
-      .artms_plotReproducibilityEvidence(evidencekeysclean, verbose = verbose)
+      .artms_plotReproducibilityEvidence(data =  evidencekeysclean, 
+                                         verbose = verbose)
     if(printPDF) garbage <- dev.off()
   }
 
-  
-  
   palette.breaks <- seq(1, 3, 0.1)
   color.palette <- colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
   
@@ -351,9 +364,17 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       )
         
       biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-      evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
-                                                             Proteins + Feature ~ BioReplicate + Run,
-                                                             value.var = "Intensity")
+      
+      ##LEGACY
+      # evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
+      #                                                        Proteins + Feature ~ BioReplicate + Run,
+      #                                                        value.var = "Intensity")
+      
+      evidencekeyscleanDCASTbioreplicas <- biorepliaggregated %>% 
+        dplyr::mutate(BioReplicate_Run = paste(BioReplicate, Run, paste = "_")) %>%
+        tidyr::pivot_wider(id_cols = c(Proteins, Feature), 
+                           names_from = BioReplicate_Run,
+                           values_from = Intensity)
         
       precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
       Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
@@ -424,9 +445,17 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     }
     
     biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-    evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
-                                                           Proteins + Feature ~ BioReplicate,
-                                                           value.var = "Intensity")
+    
+    ##LEGACY
+    # evidencekeyscleanDCASTbioreplicas <- data.table::dcast(data = biorepliaggregated,
+    #                                                        Proteins + Feature ~ BioReplicate,
+    #                                                        value.var = "Intensity")
+    
+    evidencekeyscleanDCASTbioreplicas <- biorepliaggregated %>%
+      tidyr::pivot_wider(id_cols = c(Proteins, Feature), 
+                         names_from = BioReplicate, 
+                         values_from = Intensity)
+
     precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
     Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
@@ -492,10 +521,18 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                     data = biorepliaggregated,
                                     FUN = median)
     biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-    evidencekeyscleanDCASTconditions <- data.table::dcast(data = biorepliaggregated,
-                                                          Proteins + Feature ~ Condition,
-                                                          value.var = "Intensity")
-      
+    
+    ##LEGACY
+    # evidencekeyscleanDCASTconditions <- data.table::dcast(data = biorepliaggregated,
+    #                                                       Proteins + Feature ~ Condition,
+    #                                                       value.var = "Intensity")
+    
+    evidencekeyscleanDCASTconditions <- biorepliaggregated %>%
+      tidyr::pivot_wider(id_cols = c(Proteins, Feature), 
+                         names_from = Condition, 
+                         values_from = Intensity)
+    evidencekeyscleanDCASTconditions <- as.data.frame(evidencekeyscleanDCASTconditions)
+
     precordfConditions <- evidencekeyscleanDCASTconditions[, 3:dim(evidencekeyscleanDCASTconditions)[2]]
     Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
     
@@ -503,7 +540,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     
     if(verbose) message("---- by Conditions ")
     matrixCorrelationCond <- paste0(output_name, ".qcplot.CorrelationMatrixConditions.pdf")
-    if(printPDF) pdf(matrixCorrelationCond)
+    if(printPDF) pdf(matrixCorrelationCond, width = 15, height = 15)
       corrplot(
         Mcond,
         method = "square",
@@ -571,15 +608,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       ccc <- cc[c('Proteins', 'Condition', 'TR')]
       cd <- unique(ccc)
     } else if (prot_exp == "UB" | prot_exp == "PH" | prot_exp == "AC") {
-      ekselectall <- evidencekeysclean[c(
-        'Feature',
-        'Modified.sequence',
-        'Proteins',
-        'Intensity',
-        'Condition',
-        'BioReplicate',
-        'Run'
-      )]
+      ekselectall <- evidencekeysclean[c('Feature',
+                                         'Modified.sequence',
+                                         'Proteins',
+                                         'Intensity',
+                                         'Condition',
+                                         'BioReplicate',
+                                         'Run')]
+        
       
       if(prot_exp == "UB"){
         ekselectgly <- ekselectall[grep("(gl)", ekselectall$Modified.sequence), ]
@@ -696,7 +732,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         aes(BioReplicate, Intensity, fill = Condition),
         position = "dodge",
         stat = "summary",
-        fun.y = "sum",
+        fun = "sum",
         na.rm = TRUE
       ) +
       theme_minimal() +
@@ -719,7 +755,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
           aes(TechReplica, Intensity, fill = Condition),
           position = "dodge",
           stat = "summary",
-          fun.y = "sum",
+          fun = "sum",
           na.rm = TRUE,
           size = 4
         ) +
@@ -874,11 +910,12 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         hjust = 1,
         vjust = 0.5
       )) +
+      theme_minimal() +
       geom_bar(
         aes(BioReplicate, Intensity),
         position = "dodge",
         stat = "summary",
-        fun.y = "mean",
+        fun = "mean",
         fill = "black",
         colour = "orange",
         na.rm = TRUE
@@ -891,11 +928,12 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         hjust = 1,
         vjust = 0.5
       )) +
+      theme_linedraw() +
       geom_bar(
         aes(Condition, Intensity),
         position = "dodge",
         stat = "summary",
-        fun.y = "mean",
+        fun = "mean",
         fill = "black",
         colour = "green",
         na.rm = TRUE
@@ -915,6 +953,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
           ),
           legend.position = "none"
         ) +
+        theme_linedraw() +
         geom_text(
           stat = 'count',
           aes(label = ..count..),
@@ -938,6 +977,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         ),
         legend.position = "none"
       ) +
+      theme_linedraw() +
       geom_text(
         stat = 'count',
         aes(label = ..count..),
@@ -959,6 +999,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         ),
         legend.position = "none"
       ) +
+      theme_linedraw() +
       geom_text(
         stat = 'count',
         aes(label = ..count..),
@@ -1140,10 +1181,9 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       
       u <- ggplot(evidencekeys,
                   aes(x = BioReplicate, y = Intensity, fill = PTM))
-        
       u <- u + geom_bar(stat = "identity",
                         position = position_dodge(width = 0.7),
-                        width = 0.7)
+                        width = 0.7, na.rm = TRUE)
         
       u <- u + theme_minimal()
       u <- u + theme(
@@ -1164,7 +1204,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         
       z <- z + geom_bar(stat = "identity",
                         position = position_dodge(width = 0.7),
-                        width = 0.7)
+                        width = 0.7, na.rm = TRUE)
         
       z <- z + theme_minimal()
       z <- z + theme(

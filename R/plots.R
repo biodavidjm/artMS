@@ -1,6 +1,6 @@
 # artMS PLOT FUNCTIONS
-#
-# ------------------------------------------------------------------------------
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot correlation distributions
 #
 # @description Plot correlation distributions
@@ -25,7 +25,7 @@
   return(g)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Individual Normalized abundance dot plots for every protein
 #'
 #' @description Protein abundance dot plots for each unique uniprot id. It can
@@ -84,7 +84,7 @@ artmsDataPlots <- function(input_file,
   garbarge <- dev.off()
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Heatmap of significant values
 #
 # @description heatmap plot to represent proteins with significant changes
@@ -121,15 +121,36 @@ artmsDataPlots <- function(input_file,
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[idx] <- NA
     }
-    heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
+    ##LEGACY
+    # heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'log2FC')
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = names, 
+                         names_from = Label, 
+                         values_from = log2FC,
+                         values_fn = list(log2FC = length))
   } else if (display == 'adj.pvalue') {
     heat_data$adj.pvalue = -log10(heat_data$adj.pvalue + 10 ^ -16)
-    heat_data_w = data.table::dcast(names ~ Label, 
-                        data = heat_data, value.var = 'adj.pvalue')
+    ##LEGACY
+    # heat_data_w = data.table::dcast(names ~ Label,
+    #                     data = heat_data, value.var = 'adj.pvalue')
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = names, 
+                         names_from = Label, 
+                         values_from = adj.pvalue,
+                         values_fn = list(adj.pvalue = length))
   } else if (display == 'pvalue') {
     heat_data$pvalue = -log10(heat_data$pvalue + 10 ^ -16)
-    heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
+    ##LEGACY
+    # heat_data_w = data.table::dcast(names ~ Label, data = heat_data, value.var = 'pvalue')
+    
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = names, 
+                         names_from = Label, 
+                         values_from = pvalue,
+                         values_fn = list(pvalue = length))
   }
+  
+  heat_data_w <- as.data.frame(heat_data_w)
   
   ## try
   #gene_names = uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
@@ -188,7 +209,7 @@ artmsDataPlots <- function(input_file,
   return(heat_data_w)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Outputs a heatmap of the MSStats results created using the log2fold
 #' changes
 #'
@@ -296,25 +317,44 @@ artmsPlotHeatmapQuant <- function(input_file,
       idx <- is.infinite(heat_data$log2FC)
       heat_data$log2FC[idx] <- NA
     }
-    heat_data_w <-
-      data.table::dcast(heat_labels ~ Label, 
-                        data = heat_data, 
-                        value.var = 'log2FC')
+    
+    ##LEGACY
+    # heat_data_w <- data.table::dcast(heat_labels ~ Label, 
+    #                                  data = heat_data, 
+    #                                  value.var = 'log2FC')
+    
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = heat_labels, 
+                         names_from = Label, 
+                         values_from = log2FC)
+    
+      
   } else if (display == 'adj.pvalue') {
     heat_data$adj.pvalue <- -log10(heat_data$adj.pvalue + 10 ^ -16)
-    heat_data_w <-
-      data.table::dcast(heat_labels ~ Label, 
-                        data = heat_data, 
-                        value.var = 'adj.pvalue')
+    
+    ##LEGACY
+    # heat_data_w <- data.table::dcast(heat_labels ~ Label, 
+    #                                  data = heat_data, 
+    #                                  value.var = 'adj.pvalue')
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = heat_labels, 
+                         names_from = Label, 
+                         values_from = adj.pvalue)
+      
   } else if (display == 'pvalue') {
     heat_data$pvalue <- -log10(heat_data$pvalue + 10 ^ -16)
-    heat_data_w <-
-      data.table::dcast(heat_labels ~ Label, 
-                        data = heat_data, 
-                        value.var = 'pvalue')
+    ##LEGACY
+    # heat_data_w <- data.table::dcast(heat_labels ~ Label, 
+    #                                  data = heat_data, 
+    #                                  value.var = 'pvalue')
+    heat_data_w <- heat_data %>% 
+      tidyr::pivot_wider(id_cols = heat_labels, 
+                         names_from = Label, 
+                         values_from = pvalue)
   }
   
   #gene_names <- uniprot_to_gene_replace(uniprot_ac=heat_data_w$Protein)
+  heat_data_w <- as.data.frame(heat_data_w)
   rownames(heat_data_w) <- heat_data_w$heat_labels
   heat_data_w <- heat_data_w[, -1]
   heat_data_w[is.na(heat_data_w)] = 0
@@ -325,11 +365,9 @@ artmsPlotHeatmapQuant <- function(input_file,
     extreme_val = extreme_val + 1
   bin_size = 2
   signed_bins <- (extreme_val / bin_size)
-  colors_neg <-
-    rev(colorRampPalette(RColorBrewer::brewer.pal("Blues", n = extreme_val /
+  colors_neg <- rev(colorRampPalette(RColorBrewer::brewer.pal("Blues", n = extreme_val /
                                                     bin_size))(signed_bins))
-  colors_pos <-
-    colorRampPalette(RColorBrewer::brewer.pal("Reds", 
+  colors_pos <- colorRampPalette(RColorBrewer::brewer.pal("Reds", 
                                     n = extreme_val / bin_size))(signed_bins)
   colors_tot <- c(colors_neg, colors_pos)
   
@@ -368,7 +406,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   }
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Generate reproducibility plots based on raw intentities
 # (from the evidence file)
 #
@@ -394,7 +432,7 @@ artmsPlotHeatmapQuant <- function(input_file,
                        max = length(condi),
                        style = 3)
   
-  for (i in seq_len(length(condi))) {
+  for ( i in seq_len(length(condi)) ) {
     eCondition <- condi[i]
     # Progress bar
     if(verbose) setTxtProgressBar(pb, i)
@@ -427,43 +465,49 @@ artmsPlotHeatmapQuant <- function(input_file,
           
           
         biorepliaggregated$Intensity <- log2(biorepliaggregated$Intensity)
-        bdc <- data.table::dcast(data = biorepliaggregated,
-                                 Feature + Proteins ~ TR,
-                                 value.var = 'Intensity')
+        ##LEGACY
+        # bdc <- data.table::dcast(data = biorepliaggregated,
+        #                          Feature + Proteins ~ TR,
+        #                          value.var = 'Intensity')
+        
+        bdc <- biorepliaggregated %>%
+          tidyr::pivot_wider(id_cols = c(Feature, Proteins), 
+                             names_from = TR, 
+                             values_from = Intensity)
+        bdc <- as.data.frame(bdc)
           
         # Get the number of proteins
         np <- dim(bdc)[1]
-        corr_coef <-
-          round(cor(bdc$tr1, bdc$tr2, use = "pairwise.complete.obs"),
-                digits = 2)
+        corr_coef <- round(cor(bdc$tr1, bdc$tr2, use = "pairwise.complete.obs"), digits = 2)
         # message("r:\t",corr_coef," ")
         p1 <- ggplot(bdc, aes(x = tr1, y = tr2))
         p1 <- p1 + geom_point(na.rm = TRUE) + geom_rug() + 
           geom_density_2d(colour = 'lightgreen')
-        p1 <-
-          p1 + geom_smooth(colour = "green",
-                           fill = "lightblue",
-                           method = 'lm')
+        p1 <- p1 + geom_smooth(colour = "green",
+                               fill = "lightblue",
+                               method = 'lm',
+                               formula = y ~ x)
         p1 <- p1 + theme_light()
-        p1 <-
-          p1 + labs(
-            title = paste(
-              "Reproducibility between Technical Replicas\nBioReplica:\n",
-              eBioreplica,
-              "\n(n =  ",
-              np,
-              ", r = ",
-              corr_coef,
-              ")"
-            )
-          )
+        p1 <- p1 + labs(title = paste(
+          "Reproducibility between Technical Replicas\nBioReplica:\n",
+          eBioreplica,
+          "\n(n =  ",
+          np,
+          ", r = ",
+          corr_coef,
+          ")"
+        )
+        )
+        
         print(p1)
-      } else if (length(here) == 1) {
-        # message("\t\tOnly one technical replica ")
-      } else{
-        stop("More than 2 technical replicates found. This is very unusual.
-        Please, revise it and if correct contact artms developers")
-      }
+        
+      } 
+      # else if (length(here) == 1) {
+      #   # message("\t\tOnly one technical replica ")
+      # } else{
+      #   stop("More than 2 technical replicates found. This is very unusual.
+      #   Please, revise it and if correct contact artms developers")
+      # }
     } # Checking the reproducibility between Technical Replicas
     
     
@@ -473,84 +517,74 @@ artmsPlotHeatmapQuant <- function(input_file,
     # First choose the maximum for the technical replicas as before, 
     # but first check whether there are more than one
     if (length(here) > 1) {
-      conditionOne <-
-        aggregate(
-          Intensity ~ Feature + Proteins + Condition + BioReplicate + Run,
-          data = conditionOne,
-          FUN = sum
-        )
-      b <-
-        aggregate(
-          Intensity ~ Feature + Proteins + Condition + BioReplicate,
-          data = conditionOne,
-          FUN = mean
-        )
+      conditionOne <- aggregate(Intensity ~ Feature + Proteins + Condition + BioReplicate + Run,
+                                data = conditionOne,
+                                FUN = sum)
+      b <- aggregate(Intensity ~ Feature + Proteins + Condition + BioReplicate,
+                     data = conditionOne,
+                     FUN = mean)
     } else{
-      b <-
-        aggregate(
-          Intensity ~ Feature + Proteins + Condition + BioReplicate,
-          data = conditionOne,
-          FUN = sum
-        )
+      b <- aggregate(Intensity ~ Feature + Proteins + Condition + BioReplicate,
+                     data = conditionOne,
+                     FUN = sum)
     }
     
     b$Intensity <- log2(b$Intensity)
     blist <- unique(b$BioReplicate)
     if (length(blist) > 1) {
-      # We need at least TWO BIOLOGICAL REPLICAS
       
+      # We need at least TWO BIOLOGICAL REPLICAS
       to <- length(blist) - 1
       
       for (i in seq_len(to)) {
         j <- i + 1
-        for (k in j:length(blist)) {
+        for ( k in j:length(blist) ) {
           br1 <- blist[i]
           br2 <- blist[k]
           
           # message("\tChecking reproducibility between ",br1, "and ",br2 ,"\t")
-          bcfinal <-
-            data.table::dcast(data = b,
-                              Feature + Proteins ~ BioReplicate,
-                              value.var = 'Intensity')
+          ##LEGACY
+          # bcfinal <- data.table::dcast(data = b,
+          #                              Feature + Proteins ~ BioReplicate,
+          #                              value.var = 'Intensity')
+
+          bcfinal <- b %>% tidyr::pivot_wider(id_cols = c(Feature, Proteins), 
+                                              names_from = BioReplicate, 
+                                              values_from = Intensity)
+            
+            
+          bcfinal <- as.data.frame(bcfinal)
+          bcfinal <- bcfinal[complete.cases(bcfinal),]
           
           # Let's check the total number of peptides here...
           checkTotalNumber <- subset(bcfinal, select = c(br1, br2))
-          # checkTotalNumber <- 
-          # checkTotalNumber[complete.cases(checkTotalNumber),]
-          
           npt <- dim(checkTotalNumber)[1]
           
-          corr_coef <-
-            round(cor(bcfinal[[br1]], bcfinal[[br2]], 
-                      use = "pairwise.complete.obs"), digits = 2)
+          corr_coef <- round(cor(bcfinal[[br1]], bcfinal[[br2]], use = "pairwise.complete.obs"), digits = 2)
           # message("r:\t",corr_coef," ")
-          p2 <-
-            ggplot(bcfinal, aes(x = bcfinal[[br1]], y = bcfinal[[br2]]))
-          p2 <-
-            p2 + geom_point(na.rm = TRUE)  + geom_rug() + geom_density_2d(colour = 'red')
-          p2 <-
-            p2 + geom_smooth(colour = "red",
-                             fill = "lightgreen",
-                             method = 'lm')
+          
+          colnames(bcfinal) <- c("Feature", "Proteins", "br1", "br2")
+          
+          p2 <- ggplot(bcfinal, aes(x = br1, y = br2 ))
+          p2 <- p2 + geom_point(na.rm = TRUE) + geom_rug() + geom_density_2d(colour = 'red')
+          p2 <- p2 + geom_smooth(colour = "red",
+                                 fill = "lightgreen",
+                                 method = 'lm',
+                                 formula = y ~ x)
           p2 <- p2 + theme_light()
-          p2 <-
-            p2 + labs(
-              title = paste(
-                "Peptide Reproducibility between Bioreplicas\n (condition:",
-                eCondition,
-                ")",
-                br1,
-                "vs",
-                br2,
-                "\n(n =",
-                npt,
-                " r = ",
-                corr_coef,
-                ")"
-              )
-            )
-          p2 <- p2 + labs(x = br1)
-          p2 <- p2 + labs(y = br2)
+          p2 <- p2 + labs(title = paste("Peptide Reproducibility between Bioreplicas\n (condition:",
+                                        eCondition,
+                                        ")",
+                                        br1,
+                                        "vs",
+                                        br2,
+                                        "\n(n =",
+                                        npt,
+                                        " r = ",
+                                        corr_coef,
+                                        ")"))
+          p2 <- p2 + labs(x = "br1")
+          p2 <- p2 + labs(y = "br2")
           print(p2)
         } #end for
       } #end for
@@ -562,7 +596,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   if(verbose) close(pb)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot abundance boxplots
 #
 # @description Plot abundance boxplots
@@ -614,7 +648,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Total Number of unique proteins based on abundance data
 #
 # @description Total Number of unique proteins per biological replicate and
@@ -623,7 +657,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @return (pdf) Barplots with the number of proteins per br / condition
 # @keywords internal, plots, abundance, counts
 .artms_plotNumberProteinsAbundance <- function(df) {
-  x <- df[c('PROTEIN', 'SUBJECT_ORIGINAL')]
+  x <- df[,c('PROTEIN', 'SUBJECT_ORIGINAL')]
   y <- unique(x)
   names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicate'
   z <-
@@ -645,7 +679,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   z <- z + ggtitle("Unique Proteins in BioReplicates")
   print(z)
   
-  a <- df[c('PROTEIN', 'GROUP_ORIGINAL')]
+  a <- df[,c('PROTEIN', 'GROUP_ORIGINAL')]
   b <- unique(a)
   names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
   c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
@@ -667,7 +701,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   print(c)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Generate reproducibility plots based on abundance data
 # (normalized intensities from MSstats modelqc)
 #
@@ -686,7 +720,7 @@ artmsPlotHeatmapQuant <- function(input_file,
                        max = length(condi),
                        style = 3)
   
-  for (i in seq_len(length(condi))) {
+  for ( i in seq_len(length(condi)) ) {
     eCondition <- condi[i]
     
     # Progress bar
@@ -703,8 +737,7 @@ artmsPlotHeatmapQuant <- function(input_file,
     # plot_tr = list()
     for (eBioreplica in bioreplicasAll) {
       # message('\tChecking for technical replicas in ',eBioreplica, " ")
-      biorepli <-
-        conditionOne[conditionOne$SUBJECT_ORIGINAL == eBioreplica, ]
+      biorepli <- conditionOne[conditionOne$SUBJECT_ORIGINAL == eBioreplica, ]
       here <- unique(biorepli$RUN)
       
       if (length(here) > 1) {
@@ -724,32 +757,39 @@ artmsPlotHeatmapQuant <- function(input_file,
         biorepli$TR <- biorepli$RUN
         biorepli$TR[biorepli$TR == here[1]] <- 'tr1'
         biorepli$TR[biorepli$TR == here[2]] <- 'tr2'
-        bdc <-
-          data.table::dcast(data = biorepli, PROTEIN ~ TR, 
-                            value.var = 'ABUNDANCE')
+        
+        ##LEGACY
+        # bdc <- data.table::dcast(data = biorepli, PROTEIN ~ TR, 
+        #                          value.var = 'ABUNDANCE')
+        bdc <- biorepli %>% 
+          tidyr::pivot_wider(id_cols = PROTEIN, 
+                             names_from = TR, 
+                             values_from = ABUNDANCE)
+        bdc <- as.data.frame(bdc)
+        
+        
         bdc <- bdc[complete.cases(bdc), ]
         # Get the number of proteins
         np <- length(unique(bdc$PROTEIN))
         corr_coef <- round(cor(bdc$tr1, bdc$tr2), digits = 2)
         p1 <- ggplot2::ggplot(bdc, aes(x = tr1, y = tr2))
         p1 <- p1 + geom_point(na.rm = TRUE)
-        p1 <-
-          p1 + geom_smooth(colour = "green",
-                           fill = "lightblue",
-                           method = 'lm')
+        p1 <- p1 + geom_smooth(colour = "green",
+                               fill = "lightblue",
+                               method = 'lm',
+                               formula = y ~ x)
         p1 <- p1 + theme_light()
-        p1 <-
-          p1 + labs(
-            title = paste(
-              "Reproducibility between Technical Replicas\nBioReplica:\n",
-              eBioreplica,
-              "\n(n = ",
-              np,
-              ", r = ",
-              corr_coef,
-              ")"
-            )
+        p1 <- p1 + labs(
+          title = paste(
+            "Reproducibility between Technical Replicas\nBioReplica:\n",
+            eBioreplica,
+            "\n(n = ",
+            np,
+            ", r = ",
+            corr_coef,
+            ")"
           )
+        )
         print(p1)
         # plot_tr[[eBioreplica]] <- p1
       } else if (length(here) < 1) {
@@ -763,55 +803,52 @@ artmsPlotHeatmapQuant <- function(input_file,
     # Before comparing the different biological replicas, 
     # aggregate on the technical replicas
     # message(" BIOLOGICAL REPLICAS --------------------------- ")
-    b <-
-      aggregate(
-        ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-        data = conditionOne,
-        FUN = mean
-      ) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    b <- aggregate(
+      ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+      data = conditionOne,
+      FUN = mean
+    ) 
+      
     blist <- unique(b$SUBJECT_ORIGINAL)
-    if (length(blist) > 1) {
+    if ( length(blist) > 1 ) {
       # We need at least TWO BIOLOGICAL REPLICAS
       to <- length(blist) - 1
       for (i in seq_len(to)) {
         j <- i + 1
-        for (k in j:length(blist)) {
+        for ( k in j:length(blist) ) {
           br1 <- blist[i]
           br2 <- blist[k]
           # message("\tChecking reproducibility between ",br1, "and ",br2 ," ")
           
-          bc <-
-            data.table::dcast(data = b,
-                              PROTEIN ~ SUBJECT_ORIGINAL,
-                              value.var = 'ABUNDANCE')
+          ##LEGACY
+          # bc <- data.table::dcast(data = b,
+          #                        PROTEIN ~ SUBJECT_ORIGINAL,
+          #                        value.var = 'ABUNDANCE')
+          
+          bc <- b %>% 
+            dplyr::select(-c(GROUP_ORIGINAL)) %>%
+            tidyr::pivot_wider(names_from = SUBJECT_ORIGINAL, 
+                               values_from = ABUNDANCE)
+            
           bc <- bc[complete.cases(bc), ]
           
           npt <- length(unique(bc$PROTEIN))
           
           corr_coef <- round(cor(bc[[br1]], bc[[br2]]), digits = 2)
-          p2 <- ggplot2::ggplot(bc, aes(x = bc[[br1]], y = bc[[br2]]))
+          
+          p2 <- ggplot2::ggplot(bc, aes(x = "br1", y = "br2" ))
           p2 <- p2 + geom_point(na.rm = TRUE)
-          p2 <-
-            p2 + geom_smooth(colour = "red",
-                             fill = "lightgreen",
-                             method = 'lm')
+          p2 <- p2 + geom_smooth(colour = "red",
+                                 fill = "lightgreen",
+                                 method = 'lm',
+                                 formula = y ~ x)
           p2 <- p2 + theme_light()
-          p2 <-
-            p2 + labs(
-              title = paste(
-                "Reproducibility between Bioreplicas\n(condition:",
-                eCondition,
-                ") ",
-                br1,
-                "vs",
-                br2,
-                "\n(n =",
-                npt,
-                " r = ",
-                corr_coef,
-                ")"
-              )
+          p2 <- p2 + labs(
+            title = paste(
+              "Reproducibility between Bioreplicas\n(condition:",
+              eCondition, ") ", br1, "vs", br2, "\n(n =", npt, " r = ", corr_coef, ")"
             )
+          )
           p2 <- p2 + labs(x = br1)
           p2 <- p2 + labs(y = br2)
           print(p2)
@@ -826,7 +863,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   if(verbose) close(pb)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot correlation between conditions
 #
 # @description Plot correlation between conditions
@@ -834,87 +871,95 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @param numberBiologicalReplicas (int) Number of biological replicates
 # @return (ggplot.object) A correlation plot between conditions
 # @keywords internal, plot, correlation
-.artms_plotCorrelationConditions <-
-  function(x, numberBiologicalReplicas) {
-    # Before jumping to merging biological replicas:
-    # Technical replicas: aggregate on the technical replicas
-    b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-                   data = x,
-                   FUN = mean)
-      
-    # Aggregate now the CONDITIONS on the biological replicas:
+.artms_plotCorrelationConditions <- function(x, numberBiologicalReplicas) {
+  # Before jumping to merging biological replicas:
+  # Technical replicas: aggregate on the technical replicas
+  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+                 data = x,
+                 FUN = mean)
     
-    # One way to do this would be to be very stringent, 
-    # requiring to find data in all biological replicas:
-    # allBiologicalReplicas <- function(x){
-    # ifelse(sum(!is.na(x)) == numberBiologicalReplicas, 
-    # mean(x, na.rm = TRUE), NA)}
-    # datadc <- data.table::dcast(data=b, 
-    # PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', 
-    # fun.aggregate = allBiologicalReplicas, fill = 0)
+  # Aggregate now the CONDITIONS on the biological replicas:
+  
+  # One way to do this would be to be very stringent, 
+  # requiring to find data in all biological replicas:
+  # allBiologicalReplicas <- function(x){
+  # ifelse(sum(!is.na(x)) == numberBiologicalReplicas, 
+  # mean(x, na.rm = TRUE), NA)}
+  # datadc <- data.table::dcast(data=b, 
+  # PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', 
+  # fun.aggregate = allBiologicalReplicas, fill = 0)
+  
+  # Or a most relaxed way:
+  
+  ##LEGACY
+  # datadc <- data.table::dcast(data = b,
+  #                             PROTEIN ~ GROUP_ORIGINAL,
+  #                             value.var = 'ABUNDANCE',
+  #                             fun.aggregate = mean) 
+  
+  datadc <- b %>% 
+    dplyr::select(-SUBJECT_ORIGINAL) %>%
+    tidyr::pivot_wider(names_from = GROUP_ORIGINAL, 
+                       values_from = ABUNDANCE, 
+                       values_fn = list(ABUNDANCE = mean))
     
-    # Or a most relaxed way:
-    datadc <- data.table::dcast(data = b,
-                                PROTEIN ~ GROUP_ORIGINAL,
-                                value.var = 'ABUNDANCE',
-                                fun.aggregate = mean) 
-    
-    # before <- dim(datadc)[1]
-    # l <- dim(datadc)[2]
-    # datadc <- datadc[apply(datadc[c(2:l)],1,function(z) !any(z==0)),]
-    # evenafter <- dim(datadc)[1]
-    # datadc <- datadc[complete.cases(datadc),]
-    # after <- dim(datadc)[1]
-    # message("Total proteins before: ", 
-    # before, " Removing the 0s: ",evenafter, 
-    # " Total proteins (only complete cases): ", after, "  ")
-    
-    blist <- unique(b$GROUP_ORIGINAL)
-    if (length(blist) > 1) {
-      # We need at least TWO CONDITIONS
-      to <- length(blist) - 1
-      for (i in seq_len(to)) {
-        j <- i + 1
-        for (k in j:length(blist)) {
-          br1 <- blist[i]
-          br2 <- blist[k]
-          # message("\t",br1,"-",br2,":")
-          
-          npt <- length(unique(datadc$PROTEIN))
-          
-          corr_coef <-
-            round(cor(datadc[[br1]], 
-                      datadc[[br2]], 
-                      use = "complete.obs"), digits = 2)
-          # cat ("r:",corr_coef,"\n")
-          
-          p2 <- ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
-          p2 <- p2 + geom_point(na.rm = TRUE)
-          p2 <- p2 + geom_smooth(colour = "blue",
-                                 fill = "lightblue",
-                                 method = 'lm')
-          p2 <- p2 + theme_light()
-          p2 <- p2 + labs(title = paste("CORRELATION between CONDITIONS:\n",
-                                        br1,
-                                        "and",
-                                        br2,
-                                        "\n(n = ",
-                                        npt,
-                                        " r = ",
-                                        corr_coef,
-                                        ")"))
-          p2 <- p2 + labs(x = br1)
-          p2 <- p2 + labs(y = br2)
-          print(p2)
-        } # FOR loop
-      } # For loop
-      # message(" ")
-    } else{
-      message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
-    }
+  
+  # before <- dim(datadc)[1]
+  # l <- dim(datadc)[2]
+  # datadc <- datadc[apply(datadc[c(2:l)],1,function(z) !any(z==0)),]
+  # evenafter <- dim(datadc)[1]
+  # datadc <- datadc[complete.cases(datadc),]
+  # after <- dim(datadc)[1]
+  # message("Total proteins before: ", 
+  # before, " Removing the 0s: ",evenafter, 
+  # " Total proteins (only complete cases): ", after, "  ")
+  
+  blist <- unique(b$GROUP_ORIGINAL)
+  if (length(blist) > 1) {
+    # We need at least TWO CONDITIONS
+    to <- length(blist) - 1
+    for (i in seq_len(to)) {
+      j <- i + 1
+      for (k in j:length(blist)) {
+        br1 <- blist[i]
+        br2 <- blist[k]
+        # message("\t",br1,"-",br2,":")
+        
+        npt <- length(unique(datadc$PROTEIN))
+        
+        corr_coef <- round(cor(datadc[[br1]], 
+                               datadc[[br2]], 
+                               use = "complete.obs"), digits = 2)
+        # cat ("r:",corr_coef,"\n")
+        
+        p2 <- ggplot2::ggplot(datadc, aes(x = "br1", y = "br2"))
+        p2 <- p2 + geom_point(na.rm = TRUE)
+        p2 <- p2 + geom_smooth(colour = "blue",
+                               fill = "lightblue",
+                               method = 'lm',
+                               formula = y ~ x)
+        p2 <- p2 + theme_light()
+        p2 <- p2 + labs(title = paste("CORRELATION between CONDITIONS:\n",
+                                      br1,
+                                      "and",
+                                      br2,
+                                      "\n(n = ",
+                                      npt,
+                                      " r = ",
+                                      corr_coef,
+                                      ")"))
+        p2 <- p2 + labs(x = br1)
+        p2 <- p2 + labs(y = br2)
+        print(p2)
+      } # FOR loop
+    } # For loop
+    # message(" ")
+  } else{
+    message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
   }
+}
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Plot correlation between quantifications different quantified
 # comparisons
 #
@@ -926,12 +971,18 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @keywords internal, plot, correlation, log2fc
 .artms_plotRatioLog2fc <- function(datai,
                                    verbose = TRUE) {
-  datadc <- data.table::dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
+  ##LEGACY
+  # datadc <- data.table::dcast(data = datai, Protein ~ Label, value.var = 'log2FC')
+  
+  datadc <- datai %>% 
+    tidyr::pivot_wider(id_cols = Protein,
+                       names_from = Label, 
+                       values_from = log2FC)
+  datadc <- as.data.frame(datadc)
+  
   before <- dim(datadc)[1]
   l <- dim(datadc)[2]
-  datadc <-
-    do.call(data.frame, lapply(datadc, function(x)
-      replace(x, is.infinite(x), NA)))
+  datadc <- do.call(data.frame, lapply(datadc, function(x) replace(x, is.infinite(x), NA)))
   datadc <- datadc[complete.cases(datadc), ]
   after <- dim(datadc)[1]
   if(verbose) message("---Total unique identifiers before: ",
@@ -959,30 +1010,25 @@ artmsPlotHeatmapQuant <- function(input_file,
         
         npt <- length(unique(datadc$Protein))
         
-        corr_coef <-
-          round(cor(datadc[[br1]], datadc[[br2]]), digits = 2)
+        corr_coef <- round(cor(datadc[[br1]], datadc[[br2]]), digits = 2)
         # cat ("r: ",corr_coef," ")
         
-        p3 <-
-          ggplot2::ggplot(datadc, aes(x = datadc[[br1]], y = datadc[[br2]]))
+        p3 <- ggplot2::ggplot(datadc, aes(x = "br1", y = "br2"))
         p3 <- p3 + geom_point(na.rm = TRUE) + geom_rug() + geom_density_2d()
-        p3 <-
-          p3 + geom_smooth(colour = "red",
-                           fill = "lightblue",
-                           method = 'lm')
+        p3 <- p3 + geom_smooth(colour = "red",
+                               fill = "lightblue",
+                               method = 'lm',
+                               formula = y ~ x)
         p3 <- p3 + theme_light()
-        p3 <-
-          p3 + labs(title = paste0(
-            "log2fc(",
-            br1,
-            ") vs log2fc(",
-            br2,
-            ") \n(n = ",
-            npt,
-            " r = ",
-            corr_coef,
-            ")"
-          ))
+        p3 <- p3 + labs(title = paste0("log2fc(",
+                                       br1,
+                                       ") vs log2fc(",
+                                       br2,
+                                       ") \n(n = ",
+                                       npt,
+                                       " r = ",
+                                       corr_coef,
+                                       ")"))
         p3 <- p3 + labs(x = br1)
         p3 <- p3 + labs(y = br2)
         print(p3)
@@ -994,7 +1040,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   }
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Pretty Labels for Heatmaps
 #
 # @description Generates pretty labels for the heatmaps.
@@ -1054,7 +1100,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Barplot of peptide counts per biological replicate
 #
 # @description Total number of unique peptide identified per biological
@@ -1103,7 +1149,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Select significant hits
 #
 # @description Filtered data.frame with significant values (log2fc > 2 |
@@ -1154,7 +1200,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Summary stats for plots
 #
 # @description Gives count, mean, standard deviation, standard error of the mean, 
@@ -1208,7 +1254,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   return(datac)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Generate PCA plots based on abundance data
 #
 # @description Generate PCA plots based on abundance data
@@ -1305,7 +1351,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   garbage <- dev.off()
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Volcano plot (log2fc / pvalues)
 #'
 #' @description It generates a scatter-plot used to quickly identify changes
