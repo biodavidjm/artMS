@@ -53,6 +53,8 @@ artmsQualityControlMetabolomics <- function(evidence_file,
                              printPDF = TRUE,
                              verbose = TRUE) {
   
+  Run = Feature = BioReplicate_Run = NULL
+  
   if(any(missing(evidence_file) | missing(keys_file)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")

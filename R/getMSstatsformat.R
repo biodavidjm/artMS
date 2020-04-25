@@ -23,6 +23,8 @@
                                     data_object = data_object,
                                     verbose = TRUE) {
   
+  Run = PeptideSequence = Condition_BioReplicate_Run = NULL
+  
   if(verbose) message(">> CONVERTING THE DATA TO MSSTATS FORMAT ")
 
   if(any(missing(data_f) | 

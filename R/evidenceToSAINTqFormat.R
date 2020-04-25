@@ -53,7 +53,8 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
                                      fractions = FALSE,
                                      quant_variable = c('msint','msspc'),
                                      verbose = TRUE){
-                                         
+
+  Sequence = NULL
 
   if(verbose){
     message(">> GENERATING A SAINTq INPUT FILE ")

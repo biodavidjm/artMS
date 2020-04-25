@@ -418,6 +418,9 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @keywords internal, plot, qc, quality, control
 .artms_plotReproducibilityEvidence <- function(data,
                                                verbose = TRUE) {
+  
+  Feature = NULL
+  
   data <- data[c('Feature',
                  'Proteins',
                  'Intensity',

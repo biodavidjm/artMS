@@ -164,7 +164,8 @@ artmsEnrichLog2fc <- function(dataset,
 .artms_plotCorumEnrichment <- function(x, 
                                        outfile, 
                                        theTitle) {
-  
+  Comparisons = p_value = var = NULL
+
   if(any(missing(x) | 
          missing(outfile) |
          missing(theTitle)))
@@ -194,11 +195,12 @@ artmsEnrichLog2fc <- function(dataset,
     #                             fun.aggregate = sum,
     #                             fill = 0)
     
-    toplot <- x %>% tidyr::pivot_wider(id_cols = ComplexName, 
-                                        names_from = Comparisons, 
-                                        values_from = p_value, 
-                                        values_fn = list(p_value = sum) )
-    
+    toplot <- x %>% 
+      tidyr::pivot_wider(id_cols = ComplexName, 
+                         names_from = Comparisons, 
+                         values_from = p_value, 
+                         values_fn = list(p_value = sum) )
+
     toplot <- as.data.frame(toplot)
     
     rownames(toplot) <- toplot$ComplexName
@@ -208,7 +210,7 @@ artmsEnrichLog2fc <- function(dataset,
     
     # HEATMAP
     palette.breaks <- seq(1, 4, 0.1)
-    color.palette  <- colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
+    color.palette  <- grDevices::colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
     
     if(var(xmatrix[,1]) == 0){
       message("----Heatmap of Corum enrichment is not possible")
@@ -396,7 +398,8 @@ artmsEnrichProfiler <- function(x,
 # @keywords internal, plot, heatmap, enrichments
 .artms_EnrichmentPlotHeatmaps <- function(x, 
                                           out_file) {
-  # formatting data to heatmap compatible format
+  
+  term.name = query.number = p.value = NULL
   
   ##LEGACY
   # x <- dcast(x,

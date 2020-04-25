@@ -1,3 +1,16 @@
+New version 1.5.4 (2020-04-24)
++ Analysis of Protein Acetylation now supported.
++ Quality control plots
+   - Updated default for all pdf output names
+   - Change parameter "plotIC" to "plotPCA"" in artmsQualityControlEvidenceExtended()
++ Added more data example testing datasets
+   - artms_data_ph_contrast: contrast object for available the PH example dataset
+   - artms_data_ph_config: configuration yaml object for the available PH example dataset
+   - artms_data_ph_msstats_results: results data object from running artmsQuantification
+   - artms_data_ph_msstats_modelqc: modelqc data object from running artmsQuantification
++ Updated Vignette
++ Minor fixes / improvements / fix bugs
+   
 New version 1.5.3 (2020-02-08)
 + artmsAnalysisQuantifications(), several updates:
    - change default value for "l2fc_thres" to 1

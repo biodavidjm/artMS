@@ -42,6 +42,8 @@ artmsMsstatsSummary <- function(evidence_file,
                                 return_df = FALSE,
                                 verbose = TRUE) {
   
+  MS.MS.Count = NULL
+  
   if(any(missing(evidence_file) | 
          missing(prot_group_file) |
          missing(keys_file) | 

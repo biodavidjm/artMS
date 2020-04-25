@@ -90,7 +90,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                              verbose = TRUE) {
   
   # Define global variables
-  TechReplica = ..prop.. = ..x.. = PTM = keysilac = NULL
+  TechReplica = ..prop.. = ..x.. = PTM = keysilac = Run = Feature = BioReplicate_Run = NULL
   
   # #Debug
   # evidence_file <- artms_data_ph_evidence

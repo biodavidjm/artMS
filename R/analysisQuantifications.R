@@ -145,6 +145,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # data_object = TRUE
   # verbose = TRUE
   
+  Uniprot_PTM = imputed = Gene_Protein = NULL
+  
   if(verbose){
     message("---------------------------------------------")
     message("artMS: ANALYSIS OF QUANTIFICATIONS")
