@@ -190,8 +190,6 @@ artmsQualityControlMetabolomics <- function(evidence_file,
       precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
       Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
       
-      theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
-      
       # And now for clustering
       if(verbose) message("--- By Technical replicates ")
       matrixCorrelationBioreplicas <-
@@ -223,7 +221,7 @@ artmsQualityControlMetabolomics <- function(evidence_file,
         treeheight_col = FALSE,
         color = color.palette
       )
-      print(theTechCorDis)
+
       if(printPDF) garbage <- dev.off()
     } else{
       if(verbose) message("--- NO Technical Replicates detected ")
@@ -266,8 +264,6 @@ artmsQualityControlMetabolomics <- function(evidence_file,
     Mbioreplicas <-
       cor(precordfBioreplicas, use = "pairwise.complete.obs")
     
-    theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
-    
     if(verbose) message("--- By Biological replicates ")
     matrixCorrelationBioreplicas <-
       paste0(output_name, ".qcplot.correlationMatrixBR.pdf")
@@ -299,7 +295,7 @@ artmsQualityControlMetabolomics <- function(evidence_file,
       treeheight_col = FALSE,
       color = color.palette
     )
-    print(theBiorCorDis)
+    
     if(printPDF) garbage <- dev.off()
     
     # Create matrix of reproducibility CONDITIONS
@@ -341,8 +337,7 @@ artmsQualityControlMetabolomics <- function(evidence_file,
     precordfConditions <-
       evidencekeyscleanDCASTconditions[, 3:dim(evidencekeyscleanDCASTconditions)[2]]
     Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
-    
-    theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
+
     
     if(verbose) message("--- By Conditions ")
     matrixCorrelationCond <-
@@ -372,7 +367,7 @@ artmsQualityControlMetabolomics <- function(evidence_file,
       treeheight_col = FALSE,
       color = color.palette
     )
-    print(theCondCorDis)
+    
     if(printPDF) garbage <- dev.off()
   } # END OF plotCORMAT
 

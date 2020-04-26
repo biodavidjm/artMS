@@ -30,8 +30,7 @@ utils::globalVariables(c("Organism"))
 #' @param plotCORMAT if `TRUE` (default) plots a 
 #' - *Correlation matrix* for all the biological replicates using 
 #' MS Intensity values, 
-#' - *Clustering matrix* of the MS Intensities and correlation distribution 
-#' - *histogram* of the distribution of correlations
+#' - *Clustering matrix* of the MS Intensities
 #' @param plotINTMISC if `TRUE` (default) plots several pages, including 
 #' bar plots of *Total Sum of Intensities in BioReplicates*, 
 #' *Total Sum of Intensities in Conditions*, 
@@ -104,7 +103,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # plotCORMAT = TRUE
   # plotINTMISC = TRUE
   # plotPTMSTATS = TRUE
-  # printPDF = FALSE
+  # printPDF = TRUE
   # verbose = TRUE
 
   if (is.null(evidence_file) & is.null(keys_file)) {
@@ -355,6 +354,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   if(plotCORMAT){
     if(verbose) message("-- Plot: correlation matrices")
+    
     if (technicalReplicas) {
       # First aggregate at the protein level by summing up everything
       biorepliaggregated <- aggregate(
@@ -379,48 +379,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
       Mtechnicalrep <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
       
-      theTechCorDis <- .artms_plotCorrelationDistribution(Mtechnicalrep)
-      
       # And now for clustering
       if(verbose) message("---- by Technical replicates ")
-      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.CorrelationMatrixTR.pdf")
-      
-      if(printPDF) pdf(matrixCorrelationBioreplicas,
-          width = 20,
-          height = 20)
-      corrplot(
-        Mtechnicalrep,
-        method = "square",
-        # addCoef.col = "white",
-        number.cex = 1,
-        # tl.cex = 1.5,
-        tl.col = "black",
-        title = "Matrix Correlation based on peptide Intensities"
-      )
-      pheatmap(
-        Mtechnicalrep,
-        cluster_rows = TRUE,
-        cluster_cols = TRUE,
-        cellheight = 10,
-        cellwidth = 25,
-        main = "Clustering Technical Replicates",
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 12,
-        border_color = 'black',
-        fontfamily = "Helvetica",
-        treeheight_row = FALSE,
-        treeheight_col = FALSE,
-        color = color.palette
-      )
-      print(theTechCorDis)
-      if(printPDF) garbage <- dev.off()
-    } else{
-      if(verbose) message("---- NO Technical Replicates detected ")
     }
+      
     
     # biological replicates
     biorepliaggregated <- NULL
+    if(verbose) message("---- by Biological replicates ")
     
     # First deal with the technical replica
     if (technicalReplicas) {
@@ -458,45 +424,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
 
     precordfBioreplicas <- evidencekeyscleanDCASTbioreplicas[, 3:dim(evidencekeyscleanDCASTbioreplicas)[2]]
     Mbioreplicas <- cor(precordfBioreplicas, use = "pairwise.complete.obs")
-    
-    theBiorCorDis <- .artms_plotCorrelationDistribution(Mbioreplicas)
-    
-    if(verbose) message("---- by Biological replicates ")
-      matrixCorrelationBioreplicas <- paste0(output_name, ".qcplot.CorrelationMatrixBR.pdf")
-    if(printPDF) pdf(matrixCorrelationBioreplicas, width = 20, height = 20)
-      corrplot(
-        Mbioreplicas,
-        method = "square",
-        addCoef.col = "white",
-        number.cex = 0.9,
-        tl.cex = 1.5,
-        tl.col = "black",
-        title = "Matrix Correlation based on Protein Intensities"
-      )
-      pheatmap(
-        Mbioreplicas,
-        cluster_rows = TRUE,
-        cluster_cols = TRUE,
-        cellheight = 10,
-        cellwidth = 25,
-        main = "Clustering Biological Replicates",
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 12,
-        border_color = 'black',
-        fontfamily = "Helvetica",
-        treeheight_row = FALSE,
-        treeheight_col = FALSE,
-        color = color.palette
-      )
-      print(theBiorCorDis)
-    if(printPDF) garbage <- dev.off()
+  
     
     # Create matrix of reproducibility CONDITIONS
     biorepliaggregated <- NULL
     
     # biological replicas
     # First deal with the technical replica
+    if(verbose) message("---- by Conditions ")
     if (technicalReplicas) {
       biorepliaggregated <- aggregate(
         Intensity ~ Feature + Proteins + Condition + BioReplicate + Run,
@@ -536,19 +471,95 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     precordfConditions <- evidencekeyscleanDCASTconditions[, 3:dim(evidencekeyscleanDCASTconditions)[2]]
     Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
     
-    theCondCorDis <- .artms_plotCorrelationDistribution(Mcond)
     
-    if(verbose) message("---- by Conditions ")
-    matrixCorrelationCond <- paste0(output_name, ".qcplot.CorrelationMatrixConditions.pdf")
-    if(printPDF) pdf(matrixCorrelationCond, width = 15, height = 15)
+    ## END PROCESSING
+    
+    ## pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+    
+    matrixCorrelationMatrix <- paste0(output_name, ".qcplot.CorrelationMatrix.pdf")
+    if(printPDF) pdf(matrixCorrelationMatrix, width = 20, height = 20)
+    
+    if(technicalReplicas){
+      
       corrplot(
-        Mcond,
+        Mtechnicalrep,
         method = "square",
+        type = "upper",
         addCoef.col = "white",
-        number.cex = 0.6,
+        number.cex = 0.9,
+        tl.cex = 1.5,
         tl.col = "black",
-        title = "Matrix Correlation based on protein Intensities"
+        title = "Technical replicas: Matrix Correlation based on MS Intensities",
+        mar=c(0,0,1,0)
       )
+      
+    }
+    
+    corrplot(
+      Mbioreplicas,
+      method = "square",
+      type = "upper",
+      addCoef.col = "white",
+      number.cex = 0.9,
+      tl.cex = 1.5,
+      tl.col = "black",
+      title = "BioReplicates: Matrix Correlation based on MS Intensities",
+      mar=c(0,0,1,0)
+    )
+    
+    corrplot(
+      Mcond,
+      method = "square",
+      type = "upper",
+      addCoef.col = "white",
+      number.cex = 0.9,
+      tl.cex = 1.5,
+      tl.col = "black",
+      title = "Conditions: Matrix Correlation based on MS Intensities",
+      mar=c(0,0,1,0)
+    )
+    
+    if(printPDF) garbage <- dev.off()
+    
+    
+    matrixCorrelationMatrixCluster <- paste0(output_name, ".qcplot.CorrelationMatrixCluster.pdf")
+    if(printPDF) pdf(matrixCorrelationMatrixCluster, width = 10, height = 10)
+      if(technicalReplicas){
+        pheatmap(
+          Mtechnicalrep,
+          cluster_rows = TRUE,
+          cluster_cols = TRUE,
+          cellheight = 10,
+          cellwidth = 25,
+          main = "Clustering Technical Replicates",
+          fontsize = 6,
+          fontsize_row = 8,
+          fontsize_col = 12,
+          border_color = 'black',
+          fontfamily = "Helvetica",
+          treeheight_row = FALSE,
+          treeheight_col = FALSE,
+          color = color.palette
+        )
+      }
+
+      pheatmap(
+        Mbioreplicas,
+        cluster_rows = TRUE,
+        cluster_cols = TRUE,
+        cellheight = 10,
+        cellwidth = 25,
+        main = "Clustering Biological Replicates",
+        fontsize = 6,
+        fontsize_row = 8,
+        fontsize_col = 12,
+        border_color = 'black',
+        fontfamily = "Helvetica",
+        treeheight_row = FALSE,
+        treeheight_col = FALSE,
+        color = color.palette
+      )
+      
       pheatmap(
         Mcond,
         cluster_rows = TRUE,
@@ -565,9 +576,13 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         treeheight_col = FALSE,
         color = color.palette
       )
-      print(theCondCorDis)
-    if(printPDF) garbage <- dev.off()
+      
+      if(printPDF) garbage <- dev.off()
+      
   } # plotCORMAT ends
+  
+  
+  
 
   
   if(plotINTMISC){

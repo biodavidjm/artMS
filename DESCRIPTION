@@ -57,11 +57,11 @@ Imports:
   utils,
   VennDiagram,
   yaml
-Suggests: BiocStyle, 
+Suggests: 
+  BiocStyle, 
   knitr, 
   rmarkdown,
-  testthat,
-  magick
+  testthat
 Encoding: UTF-8
 LazyLoad: yes
 LazyData: true

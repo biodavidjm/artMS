@@ -1,31 +1,6 @@
 # artMS PLOT FUNCTIONS
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# @title Plot correlation distributions
-#
-# @description Plot correlation distributions
-# @param MatrixCorrelations (matrix) of correlations
-# @return A ggplot2 correlation plot
-# @keywords plot, correlation
-.artms_plotCorrelationDistribution <- function(MatrixCorrelations) {
-
-  cor.data <- MatrixCorrelations[upper.tri(MatrixCorrelations, diag = FALSE)]
-  cor.data <- as.data.frame(cor.data)
-  colnames(cor.data) <- "pearson"
-  
-  g <- ggplot(data = cor.data, mapping = aes(x = pearson))
-  g <- g + scale_x_continuous(breaks = seq(0, 1, by = 0.1))
-  g <- g + geom_histogram(breaks = seq(0, 1, by = 0.05),
-                          # col="red",
-                          aes(fill = ..count..))
-  g <- g + theme_minimal()
-  g <-
-    g + theme(axis.text.x = element_text(size = 15),
-              axis.text.y = element_text(size = 15))
-  return(g)
-}
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Individual Normalized abundance dot plots for every protein
 #'
 #' @description Protein abundance dot plots for each unique uniprot id. It can

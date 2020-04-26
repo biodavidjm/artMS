@@ -13,7 +13,9 @@ artmsQualityControlEvidenceExtended(
   plotIONS = TRUE,
   plotTYPE = TRUE,
   plotPEPTIDES = TRUE,
+  plotPEPTOVERLAP = TRUE,
   plotPROTEINS = TRUE,
+  plotPROTOVERLAP = TRUE,
   plotPIO = TRUE,
   plotCS = TRUE,
   plotME = TRUE,
@@ -72,6 +74,9 @@ BioReplicates (the bars are ordered by degree or frequency, respectively),
 and Page 4 shows the intersections across conditions instead of
 BioReplicates.}
 
+\item{plotPEPTOVERLAP}{(logical) \code{TRUE} Show peptide identification
+intersection between BioReplicates and Conditions}
+
 \item{plotPROTEINS}{(logical) \code{TRUE} generates protein statistics plot:
 Page 1 shows the number of protein groups confidently identified in each
 BioReplicate. If replicates are present, Page 2 shows the mean number of
@@ -81,6 +86,9 @@ Pages 3 and 4 show peptide identification intersection between
 BioReplicates (the bars are ordered by degree or frequency, respectively),
 and Page 4 shows the intersections across conditions instead of
 BioReplicates.}
+
+\item{plotPROTOVERLAP}{(logical) \code{TRUE} Show protein identification
+intersection between BioReplicates and Conditions}
 
 \item{plotPIO}{(logical) \code{TRUE} generates oversampling statistics plot:
 Page 1 shows the proportion of all peptide ions (including peptides

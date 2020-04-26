@@ -59,8 +59,7 @@ values using features (peptide+charge). Otherwise \code{FALSE} (default)}
 \itemize{
 \item \emph{Correlation matrix} for all the biological replicates using
 MS Intensity values,
-\item \emph{Clustering matrix} of the MS Intensities and correlation distribution
-\item \emph{histogram} of the distribution of correlations
+\item \emph{Clustering matrix} of the MS Intensities
 }}
 
 \item{plotINTMISC}{if \code{TRUE} (default) plots several pages, including
