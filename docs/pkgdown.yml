@@ -1,0 +1,7 @@
+pandoc: 2.9.2
+pkgdown: 1.5.1
+pkgdown_sha: ~
+articles:
+  artMS_vignette: artMS_vignette.html
+last_built: 2020-04-26T02:01Z
+
