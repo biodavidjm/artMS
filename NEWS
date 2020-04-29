@@ -1,3 +1,7 @@
+Changes in version 1.6.1 (2020-04-29)
++ Fix NEWS formatting 
++ Update vignette with AC options
+
 Changes in version 1.6.0 (2020-04-27)
 + Major package updates. It addresses most of the warnings and messages from required packages
 + Analysis of Protein Acetylation now supported.
