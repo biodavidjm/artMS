@@ -3,7 +3,6 @@ Type: Package
 Title: Analytical R tools for Mass Spectrometry
 Version: 1.7.1
 Date: 2020-04-29
-Author: David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen.
 Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
                      email = "biodavidjm@gmail.com",
                      comment = c(ORCID = "0000-0003-4356-6461")),
