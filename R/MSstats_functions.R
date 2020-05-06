@@ -345,7 +345,7 @@ artmsSILACtoLong <- function(evidence_file,
                              verbose = TRUE) {
   
   file <- Sys.glob(evidence_file)
-  if(verbose) message(sprintf('>> PROCESSING SILAC EVIDENCE FILE '))
+  if(verbose) message(">> PROCESSING SILAC EVIDENCE FILE")
 
   # LEGACY reshape the data and split the heavy and light data
   # tmp <- fread(file, integer64 = 'double')
@@ -365,8 +365,9 @@ artmsSILACtoLong <- function(evidence_file,
     tidyr::pivot_longer(cols = c(`Intensity.L`, `Intensity.H`), 
                         names_to = "IsotopeLabelType", 
                         values_to = "Intensity")
-
-  levels(tmp_long$IsotopeLabelType) = c('L', 'H')
+  
+  tmp_long$IsotopeLabelType <- gsub("Intensity.L", "L", tmp_long$IsotopeLabelType)
+  tmp_long$IsotopeLabelType <- gsub("Intensity.H", "H", tmp_long$IsotopeLabelType)
   
   if(!is.null(output)){
     write.table(
