@@ -1,15 +1,16 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.7.1
-Date: 2020-04-29
+Version: 1.7.2
+Date: 2020-05-05
 Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
                      email = "biodavidjm@gmail.com",
                      comment = c(ORCID = "0000-0003-4356-6461")),
-             person("Alexandre", "Rosa Campos", role = "ctb"),
-             person("John", "Von Dollen", role = "ctb"),
-             person("Danielle", "Swaney", role = "ctb")
-          )
+             person("Alexandre", "Rosa Campos", role = c("aut","ctb"),
+                     comment = c(ORCID = "0000-0003-3988-7764")),
+             person("John", "Von Dollen", role = c("aut", "ctb")),
+             person("Danielle", "Swaney", role = c("aut", "ctb"),
+                     comment = c(ORCID = "0000-0001-6119-6084")))
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
     label-free datasets. It takes as input the MaxQuant search result 

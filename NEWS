@@ -1,3 +1,7 @@
+Changes in version 1.6.2 (2020-05-05)
++ Fix NEWS formatting 
++ Update vignette with AC options
+
 Changes in version 1.6.1 (2020-04-29)
 + Fix NEWS formatting 
 + Update vignette with AC options

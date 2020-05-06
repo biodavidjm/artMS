@@ -1,4 +1,5 @@
 utils::globalVariables(c("Organism"))
+
 # ------------------------------------------------------------------------------
 #' @importFrom scales percent
 #' @title Quality Control analysis of the MaxQuant evidence file
@@ -126,9 +127,9 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   }
   
   if(verbose){
-    message("---------------------------------------------")
-    message("artMS: BASIC QUALITY CONTROL (-evidence.txt based)")
-    message("---------------------------------------------")
+    message("---------------------------------------------------")
+    message("artMS: BASIC QUALITY CONTROL (evidence.txt based)")
+    message("---------------------------------------------------")
   }
   
   # OPEN KEYS
@@ -829,7 +830,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
           angle = 90,
           hjust = 1,
           vjust = 0.5,
-          size = 6
+          size = 8
         ),
         legend.title = element_blank()) +
         ggtitle("QC: Total Peptide Counts in Technical Replicates")
@@ -920,12 +921,12 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       
     
     pisg <- ggplot(ekselectaBioreplica) +
+      theme_minimal() +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
         vjust = 0.5
       )) +
-      theme_minimal() +
       geom_bar(
         aes(BioReplicate, Intensity),
         position = "dodge",
@@ -938,12 +939,12 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       ggtitle("Total Intensity in Biological Replicas (Excluding contaminants)")
     
     pish <- ggplot(ekselectaBioreplica) +
+      theme_linedraw() +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
         vjust = 0.5
       )) +
-      theme_linedraw() +
       geom_bar(
         aes(Condition, Intensity),
         position = "dodge",
@@ -959,6 +960,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       pisi <- ggplot(cd, aes(x = TR, fill = Condition)) +
         geom_bar(stat = "count",
                  na.rm = TRUE) +
+        theme_linedraw() +
         theme(
           axis.text.x = element_text(
             angle = 90,
@@ -968,7 +970,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
           ),
           legend.position = "none"
         ) +
-        theme_linedraw() +
         geom_text(
           stat = 'count',
           aes(label = ..count..),
@@ -983,6 +984,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     pisj <- ggplot(bb, aes(x = BioReplicate, fill = Condition)) +
       geom_bar(stat = "count",
                na.rm = TRUE) +
+      theme_linedraw() +
       theme(
         axis.text.x = element_text(
           angle = 90,
@@ -992,7 +994,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         ),
         legend.position = "none"
       ) +
-      theme_linedraw() +
       geom_text(
         stat = 'count',
         aes(label = ..count..),
@@ -1006,6 +1007,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     pisk <- ggplot(b, aes(x = Condition, fill = Condition)) +
       geom_bar(stat = "count",
                na.rm = TRUE) +
+      theme_linedraw() +
       theme(
         axis.text.x = element_text(
           angle = 90,
@@ -1014,7 +1016,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         ),
         legend.position = "none"
       ) +
-      theme_linedraw() +
       geom_text(
         stat = 'count',
         aes(label = ..count..),
