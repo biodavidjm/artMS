@@ -1115,18 +1115,19 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     ga <- ggplot(chargeState[with(chargeState, order(charge)), ],
                  aes(x = bioreplicate, y = FxOverSamp, fill = charge)) +
       geom_bar(stat = "identity", alpha = 0.7) +
-      # ggrepel::geom_text_repel(
-      #   aes(label = round(FxOverSamp, digits = 1)),
-      #   vjust = -0.5,
-      #   size = 2,
-      #   position = position_stack()
-      # ) +
-      geom_text(
+      theme_linedraw() +
+      ggrepel::geom_text_repel(
         aes(label = round(FxOverSamp, digits = 1)),
-        vjust = 1 ,
+        vjust = -0.5,
         size = 2,
         position = position_stack()
       ) +
+      # geom_text(
+      #   aes(label = round(FxOverSamp, digits = 1)),
+      #   vjust = 1 ,
+      #   size = 2,
+      #   position = position_stack()
+      # ) +
       xlab("Experiment") + ylab("Fraction (percentage)") +
       ggtitle("Precursor charge state distribution") +
       theme_linedraw() +
