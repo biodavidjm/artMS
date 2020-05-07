@@ -199,7 +199,8 @@ artmsEnrichLog2fc <- function(dataset,
       tidyr::pivot_wider(id_cols = ComplexName, 
                          names_from = Comparisons, 
                          values_from = p_value, 
-                         values_fn = list(p_value = sum) )
+                         values_fn = list(p_value = sum), 
+                         values_fill = list(p_value = 0))
 
     toplot <- as.data.frame(toplot)
     
@@ -209,8 +210,8 @@ artmsEnrichLog2fc <- function(dataset,
     xmatrix <- data.matrix(toplotmatrix)
     
     # HEATMAP
-    palette.breaks <- seq(1, 4, 0.1)
-    color.palette  <- grDevices::colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
+    # palette.breaks <- seq(1, 4, 0.1)
+    # color.palette  <- grDevices::colorRampPalette(c("white", "steelblue"))(length(palette.breaks))
     
     if(var(xmatrix[,1]) == 0){
       message("----Heatmap of Corum enrichment is not possible")

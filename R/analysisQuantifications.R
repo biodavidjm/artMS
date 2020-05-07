@@ -228,11 +228,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(verbose) message("--- No Pathogen extra in these samples")
   } else if (pathogen == "tb") {
     # This should not work
-    if(verbose) message("\tPATHOGEN IN SAMPLES: Tuberculosis (TB) ")
+    if(verbose) message("\nPATHOGEN IN SAMPLES: Tuberculosis (TB)\n")
     pathogen.ids <- artms_data_pathogen_TB
     names(pathogen.ids) <- c('Entry')
   } else if (pathogen == "lpn") {
-    if(verbose) message("\tPATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA ")
+    if(verbose) message("\nPATHOGEN IN SAMPLES: LEGIONELLA PNEUMOPHILA\n")
     pathogen.ids <- artms_data_pathogen_LPN
   } else{
     stop("This pathogen is not supported yet")
@@ -863,6 +863,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   if(verbose) message("--- Relative Quantifications (Log2fc) ")
+  
+  if(choosePvalue == "adjpvalue"){
+    choosePvalue <- "adj.pvalue"
+  }
   # Prepare output of changes
   log2fc_file_splc <- .artms_mergeChangesNbr(df_input = dflog2fc, 
                                              repro =  nbr_wide, 
@@ -1195,15 +1199,15 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       if(verbose) message("---+ Corum Protein Complex Enrichment Analysis ")
       
       # CORUM
-      allsigComplexEnriched <- .artms_enrichForComplexes(filallsig_log2fc_long, backgroundNumber)
+      allsigComplexEnriched <- .artms_enrichForComplexes(df = filallsig_log2fc_long,
+                                                         backgroundNumber = backgroundNumber)
       
       if (dim(allsigComplexEnriched)[1] > 0) {
-        out.mac.allsig.corum <-
-          gsub(".txt",
-               "-enrich-MAC-allsignificants-corum.txt",
-               log2fc_file)
-        out.mac.allsig.corum <-
-          paste0(output_dir, "/", out.mac.allsig.corum)
+        out.mac.allsig.corum <-  gsub(".txt",
+                                      "-enrich-MAC-allsignificants-corum.txt",
+                                      log2fc_file)
+        out.mac.allsig.corum <- paste0(output_dir, "/", out.mac.allsig.corum)
+        
         write.table(
           allsigComplexEnriched,
           out.mac.allsig.corum,
@@ -1215,17 +1219,16 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       }
       # And the heatmap
       if (dim(allsigComplexEnriched)[1] > 2) {
-        out.mac.allsig.corum.pdf <-
-          gsub(".txt",
-               "-enrich-MAC-allsignificants-corum.pdf",
-               log2fc_file)
-        out.mac.allsig.corum.pdf <-
-          paste0(output_dir, "/", out.mac.allsig.corum.pdf)
-        .artms_plotCorumEnrichment(
-          allsigComplexEnriched,
-          out.mac.allsig.corum.pdf,
-          "MAC ALL SIGNIFICANT Protein Complex Enrichment"
-        )
+        out.mac.allsig.corum.pdf <- gsub(".txt",
+                                         "-enrich-MAC-allsignificants-corum.pdf",
+                                         log2fc_file)
+          
+        out.mac.allsig.corum.pdf <- paste0(output_dir, "/", out.mac.allsig.corum.pdf)
+        
+        .artms_plotCorumEnrichment(x =  allsigComplexEnriched, 
+                                   outfile = out.mac.allsig.corum.pdf, 
+                                   theTitle = "MAC ALL SIGNIFICANT Protein Complex Enrichment")
+          
       } else{
         message("--- (-) Not enough negative corum complexes to plot ")
       }
@@ -1617,14 +1620,16 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         tidyr::pivot_wider(id_cols = c(Gene, Protein), 
                            names_from = Comparison, 
                            values_from = iLog2FC, 
-                           values_fn = list(iLog2FC = median))
+                           values_fn = list(iLog2FC = median), 
+                           values_fill = list(iLog2FC = 0))
       
       hasdcexp <- data.select %>% dplyr::filter(imputed == "no") %>%
         dplyr::mutate(Gene_Protein = paste(Gene, Protein, sep = "_")) %>%
         tidyr::pivot_wider(id_cols = Comparison, 
                            names_from = Gene_Protein, 
                            values_from = iLog2FC, 
-                           values_fn = list(iLog2FC = median))
+                           values_fn = list(iLog2FC = median),
+                           values_fill = list(iLog2FC = 0))
         
       hasdc <- as.data.frame(hasdc)
       hasdcexp <- as.data.frame(hasdcexp)
@@ -2227,7 +2232,7 @@ artmsGeneratePhSiteExtended <- function(df,
   abu2imp <- .artms_loadModelqcBasic(dfmq)
   
   # Aggregate the technical replica by choosing the maximum value
-  abu2imp2 <- aggregate(Abundance ~ Protein + Condition + BioReplicate,
+  abu2imp <- aggregate(Abundance ~ Protein + Condition + BioReplicate,
                         data = abu2imp,
                         FUN = mean)
     
@@ -2271,13 +2276,15 @@ artmsGeneratePhSiteExtended <- function(df,
     dplyr::select(-Condition) %>%
     tidyr::pivot_wider(names_from = BioReplicate,
                        values_from = Abundance)
-  # Fill in missing values
-  dfdc.im[is.na(dfdc.im)] <- sample(numbers2sample, 
-                                      size = sum(is.na(dfdc.im)), 
-                                      replace = TRUE)
   
-                    
-  
+  dfdc.im <- as.data.frame(dfdc.im)
+
+  dfdc.im[] <- Map(function(x, y) replace(x, is.na(x), y), 
+                   dfdc.im, 
+                   sample(numbers2sample, 
+                          size = dim(dfdc.im)[2], 
+                          replace = FALSE))
+
   # Needs to aggregate on biological replicas
   # 1. Melt on biological replicas
   # Legacy
@@ -2353,7 +2360,8 @@ artmsGeneratePhSiteExtended <- function(df,
   imputedL2FCmelted$iPvalue <- sample(samplingPvalue,
                                       size = nrow(imputedL2FCmelted),
                                       replace = FALSE)
-    
+  
+  imputedL2FCmelted <- as.data.frame(imputedL2FCmelted)
   
   return (imputedL2FCmelted)
 }
