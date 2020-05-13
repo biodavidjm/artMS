@@ -73,7 +73,7 @@ the MaxQuant summary.txt file." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.4</span>
       </span>
     </div>
 
@@ -140,6 +140,7 @@ the MaxQuant summary.txt file.</p>
   <span class='kw'>plotMS2</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>plotMSMS</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>plotISOTOPE</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>printPDF</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -199,6 +200,11 @@ each BioReplicate. If replicates are present, Page 2 shows the mean number
 of Isotope Patterns with charge greater than 1 per condition with error bar
 showing the standard error of the mean.
 If isFractions <code>TRUE</code>, each fraction is a stack on the individual bar graphs.</p></td>
+    </tr>
+    <tr>
+      <th>printPDF</th>
+      <td><p>If <code>TRUE</code> (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
