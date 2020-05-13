@@ -1,3 +1,9 @@
+Changes in version 1.6.4 (2020-05-12)
++ Fix Quality Control functions to handle a small number of runs (less than 5)
++ New argument "printPDF" for artmsQualityControlSummaryExtended, to select
+whether to print plots to PDFs (default = TRUE)
++ Vignette: example plots added
+
 Changes in version 1.6.3 (2020-05-06)
 + Bug Fixes affecting artmsAnalysisQuantifications()
 

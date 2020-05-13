@@ -35,6 +35,8 @@
 #' of Isotope Patterns with charge greater than 1 per condition with error bar 
 #' showing the standard error of the mean. 
 #' If isFractions `TRUE`, each fraction is a stack on the individual bar graphs.
+#' @param printPDF If `TRUE` (default) prints out the pdfs. Warning: plot
+#' objects are not returned due to the large number of them. 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A number of plots from the summary file
 #' @keywords qc, summary, keys
@@ -44,14 +46,26 @@
 #' keys_file = NULL)
 #' @export
 artmsQualityControlSummaryExtended <- function(summary_file,
-                                                keys_file,
-                                                output_name = "qcExtended_summary",
-                                                isFractions = FALSE,
-                                                plotMS1SCANS = TRUE,
-                                                plotMS2 = TRUE,
-                                                plotMSMS = TRUE,
-                                                plotISOTOPE = TRUE,
-                                                verbose = TRUE) {
+                                               keys_file,
+                                               output_name = "qcExtended_summary",
+                                               isFractions = FALSE,
+                                               plotMS1SCANS = TRUE,
+                                               plotMS2 = TRUE,
+                                               plotMSMS = TRUE,
+                                               plotISOTOPE = TRUE,
+                                               printPDF = TRUE,
+                                               verbose = TRUE) {
+  
+  # # DEBUG
+  # output_name = "qcExtended_summary"
+  # isFractions = FALSE
+  # plotMS1SCANS = TRUE
+  # plotMS2 = TRUE
+  # plotMSMS = TRUE
+  # plotISOTOPE = TRUE
+  # printPDF = TRUE
+  # verbose = TRUE
+  
   if(verbose){
     message("---------------------------------------------")
     message("artMS: EXTENDED QUALITY CONTROL (-summary.txt based)")
@@ -78,25 +92,20 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   }
   
   if ("fraction" %in% colnames(summarykeys)) {
-    summarykeys <-
-      data.table(summarykeys[, c(
-        "condition",
-        "bioreplicate",
-        "ms",
-        "ms.ms",
-        "ms.ms.identified....",
-        "isotope.patterns",
-        "isotope.patterns.sequenced..z.1."
-      )])
-    summarykeys <-
-      summarykeys[, list(
-        ms = sum(ms),
-        ms.ms = sum(ms.ms),
-        ms.ms.identified.... = mean(ms.ms.identified....),
-        isotope.patterns = sum(isotope.patterns),
-        isotope.patterns.sequenced..z.1. = sum(isotope.patterns.sequenced..z.1.)
-      ),
-      by = list(condition, bioreplicate)]
+    summarykeys <- data.table(summarykeys[, c("condition",
+                                              "bioreplicate",
+                                              "ms",
+                                              "ms.ms",
+                                              "ms.ms.identified....",
+                                              "isotope.patterns",
+                                              "isotope.patterns.sequenced..z.1.")])
+    
+    summarykeys <- summarykeys[, list(ms = sum(ms),
+                                      ms.ms = sum(ms.ms),
+                                      ms.ms.identified.... = mean(ms.ms.identified....),
+                                      isotope.patterns = sum(isotope.patterns),
+                                      isotope.patterns.sequenced..z.1. = sum(isotope.patterns.sequenced..z.1.)),
+                               by = list(condition, bioreplicate)]
   } else{
     summarykeys <-
       data.table(summarykeys[, c(
@@ -140,52 +149,41 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   # PLOTS
   if(verbose) message(">> GENERATING QC PLOTS ")
   
-  nsamples <- length(unique(summarykeys$bioreplicate))
-  nconditions <- length(unique(summarykeys$condition))
-  
-  # Check the largest number so that width and height of pdf is not too large
-  if (nsamples > 20) {
-    nsamples <- 20
-  }
-  
-  if (nconditions > 7) {
-    nconditions <- 7
-  }
-  
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
     if(verbose) message("--- Plot Number of MS1 scans", appendLF = FALSE)
-    pdf(
-      paste0(output_name,'.qcplot.MS1scans.pdf'),
-      width = nsamples * 3,
-      height = 20,
-      onefile = TRUE
-    )
-    aa <-
-      ggplot(summarykeys, aes(x = bioreplicate, y = ms, fill = condition)) +
+    if(printPDF){
+      pdf(paste0(output_name,'.qcplot.MS1scans.pdf'),
+          width = 10, #nsamples * 3
+          height = 6,
+          onefile = TRUE)
+    } 
+    aa <- ggplot(summarykeys, aes(x = bioreplicate, y = ms, fill = condition)) +
       geom_bar(stat = "identity", alpha = 0.7) +
-      geom_text(aes(label = round(ms, digits = 0)), vjust = 1 , size = 15) +
+      geom_text(aes(label = round(ms, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of MS1 scans") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(aa)
     
-    ab <-
-      ggplot(summary2, aes(
-        x = condition,
-        y = num.MS1.mean,
-        fill = factor(condition)
-      )) +
+    ab <- ggplot(summary2, aes(
+      x = condition,
+      y = num.MS1.mean,
+      fill = factor(condition)
+    )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
@@ -201,52 +199,56 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         aes(label = round(num.MS1.mean, digits = 0)),
         hjust = 0.5,
         vjust = -0.5,
-        size = 10,
+        size = 2,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
-      ggtitle("Mean number of MS1 scans per condition, 
-              error bar= std error of the mean") +
-      theme(legend.text = element_text(size = 20)) +
+      ggtitle("Mean number of MS1 scans per condition, error bar= std error of the mean") +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 0,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(ab)
     
     if (isFractions) {
-      ac <-
-        ggplot(summary2fx, aes(
-          x = bioreplicate,
-          y = ms,
-          fill = factor(fraction)
-        )) +
+      ac <- ggplot(summary2fx, aes(
+        x = bioreplicate,
+        y = ms,
+        fill = factor(fraction)
+      )) +
         geom_bar(stat = "identity", alpha = 0.7) +
         geom_text(
           aes(label = round(ms, digits = 0)),
           hjust = 0.5,
           vjust = 1.5,
-          size = 7,
+          size = 2,
           position = position_stack()
         ) +
         xlab("Experiment") + ylab("Counts") +
         ggtitle("Number of MS1 scans per Fraction") +
-        theme(legend.text = element_text(size = 20)) +
+        theme_linedraw() +
+        theme(legend.text = element_text(size = 8)) +
         theme(axis.text.x = element_text(
           angle = 90,
           hjust = 0,
-          size = 20
+          size = 10
         )) +
-        theme(axis.text.y = element_text(size = 20)) +
-        theme(axis.title.x = element_text(size = 30)) +
-        theme(axis.title.y = element_text(size = 30)) +
-        theme(plot.title = element_text(size = 40))
+        theme(axis.text.y = element_text(size = 10)) +
+              theme(axis.text.x = element_text(angle = 90,
+                                               size = 8)) +
+        theme(axis.title.y = element_text(size = 10)) +
+        theme(plot.title = element_text(size = 12))
+        
       print(ac)
     }
     garbage <- dev.off()
@@ -257,37 +259,40 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   ## Number of MS2 scans
   if (plotMS2) {
     if(verbose) message("--- Plot Number of MS2 scans", appendLF = FALSE)
-    pdf(
-      paste0(output_name,'.qcplot.MS2scans.pdf'),
-      width = nsamples * 3,
-      height = 20,
-      onefile = TRUE
-    )
-    ba <-
-      ggplot(summarykeys, aes(x = bioreplicate, y = ms.ms, fill = condition)) +
+    
+    if(printPDF){
+      pdf(paste0(output_name,'.qcplot.MS2scans.pdf'),
+          width = 10, #nsamples * 3
+          height = 6,
+          onefile = TRUE)
+    } 
+    
+    ba <- ggplot(summarykeys, aes(x = bioreplicate, y = ms.ms, fill = condition)) +
       geom_bar(stat = "identity", alpha = 0.7) +
-      geom_text(aes(label = round(ms.ms, digits = 0)), vjust = 1 , size = 15) +
+      geom_text(aes(label = round(ms.ms, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of MS2 scans") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 2
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(ba)
     
-    bb <-
-      ggplot(summary2, aes(
-        x = condition,
-        y = num.MS2.mean,
-        fill = factor(condition)
-      )) +
+    bb <- ggplot(summary2, aes(
+      x = condition,
+      y = num.MS2.mean,
+      fill = factor(condition)
+    )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
@@ -303,51 +308,56 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         aes(label = round(num.MS2.mean, digits = 0)),
         hjust = 0.5,
         vjust = -0.5,
-        size = 10,
+        size = 2,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
       ggtitle("Mean number of MS2 scans per condition, error bar= std error of the mean") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 0,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(bb)
     
     if (isFractions) {
-      bc <-
-        ggplot(summary2fx, aes(
-          x = bioreplicate,
-          y = ms.ms,
-          fill = factor(fraction)
-        )) +
+      bc <- ggplot(summary2fx, aes(
+        x = bioreplicate,
+        y = ms.ms,
+        fill = factor(fraction)
+      )) +
         geom_bar(stat = "identity", alpha = 0.7) +
         geom_text(
           aes(label = round(ms.ms, digits = 0)),
           hjust = 0.5,
           vjust = 1.5,
-          size = 7,
+          size = 2,
           position = position_stack()
         ) +
         xlab("Experiment") + ylab("Counts") +
         ggtitle("Number of MS2 per Fraction") +
-        theme(legend.text = element_text(size = 20)) +
+        theme_linedraw() +
+        theme(legend.text = element_text(size = 8)) +
         theme(axis.text.x = element_text(
           angle = 90,
           hjust = 0,
-          size = 20
+          size = 10
         )) +
-        theme(axis.text.y = element_text(size = 20)) +
-        theme(axis.title.x = element_text(size = 30)) +
-        theme(axis.title.y = element_text(size = 30)) +
-        theme(plot.title = element_text(size = 40))
+        theme(axis.text.y = element_text(size = 10)) +
+              theme(axis.text.x = element_text(angle = 90,
+                                               size = 8)) +
+        theme(axis.title.y = element_text(size = 10)) +
+        theme(plot.title = element_text(size = 12))
+        
       print(bc)
     }
     
@@ -361,7 +371,6 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       tidyr::pivot_longer(cols = -c(condition, bioreplicate), 
                           names_to = "variable", values_to = "value")
     
-    
     bd <-ggplot(summarykeys.scans,
                 aes(
                   x = interaction(variable, bioreplicate),
@@ -373,20 +382,22 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         aes(label = round(value, digits = 0)),
         angle = 90,
         vjust = 0.5 ,
-        size = 10
+        size = 2
       ) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of MS1 and MS2 scans") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
     print(bd)
     garbage <- dev.off()
@@ -397,40 +408,42 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   # Number of msms.identification rate
   if (plotMSMS) {
     if(verbose) message("--- Plot Number of msms.identification rate", appendLF = FALSE)
-    pdf(
-      paste0(output_name,'.qcplot.MSMS.pdf'),
-      width = nsamples * 3,
-      height = 20,
-      onefile = TRUE
-    )
-    ca <-
-      ggplot(summarykeys,
-             aes(x = bioreplicate, y = ms.ms.identified...., fill = condition)) +
+    
+    if(printPDF){
+      pdf(paste0(output_name,'.qcplot.MSMS.pdf'),
+          width = 10, #nsamples * 3
+          height = 6,
+          onefile = TRUE)
+    } 
+
+    ca <- ggplot(summarykeys,
+                 aes(x = bioreplicate, y = ms.ms.identified...., fill = condition)) +
       geom_bar(stat = "identity", alpha = 0.7) +
-      geom_text(aes(label = round(ms.ms.identified...., digits = 2)), vjust =
-                  1 , size = 15) +
+      geom_text(aes(label = round(ms.ms.identified...., digits = 2)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Rate") +
       ggtitle("MS2 Identification rate") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(ca)
     
-    cb <-
-      ggplot(summary2,
-             aes(
-               x = condition,
-               y = pct.MS2Id.mean,
-               fill = factor(condition)
-             )) +
+    cb <- ggplot(summary2,
+                 aes(
+                   x = condition,
+                   y = pct.MS2Id.mean,
+                   fill = factor(condition)
+                 )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
@@ -446,52 +459,57 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         aes(label = round(pct.MS2Id.mean, digits = 2)),
         hjust = 0.5,
         vjust = -0.5,
-        size = 10,
+        size = 2,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Rate") +
       ggtitle("Mean MS2 Identification rate across bioreplicates and fractions") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 0,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(cb)
     
     if (isFractions) {
-      cc <-
-        ggplot(summary2fx,
-               aes(
-                 x = bioreplicate,
-                 y = ms.ms.identified....,
-                 fill = factor(fraction)
-               )) +
+      cc <- ggplot(summary2fx,
+                   aes(
+                     x = bioreplicate,
+                     y = ms.ms.identified....,
+                     fill = factor(fraction)
+                   )) +
         geom_bar(stat = "identity", alpha = 0.7) +
         geom_text(
           aes(label = round(ms.ms.identified...., digits = 1)),
           hjust = 0.5,
           vjust = 1.5,
-          size = 7,
+          size = 2,
           position = position_stack()
         ) +
         xlab("Experiment") + ylab("Counts") +
         ggtitle("MS2 Identification rate per Fraction") +
-        theme(legend.text = element_text(size = 20)) +
+        theme_linedraw() +
+        theme(legend.text = element_text(size = 8)) +
         theme(axis.text.x = element_text(
           angle = 90,
           hjust = 0,
-          size = 20
+          size = 10
         )) +
-        theme(axis.text.y = element_text(size = 20)) +
-        theme(axis.title.x = element_text(size = 30)) +
-        theme(axis.title.y = element_text(size = 30)) +
-        theme(plot.title = element_text(size = 40))
+        theme(axis.text.y = element_text(size = 10)) +
+              theme(axis.text.x = element_text(angle = 90,
+                                               size = 8)) +
+        theme(axis.title.y = element_text(size = 10)) +
+        theme(plot.title = element_text(size = 12))
+        
       print(cc)
     }
     garbage <- dev.off()
@@ -502,40 +520,42 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   # Number of isotope patterns
   if (plotISOTOPE) {
     if(verbose) message("--- Plot Number of isotope patterns", appendLF = FALSE)
-    pdf(
-      paste0(output_name,'.qcplot.Isotope.pdf'),
-      width = nsamples * 3,
-      height = 20,
-      onefile = TRUE
-    )
-    da <-
-      ggplot(summarykeys,
-             aes(x = bioreplicate, y = isotope.patterns, fill = condition)) +
+    
+    if(printPDF){
+      pdf(paste0(output_name,'.qcplot.Isotope.pdf'),
+          width = 10, #nsamples * 3
+          height = 6,
+          onefile = TRUE)
+    } 
+    
+    da <- ggplot(summarykeys,
+                 aes(x = bioreplicate, y = isotope.patterns, fill = condition)) +
       geom_bar(stat = "identity", alpha = 0.7) +
-      geom_text(aes(label = round(isotope.patterns, digits = 0)), vjust =
-                  1 , size = 15) +
+      geom_text(aes(label = round(isotope.patterns, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of detected Isotope Patterns") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(da)
     
-    db <-
-      ggplot(summary2,
-             aes(
-               x = condition,
-               y = num.IsotopePatterns.mean,
-               fill = factor(condition)
-             )) +
+    db <- ggplot(summary2,
+                 aes(
+                   x = condition,
+                   y = num.IsotopePatterns.mean,
+                   fill = factor(condition)
+                 )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
@@ -551,89 +571,95 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         aes(label = round(num.IsotopePatterns.mean, digits = 0)),
         hjust = 0.5,
         vjust = -0.5,
-        size = 10,
+        size = 2,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
       ggtitle("Mean number of detected Isotope Patterns") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 0,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(db)
     
     if (isFractions) {
-      dc <-
-        ggplot(summary2fx,
-               aes(
-                 x = bioreplicate,
-                 y = isotope.patterns,
-                 fill = factor(fraction)
-               )) +
+      dc <- ggplot(summary2fx,
+                   aes(
+                     x = bioreplicate,
+                     y = isotope.patterns,
+                     fill = factor(fraction)
+                   )) +
         geom_bar(stat = "identity", alpha = 0.7) +
         geom_text(
           aes(label = round(isotope.patterns, digits = 0)),
           hjust = 0.5,
           vjust = 1.5,
-          size = 7,
+          size = 2,
           position = position_stack()
         ) +
         xlab("Experiment") + ylab("Counts") +
         ggtitle("Number of detected Isotope Patterns per Fraction") +
-        theme(legend.text = element_text(size = 20)) +
+        theme_linedraw() +
+        theme(legend.text = element_text(size = 8)) +
         theme(axis.text.x = element_text(
           angle = 90,
           hjust = 0,
-          size = 20
+          size = 10
         )) +
-        theme(axis.text.y = element_text(size = 20)) +
-        theme(axis.title.x = element_text(size = 30)) +
-        theme(axis.title.y = element_text(size = 30)) +
-        theme(plot.title = element_text(size = 40))
+        theme(axis.text.y = element_text(size = 10)) +
+              theme(axis.text.x = element_text(angle = 90,
+                                               size = 8)) +
+        theme(axis.title.y = element_text(size = 10)) +
+        theme(plot.title = element_text(size = 12))
+        
       print(dc)
     }
     
     # Number of sequenced isotope patterns with charge = 2 or more
-    dd <-
-      ggplot(
-        summarykeys,
-        aes(x = bioreplicate, y = isotope.patterns.sequenced..z.1., 
-            fill = condition)
-      ) +
+    dd <- ggplot(
+      summarykeys,
+      aes(x = bioreplicate, y = isotope.patterns.sequenced..z.1., 
+          fill = condition)
+    ) +
       geom_bar(stat = "identity", alpha = 0.7) +
       geom_text(aes(label = round(
         isotope.patterns.sequenced..z.1., digits = 0
-      )), vjust = 1 , size = 15) +
+      )), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of sequenced Isotope Patterns with 
               charge state greater than 1") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 90,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(dd)
     
-    de <-
-      ggplot(summary2,
-             aes(
-               x = condition,
-               y = num.IsotopePatternsSeq.mean,
-               fill = factor(condition)
-             )) +
+    de <- ggplot(summary2,
+                 aes(
+                   x = condition,
+                   y = num.IsotopePatternsSeq.mean,
+                   fill = factor(condition)
+                 )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
                alpha = 0.7) +
@@ -651,35 +677,37 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         )),
         hjust = 0.5,
         vjust = -0.5,
-        size = 10,
+        size = 2,
         position = position_dodge(width = 1)
       ) +
       xlab("Condition") + ylab("Counts") +
       ggtitle("Mean number of sequenced Isotope 
               Patterns with charge state greater than 1") +
-      theme(legend.text = element_text(size = 20)) +
+      theme_linedraw() +
+      theme(legend.text = element_text(size = 8)) +
       theme(axis.text.x = element_text(
         angle = 0,
         hjust = 1,
-        size = 20
+        size = 10
       )) +
-      theme(axis.text.y = element_text(size = 20)) +
-      theme(axis.title.x = element_text(size = 30)) +
-      theme(axis.title.y = element_text(size = 30)) +
-      theme(plot.title = element_text(size = 40)) +
+      theme(axis.text.y = element_text(size = 10)) +
+            theme(axis.text.x = element_text(angle = 90,
+                                             size = 8)) +
+      theme(axis.title.y = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
+      
     print(de)
     
     if (isFractions) {
-      df <-
-        ggplot(
-          summary2fx,
-          aes(
-            x = bioreplicate,
-            y = isotope.patterns.sequenced..z.1.,
-            fill = factor(fraction)
-          )
-        ) +
+      df <- ggplot(
+        summary2fx,
+        aes(
+          x = bioreplicate,
+          y = isotope.patterns.sequenced..z.1.,
+          fill = factor(fraction)
+        )
+      ) +
         geom_bar(stat = "identity", alpha = 0.7) +
         geom_text(
           aes(label = round(
@@ -687,22 +715,23 @@ artmsQualityControlSummaryExtended <- function(summary_file,
           )),
           hjust = 0.5,
           vjust = 1.5,
-          size = 7,
+          size = 2,
           position = position_stack()
         ) +
         xlab("Experiment") + ylab("Counts") +
-        ggtitle("Number of sequenced Isotope Patterns  with 
-                charge state greater than 1 per Fraction") +
-        theme(legend.text = element_text(size = 20)) +
+        ggtitle("Number of sequenced Isotope Patterns  with charge state greater than 1 per Fraction") +
+        theme_linedraw() +
+        theme(legend.text = element_text(size = 8)) +
         theme(axis.text.x = element_text(
           angle = 90,
           hjust = 0,
-          size = 20
+          size = 10
         )) +
-        theme(axis.text.y = element_text(size = 20)) +
-        theme(axis.title.x = element_text(size = 30)) +
-        theme(axis.title.y = element_text(size = 30)) +
-        theme(plot.title = element_text(size = 40))
+        theme(axis.text.y = element_text(size = 10)) +
+        theme(axis.title.x = element_text(size = 10)) +
+        theme(axis.title.y = element_text(size = 10)) +
+        theme(plot.title = element_text(size = 12))
+        
       print(df)
     }
     garbage <- dev.off()

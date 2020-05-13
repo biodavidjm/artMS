@@ -136,6 +136,8 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   keys <- .artms_checkIfFile(keys_file)
   keys <- .artms_checkRawFileColumnName(keys)
   
+  printSmall <- ifelse(length(unique(keys$BioReplicate))<5, TRUE, FALSE)
+  
   # Check SILAC
   if(isSILAC){
     evidence_silac  <- artmsSILACtoLong(evidence_file,
@@ -478,7 +480,13 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     ## pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
     
     matrixCorrelationMatrix <- paste0(output_name, ".qcplot.CorrelationMatrix.pdf")
-    if(printPDF) pdf(matrixCorrelationMatrix, width = 20, height = 20)
+    if(printPDF){
+      if(printSmall){
+        pdf(matrixCorrelationMatrix)
+      }else{
+        pdf(matrixCorrelationMatrix, width = 20, height = 20)
+      }
+    } 
     
     if(technicalReplicas){
       
@@ -524,7 +532,13 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     
     
     matrixCorrelationMatrixCluster <- paste0(output_name, ".qcplot.CorrelationMatrixCluster.pdf")
-    if(printPDF) pdf(matrixCorrelationMatrixCluster, width = 10, height = 10)
+    if(printPDF){
+      if(printSmall){
+        pdf(matrixCorrelationMatrixCluster)
+      }else{
+        pdf(matrixCorrelationMatrixCluster, width = 10, height = 10)
+      }
+    } 
       if(technicalReplicas){
         pheatmap(
           Mtechnicalrep,
@@ -582,9 +596,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       
   } # plotCORMAT ends
   
-  
-  
-
   
   if(plotINTMISC){
     # DETAILS
@@ -1085,8 +1096,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     
     if(verbose) message("---- ", prot_exp, " PROCESSED ")
     reproName <- paste0(output_name, ".qcplot.IntensityStats.pdf")
-    
-    if(printPDF) pdf(reproName, width = 10, height = 6)
+
+    if(printPDF){
+      if(printSmall){
+        pdf(reproName)
+      }else{
+        pdf(reproName, width = 10, height = 6)
+      }
+    } 
       print(pisa)
       if(technicalReplicas) print(pisatech)
       print(pisacont)

@@ -13,6 +13,7 @@ artmsQualityControlSummaryExtended(
   plotMS2 = TRUE,
   plotMSMS = TRUE,
   plotISOTOPE = TRUE,
+  printPDF = TRUE,
   verbose = TRUE
 )
 }
@@ -54,6 +55,9 @@ each BioReplicate. If replicates are present, Page 2 shows the mean number
 of Isotope Patterns with charge greater than 1 per condition with error bar
 showing the standard error of the mean.
 If isFractions \code{TRUE}, each fraction is a stack on the individual bar graphs.}
+
+\item{printPDF}{If \code{TRUE} (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

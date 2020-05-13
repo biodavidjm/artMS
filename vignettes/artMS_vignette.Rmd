@@ -29,7 +29,7 @@ options(width = 2000)
 
 # OVERVIEW
 
-`r Biocpkg("artMS")` is a [Bioconductor](http://bioconductor.org) package 
+[artMS](http://bioconductor.org/packages/release/bioc/html/artMS.html) is a [Bioconductor](http://bioconductor.org) package 
 that provides a set of tools for the analysis and integration of 
 large-scale proteomics (mass-spectrometry-based) datasets 
 obtained using the popular proteomics software 
@@ -86,7 +86,7 @@ install_github("biodavidjm/artMS")
 Once installed, the package can be loaded and attached to your current 
 workspace as follows:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 library(artMS)
 ```
 
@@ -628,11 +628,15 @@ all the combinations of biological replicates of every condition, based on MS In
 
 Check `?artmsQualityControlEvidenceBasic()` to find out more options. Remember: by default, all the plots are printed to a `pdf` file by running:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 artmsQualityControlEvidenceBasic( 
     evidence_file = artms_data_ph_evidence,
     keys_file = artms_data_ph_keys,
-    prot_exp = "PH"}
+    prot_exp = "PH", 
+    plotPTMSTATS = TRUE,
+    plotINTDIST = FALSE, plotREPRO = FALSE,
+    plotCORMAT = FALSE, plotINTMISC = FALSE,
+    printPDF = FALSE, verbose = FALSE)
 ```
 
 
@@ -760,7 +764,7 @@ identification type in each BioReplicate
 
 Examples: printing `plotTYPE`, `plotPEPICV`, and `plotPCA` plots only:
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 artmsQualityControlEvidenceExtended(
   evidence_file = artms_data_ph_evidence,
   keys_file = artms_data_ph_keys,
@@ -800,7 +804,7 @@ with a single MaxQuant run, including statistics on the peak detection.
 The QC analysis of this file  gathers a quick overview on the 
 quality of every RawFile based on this `summary.txt`. Run it as follows:
 
-```
+```{r, eval = FALSE}
 artmsQualityControlSummaryExtended(summary_file = "summary.txt",
                                     keys_file = artms_data_ph_keys)
 ```
