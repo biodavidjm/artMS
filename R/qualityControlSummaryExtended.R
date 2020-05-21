@@ -159,7 +159,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
           onefile = TRUE)
     } 
     aa <- ggplot(summarykeys, aes(x = bioreplicate, y = ms, fill = condition)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(ms, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of MS1 scans") +
@@ -186,7 +186,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = num.MS1.mean - num.MS1.sem,
@@ -226,7 +226,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         y = ms,
         fill = factor(fraction)
       )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(ms, digits = 0)),
           hjust = 0.5,
@@ -268,7 +268,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     } 
     
     ba <- ggplot(summarykeys, aes(x = bioreplicate, y = ms.ms, fill = condition)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(ms.ms, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of MS2 scans") +
@@ -295,7 +295,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = num.MS2.mean - num.MS2.sem,
@@ -335,7 +335,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         y = ms.ms,
         fill = factor(fraction)
       )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(ms.ms, digits = 0)),
           hjust = 0.5,
@@ -377,7 +377,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                   y = value,
                   fill = condition
                 )) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(value, digits = 0)),
         angle = 90,
@@ -418,7 +418,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
 
     ca <- ggplot(summarykeys,
                  aes(x = bioreplicate, y = ms.ms.identified...., fill = condition)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(ms.ms.identified...., digits = 2)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Rate") +
       ggtitle("MS2 Identification rate") +
@@ -446,7 +446,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = pct.MS2Id.mean - pct.MS2Id.sem,
@@ -487,7 +487,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                      y = ms.ms.identified....,
                      fill = factor(fraction)
                    )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(ms.ms.identified...., digits = 1)),
           hjust = 0.5,
@@ -530,7 +530,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     
     da <- ggplot(summarykeys,
                  aes(x = bioreplicate, y = isotope.patterns, fill = condition)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(isotope.patterns, digits = 0)), vjust = 1 , size = 2) +
       xlab("Experiment") + ylab("Counts") +
       ggtitle("Number of detected Isotope Patterns") +
@@ -558,7 +558,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = num.IsotopePatterns.mean - num.IsotopePatterns.sem,
@@ -599,7 +599,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                      y = isotope.patterns,
                      fill = factor(fraction)
                    )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(isotope.patterns, digits = 0)),
           hjust = 0.5,
@@ -631,7 +631,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       aes(x = bioreplicate, y = isotope.patterns.sequenced..z.1., 
           fill = condition)
     ) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(
         isotope.patterns.sequenced..z.1., digits = 0
       )), vjust = 1 , size = 2) +
@@ -662,7 +662,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = num.IsotopePatternsSeq.mean - num.IsotopePatternsSeq.sem,
@@ -708,7 +708,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
           fill = factor(fraction)
         )
       ) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(
             isotope.patterns.sequenced..z.1., digits = 0

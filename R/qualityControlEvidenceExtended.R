@@ -396,7 +396,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_text(aes(label = round(PSMs, digits = 0)),
                 hjust = 0.5,
                 vjust = -0.5,
@@ -432,7 +432,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(ymin = PSMs.mean - PSMs.sem, ymax = PSMs.mean + PSMs.sem),
         width = .2,
@@ -470,7 +470,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
         y = PSMs,
         fill = factor(fraction)
       )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(PSMs, digits = 0)),
           # hjust = 0.5,
@@ -526,7 +526,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(Ions, digits = 0)),
         hjust = 0.5,
@@ -559,7 +559,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(ymin = Ions.mean - Ions.sem, ymax = Ions.mean + Ions.sem),
         width = .2,
@@ -596,7 +596,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
         y = Ions,
         fill = factor(fraction)
       )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(Ions, digits = 0)),
           hjust = 0.5,
@@ -649,7 +649,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       fill = factor(type))) +
       geom_bar(stat = "identity",
                position = position_stack(),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       ggrepel::geom_text_repel(
         aes(label = round(FxOverSamp, digits = 1)),
         vjust = 1,
@@ -695,7 +695,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       fill = factor(condition))) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(Peptides, digits = 0)),
         hjust = 0.5,
@@ -731,7 +731,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                  )) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = Peptides.mean - Peptides.sem,
@@ -771,7 +771,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                      y = Peptides,
                      fill = factor(fraction)
                    )) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(Peptides, digits = 0)),
           # hjust = 0.5,
@@ -873,7 +873,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       fill = factor(condition))) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(Proteins, digits = 0)),
         hjust = 0.5,
@@ -906,7 +906,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                      fill = factor(potential.contaminant))) +
       geom_bar(stat = "identity",
                position = position_dodge(width = 1),
-               alpha = 0.7) +
+               alpha = 0.7, na.rm = TRUE) +
       geom_errorbar(
         aes(
           ymin = Proteins.mean - Proteins.sem,
@@ -1013,7 +1013,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
         label = FxOverSamp
       )
     ) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(FxOverSamp, digits = 1)),
         vjust = 1 ,
@@ -1042,7 +1042,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                      y = FxOverSamp,
                      fill = MSMS.counts,
                      label = FxOverSamp)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(FxOverSamp, digits = 1)),
         vjust = 1 ,
@@ -1072,7 +1072,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                    y = FxOverSamp,
                    fill = MSMS.counts,
                    label = FxOverSamp)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(FxOverSamp, digits = 1)),
         vjust = 1 ,
@@ -1114,7 +1114,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     
     ga <- ggplot(chargeState[with(chargeState, order(charge)), ],
                  aes(x = bioreplicate, y = FxOverSamp, fill = charge)) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       theme_linedraw() +
       ggrepel::geom_text_repel(
         aes(label = round(FxOverSamp, digits = 1)),
@@ -1205,8 +1205,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       onefile = TRUE
     )
     ga <- ggplot(evidencekeys, aes(x = bioreplicate, y = m.z)) +
-      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha =
-                     0.7) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7, na.rm = TRUE) +
       geom_text(
         data = aggregate(m.z ~ bioreplicate, evidencekeys, median),
         aes(label = round(m.z, digits = 1),
@@ -1260,7 +1259,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       
     
     ha <- ggplot(subset(peptCV,!is.na(pCV)), aes(condition, pCV)) +
-      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7, na.rm = TRUE) +
       geom_text(
         data = aggregate(pCV ~ condition, subset(peptCV,!is.na(pCV)), median),
         aes(label = round(pCV, digits = 1),
@@ -1285,7 +1284,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     print(ha)
     
     hb <- ggplot(subset(peptCV,!is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
-      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7, na.rm = TRUE) +
       geom_text(
         data = aggregate(
           pCV ~ condition + bin.condition,
@@ -1350,7 +1349,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     ia <- ggplot(peptDX, aes(x = condition,
                              y = fxDx,
                              fill = factor(pDX))) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       ggrepel::geom_text_repel(
         aes(label = round(fxDx, digits = 1)),
         vjust = 1,
@@ -1398,7 +1397,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     protCV <- protCV[, bin.condition := .artms_qcut(sumInt, 4), by = condition]
     
     ja <- ggplot(subset(protCV,!is.na(pCV)), aes(condition, pCV)) +
-      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7, na.rm = TRUE) +
       geom_text(
         data = aggregate(pCV ~ condition, subset(protCV,!is.na(pCV)), median),
         aes(label = round(pCV, digits = 1),
@@ -1419,7 +1418,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     print(ja)
     
     jb <- ggplot(subset(protCV,!is.na(pCV)), aes(interaction(condition, bin.condition), pCV)) +
-      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7) +
+      geom_boxplot(varwidth = TRUE, aes(fill = factor(condition)), alpha = 0.7, na.rm = TRUE) +
       geom_text(
         data = aggregate(
           pCV ~ condition + bin.condition,
@@ -1484,7 +1483,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       y = fxDx,
       fill = factor(pDX)
     )) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       ggrepel::geom_text_repel(
         aes(label = round(fxDx, digits = 1)),
         vjust = 1,
@@ -1506,7 +1505,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     kb <- ggplot(subset(evidencekeys,!is.na(intensity)), aes(bioreplicate, log2(intensity))) +
       geom_boxplot(varwidth = TRUE,
                    aes(fill = potential.contaminant),
-                   alpha = 0.7) +
+                   alpha = 0.7, na.rm = TRUE) +
       #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
       xlab("Experiment") + 
       ylab("Log2 Intensity") +
@@ -1528,7 +1527,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
         ggplot(subset(evidencekeys,!is.na(intensity)), aes(bioreplicate, log2(intensity))) +
         geom_boxplot(varwidth = TRUE,
                      aes(fill = potential.contaminant),
-                     alpha = 0.7) +
+                     alpha = 0.7, na.rm = TRUE) +
         #ggrepel::geom_text_repel(data = aggregate(intensity ~ bioreplicate + potential.contaminant, subset(evidencekeys, !is.na(intensity)), median), aes(label = round(log2(intensity), digits=1), y = log2(max(evidencekeys$intensity, na.rm= TRUE))+0.5 ), size = 15) +
         xlab("Experiment") + ylab("Log2 Intensity") +
         facet_wrap( ~ fraction, ncol = 5) +
@@ -1752,7 +1751,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
             by.y = "row.names")
     
     ma <- ggplot(pept.pcax, aes(PC1, PC2, fill = condition)) + #, color=condition, shape=condition
-      geom_point(alpha = .8, size = 5) +
+      geom_point(alpha = .8, size = 5, na.rm = TRUE) +
       geom_label_repel(
         aes(label = bioreplicate),
         # label.size = 1,
@@ -1813,7 +1812,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
       
     
     mb <- ggplot(prot.pcax, aes(PC1, PC2, fill = condition)) + #, color=condition, shape=condition
-      geom_point(alpha = .8, size = 5) +
+      geom_point(alpha = .8, size = 5, na.rm = TRUE) +
       geom_label_repel(
         aes(label = bioreplicate),
         #label.size = 2,
@@ -1856,7 +1855,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                          y = mc,
                                          fill = as.factor(missed.cleavages),
                                          label = mc)) +
-        geom_bar(stat = "identity", alpha = 0.7) +
+        geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
         geom_text(
           aes(label = round(mc, digits = 1)),
           vjust = 0,
@@ -1896,7 +1895,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                    fill = condition,
                    label = pct.OxM
                  )) +
-      geom_bar(stat = "identity", alpha = 0.7) +
+      geom_bar(stat = "identity", alpha = 0.7, na.rm = TRUE) +
       geom_text(
         aes(label = round(pct.OxM,
                           digits = 1)),
