@@ -1,3 +1,11 @@
+Changes in version 1.6.5 (2020-05-20)
++ Fix ggplot warnings (caused by NA values)
++ Fix artmsAnalysisQuantification reproducibility plots
++ Improves artmsQualityControlEvidenceBasic() correlation matrix clustered plot
++ Fix pca01.pdf plot
++ New pca04.pdf plot (dot plot)
++ artmsAnalysisQuantifications check point: check if sufficient data is available
+
 Changes in version 1.6.4 (2020-05-12)
 + Fix Quality Control functions to handle a small number of runs (less than 5)
 + New argument "printPDF" for artmsQualityControlSummaryExtended, to select

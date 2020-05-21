@@ -323,14 +323,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       intDistribution <- paste0(output_name, ".qcplot.IntensityDistributions.pdf")
     
     j <- ggplot(ekselectaBioreplica, aes(BioReplicate, Intensity))
-    j <- j + geom_jitter(width = 0.3, size = 0.5)
+    j <- j + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
     j <- j + theme_minimal()
     j <- j + theme(axis.text.x = element_text(angle = 90,
                                               hjust = 1,
                                               vjust = 0.5))
     # Based on Abundance
     k <- ggplot(ekselectaBioreplica, aes(BioReplicate, Abundance))
-    k <- k + geom_jitter(width = 0.3, size = 0.5)
+    k <- k + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
     k <- k + theme_minimal()
     k <- k + theme(axis.text.x = element_text(angle = 90,
                                               hjust = 1,
@@ -374,7 +374,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       #                                                        value.var = "Intensity")
       
       evidencekeyscleanDCASTbioreplicas <- biorepliaggregated %>% 
-        dplyr::mutate(BioReplicate_Run = paste(BioReplicate, Run, paste = "_")) %>%
+        dplyr::mutate(BioReplicate_Run = paste(BioReplicate, Run, sep = "_")) %>%
         tidyr::pivot_wider(id_cols = c(Proteins, Feature), 
                            names_from = BioReplicate_Run,
                            values_from = Intensity)
@@ -536,61 +536,54 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       if(printSmall){
         pdf(matrixCorrelationMatrixCluster)
       }else{
-        pdf(matrixCorrelationMatrixCluster, width = 10, height = 10)
+        pdf(matrixCorrelationMatrixCluster, width = 20, height = 20)
       }
     } 
-      if(technicalReplicas){
-        pheatmap(
-          Mtechnicalrep,
-          cluster_rows = TRUE,
-          cluster_cols = TRUE,
-          cellheight = 10,
-          cellwidth = 25,
-          main = "Clustering Technical Replicates",
-          fontsize = 6,
-          fontsize_row = 8,
-          fontsize_col = 12,
-          border_color = 'black',
-          fontfamily = "Helvetica",
-          treeheight_row = FALSE,
-          treeheight_col = FALSE,
-          color = color.palette
-        )
-      }
-
-      pheatmap(
-        Mbioreplicas,
-        cluster_rows = TRUE,
-        cluster_cols = TRUE,
-        cellheight = 10,
-        cellwidth = 25,
-        main = "Clustering Biological Replicates",
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 12,
-        border_color = 'black',
-        fontfamily = "Helvetica",
-        treeheight_row = FALSE,
-        treeheight_col = FALSE,
-        color = color.palette
+    if(technicalReplicas){
+      
+      corrplot(
+        Mtechnicalrep,
+        method = "square",
+        type = "full",
+        addCoef.col = "white",
+        number.cex = 0.9,
+        tl.cex = 1.5,
+        tl.col = "black",
+        title = "Technical replicas: Matrix Correlation based on MS Intensities (clustered)",
+        mar=c(0,0,1,0),
+        order = "hclust",
+        hclust.method = "complete"
       )
       
-      pheatmap(
-        Mcond,
-        cluster_rows = TRUE,
-        cluster_cols = TRUE,
-        cellheight = 10,
-        cellwidth = 25,
-        main = "Clustering Conditions",
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 12,
-        border_color = 'black',
-        fontfamily = "Helvetica",
-        treeheight_row = FALSE,
-        treeheight_col = FALSE,
-        color = color.palette
-      )
+    }
+    
+    corrplot(
+      Mbioreplicas,
+      method = "square",
+      type = "full",
+      addCoef.col = "white",
+      number.cex = 0.9,
+      tl.cex = 1.5,
+      tl.col = "black",
+      title = "BioReplicates: Matrix Correlation based on MS Intensities (clustered)",
+      mar=c(0,0,1,0),
+      order = "hclust",
+      hclust.method = "complete"
+    )
+    
+    corrplot(
+      Mcond,
+      method = "square",
+      type = "full",
+      addCoef.col = "white",
+      number.cex = 0.9,
+      tl.cex = 1.5,
+      tl.col = "black",
+      title = "Conditions: Matrix Correlation based on MS Intensities (clustered)",
+      mar=c(0,0,1,0),
+      order = "hclust",
+      hclust.method = "complete"
+    )
       
       if(printPDF) garbage <- dev.off()
       
@@ -1136,7 +1129,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = PTM))
       x <- x + geom_bar(stat = "count",
                         position = position_dodge(width = 0.7),
-                        width = 0.7)
+                        width = 0.7, na.rm = TRUE)
         
       x <- x + theme_minimal()
       x <- x + theme(
@@ -1199,7 +1192,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       y <- ggplot(evidencekeys, aes(x = Condition, fill = PTM))
       y <- y + geom_bar(stat = "count",
                         position = position_dodge(width = 0.7),
-                        width = 0.7)
+                        width = 0.7, na.rm = TRUE)
       y <- y + theme_minimal()
       y <- y + theme(
         axis.text.x = element_text(

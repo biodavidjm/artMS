@@ -464,7 +464,8 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <- p1 + geom_smooth(colour = "green",
                                fill = "lightblue",
                                method = 'lm',
-                               formula = y ~ x)
+                               formula = y ~ x,
+                               na.rm = TRUE)
         p1 <- p1 + theme_light()
         p1 <- p1 + labs(title = paste(
           "Reproducibility between Technical Replicas\nBioReplica:\n",
@@ -548,7 +549,8 @@ artmsPlotHeatmapQuant <- function(input_file,
           p2 <- p2 + geom_smooth(colour = "red",
                                  fill = "lightgreen",
                                  method = 'lm',
-                                 formula = y ~ x)
+                                 formula = y ~ x,
+                                 na.rm = TRUE)
           p2 <- p2 + theme_light()
           p2 <- p2 + labs(title = paste("Peptide Reproducibility between Bioreplicas\n (condition:",
                                         eCondition,
@@ -641,19 +643,14 @@ artmsPlotHeatmapQuant <- function(input_file,
   z <-
     ggplot2::ggplot(y, aes(x = BioReplicate, fill = BioReplicate))
   z <- z + geom_bar(stat = "count", na.rm = TRUE)
-  z <-
-    z + theme(axis.text.x = element_text(
-      angle = 90,
-      hjust = 1,
-      vjust = 0.5
-    ))
-  z <-
-    z + geom_text(
-      stat = 'count',
-      aes(label = ..count..),
-      vjust = -0.5,
-      size = 2.7
-    )
+  z <- z + theme_linedraw()
+  z <- z + theme(axis.text.x = element_text(angle = 90,
+                                            hjust = 1,
+                                            vjust = 0.5))
+  z <- z + geom_text(stat = 'count',
+                     aes(label = ..count..),
+                     vjust = -0.5,
+                     size = 2.7)
   z <- z + ggtitle("Unique Proteins in BioReplicates")
   print(z)
   
@@ -662,22 +659,46 @@ artmsPlotHeatmapQuant <- function(input_file,
   names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
   c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
   c <- c + geom_bar(stat = "count", na.rm = TRUE)
-  c <-
-    c + theme(axis.text.x = element_text(
-      angle = 90,
-      hjust = 1,
-      vjust = 0.5
-    ))
-  c <-
-    c + geom_text(
-      stat = 'count',
-      aes(label = ..count..),
-      vjust = -0.5,
-      size = 2.7
-    )
+  c <- c + theme_linedraw()
+  c <- c + theme(axis.text.x = element_text(angle = 90,
+                                            hjust = 1,
+                                            vjust = 0.5))
+  c <- c + geom_text(stat = 'count',
+                     aes(label = ..count..),
+                     vjust = -0.5,
+                     size = 2.7)
+
   c <- c + ggtitle("Unique Proteins in Conditions")
   print(c)
 }
+
+# 
+# @title Plot the total number of quantified proteins in each condition
+#
+# @description
+# @keys internal, plot, counts
+# @param x (data.frame) Data frame of imputed log2fc
+.artms_plotNumberProteinsImputedLog2fc <- function(x) {
+  x <- x[c('Protein', 'Comparison')]
+  y <- unique(x)
+  z <- ggplot(y, aes(x = Comparison, fill = Comparison))
+  z <- z + geom_bar(stat = "count",
+                    na.rm = TRUE)
+  z <- z + theme_linedraw()
+  z <- z + theme(axis.text.x = element_text(angle = 90,
+                                            hjust = 1,
+                                            vjust = 0.5))
+  
+  
+  z <- z + geom_text(stat = 'count',
+                     aes(label = ..count..),
+                     vjust = -0.5,
+                     size = 2.7)
+  
+  z <- z + ggtitle("Unique Proteins in Comparisons")
+  print(z)
+}
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Generate reproducibility plots based on abundance data
@@ -745,7 +766,6 @@ artmsPlotHeatmapQuant <- function(input_file,
                              values_from = ABUNDANCE)
         bdc <- as.data.frame(bdc)
         
-        
         bdc <- bdc[complete.cases(bdc), ]
         # Get the number of proteins
         np <- length(unique(bdc$PROTEIN))
@@ -755,7 +775,8 @@ artmsPlotHeatmapQuant <- function(input_file,
         p1 <- p1 + geom_smooth(colour = "green",
                                fill = "lightblue",
                                method = 'lm',
-                               formula = y ~ x)
+                               formula = y ~ x,
+                               na.rm = TRUE)
         p1 <- p1 + theme_light()
         p1 <- p1 + labs(
           title = paste(
@@ -786,12 +807,15 @@ artmsPlotHeatmapQuant <- function(input_file,
       data = conditionOne,
       FUN = mean
     ) 
+    
+    # Remove the dash
+    b$SUBJECT_ORIGINAL <- gsub("-", "_", b$SUBJECT_ORIGINAL)
       
     blist <- unique(b$SUBJECT_ORIGINAL)
     if ( length(blist) > 1 ) {
       # We need at least TWO BIOLOGICAL REPLICAS
       to <- length(blist) - 1
-      for (i in seq_len(to)) {
+      for (i in seq_len(to) ) {
         j <- i + 1
         for ( k in j:length(blist) ) {
           br1 <- blist[i]
@@ -804,8 +828,8 @@ artmsPlotHeatmapQuant <- function(input_file,
           #                        value.var = 'ABUNDANCE')
           
           bc <- b %>% 
-            dplyr::select(-c(GROUP_ORIGINAL)) %>%
-            tidyr::pivot_wider(names_from = SUBJECT_ORIGINAL, 
+            tidyr::pivot_wider(id_cols = PROTEIN, 
+                               names_from = SUBJECT_ORIGINAL, 
                                values_from = ABUNDANCE)
             
           bc <- bc[complete.cases(bc), ]
@@ -814,12 +838,13 @@ artmsPlotHeatmapQuant <- function(input_file,
           
           corr_coef <- round(cor(bc[[br1]], bc[[br2]]), digits = 2)
           
-          p2 <- ggplot2::ggplot(bc, aes(x = "br1", y = "br2" ))
+          p2 <- ggplot2::ggplot(bc, aes_string(x = paste(br1) , y = paste(br2) ))
           p2 <- p2 + geom_point(na.rm = TRUE)
           p2 <- p2 + geom_smooth(colour = "red",
                                  fill = "lightgreen",
                                  method = 'lm',
-                                 formula = y ~ x)
+                                 formula = y ~ x,
+                                 na.rm = TRUE)
           p2 <- p2 + theme_light()
           p2 <- p2 + labs(
             title = paste(
@@ -876,8 +901,8 @@ artmsPlotHeatmapQuant <- function(input_file,
   #                             fun.aggregate = mean) 
   
   datadc <- b %>% 
-    dplyr::select(-SUBJECT_ORIGINAL) %>%
-    tidyr::pivot_wider(names_from = GROUP_ORIGINAL, 
+    tidyr::pivot_wider(id_cols = PROTEIN,
+                       names_from = GROUP_ORIGINAL, 
                        values_from = ABUNDANCE, 
                        values_fn = list(ABUNDANCE = mean))
     
@@ -896,7 +921,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   if (length(blist) > 1) {
     # We need at least TWO CONDITIONS
     to <- length(blist) - 1
-    for (i in seq_len(to)) {
+    for (i in seq_len(to) ) {
       j <- i + 1
       for (k in j:length(blist)) {
         br1 <- blist[i]
@@ -910,12 +935,13 @@ artmsPlotHeatmapQuant <- function(input_file,
                                use = "complete.obs"), digits = 2)
         # cat ("r:",corr_coef,"\n")
         
-        p2 <- ggplot2::ggplot(datadc, aes(x = "br1", y = "br2"))
+        p2 <- ggplot2::ggplot(datadc, aes_string(x = paste(br1), y = paste(br2)))
         p2 <- p2 + geom_point(na.rm = TRUE)
         p2 <- p2 + geom_smooth(colour = "blue",
                                fill = "lightblue",
                                method = 'lm',
-                               formula = y ~ x)
+                               formula = y ~ x, 
+                               na.rm = TRUE)
         p2 <- p2 + theme_light()
         p2 <- p2 + labs(title = paste("CORRELATION between CONDITIONS:\n",
                                       br1,
@@ -991,12 +1017,13 @@ artmsPlotHeatmapQuant <- function(input_file,
         corr_coef <- round(cor(datadc[[br1]], datadc[[br2]]), digits = 2)
         # cat ("r: ",corr_coef," ")
         
-        p3 <- ggplot2::ggplot(datadc, aes(x = "br1", y = "br2"))
+        p3 <- ggplot2::ggplot(datadc, aes_string(x = paste(br1), y = paste(br2)))
         p3 <- p3 + geom_point(na.rm = TRUE) + geom_rug() + geom_density_2d()
         p3 <- p3 + geom_smooth(colour = "red",
                                fill = "lightblue",
                                method = 'lm',
-                               formula = y ~ x)
+                               formula = y ~ x,
+                               na.rm = TRUE)
         p3 <- p3 + theme_light()
         p3 <- p3 + labs(title = paste0("log2fc(",
                                        br1,
@@ -1098,7 +1125,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   
   # plot the peptide counts for all the samples TOGETHER
   p <- ggplot(data = data_f, aes(x = labels))
-  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90,
+  p <- p + geom_bar(na.rm = TRUE) + theme(axis.text.x = element_text(angle = 90,
                                                          hjust = 1,
                                                          family = 'mono'
   )) + ggtitle('Unique peptides per run\n after filtering') + coord_flip()
@@ -1113,7 +1140,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   h <- ceiling((7 / 5 + 2) * ceiling(length(unique(data_f$Condition)) / 5))
   # plot the peptide counts for all the samples PER BAIT
   p <- ggplot(data = data_f, aes(x = as.factor(BioReplicate)))
-  p <- p + geom_bar() + theme(axis.text.x = element_text(angle = 90,
+  p <- p + geom_bar(na.rm = TRUE) + theme(axis.text.x = element_text(angle = 90,
                                                          hjust = 1,
                                                          family = 'mono' )) + 
     ggtitle('Unique peptides per run\n after filtering') + 
@@ -1247,6 +1274,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   # FactoMineR, factoextra, corrplot, PerformanceAnalytics
   
   # Remove NA
+  x <- as.data.frame(x)
   nogenename2 <- x[duplicated(x$Gene), ]
   if (dim(nogenename2)[1] > 0) {
     # message("\t---Removing proteins without a gene name: ")
@@ -1274,8 +1302,10 @@ artmsPlotHeatmapQuant <- function(input_file,
   PerformanceAnalytics::chart.Correlation(df,
                                           histogram = TRUE,
                                           pch = 19,
-                                      main = "Correlation between Conditions")
+                                          main = "Correlation between Conditions")
   garbage <- dev.off()
+  
+  # PCA 1----
   
   res.pca <- FactoMineR::PCA(df,
                              scale.unit = TRUE,
@@ -1286,13 +1316,14 @@ artmsPlotHeatmapQuant <- function(input_file,
   
   out.pca01 <- paste0(filename, "-pca01.pdf")
   pdf(out.pca01)
-  par(mfrow = c(1, 1))
-  plot(res.pca, choix = "ind", new.plot = FALSE)
-  plot(res.pca, choix = "var", new.plot = FALSE)
+  # par(mfrow = c(1, 1))
+  here1 <- plot(res.pca, choix = "var", new.plot = FALSE)
+  print(here1)
   # This is equivalent to
   # PCA(df, scale.unit = TRUE, ncp = 4, graph = TRUE)
   garbage <- dev.off()
   
+  # PCA 2----
   out.pca02 <- paste0(filename, "-pca02.pdf")
   pdf(out.pca02)
   barplot(
@@ -1312,6 +1343,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   )
   garbage <- dev.off()
   
+  # PCA 3----
   h <- factoextra::fviz_pca_var(res.pca, 
                                 col.var = "contrib") + theme_minimal()
   i <- factoextra::fviz_pca_biplot(res.pca,  
@@ -1326,6 +1358,26 @@ artmsPlotHeatmapQuant <- function(input_file,
   print(i)
   print(j)
   print(l)
+  garbage <- dev.off()
+  
+  # PCA 4
+  df <- df[complete.cases(df),]
+  prot.pca <- prcomp(t(df))
+  prot.pcax <- as.data.frame(prot.pca$x)
+  
+  prot.pcax$Condition <- row.names(prot.pcax)
+  
+  p.pca.group <- ggplot(prot.pcax, 
+                        aes(x = PC1, 
+                            y = PC2, 
+                            color = Condition)) + #, color=condition, shape=condition
+    geom_point(alpha = .8, size = 3) +
+    theme_light() + 
+    labs(title = "PCA") 
+  
+  out.pca04 <- paste0(filename, "-pca04.pdf")
+  pdf(out.pca04, width = 9, height = 7)
+    plot(p.pca.group)
   garbage <- dev.off()
 }
 
