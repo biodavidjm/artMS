@@ -1403,6 +1403,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     }
   } else{
     if(verbose) message(">> NO ENRICHMENT of CHANGES (log2fc) SELECTED ")
+    mac.allsig <- NULL
+    mac.pos <- NULL
+    mac.neg <- NULL
   }
   # END enrichments
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
