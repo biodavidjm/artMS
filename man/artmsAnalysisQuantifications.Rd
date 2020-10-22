@@ -16,7 +16,6 @@ artmsAnalysisQuantifications(
   isBackground = "nobackground",
   isPtm = "global",
   mnbr = 2,
-  isFluomics = FALSE,
   pathogen = "nopathogen",
   plotPvaluesLog2fcDist = TRUE,
   plotAbundanceStats = TRUE,
@@ -87,9 +86,6 @@ Alternatively provided the file path name to the background gene list.}
 \item{mnbr}{(int) minimal number of biological replicates for imputation
 and filtering. Default: \code{mnbr = 2} (Proteins must be found in one of the
 conditions in at least 2 of the biological replicates)}
-
-\item{isFluomics}{(logical) Does this data belong to the FluOMICs project?
-\code{TRUE} or \code{FALSE} (default)}
 
 \item{pathogen}{(char) Is there a pathogen in the dataset as well?
 if it does not, then use \code{pathogen = nopathogen} (default).

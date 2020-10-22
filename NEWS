@@ -1,3 +1,8 @@
+Changes in version 1.6.7 (2020-10-22)
++ The following plots are now deprecated
+   + .clustering.log2fcSign.all-zoom.pdf
+   + .clustering.log2fc.all-zoom.pdf 
++ Fix bugs
 
 Changes in version 1.6.6 (2020-10-21)
 + Convert new MaxQuant format of PTMs to the old format

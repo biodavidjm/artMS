@@ -81,7 +81,7 @@ Basic imputation of missing values
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.7</span>
       </span>
     </div>
 
@@ -159,7 +159,6 @@ Basic imputation of missing values
   <span class='kw'>isBackground</span> <span class='kw'>=</span> <span class='st'>"nobackground"</span>,
   <span class='kw'>isPtm</span> <span class='kw'>=</span> <span class='st'>"global"</span>,
   <span class='kw'>mnbr</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>isFluomics</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>pathogen</span> <span class='kw'>=</span> <span class='st'>"nopathogen"</span>,
   <span class='kw'>plotPvaluesLog2fcDist</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>plotAbundanceStats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -251,11 +250,6 @@ Alternatively provided the file path name to the background gene list.</p></td>
       <td><p>(int) minimal number of biological replicates for imputation
 and filtering. Default: <code>mnbr = 2</code> (Proteins must be found in one of the
 conditions in at least 2 of the biological replicates)</p></td>
-    </tr>
-    <tr>
-      <th>isFluomics</th>
-      <td><p>(logical) Does this data belong to the FluOMICs project?
-<code>TRUE</code> or <code>FALSE</code> (default)</p></td>
     </tr>
     <tr>
       <th>pathogen</th>

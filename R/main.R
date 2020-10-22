@@ -3,7 +3,7 @@
 #' @import bit64
 #' @import circlize
 #' @importFrom cluster pam
-#' @import ComplexHeatmap
+#' @rawNamespace import(ComplexHeatmap, except = c(pheatmap))
 #' @importFrom corrplot corrplot
 #' @importFrom dplyr mutate desc count arrange desc everything one_of
 #' @import data.table

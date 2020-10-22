@@ -49,8 +49,6 @@
 #' @param mnbr (int) minimal number of biological replicates for imputation
 #' and filtering. Default: `mnbr = 2` (Proteins must be found in one of the
 #' conditions in at least 2 of the biological replicates)
-#' @param isFluomics (logical) Does this data belong to the FluOMICs project?
-#' `TRUE` or `FALSE` (default)
 #' @param pathogen (char) Is there a pathogen in the dataset as well?
 #' if it does not, then use `pathogen = nopathogen` (default).
 #' Pathogens available: `tb` (Tuberculosis), `lpn` (Legionella)
@@ -102,7 +100,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                          isBackground = "nobackground",
                                          isPtm = "global",
                                          mnbr = 2,
-                                         isFluomics = FALSE,
                                          pathogen = "nopathogen",
                                          plotPvaluesLog2fcDist = TRUE,
                                          plotAbundanceStats = TRUE,
@@ -124,15 +121,15 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # log2fc_file = artms_data_ph_msstats_results
   # modelqc_file = artms_data_ph_msstats_modelqc
   # species = "human"
+  # choosePvalue = "adjpvalue"
+  # 
   # output_dir = "analysis_quant"
   # outliers = "keep"
   # enrich = TRUE
   # l2fc_thres = 1
-  # choosePvalue = "adjpvalue"
   # isBackground = "nobackground"
   # isPtm = "global"
   # mnbr = 2
-  # isFluomics = FALSE
   # pathogen = "nopathogen"
   # plotPvaluesLog2fcDist = TRUE
   # plotAbundanceStats = TRUE
@@ -188,10 +185,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if (!is.logical(enrich)) {
     stop(" Argument <enrich> must be logical (TRUE or FALSE) ")
-  }
-
-  if (!is.logical(isFluomics)) {
-    stop(" Argument <isFluomics> must be logical (TRUE or FALSE) ")
   }
 
   if (!is.numeric(l2fc_thres)) {
@@ -986,7 +979,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(printPDF) garbage <- dev.off()
   }
   
-  if(plotHeatmapsChanges & printPDF){
+  if(plotHeatmapsChanges){
     if(verbose) message(">> HEATMAPS OF CHANGES (log2fc) ")
     
     ##LEGACY
@@ -1005,41 +998,44 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if (numberConditions > 1) {
       l2fcolmatrix <- data.matrix(l2fcol)
       if(verbose) message("--- All changes ")
-      outHeatMapOverallL2fc <- gsub(".txt",
-                                    ".clustering.log2fc.all-overview.pdf",
-                                    log2fc_file)
       
-      outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
-      pheatmap(
-        l2fcolmatrix,
-        filename = outHeatMapOverallL2fc,
-        cellwidth = 20,
-        main = "Clustering Log2FC",
-        cluster_cols = FALSE,
-        clustering_method = "average",
-        fontfamily = "Helvetica",
-        show_colnames = FALSE,
-        fontsize = 6,
-        fontsize_row = 3,
-        fontsize_col = 10,
-        border_color = NA
-      )
-      outHeatMapZoomL2fc <- gsub(".txt", ".clustering.log2fc.all-zoom.pdf", log2fc_file)
-      outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
-      pheatmap(
-        l2fcolmatrix,
-        filename = outHeatMapZoomL2fc,
-        cellheight = 10,
-        cellwidth = 20,
-        main = "Clustering Log2FC",
-        cluster_cols = FALSE,
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 8,
-        border_color = NA,
-        fontfamily = "Helvetica"
-      )
-      
+      if(printPDF){
+        outHeatMapOverallL2fc <- gsub(".txt",
+                                      ".clustering.log2fc.all-overview.pdf",
+                                      log2fc_file)
+        
+        outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
+        pheatmap(
+          l2fcolmatrix,
+          filename = outHeatMapOverallL2fc,
+          cellwidth = 20,
+          main = "Clustering Log2FC",
+          cluster_cols = FALSE,
+          clustering_method = "average",
+          fontfamily = "Helvetica",
+          show_colnames = FALSE,
+          fontsize = 6,
+          fontsize_row = 3,
+          fontsize_col = 10,
+          border_color = NA
+        )
+      }else{
+        plotPhLog2 <- pheatmap(
+          l2fcolmatrix,
+          cellwidth = 20,
+          main = "Clustering Log2FC",
+          cluster_cols = FALSE,
+          clustering_method = "average",
+          fontfamily = "Helvetica",
+          show_colnames = FALSE,
+          fontsize = 6,
+          fontsize_row = 3,
+          fontsize_col = 10,
+          border_color = NA
+        )
+        print(plotPhLog2)
+      }
+
       # Only significant pvalues
       if(verbose) message("--- Only significant changes ")
       imputedDFsig <- imputedDF[which(imputedDF$iPvalue < 0.05), ]
@@ -1056,42 +1052,42 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       l2fcolSignificants[is.na(l2fcolSignificants)] <- 0
       
       l2fcolSignificantsmatrix <- data.matrix(l2fcolSignificants)
-      outHeatMapOverallL2fc <- gsub(".txt",
-                                    ".clustering.log2fcSign.all-overview.pdf",
-                                    log2fc_file)
-      outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
-      pheatmap(
-        l2fcolSignificantsmatrix,
-        filename = outHeatMapOverallL2fc,
-        cellwidth = 20,
-        main = "Clustering Log2FC (p-value < 0.05)",
-        cluster_cols = FALSE,
-        fontfamily = "Helvetica",
-        labels_row = "",
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 8,
-        border_color = NA,
-        fontfamily = "Helvetica"
-      )
-      outHeatMapZoomL2fc <- gsub(".txt",
-                                 ".clustering.log2fcSign.all-zoom.pdf",
-                                 log2fc_file)
-        
-      outHeatMapZoomL2fc <- paste0(output_dir, "/", outHeatMapZoomL2fc)
-      pheatmap(
-        l2fcolSignificantsmatrix,
-        filename = outHeatMapZoomL2fc,
-        cellheight = 10,
-        cellwidth = 20,
-        main = "Clustering Log2FC (p-value < 0.05)",
-        cluster_cols = FALSE,
-        fontsize = 6,
-        fontsize_row = 8,
-        fontsize_col = 8,
-        border_color = NA,
-        fontfamily = "Helvetica"
-      )
+
+      if(printPDF){
+        outHeatMapOverallL2fc <- gsub(".txt",
+                                      ".clustering.log2fcSign.all-overview.pdf",
+                                      log2fc_file)
+        outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
+        pheatmap(
+          l2fcolSignificantsmatrix,
+          filename = outHeatMapOverallL2fc,
+          cellwidth = 20,
+          main = "Clustering Log2FC (p-value < 0.05)",
+          cluster_cols = FALSE,
+          fontfamily = "Helvetica",
+          labels_row = "",
+          fontsize = 6,
+          fontsize_row = 8,
+          fontsize_col = 8,
+          border_color = NA,
+          fontfamily = "Helvetica"
+        )
+      }else{
+        plotPh1 <- pheatmap(
+          l2fcolSignificantsmatrix,
+          cellwidth = 20,
+          main = "Clustering Log2FC (p-value < 0.05)",
+          cluster_cols = FALSE,
+          fontfamily = "Helvetica",
+          labels_row = "",
+          fontsize = 6,
+          fontsize_row = 8,
+          fontsize_col = 8,
+          border_color = NA,
+          fontfamily = "Helvetica")
+          
+        print(plotPh1)
+      }
     }
   }
   
@@ -1443,52 +1439,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # ANNOTATE SPECIE
   if(verbose) message("--- Annotating species(s) in files ")
   superunified <- artmsAnnotateSpecie(superunified, pathogen, species)
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # THE JITTER PLOTS
-  
-  if (isFluomics == TRUE) {
-    if(verbose) message(">> JITTERED PLOT ")
-    # Filter by number of biological replicas > 1
-    superunifiedfiltered <- superunified[which(superunified$BioRep > 1), ]
-    # Filter less than
-    superunifiedfiltered <- superunifiedfiltered[which(superunifiedfiltered$AbMean < 30 &
-                                                         superunifiedfiltered$AbMean > 10),]
-      
-    # Removing carry overs
-    superunifiedfiltered <- superunifiedfiltered[!(grepl("H1N1|H3N2|H5N1", superunifiedfiltered$Protein) &
-                                                     grepl("MOCK", superunifiedfiltered$Condition)), ]
-      
-    abuJittered <- gsub(".txt", ".abundanceGrouped.pdf", log2fc_file)
-    abuJittered <- paste0("plot.", abuJittered)
-    abuJittered <- paste0(output_dir, "/", abuJittered)
-    # j <- ggplot(superunifiedfiltered %>% arrange(Species), 
-    # aes(Condition,AbMean))
-    # j <- j + geom_jitter(aes(colour = Species), width = 0.3)
-    if (species == "human") {
-      j <- ggplot(superunifiedfiltered %>% arrange(desc(Species)),
-                  aes(
-                    x = Condition,
-                    y = AbMean,
-                    colour = Species
-                  )) #superunifiedfiltered %>% arrange(Species)
-      j <- j + geom_jitter(width = 0.3, na.rm = TRUE)
-      j <- j + scale_colour_manual(values = c("red", "lightblue"))
-    } else if (species == "mouse") {
-      j <- ggplot(superunifiedfiltered %>% arrange(Species),
-                  aes(Condition, AbMean))
-      j <- j + geom_jitter(aes(colour = Species), width = 0.3, na.rm = TRUE)
-      j <- j + scale_colour_manual(values = c("azure3", "red"))
-    }
-    j <- j + theme_minimal()
-    j <- j + theme(axis.text.x = element_text(angle = 90,
-                                              hjust = 1,
-                                              vjust = 0.5))
-    if(printPDF) pdf(abuJittered)
-      print(j)
-    if(printPDF) garbage <- dev.off()
-    if(verbose) message("--- done ")
-  }
+
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (grepl("ptm", isPtm)) {
@@ -1655,7 +1606,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         
         # if this dataset only have one comparison,
         # this analysis does not makes sense: check it out:
-        if (dim(vamos)[2] > 1) {
+        if ( dim(vamos)[2] > 1 ) {
           venga <- as.matrix(vamos)
           
           # EXPERIMENT BASED
@@ -1669,7 +1620,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           file_corr_l2fc <- gsub(".txt", ".log2fc-corr.pdf", log2fc_file)
           file_corr_l2fc <- paste0(output_dir, "/", file_corr_l2fc)
           if(printPDF) pdf(file_corr_l2fc, width = 12, height = 9)
-          corrplot::corrplot(
+            corrplot::corrplot(
             df.cor.matrix,
             type = "upper",
             tl.pos = "td",
@@ -1704,11 +1655,18 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           
           
           if(verbose) message("--- PCA, individuals plot ")
-          file_pca_l2fc <- gsub(".txt", ".log2fc-individuals-pca.pdf", log2fc_file)
-          file_pca_l2fc <- paste0(output_dir, "/", file_pca_l2fc)
-          if(printPDF) pdf(file_pca_l2fc, width = 9, height = 7)
-          print(pca_all)
-          if(printPDF) garbage <- dev.off()
+
+          if(printPDF){
+            file_pca_l2fc <- gsub(".txt", ".log2fc-individuals-pca.pdf", log2fc_file)
+            file_pca_l2fc <- paste0(output_dir, "/", file_pca_l2fc)
+            pdf(file_pca_l2fc, width = 9, height = 7)
+            print(pca_all)
+            garbage <- dev.off()  
+          } else{
+            print(pca_all)
+          }
+          
+          
           
           # Determine the OPTIMAL NUMBER OF CLUSTERS:
           
@@ -1734,9 +1692,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           hc <- hclust(res.dist)
           file_dendro_l2fc <- gsub(".txt", ".log2fc-dendro.pdf", log2fc_file)
           file_dendro_l2fc <- paste0(output_dir, "/", file_dendro_l2fc)
-          if(printPDF) pdf(file_dendro_l2fc, width = 9, height = 7)
-          plot(hc)
-          if(printPDF) garbage <- dev.off()
+          if(printPDF){
+            pdf(file_dendro_l2fc, width = 9, height = 7)
+            plot(hc)
+            garbage <- dev.off()
+          }else{
+            plot(hc)
+          }
+
           
           # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
           n = 10
@@ -1747,19 +1710,25 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           
           if(verbose) message("--- Plots to determine optimal number of clusters ")
           file_clusterplots_l2fc <- gsub(".txt", ".log2fc-clusters.pdf", log2fc_file)
-          
           file_clusterplots_l2fc <- paste0(output_dir, "/", file_clusterplots_l2fc)
           
-          if(printPDF) pdf(file_clusterplots_l2fc,
-              width = 9,
-              height = 7)
-          print(e1)
-          print(e2)
-          print(k1)
-          print(k2)
-          print(cp1)
-          print(cp2)
-          if(printPDF) garbage <- dev.off()
+          if(printPDF){
+            pdf(file_clusterplots_l2fc, width = 9, height = 7)
+            print(e1)
+            print(e2)
+            print(k1)
+            print(k2)
+            print(cp1)
+            print(cp2)
+            garbage <- dev.off()
+          } else{
+            print(e1)
+            print(e2)
+            print(k1)
+            print(k2)
+            print(cp1)
+            print(cp2)
+          }
           
           if(verbose) message("--- Cluster heatmaps (10 clusters) ")
           
@@ -1800,6 +1769,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           if(printPDF) pdf(file_clusterheat_l2fc,
               width = 12,
               height = 10)
+          
           ComplexHeatmap::draw(hmap,
                                heatmap_legend_side = "top",
                                annotation_legend_side = "right")
