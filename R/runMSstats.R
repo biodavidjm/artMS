@@ -25,7 +25,6 @@
                               config,
                               verbose = TRUE) {
   
-  if(verbose) message(">> RUNNING MSstats")
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: before")
@@ -55,6 +54,7 @@
   }
   
   # Normalization
+  
   if (!is.null(config$msstats$normalization_reference) &
       config$msstats$normalization_method == 'globalStandards') {
     # if globalStandars is selected, must have a reference protein(s)

@@ -251,7 +251,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         
       print(ac)
     }
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
     if(verbose) message(" done ")
   }
   
@@ -400,7 +400,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
       theme(plot.title = element_text(size = 12)) +
       scale_fill_brewer(palette = "Spectral")
     print(bd)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
     if(verbose) message(" done ")
   }
   
@@ -512,7 +512,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         
       print(cc)
     }
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
     if(verbose) message(" done ")
   }
   
@@ -734,7 +734,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
         
       print(df)
     }
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
     if(verbose) message(" done ")
   }
   

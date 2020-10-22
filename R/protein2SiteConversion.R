@@ -191,19 +191,33 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   
   
   if (mod_type == 'PH') {
-    if(length(grep("(ph)", maxq_data$`Modified sequence`)) == 1){
+    if(any(grepl("pS", maxq_data$`Modified sequence`)) |
+       any(grepl("pT", maxq_data$`Modified sequence`)) |
+       any(grepl("pY", maxq_data$`Modified sequence`)) ){
       message("\n____________________________________________________________")
       message("| WARNING: ")
       message("| The version of MaxQuant that generated this evidence file")
       message("| introduced changes in the <Modified Sequence> column that requires some changes.")
-      message("| Basically, the phosphorylation site is indicated as 'XXXpSXXX' instead of 'XXXS(ph)XXX> as before.")
-      message("| Next: Applyng changes to return to the previous version")
+      message("| Basically, the phosphorylation site is indicated as 'pS' instead of '(ph)' as in other versions")
+      message("| Next: artMS will apply changes to return to the previous notation")
       message("____________________________________________________________\n")
       maxq_data$`Modified sequence` <- gsub("pS", "S(ph)", maxq_data$`Modified sequence`)
       maxq_data$`Modified sequence` <- gsub("pT", "T(ph)", maxq_data$`Modified sequence`)
       maxq_data$`Modified sequence` <- gsub("pY", "Y(ph)", maxq_data$`Modified sequence`)
     }
   }
+  
+  if( any(grepl("Phospho", maxq_data$`Modified sequence`)) | 
+      any(grepl("GlyGly", maxq_data$`Modified sequence`)) |
+      any(grepl("Carbamidomethyl", maxq_data$`Modified sequence`)) |
+      any(grepl("Oxidation", maxq_data$`Modified sequence`)) |
+      any(grepl("Acetyl", maxq_data$`Modified sequence`))
+      ){
+    if(verbose) message("--- Long notation detected in <Modified sequence> column: converting to short notation")
+    maxq_data$ModifiedSequenceLong <- maxq_data$`Modified sequence`
+    maxq_data$`Modified sequence` <- .convertLong2ShortPTMFormat(specModSequence = maxq_data$`Modified sequence`)
+  }
+
   
   if(verbose) message("--- READING REFERENCE PROTEOME ")
   ## read in reference proteome
@@ -260,9 +274,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
     
   
   
-  # ---------------------------------------------------------------------------
   # EXTRACT PTM POSITIONS FROM MODIFIED PEPTIDES IN EVIDENCE FILE
-  # ---------------------------------------------------------------------------
   
   
   unique_peptides_in_data <- unique(maxq_data[, c(column_name, 'Modified sequence'), with = FALSE])
@@ -427,4 +439,38 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
       gsub('.txt', '-mapping.txt', output_file)
     )
   if(verbose) message(">> CONVERSION COMPLETED")
+}
+
+# 
+# @title Convert PTM long notation to short
+#
+# @description One version of MaxQuant annotates the peptides in a strange way 
+# XXXXS(Phospho (STY))XXXX. This function converts them to the old notation
+# @param specModSequence (vector) 
+# @param mods (char) the PTM modification: PH, UB, CAM, MOX, NAC
+# @keywords PTM
+.convertLong2ShortPTMFormat <- function(specModSequence, 
+                                      mods=c("PH", "UB", "CAM", "MOX", "NAC", "AC")){
+  result <- specModSequence
+  specFormats <- list (PH = '([STY])[[(]Phospho \\(STY\\)[])]',
+                       UB = '(K)[[(]GlyGly \\(K\\)[])]',
+                       CAM = '([C])[[(]Carbamidomethyl \\(C\\)[])]',
+                       MOX = '([M])[[(]Oxidation \\(M\\)[])]',
+                       NAC = '([A-Z_])[[(]Acetyl \\(Protein N-term\\)[])]',
+                       AC = '([A-Z_])[[(]Acetyl \\(K\\)[])]')
+  artmsFormats <- list (PH ='\\1\\(ph\\)',
+                        UB ='\\1\\(gl\\)',
+                        CAM = '\\1\\(cam\\)',
+                        MOX = '\\1\\(ox\\)',
+                        NAC = '\\1\\(ac\\)',
+                        AC = '\\1\\(ac\\)')
+  stopifnot(names(specFormats)==names(artmsFormats))
+  for (mod in mods){
+    if (mod %in% names(specFormats)){
+      result <- gsub(specFormats[[mod]], artmsFormats[[mod]], result)
+    }else{
+      (stop("I don't know how to deal with requested mod: ", mod))
+    }
+  }
+  return (result)
 }

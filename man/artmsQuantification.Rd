@@ -4,13 +4,23 @@
 \alias{artmsQuantification}
 \title{Relative quantification using MSstats}
 \usage{
-artmsQuantification(yaml_config_file, data_object = FALSE, verbose = TRUE)
+artmsQuantification(
+  yaml_config_file,
+  data_object = FALSE,
+  printPDF = TRUE,
+  display_msstats = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{yaml_config_file}{(char) The yaml file name and location}
 
 \item{data_object}{(logical) flag to indicate whether the configuration file
-is a string to a file that should be opened or}
+is a string to a file that should be opened or config object (yaml)}
+
+\item{printPDF}{(logical) if \code{TRUE}, prints out pdf}
+
+\item{display_msstats}{(logical) if \code{TRUE}, prints MSstats outputs}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
@@ -29,7 +39,7 @@ Relative quantification using MSstats including:
 }
 \examples{
 \donttest{
-artmsQuantification("artms-ab-config.yaml")
+artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
 }
 }
 \keyword{driver,}

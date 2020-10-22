@@ -30,6 +30,7 @@ artmsAnalysisQuantifications(
   plotTotalQuant = TRUE,
   plotClusteringAnalysis = TRUE,
   data_object = FALSE,
+  printPDF = TRUE,
   verbose = TRUE
 )
 }
@@ -119,7 +120,7 @@ log2fc and pvalues}
 imputation}
 
 \item{plotHeatmapsChanges}{(logical) if \code{TRUE} plots heatmaps of quantified
-changes (both all and significant only)}
+changes (both all and significant only). Only if \code{printPDF} is also \code{TRUE}}
 
 \item{plotTotalQuant}{(logical) if \code{TRUE} plots barplot of total number of
 quantifications per comparison}
@@ -129,6 +130,9 @@ analysis between quantified comparisons (more than 1 comparison required)}
 
 \item{data_object}{(logical) flag to indicate whether the required files
 are data objects. Default is FALSE}
+
+\item{printPDF}{If \code{TRUE} (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

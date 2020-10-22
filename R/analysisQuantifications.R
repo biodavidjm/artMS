@@ -71,13 +71,15 @@
 #' @param plotPropImputation (logical) if `TRUE` plots proportion of overall
 #' imputation
 #' @param plotHeatmapsChanges (logical) if `TRUE` plots heatmaps of quantified
-#' changes (both all and significant only)
+#' changes (both all and significant only). Only if `printPDF` is also `TRUE`
 #' @param plotTotalQuant (logical) if `TRUE` plots barplot of total number of
 #' quantifications per comparison
 #' @param plotClusteringAnalysis (logical) if `TRUE` performs clustering
 #' analysis between quantified comparisons (more than 1 comparison required)
 #' @param data_object (logical) flag to indicate whether the required files 
 #' are data objects. Default is FALSE
+#' @param printPDF If `TRUE` (default) prints out the pdfs. Warning: plot
+#' objects are not returned due to the large number of them. 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) summary of quantifications, including annotations, 
 #' enrichments, etc
@@ -114,6 +116,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                          plotTotalQuant = TRUE,
                                          plotClusteringAnalysis = TRUE,
                                          data_object = FALSE,
+                                         printPDF = TRUE,
                                          verbose = TRUE
                                          ) {
   
@@ -125,7 +128,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # outliers = "keep"
   # enrich = TRUE
   # l2fc_thres = 1
-  # choosePvalue = "pvalue"
+  # choosePvalue = "adjpvalue"
   # isBackground = "nobackground"
   # isPtm = "global"
   # mnbr = 2
@@ -142,9 +145,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # plotHeatmapsChanges = TRUE
   # plotTotalQuant = TRUE
   # plotClusteringAnalysis = TRUE
-  # data_object = TRUE
+  # data_object = FALSE
+  # printPDF = TRUE
   # verbose = TRUE
-  
+
   Uniprot_PTM = imputed = Gene_Protein = NULL
   
   if(verbose){
@@ -353,10 +357,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       
       out.outliers <- gsub(".txt", paste0("-outliers-removed-",outliers,".pdf"), log2fc_file)
       out.outliers <- paste0(output_dir, "/", out.outliers)
-      pdf(out.outliers)
+      if(printPDF) pdf(out.outliers)
       plot(k)
       plot(l)
-      garbage <- dev.off()
+      if(printPDF) garbage <- dev.off()
       
       if(verbose) message("------> Check table and plot to find out more about outliers removed")
 
@@ -561,13 +565,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # DISTRIBUTION PRINT OUTS
     distributionsOut <- gsub(".txt", ".distributions.pdf", log2fc_file)
     distributionsOut <- paste0(output_dir, "/", distributionsOut)
-    pdf(distributionsOut)
-    plotDFdistColor
-    plotDFdistAll
-    plotDFdistiLog
-    plotPvalues
-    plotAdjustedPvalues
-    plotAdjustedIpvalues
+    if(printPDF) pdf(distributionsOut)
+    print(plotDFdistColor)
+    print(plotDFdistAll)
+    print(plotDFdistiLog)
+    print(plotPvalues)
+    print(plotAdjustedPvalues)
+    print(plotAdjustedIpvalues)
     
     if (numberInfinites > 0) {
       hist(
@@ -624,7 +628,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       ),
       xlab = "log2FC"
     )
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   
@@ -644,10 +648,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
     abundancesName <- paste0("plot.", abundancesName)
     abundancesName <- paste0(output_dir, "/", abundancesName)
-    pdf(abundancesName)
+    if(printPDF) pdf(abundancesName)
     .artms_plotAbundanceBoxplots(df = dfmq)
     .artms_plotNumberProteinsAbundance(df = dfmq)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   # Reproducibility plots based on normalized abundance
@@ -656,9 +660,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     reproName <- gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
     reproName <- paste0("plot.", reproName)
     reproName <- paste0(output_dir, "/", reproName)
-    pdf(reproName)
+    if(printPDF) pdf(reproName)
     .artms_plotReproducibilityAbundance(x = dfmq, verbose = verbose)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   # Conditions
@@ -667,10 +671,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     relaCond <- gsub(".txt", ".correlationConditions.pdf", log2fc_file)
     relaCond <- paste0("plot.", relaCond)
     relaCond <- paste0(output_dir, "/", relaCond)
-    pdf(relaCond)
+    if(printPDF) pdf(relaCond)
     .artms_plotCorrelationConditions(x = dfmq, 
                                      numberBiologicalReplicas = numberBioReplicas)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   if(plotCorrQuant){
@@ -680,9 +684,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       relaChanges <- gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
       relaChanges <- paste0("plot.", relaChanges)
       relaChanges <- paste0(output_dir, "/", relaChanges)
-      pdf(relaChanges)
+      if(printPDF) pdf(relaChanges)
       .artms_plotRatioLog2fc(dflog2fc, verbose = verbose)
-      garbage <- dev.off()
+      if(printPDF) garbage <- dev.off()
     } else{
       if(verbose) message("--- Only one Comparison is available (correlation is not possible) ")
     }
@@ -933,7 +937,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(verbose) message("--- Distribution of log2fc and pvalues ")
     distributionsFilteredOut <- gsub(".txt", ".distributionsFil.pdf", log2fc_file)
     distributionsFilteredOut <- paste0(output_dir, "/", distributionsFilteredOut)
-    pdf(distributionsFilteredOut)
+    if(printPDF) pdf(distributionsFilteredOut)
       hist(imputedDF$iLog2FC,
            breaks = 1000,
            main = paste0("Filtered Log2FC (>2BR)\n n = ", dim(imputedDF)[1]),
@@ -942,7 +946,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
            breaks = 1000,
            main = paste0("Filtered p-values (>2BR)\n n = ", dim(imputedDF)[1]),
            xlab = "p-value")
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   if(plotPropImputation){
@@ -976,13 +980,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     
     outImputation <- gsub(".txt", ".imputation.pdf", log2fc_file)
     outImputation <- paste0(output_dir, "/", outImputation)
-    pdf(outImputation)
+    if(printPDF) pdf(outImputation)
     print(p1)
     print(p2)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
-  if(plotHeatmapsChanges){
+  if(plotHeatmapsChanges & printPDF){
     if(verbose) message(">> HEATMAPS OF CHANGES (log2fc) ")
     
     ##LEGACY
@@ -1004,7 +1008,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       outHeatMapOverallL2fc <- gsub(".txt",
                                     ".clustering.log2fc.all-overview.pdf",
                                     log2fc_file)
-        
+      
       outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
       pheatmap(
         l2fcolmatrix,
@@ -1480,9 +1484,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     j <- j + theme(axis.text.x = element_text(angle = 90,
                                               hjust = 1,
                                               vjust = 0.5))
-    pdf(abuJittered)
+    if(printPDF) pdf(abuJittered)
       print(j)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
     if(verbose) message("--- done ")
   }
   
@@ -1544,9 +1548,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                          values_fill = list(iPvalue = 0))
     
   } else if (isPtm == "global") {
-    suppressMessages(imputedDF <- artmsAnnotationUniprot(imputedDF, 
-                                                         'Protein', 
-                                                         species))
+    suppressMessages(imputedDF <- artmsAnnotationUniprot(x = imputedDF, 
+                                                         columnid = 'Protein', 
+                                                         species =  species))
+    
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
@@ -1589,9 +1594,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     numimputedfinal <- gsub(".txt", ".TotalQuantifications.pdf", log2fc_file)
     numimputedfinal <- paste0("plot.", numimputedfinal)
     numimputedfinal <- paste0(output_dir, "/", numimputedfinal)
-    pdf(numimputedfinal)
+    if(printPDF) pdf(numimputedfinal)
     .artms_plotNumberProteinsImputedLog2fc(imputedDF)
-    garbage <- dev.off()
+    if(printPDF) garbage <- dev.off()
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1663,7 +1668,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           df.cor.matrix <- round(cor(venga, use = "pairwise.complete.obs"), 2)
           file_corr_l2fc <- gsub(".txt", ".log2fc-corr.pdf", log2fc_file)
           file_corr_l2fc <- paste0(output_dir, "/", file_corr_l2fc)
-          pdf(file_corr_l2fc, width = 12, height = 9)
+          if(printPDF) pdf(file_corr_l2fc, width = 12, height = 9)
           corrplot::corrplot(
             df.cor.matrix,
             type = "upper",
@@ -1679,7 +1684,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                                   histogram = TRUE,
                                                   pch = 25,
                                                   main = "Correlation between Comparisons")
-          garbage <- dev.off()
+          if(printPDF) garbage <- dev.off()
           
           # BASED ON GROUPS
           pca.hasdcexp <- FactoMineR::PCA(
@@ -1701,9 +1706,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           if(verbose) message("--- PCA, individuals plot ")
           file_pca_l2fc <- gsub(".txt", ".log2fc-individuals-pca.pdf", log2fc_file)
           file_pca_l2fc <- paste0(output_dir, "/", file_pca_l2fc)
-          pdf(file_pca_l2fc, width = 9, height = 7)
+          if(printPDF) pdf(file_pca_l2fc, width = 9, height = 7)
           print(pca_all)
-          garbage <- dev.off()
+          if(printPDF) garbage <- dev.off()
           
           # Determine the OPTIMAL NUMBER OF CLUSTERS:
           
@@ -1729,9 +1734,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           hc <- hclust(res.dist)
           file_dendro_l2fc <- gsub(".txt", ".log2fc-dendro.pdf", log2fc_file)
           file_dendro_l2fc <- paste0(output_dir, "/", file_dendro_l2fc)
-          pdf(file_dendro_l2fc, width = 9, height = 7)
+          if(printPDF) pdf(file_dendro_l2fc, width = 9, height = 7)
           plot(hc)
-          garbage <- dev.off()
+          if(printPDF) garbage <- dev.off()
           
           # COMPLEXHEATMAP Heatmap with a specified number of optimal clusters
           n = 10
@@ -1745,7 +1750,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           
           file_clusterplots_l2fc <- paste0(output_dir, "/", file_clusterplots_l2fc)
           
-          pdf(file_clusterplots_l2fc,
+          if(printPDF) pdf(file_clusterplots_l2fc,
               width = 9,
               height = 7)
           print(e1)
@@ -1754,7 +1759,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           print(k2)
           print(cp1)
           print(cp2)
-          garbage <- dev.off()
+          if(printPDF) garbage <- dev.off()
           
           if(verbose) message("--- Cluster heatmaps (10 clusters) ")
           
@@ -1792,13 +1797,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           
           file_clusterheat_l2fc <- gsub(".txt", ".log2fc-clusterheatmap.pdf", log2fc_file)
           file_clusterheat_l2fc <- paste0(output_dir, "/", file_clusterheat_l2fc)
-          pdf(file_clusterheat_l2fc,
+          if(printPDF) pdf(file_clusterheat_l2fc,
               width = 12,
               height = 10)
           ComplexHeatmap::draw(hmap,
                                heatmap_legend_side = "top",
                                annotation_legend_side = "right")
-          garbage <- dev.off()
+          if(printPDF) garbage <- dev.off()
           
           # Pre enrichment of clusters
           cl_number <- pam.res$clustering

@@ -1001,11 +1001,11 @@ artmsPlotHeatmapQuant <- function(input_file,
     # We need at least TWO CONDITIONS
     to <- length(blist) - 1
     # Progress bar
-    pb <- txtProgressBar(min = 0,
+    if(verbose) pb <- txtProgressBar(min = 0,
                          max = length(blist) - 1,
                          style = 3)
     for (i in seq_len(to)) {
-      setTxtProgressBar(pb, i)
+      if(verbose) setTxtProgressBar(pb, i)
       j <- i + 1
       for (k in j:length(blist)) {
         br1 <- blist[i]
@@ -1039,7 +1039,7 @@ artmsPlotHeatmapQuant <- function(input_file,
         print(p3)
       } # FOR loop
     } # For loop
-    close(pb)
+    if(verbose) close(pb)
   } else{
     message("\tONLY ONE BIOLOGICAL REPLICA AVAILABLE (plots are not possible) ")
   }

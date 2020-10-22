@@ -35,7 +35,7 @@ large-scale proteomics (mass-spectrometry-based) datasets
 obtained using the popular proteomics software 
 [MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). 
 
-The functions available in `r Biocpkg("artMS")` can be grouped into the 
+The functions available in artMS, which can be grouped into the 
 following categories:
 
 - Multiple quality control (QC) functions.
@@ -47,9 +47,12 @@ clustering, PCA, summary plots, etc)
 [Photon](https://github.com/jdrudolph/photon), 
 and [Phosfate](http://phosfate.com/)
 
+[Click here for details about all the functions available in artMS](https://biodavidjm.github.io/artMS/reference/index.html).
+
 For a graphical overview check 
 [the slides presented at the 2019 SUMS-RAS](https://mass-spec.stanford.edu/sites/g/files/sbiybj8411/f/sites/default/files/2019SUMS-RAS_artMS_Jimenez-Morales.pdf) 
 (Stanford University Mass Spectrometry - Research Application Symposium)
+
 
 `r Biocpkg("artMS")` also perfoms basic quality control and relative 
 quantification for **metabolomics** datasets obtained using the alignment 

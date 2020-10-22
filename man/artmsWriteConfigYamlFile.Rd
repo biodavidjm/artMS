@@ -6,12 +6,15 @@
 \usage{
 artmsWriteConfigYamlFile(
   config_file_name = "artms_config_file.yaml",
+  overwrite = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{config_file_name}{(char) The name for the configuration file. It must
 have a \code{.yaml} extension. If \code{NULL}, it returns the config as a yaml object}
+
+\item{overwrite}{(logical) Default FALSE}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

@@ -130,7 +130,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   if(verbose) message(">> FILTERING ")
   
   if (config$data$filters$contaminants) {
-    x <- artmsFilterEvidenceContaminants(x)
+    x <- artmsFilterEvidenceContaminants(x, verbose = verbose)
   }
   
   if (config$data$filters$protein_groups == 'remove') {

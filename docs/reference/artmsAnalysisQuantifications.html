@@ -81,7 +81,7 @@ Basic imputation of missing values
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.6</span>
       </span>
     </div>
 
@@ -173,6 +173,7 @@ Basic imputation of missing values
   <span class='kw'>plotTotalQuant</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>plotClusteringAnalysis</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>printPDF</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -305,7 +306,7 @@ imputation</p></td>
     <tr>
       <th>plotHeatmapsChanges</th>
       <td><p>(logical) if <code>TRUE</code> plots heatmaps of quantified
-changes (both all and significant only)</p></td>
+changes (both all and significant only). Only if <code>printPDF</code> is also <code>TRUE</code></p></td>
     </tr>
     <tr>
       <th>plotTotalQuant</th>
@@ -321,6 +322,11 @@ analysis between quantified comparisons (more than 1 comparison required)</p></t
       <th>data_object</th>
       <td><p>(logical) flag to indicate whether the required files
 are data objects. Default is FALSE</p></td>
+    </tr>
+    <tr>
+      <th>printPDF</th>
+      <td><p>If <code>TRUE</code> (default) prints out the pdfs. Warning: plot
+objects are not returned due to the large number of them.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

@@ -75,7 +75,7 @@ and how to fill it up" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.6</span>
       </span>
     </div>
 
@@ -137,6 +137,7 @@ and how to fill it up</p>
 
     <pre class="usage"><span class='fu'>artmsWriteConfigYamlFile</span>(
   <span class='kw'>config_file_name</span> <span class='kw'>=</span> <span class='st'>"artms_config_file.yaml"</span>,
+  <span class='kw'>overwrite</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -147,6 +148,10 @@ and how to fill it up</p>
       <th>config_file_name</th>
       <td><p>(char) The name for the configuration file. It must
 have a <code>.yaml</code> extension. If <code>NULL</code>, it returns the config as a yaml object</p></td>
+    </tr>
+    <tr>
+      <th>overwrite</th>
+      <td><p>(logical) Default FALSE</p></td>
     </tr>
     <tr>
       <th>verbose</th>

@@ -37,7 +37,7 @@
 #' @importFrom tidyr unnest pivot_wider pivot_longer
 #' @import UpSetR
 #' @importFrom utils combn read.delim sessionInfo write.table setTxtProgressBar 
-#' txtProgressBar head globalVariables
+#' txtProgressBar head globalVariables capture.output
 #' @import VennDiagram
 #' @import yaml
 
@@ -188,18 +188,22 @@ utils::globalVariables(
 #' - normalized abundance values
 #' @param yaml_config_file (char) The yaml file name and location
 #' @param data_object (logical) flag to indicate whether the configuration file
-#' is a string to a file that should be opened or 
+#' is a string to a file that should be opened or config object (yaml)
+#' @param printPDF (logical) if `TRUE`, prints out pdf
+#' @param display_msstats (logical) if `TRUE`, prints MSstats outputs
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The relative quantification of the conditions and comparisons
 #' specified in the keys/contrast file resulting from running MSstats, in
 #' addition to quality control plots (if selected)
 #' @keywords main, driver, function
 #' @examples \donttest{
-#' artmsQuantification("artms-ab-config.yaml")
+#' artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
 #' }
 #' @export
 artmsQuantification <- function(yaml_config_file,
                                 data_object = FALSE,
+                                printPDF = TRUE,
+                                display_msstats = FALSE,
                                 verbose = TRUE) {
   
   # Debugging:
@@ -292,8 +296,7 @@ artmsQuantification <- function(yaml_config_file,
   
   # process MaxQuant data, link with keys, and convert for MSStats format
   if (config$data$enabled) {
-    if(verbose)
-      message(">> QUANTIFICATION: LOADING DATA ")
+    if(verbose) message(">> LOADING DATA ")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
     ## although he provided examples)
@@ -372,7 +375,7 @@ artmsQuantification <- function(yaml_config_file,
     data_w <- .artms_castMaxQToWidePTM(data_f)
     
     ## HEATMAPS
-    if (!is.null(config$data$sample_plots) && config$data$sample_plots) {
+    if ( all(!is.null(config$data$sample_plots) & config$data$sample_plots & printPDF) ) {
       keys_in_data <- keys[keys$RawFile %in% unique(x$RawFile), ]
       .artms_sampleCorrelationHeatmap(data_w = data_w,
                                       keys = keys_in_data,
@@ -407,7 +410,8 @@ artmsQuantification <- function(yaml_config_file,
                                       fraction = config$data$fractions$enabled,
                                       output_name = config$files$evidence,
                                       data_object = data_object,
-                                      funfunc = "sum")
+                                      funfunc = "sum",
+                                      verbose = verbose)
     } else {
       if(verbose) message(sprintf("\t+ READING PREPROCESSED FILE: %s ",
                                   config$msstats$msstats_input))
@@ -416,10 +420,24 @@ artmsQuantification <- function(yaml_config_file,
                          sep = '\t')
     }
     
-    results <- .artms_runMSstats(dmss = dmss, 
-                                 contrasts = contrasts, 
-                                 config = config,
-                                 verbose = verbose)
+    if(verbose) message(">> RUNNING MSstats (it might take some time)")
+
+    if(display_msstats){
+      
+      suppressWarnings(results <- .artms_runMSstats(dmss = dmss, 
+                                                    contrasts = contrasts, 
+                                                    config = config,
+                                                    verbose = verbose))
+    }else{
+      if(verbose) message("\t(MSstats messages are turned off. Select <display_msstats = TRUE> to activate MSstats outputs)")
+      capture.output( suppressMessages(suppressWarnings(results <- .artms_runMSstats(dmss = dmss, 
+                                                                               contrasts = contrasts, 
+                                                                               config = config,
+                                                                               verbose = verbose))) )
+    }
+    
+    if(verbose) message(">> MSstats done")
+    
     if(data_object){
       return(results)
     } 
@@ -429,7 +447,7 @@ artmsQuantification <- function(yaml_config_file,
   }
   
   ## ANNOTATING RESULT FILE
-  if (config$output_extras$enabled) {
+  if ( all(config$output_extras$enabled & printPDF) ) {
     if (!config$msstats$enabled){
       message("-- MSstats was not enabled: <output_extras> cannot be done!")
     }else{
@@ -449,6 +467,7 @@ artmsQuantification <- function(yaml_config_file,
 #' and how to fill it up
 #' @param config_file_name (char) The name for the configuration file. It must
 #' have a `.yaml` extension. If `NULL`, it returns the config as a yaml object
+#' @param overwrite (logical) Default FALSE
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return A file (or yaml data object) of the artMS configuration file
 #' @keywords config, yaml
@@ -456,12 +475,25 @@ artmsQuantification <- function(yaml_config_file,
 #' config_empty <- artmsWriteConfigYamlFile(config_file_name = NULL)
 #' @export
 artmsWriteConfigYamlFile <- function(config_file_name = "artms_config_file.yaml",
+                                     overwrite = FALSE, 
                                      verbose = TRUE){
   
   if(!is.null(config_file_name)){
     if(grepl("\\.yaml", config_file_name)){
-      write_yaml(x = artms_config, file = config_file_name )
-      if(verbose) message(">> File ",config_file_name," is out ")
+      if(overwrite){
+        if(file.exists(config_file_name)){
+          if(verbose) message("- Overwriting the configuration file")
+        }
+      }else{
+        if(file.exists(config_file_name)){
+          stop("File ", config_file_name, " already exits. 
+               Are you sure you want to overwrite it? 
+               if so, select `overwrite = TRUE` ")
+        }else{
+          write_yaml(x = artms_config, file = config_file_name )
+          if(verbose) message(">> File ", config_file_name," is out ")
+        }
+      }
     }else{
       stop("The <config_file_name> must have the extension .yaml")
     }
