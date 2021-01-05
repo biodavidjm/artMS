@@ -312,6 +312,9 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   mod_sites <- c()
   mod_seqs <- c()
   
+  # keep a count of peptides with mod found in file
+  num_mod_peptides <- 0 
+  
   if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
    (This might take a long time depending on the size of the fasta/evidence file) ")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
@@ -324,6 +327,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
       str_locate_all(string = peptide_seq, pattern = maxq_mod_residue)[[1]][, 1]
     
     if (length(mod_sites_in_peptide) > 0) {
+      num_mod_peptides <- num_mod_peptides + 1
       uniprot_acs <- entry[[column_name]]
       # separates the ambiguous cases (;) and appends the site info to all 
       # the proteins
@@ -392,6 +396,9 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   }
   
   # CHECK that the mapping went well
+  if (num_mod_peptides == 0)
+    stop("No peptides were found in the evidence file with the selected modification")
+  
   if(is.null(mod_seqs))
     stop("Protein IDs from evidence file and sequence database do not match. 
          Are you sure that you are using the right sequence database?")
