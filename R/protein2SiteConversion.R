@@ -48,6 +48,9 @@
 #' - `UB`: Protein Ubiquitination
 #' - `PH`: Protein Phosphorylation
 #' - `AC`: Protein Acetylation
+#' - `PTM:XXX:yy` : User defined PTM. Replace XXX with 1 or more 1-letter amino
+#' acid codes on which to find modifications.  Replace yy with modification name
+#' used within the evidence file.  Example: `PTM:STY:ph` 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
@@ -83,11 +86,33 @@ artmsProtein2SiteConversion <- function (evidence_file,
          missing(mod_type)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
+
   
+  .parseFlexibleModFormat <- function(inputStr){
+    parts <- unlist(strsplit(inputStr, split = ":"))
+    if (length(parts) != 3)
+      return (NULL)
+    # take something like STY, split then paste to S|T|Y
+    mod_residue <- paste(unlist(strsplit(parts[2], split = "")), collapse = "|")
+    maxq_mod_residue <- paste0("(", mod_residue, ")", "\\(", parts[3], "\\)", collapse = "")
+    return (c(parts[1], maxq_mod_residue, mod_residue))
+  }
+  
+  # expect format like PTM:STY:ph where STY and ph can be set to any set of amino acids and any case-sensitive name used in evidence file
+  
+  if (substr(mod_type, 1, 4) == "PTM:"){
+    parsed <- .parseFlexibleModFormat(mod_type)
+    if (is.null(parsed))
+      stop("Error: unexpected format for specifying a user-defined modification type", mod_type)
+    mod_type <- parsed[1]
+    maxq_mod_residue <- parsed[2]
+    mod_residue <- parsed[3]
+  }
+  else{
   mod_type <- toupper(mod_type)
   if(!mod_type %in% c("PH", "UB", "AC"))
     stop("the mod_type ", mod_type, " is not supported")
-  
+  }
   # CHECK PROTEIN COLUMN
   column_name <- match.arg(column_name)
   
@@ -123,6 +148,9 @@ then make the argument 'overwrite_evidence = TRUE'")
     if(verbose) message('--- SELECTING << AC >> MODIFIED PEPTIDES ')
     maxq_mod_residue <- 'K\\(ac\\)'
     mod_residue <- 'K'
+  } else if (mod_type == "PTM"){
+    if(verbose) message ("--- SELECTING PEPTIDES MODIFIED WITH USER DEFINED PTM, with this regex: ", maxq_mod_residue)
+    
   } else{
     stop(
       mod_type, " is not supported. 
