@@ -49,8 +49,10 @@
 #' - `PH`: Protein Phosphorylation
 #' - `AC`: Protein Acetylation
 #' - `PTM:XXX:yy` : User defined PTM. Replace XXX with 1 or more 1-letter amino
-#' acid codes on which to find modifications.  Replace yy with modification name
-#' used within the evidence file.  Example: `PTM:STY:ph` 
+#' acid codes on which to find modifications (all uppercase).  Replace yy with 
+#' modification name used within the evidence file (require lowercase characters).
+#' Example: `PTM:STY:ph` will find modifications on aa S,T,Y with this example 
+#' format `_AAGGAPS(ph)PPPPVR_`
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
@@ -90,8 +92,20 @@ artmsProtein2SiteConversion <- function (evidence_file,
   
   .parseFlexibleModFormat <- function(inputStr){
     parts <- unlist(strsplit(inputStr, split = ":"))
-    if (length(parts) != 3)
+    if (length(parts) != 3){
+      message("PTM format requires exactly three parts separated by colons (:); example PTM:STY:ph")
       return (NULL)
+    }
+    if (grepl("[^A-Z]", parts[2])){
+      message ("The second position in ", inputStr," must be all uppercase characters specifying amino acids by their 1-letter code")
+      return (NULL)
+    }
+    if (grepl("[^a-z]", parts[3])){
+      message ("The PTM name used in the evidence file, and the third position in ", inputStr, " must be all lowercase characters")
+      # possibly numeric characters and "_" could be used as currently coded, but to be safe... 
+      return (NULL)
+    }
+    
     # take something like STY, split then paste to S|T|Y
     mod_residue <- paste(unlist(strsplit(parts[2], split = "")), collapse = "|")
     maxq_mod_residue <- paste0("(", mod_residue, ")", "\\(", parts[3], "\\)", collapse = "")
