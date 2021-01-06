@@ -33,6 +33,11 @@ bioc_packages:
 - org.Ss.eg.db
 - org.Xl.eg.db
 
+addons:
+  apt:
+    packages:
+      - libgit2-dev
+
 r_packages:
   - covr
   - devtools
