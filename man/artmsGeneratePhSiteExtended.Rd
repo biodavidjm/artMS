@@ -38,7 +38,7 @@ input files for tools as \href{http://phosfate.com/}{Phosfate} or
 \href{https://github.com/jdrudolph/photon}{PHOTON}
 }
 \examples{
-\donttest{
+\dontrun{
 artmsGeneratePhSiteExtended(df = dfobject, 
                              species = "mouse", 
                              ptmType = "ptmsites",

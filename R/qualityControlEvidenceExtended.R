@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+
 #' @title Extended Quality Control of the MaxQuant evidence.txt file
 #'
 #' @description Performs quality control based on the information available in
@@ -180,8 +180,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   
   hmcol <- colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
   
-  # ----------------------------------------------------------------------------
-  # DATA PREPARATION
+  # DATA PREPARATION----
   
   # OPEN KEYS
   keys <- .artms_checkIfFile(keys_file)
@@ -371,8 +370,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   mstype <- merge(mstype, mstype.total, by = "bioreplicate", all = TRUE)
   mstype$FxOverSamp <- as.numeric(format(100 * (mstype$N.x / mstype$N.y), digits = 2))
   
-  # ----------------------------------------------------------------------------
-  # PLOTS
+  # PLOTS-----
   if(verbose) message(">> GENERATING QC PLOTS ")
   
   nsamples <- length(unique(evidencekeys$bioreplicate))
@@ -1700,7 +1698,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   
   
   if (plotPCA) {
-    if(verbose) message("--- Plot PCA and Inter-Correlation")
+    if(verbose) message("--- Plot PCA and Inter-Correlation (WARNING: it might take a long time. Please, be patient)")
     if(printPDF) pdf(
       paste0(output_name,'.qcplot.PCA.pdf'),
       width = 12, #nsamples * 3
@@ -1930,7 +1928,6 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
 } # END OF artmsQualityControlEvidenceExtended  
 
 
-# ------------------------------------------------------------------------------
 # @title Quantiles
 #
 # @description Quantiles
@@ -1949,7 +1946,6 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   ))
 }
 
-# ------------------------------------------------------------------------------
 # @title Sample overlap
 #
 # @description Describe
@@ -1980,7 +1976,6 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   return(ans)
 }
 
-# ------------------------------------------------------------------------------
 # @title Panel Cor
 #
 # @description Describe
@@ -1992,25 +1987,24 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
 # @param ... No idea what this does
 # @return What does it return?
 # @keywords internal, stats
-.artms_panelCor <-
-  function(x,
-           y,
-           digits = 2,
-           prefix = "",
-           cex.cor,
-           ...) {
-    usr <- par("usr")
-    on.exit(par(usr))
-    par(usr = c(0, 1, 0, 1))
-    r <- abs(cor(x, y, use = "pairwise.complete.obs", method = "pearson"))
-    txt <- format(c(r, 0.123456789), digits = digits)[1]
-    txt <- paste(prefix, txt, sep = "")
-    if (missing(cex.cor))
-      cex.cor <- 0.8 / strwidth(txt)
-    text(0.5, 0.5, txt, cex = cex.cor * r)
-  }
+.artms_panelCor <- function(x,
+                            y,
+                            digits = 2,
+                            prefix = "",
+                            cex.cor,
+                            ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- abs(cor(x, y, use = "pairwise.complete.obs", method = "pearson"))
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste(prefix, txt, sep = "")
+  if (missing(cex.cor))
+    cex.cor <- 0.8 / strwidth(txt)
+  text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+  
 
-# ------------------------------------------------------------------------------
 # @title Panel Histogram
 # @description Describe
 # @param x (datatype) Describe

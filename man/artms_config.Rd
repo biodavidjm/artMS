@@ -4,7 +4,8 @@
 \name{artms_config}
 \alias{artms_config}
 \title{artMS configuration template}
-\format{The configuration (\code{yaml}) file contains the following sections:
+\format{
+The configuration (\code{yaml}) file contains the following sections:
 \describe{
 \item{files}{
 \itemize{
@@ -96,7 +97,8 @@ CHICKEN, RHESUS, MALARIA, CHIMP, RAT, YEAST, PIG, XENOPUS
 \item heatmap_display : log2FC # log2FC or pvalue}
 }
 }
-}}
+}
+}
 \usage{
 artms_config
 }

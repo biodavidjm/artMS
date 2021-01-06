@@ -1,3 +1,11 @@
+Changes in version 1.8.1 (2020-10-27)
++ Update "plotPCA" message
++ Update documentation and vignettes
++ Code cleaning
+
+Changes in version 1.8.0 (2020-10-27)
++ New bioconductor version
+
 Changes in version 1.6.7 (2020-10-22)
 + The following plots are now deprecated
    + .clustering.log2fcSign.all-zoom.pdf

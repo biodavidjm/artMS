@@ -24,7 +24,7 @@ the \href{http://phosfate.com/}{Phosfate} input file (or data.frame)
 Please, notice that the only species suported by Phosfate is humans.
 }
 \examples{
-\donttest{
+\dontrun{
 artmsPhosfateOutput(inputFile)
 }
 }

@@ -38,7 +38,7 @@ Relative quantification using MSstats including:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
 }
 }

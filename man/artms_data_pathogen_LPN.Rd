@@ -5,7 +5,9 @@
 \alias{artms_data_pathogen_LPN}
 \title{LPN PATHOGEN: Legionella pneumophila subsp. pneumophila
 (strain Philadelphia 1 / ATCC 33152 / DSM 7513) UNIPROT IDS}
-\format{A data.frame of Entry IDs}
+\format{
+A data.frame of Entry IDs
+}
 \usage{
 artms_data_pathogen_LPN
 }

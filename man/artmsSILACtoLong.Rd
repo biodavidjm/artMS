@@ -23,7 +23,7 @@ compatible with MSstats. It basically modifies the Raw.files adding the
 Heavy and Light label
 }
 \examples{
-\donttest{
+\dontrun{
 evidence2silac <- artmsSILACtoLong(evidence_file = "silac.evicence.txt",
                                    output = "silac-evidence.txt")
 }

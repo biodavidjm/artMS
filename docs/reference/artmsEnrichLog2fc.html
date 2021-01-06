@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.1</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -103,7 +103,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/biodavidjm/artMS/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,14 +129,14 @@
     <p>Enrichment analysis of the selected proteins</p>
     </div>
 
-    <pre class="usage"><span class='fu'>artmsEnrichLog2fc</span>(
-  <span class='no'>dataset</span>,
-  <span class='no'>species</span>,
-  <span class='no'>background</span>,
-  <span class='kw'>heatmaps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>output_name</span> <span class='kw'>=</span> <span class='st'>"enrichment.txt"</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>artmsEnrichLog2fc</span><span class='op'>(</span>
+  <span class='va'>dataset</span>,
+  <span class='va'>species</span>,
+  <span class='va'>background</span>,
+  heatmaps <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  output_name <span class='op'>=</span> <span class='st'>"enrichment.txt"</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,15 +178,16 @@ and heatmaps (if selected)</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># The data must be annotated (Protein and Gene columns)</span>
-<span class='no'>data_annotated</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='artmsAnnotationUniprot.html'>artmsAnnotationUniprot</a></span>(
-                      <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>artms_data_ph_msstats_results</span>,
-                      <span class='kw'>columnid</span> <span class='kw'>=</span> <span class='st'>"Protein"</span>,
-                      <span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"human"</span>)
+<span class='va'>data_annotated</span> <span class='op'>&lt;-</span> <span class='fu'><a href='artmsAnnotationUniprot.html'>artmsAnnotationUniprot</a></span><span class='op'>(</span>
+                      x <span class='op'>=</span> <span class='va'>artms_data_ph_msstats_results</span>,
+                      columnid <span class='op'>=</span> <span class='st'>"Protein"</span>,
+                      species <span class='op'>=</span> <span class='st'>"human"</span><span class='op'>)</span>
 <span class='co'># And then the enrichment</span>
-<span class='no'>enrich_set</span> <span class='kw'>&lt;-</span> <span class='fu'>artmsEnrichLog2fc</span>(
-                   <span class='kw'>dataset</span> <span class='kw'>=</span> <span class='no'>data_annotated</span>,
-                   <span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"human"</span>,
-                   <span class='kw'>background</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span>(<span class='no'>data_annotated</span>$<span class='no'>Gene</span>))</div><div class='output co'>#&gt; <span class='message'>---+ Enrichment analysis using gProfiler...</span></div><div class='output co'>#&gt; <span class='message'>done! </span></div><div class='output co'>#&gt; <span class='message'>--- No significant results from the enrichment analysis </span></div></pre>
+<span class='va'>enrich_set</span> <span class='op'>&lt;-</span> <span class='fu'>artmsEnrichLog2fc</span><span class='op'>(</span>
+                   dataset <span class='op'>=</span> <span class='va'>data_annotated</span>,
+                   species <span class='op'>=</span> <span class='st'>"human"</span>,
+                   background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>data_annotated</span><span class='op'>$</span><span class='va'>Gene</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>---+ Enrichment analysis using gProfiler...</span></div><div class='output co'>#&gt; <span class='message'>done! </span></div><div class='output co'>#&gt; <span class='message'>--- No significant results from the enrichment analysis </span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -198,11 +199,11 @@ and heatmaps (if selected)</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Danielle Swaney.</p>
+  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Nevan Krogan, Danielle Swaney.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

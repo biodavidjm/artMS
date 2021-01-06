@@ -4,7 +4,9 @@
 \name{artms_data_ph_contrast}
 \alias{artms_data_ph_contrast}
 \title{Contrast example for the PH dataset}
-\format{list with one comparison: "Cal33-HSC6"}
+\format{
+list with one comparison: "Cal33-HSC6"
+}
 \usage{
 artms_data_ph_contrast
 }

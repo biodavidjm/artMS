@@ -46,9 +46,26 @@
 #' - `global` (default), 
 #' - `ptmsites` (for site specific analysis), 
 #' - `ptmph` (Jeff Johnson script output evidence file)
-#' @param mnbr (int) minimal number of biological replicates for imputation
-#' and filtering. Default: `mnbr = 2` (Proteins must be found in one of the
-#' conditions in at least 2 of the biological replicates)
+#' @param mnbr (int) **PARAMETER FOR NAIVE IMPUTATION**: 
+#' "minimal number of biological replicates" for "naive 
+#' imputation" and filtering. Default: `mnbr = 2`. Details:
+#' Intensity values for proteins/PTMs that are completely missed in one 
+#' of the two conditions compared ("condition A"), but are found in 
+#' at least 2 biological replicates (`mnbr = 2`) of the other "condition B", 
+#' are imputed (values artificially assigned) and the log2FC values calculated. 
+#' The goal is to keep those proteins/PTMs that are consistently found in 
+#' one of the two conditions (in this case "condition B") and facilitate the 
+#' inclusion in downstream analysis (if wished). The imputed intensity values 
+#' are sampled from the lowest intensity values detected in the experiment, 
+#' and (**WARNING**) the p-values are just randomly assigned between 
+#' 0.05 and 0.01 for illustration purposes (when generating a volcano 
+#' plot with the output of `artmsAnalysisQuantifications`) or to include 
+#' them when making a cutoff of p-value < 0.05 for enrichment analysis
+#' **CAUTION**: `mnbr` would also add the constraint that any protein 
+#' must be identified in at least `nmbr` biological replicates of the 
+#' **same** condition or it will be filtered out. That is,
+#' if `mnbr = 2`, a protein found in two conditions but only in one
+#' biological replicate in each of them, it would be removed.
 #' @param pathogen (char) Is there a pathogen in the dataset as well?
 #' if it does not, then use `pathogen = nopathogen` (default).
 #' Pathogens available: `tb` (Tuberculosis), `lpn` (Legionella)
@@ -374,7 +391,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # If not list of background genes is provided,
     # then extract them from the modelqc file
     if (isPtm == "global") {
-      suppressMessages(dfmq2Genes <- artmsAnnotationUniprot(dfmq, 'PROTEIN', species))
+      suppressMessages(
+        dfmq2Genes <- artmsAnnotationUniprot(dfmq, 'PROTEIN', species)
+        )
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       if(verbose) message("--- Total number of genes/proteins: ", numberTotalGenes, " ")
       listOfGenes <- unique(dfmq2Genes$Gene)
@@ -389,7 +408,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                            newColumnName = "Protein")
       
       dfmq2Genes <- unique(dfmq2Genes)
-      suppressMessages(dfmq2Genes <- artmsAnnotationUniprot(dfmq2Genes, 'Protein', species))
+      suppressMessages(
+        dfmq2Genes <- artmsAnnotationUniprot(dfmq2Genes, 'Protein', species)
+        )
       numberTotalGenes <- length(unique(dfmq2Genes$Gene))
       if(verbose) message("--- TOTAL NUMBER OF GENES/PROTEINS: ",
           numberTotalGenes, "  ")
@@ -854,7 +875,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     modelqc_file_splc <- .artmsExtractUniprotId(x = modelqc_file_splc, 
                                                 uniprotPtmColumn = "Uniprot_PTM", 
                                                 newColumnName = "Protein")
-    suppressMessages(modelqc_file_splc <- artmsAnnotationUniprot(modelqc_file_splc, 'Protein', species))
+    suppressMessages(
+      modelqc_file_splc <- artmsAnnotationUniprot(modelqc_file_splc, 'Protein', species)
+      )
   } else{
     suppressMessages(
       modelqc_file_splc <- artmsAnnotationUniprot(modelqc_file_splc, 'Protein', species)
@@ -884,8 +907,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     )
   } else{
     suppressMessages(
-      log2fc_file_splc <-
-        artmsAnnotationUniprot(log2fc_file_splc, 'Protein', species)
+      log2fc_file_splc <- artmsAnnotationUniprot(log2fc_file_splc, 'Protein', species)
     )
   }
   
@@ -1431,7 +1453,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                            newColumnName = "Prey")
   }
   
-  suppressMessages(superunified <- artmsAnnotationUniprot(superunified, 'Prey', species))
+  suppressMessages(
+    superunified <- artmsAnnotationUniprot(superunified, 'Prey', species)
+    )
   
   # Rename (before it was just a lazy way to use another code)
   names(superunified)[grep('Bait', names(superunified))] <- 'Condition'
@@ -1461,9 +1485,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF <- .artmsExtractUniprotId(x = imputedDF, 
                                         uniprotPtmColumn = "Uniprot_PTM", 
                                         newColumnName = "UniprotID")
-    suppressMessages(imputedDF <- artmsAnnotationUniprot(imputedDF, 
-                                                         'UniprotID', 
-                                                         species))
+    suppressMessages(
+      imputedDF <- artmsAnnotationUniprot(imputedDF, 
+                                          'UniprotID', 
+                                          species)
+      )
+                                                         
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
@@ -1499,10 +1526,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                          values_fill = list(iPvalue = 0))
     
   } else if (isPtm == "global") {
-    suppressMessages(imputedDF <- artmsAnnotationUniprot(x = imputedDF, 
-                                                         columnid = 'Protein', 
-                                                         species =  species))
-    
+    suppressMessages(
+      imputedDF <- artmsAnnotationUniprot(x = imputedDF, 
+                                          columnid = 'Protein', 
+                                          species =  species)
+      )
+                                                         
     names(imputedDF)[grep("Label", names(imputedDF))] <- 'Comparison'
     
     imputedDF <- artmsAnnotateSpecie(imputedDF, pathogen, species)
@@ -2053,7 +2082,7 @@ artmsAnnotateSpecie <- function(df,
 #' @param output_name (char) A output file name (extension `.txt` required)
 #' @return (data.frame) extended version of the ph-site
 #' @keywords external, tools, phosfate
-#' @examples \donttest{
+#' @examples \dontrun{
 #' artmsGeneratePhSiteExtended(df = dfobject, 
 #'                              species = "mouse", 
 #'                              ptmType = "ptmsites",
@@ -2102,19 +2131,20 @@ artmsGeneratePhSiteExtended <- function(df,
       imputedDFext$PTMsite <- gsub("_ph", ",", imputedDFext$PTMsite)
       
       # And create independent columns for each of them
-      imputedDFext <-
-        imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
+      imputedDFext <- imputedDFext %>% mutate(PTMsite = strsplit(PTMsite, ",")) %>% tidyr::unnest(PTMsite)
       
-      if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
-        imputedDFext <- artmsAnnotationUniprot(imputedDFext, 
-                                                'Protein', 
-                                                species)
+      if( !any(grepl("Gene", colnames(imputedDFext))) ){
+        suppressMessages(
+          imputedDFext <- artmsAnnotationUniprot(imputedDFext, 
+                                                 'Protein', 
+                                                 species)
         )
+      }
       
-      if( any(grepl("Label", colnames(imputedDFext))) )
-      names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
-        'Comparison'
-      
+      if( any(grepl("Label", colnames(imputedDFext))) ){
+        names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
+      }
+
       imputedDFext <- artmsAnnotateSpecie(imputedDFext, pathogen, species)
     } else if (ptmType == "ptmsites") {
       #1. Change the Protein name to Uniprot_PTM (if it is not there already)
@@ -2125,9 +2155,10 @@ artmsGeneratePhSiteExtended <- function(df,
       # 2. Make a copy of Uniprot_PTM to operate on it
       imputedDFext$PTMone <- imputedDFext$Uniprot_PTM
       
-    # 3. Create independent columns for each of them
-    imputedDFext <-
-      imputedDFext %>% dplyr::mutate(PTMone = strsplit(PTMone, ",")) %>% tidyr::unnest(PTMone)
+      # 3. Create independent columns for each of them
+      imputedDFext <- imputedDFext %>% 
+        dplyr::mutate(PTMone = strsplit(PTMone, ",")) %>% 
+        tidyr::unnest(PTMone)
       
       # 4. And take the labels:
       imputedDFext$Protein <-
@@ -2145,30 +2176,32 @@ artmsGeneratePhSiteExtended <- function(df,
       
       imputedDFext$PTMone <- NULL
       
-      if( !any(grepl("Gene", colnames(imputedDFext))) ) suppressMessages(
-        imputedDFext <- 
-          artmsAnnotationUniprot(imputedDFext, 'Protein', species)
-      )
+      if( !any(grepl("Gene", colnames(imputedDFext))) ) {
+        suppressMessages(
+          imputedDFext <- artmsAnnotationUniprot(imputedDFext, 'Protein', species)
+        )
+      }
       
-      if( any(grepl("Label", colnames(imputedDFext))) )
-      names(imputedDFext)[grep("^Label$", names(imputedDFext))] <-
-        'Comparison'
+      if( any(grepl("Label", colnames(imputedDFext))) ) {
+        names(imputedDFext)[grep("^Label$", names(imputedDFext))] <- 'Comparison'
+      }
       
       # imputedDFext$Species <- ifelse(grepl("_H1N1|_H3N2|_H5N1", 
       # imputedDFext$Protein), "Influenza", species)
       # imputedDFext$Species <- ifelse(imputedDFext$Protein 
       # %in% pathogen.ids$Entry, pathogen, species)
       
-      if( !any(grepl("Species", colnames(imputedDFext))) ) suppressMessages(
-        imputedDFext <-
-                      artmsAnnotateSpecie(imputedDFext, "Protein", species))
-    } else{
-      stop(
-        "--- (!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType> "
-      )
+      if( !any(grepl("Species", colnames(imputedDFext))) ){
+        suppressMessages(
+          imputedDFext <- artmsAnnotateSpecie(imputedDFext, "Protein", species)
+        )
+      }
+    }else{
+      stop( "--- (!) Only 'ptmph' or 'ptmsites' allowed for argument <ptmType> ")
     }
-    outlog2fcImputext <-
-      gsub(".txt", "-imputedL2fcExtended.txt", output_name)
+      
+    outlog2fcImputext <- gsub(".txt", "-imputedL2fcExtended.txt", output_name)
+    
     write.table(
       imputedDFext,
       outlog2fcImputext,
@@ -2401,9 +2434,11 @@ artmsGeneratePhSiteExtended <- function(df,
     datadc$Gene <- datadc$Protein
     send_back <- datadc
   } else{
-    suppressMessages(send_back <- artmsAnnotationUniprot(x =  datadc, 
-                                                         columnid = 'Protein', 
-                                                         species = species))
+    suppressMessages(
+      send_back <- artmsAnnotationUniprot(x =  datadc, 
+                                          columnid = 'Protein', 
+                                          species = species)
+      )
   }
   return(send_back)
 }

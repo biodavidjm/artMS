@@ -11,7 +11,7 @@
 #' @param verbose (logical) `TRUE` (default) to show function messages
 #' @return Multiple output files (inputs of phosfate)
 #' @keywords generate, outputs, files
-#' @examples \donttest{
+#' @examples \dontrun{
 #' artmsPhosfateOutput(inputFile)
 #' }
 #' @export
@@ -63,7 +63,7 @@ artmsPhosfateOutput <- function(inputFile,
 #' @param verbose (logical) `TRUE` (default) to show function messages
 #' @return Multiple output files (inputs of phosfate)
 #' @keywords generate, outputs, files
-#' @examples \donttest{
+#' @examples \dontrun{
 #' artmsPhotonOutput(inputFile)
 #' }
 #' @export
