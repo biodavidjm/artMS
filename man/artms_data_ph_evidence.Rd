@@ -4,8 +4,10 @@
 \name{artms_data_ph_evidence}
 \alias{artms_data_ph_evidence}
 \title{Evidence file example}
-\format{A data frame with all the columns available in an evidence file
-generated with MaxQuant version 1.6.2.3}
+\format{
+A data frame with all the columns available in an evidence file
+generated with MaxQuant version 1.6.2.3
+}
 \usage{
 artms_data_ph_evidence
 }

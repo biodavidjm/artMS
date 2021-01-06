@@ -5,7 +5,9 @@
 \alias{artms_data_pathogen_TB}
 \title{TB PATHOGEN: Mycobacterium tuberculosis
 (strain ATCC 35801 / TMC 107 / Erdman) UNIPROTS IDS}
-\format{A data.frame of Entry IDs}
+\format{
+A data.frame of Entry IDs
+}
 \usage{
 artms_data_pathogen_TB
 }

@@ -83,9 +83,26 @@ Alternatively provided the file path name to the background gene list.}
 \item \code{ptmph} (Jeff Johnson script output evidence file)
 }}
 
-\item{mnbr}{(int) minimal number of biological replicates for imputation
-and filtering. Default: \code{mnbr = 2} (Proteins must be found in one of the
-conditions in at least 2 of the biological replicates)}
+\item{mnbr}{(int) \strong{PARAMETER FOR NAIVE IMPUTATION}:
+"minimal number of biological replicates" for "naive
+imputation" and filtering. Default: \code{mnbr = 2}. Details:
+Intensity values for proteins/PTMs that are completely missed in one
+of the two conditions compared ("condition A"), but are found in
+at least 2 biological replicates (\code{mnbr = 2}) of the other "condition B",
+are imputed (values artificially assigned) and the log2FC values calculated.
+The goal is to keep those proteins/PTMs that are consistently found in
+one of the two conditions (in this case "condition B") and facilitate the
+inclusion in downstream analysis (if wished). The imputed intensity values
+are sampled from the lowest intensity values detected in the experiment,
+and (\strong{WARNING}) the p-values are just randomly assigned between
+0.05 and 0.01 for illustration purposes (when generating a volcano
+plot with the output of \code{artmsAnalysisQuantifications}) or to include
+them when making a cutoff of p-value < 0.05 for enrichment analysis
+\strong{CAUTION}: \code{mnbr} would also add the constraint that any protein
+must be identified in at least \code{nmbr} biological replicates of the
+\strong{same} condition or it will be filtered out. That is,
+if \code{mnbr = 2}, a protein found in two conditions but only in one
+biological replicate in each of them, it would be removed.}
 
 \item{pathogen}{(char) Is there a pathogen in the dataset as well?
 if it does not, then use \code{pathogen = nopathogen} (default).

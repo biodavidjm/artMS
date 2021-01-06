@@ -4,7 +4,8 @@
 \name{artms_data_ph_keys}
 \alias{artms_data_ph_keys}
 \title{Keys File Example}
-\format{Tab delimited file with the following columns:
+\format{
+Tab delimited file with the following columns:
 \describe{
 \item{Raw.file}{Raw file processed. Each one should be a unique
 biological (or technical) replicate}
@@ -22,7 +23,8 @@ For example, for \code{Condition} \code{"Cal"}, use \code{Cal-1}, \code{Cal-2}, 
 for the bioreplicates}
 
 \item{Run}{The MS run number}
-}}
+}
+}
 \usage{
 artms_data_ph_keys
 }

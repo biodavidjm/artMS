@@ -24,7 +24,7 @@ the \href{https://github.com/jdrudolph/photon}{PHOTON} input file.
 Please, notice that the only species suported by PHOTON is humans.
 }
 \examples{
-\donttest{
+\dontrun{
 artmsPhotonOutput(inputFile)
 }
 }

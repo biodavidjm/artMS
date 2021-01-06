@@ -4,12 +4,14 @@
 \name{artms_data_corum_mito_database}
 \alias{artms_data_corum_mito_database}
 \title{CORUM Protein Complexes database use for complex enrichment analysis}
-\format{Tab delimited file.
+\format{
+Tab delimited file.
 \describe{
 To find out more about the format and columns available at CORUM,
 please visit this
 \href{http://mips.helmholtz-muenchen.de/corum/}{link}
-}}
+}
+}
 \usage{
 artms_data_corum_mito_database
 }

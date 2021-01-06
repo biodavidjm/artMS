@@ -301,8 +301,8 @@ artmsMergeEvidenceAndKeys <- function(x,
       if (!any(grepl("Total", data_not_found))){
         message(
           sprintf(
-            "--(-) Raw.files in evidence not found in keys file: %s\n",
-            paste(data_not_found, collapse = '\t')
+            "--(-) Raw.files in evidence not found in keys file:\n %s\n",
+            paste(data_not_found, collapse = ';')
           )
         )
       }
@@ -335,7 +335,7 @@ artmsMergeEvidenceAndKeys <- function(x,
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with SILAC data processed for MSstats (and output file)
 #' @keywords convert, silac, evidence
-#' @examples \donttest{
+#' @examples \dontrun{
 #' evidence2silac <- artmsSILACtoLong(evidence_file = "silac.evicence.txt",
 #'                                    output = "silac-evidence.txt")
 #' }
@@ -524,9 +524,12 @@ artmsResultsWide <- function(results_msstats,
     tidyr::pivot_wider(names_from = Label_variable,
                        values_from = value)
   
-  suppressMessages(input_w <- artmsAnnotationUniprot(input_w, 
-                                                      "Protein", 
-                                                      species))
+  suppressMessages(
+    input_w <- artmsAnnotationUniprot(input_w, 
+                                      "Protein", 
+                                      species)
+    )
+                                                      
 
   if (!is.null(output_file)) {
     write.table(

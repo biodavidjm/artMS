@@ -73,7 +73,7 @@ the MaxQuant summary.txt file." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.1</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ the MaxQuant summary.txt file." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ the MaxQuant summary.txt file." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/biodavidjm/artMS/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -131,18 +131,18 @@ the MaxQuant summary.txt file." />
 the MaxQuant summary.txt file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>artmsQualityControlSummaryExtended</span>(
-  <span class='no'>summary_file</span>,
-  <span class='no'>keys_file</span>,
-  <span class='kw'>output_name</span> <span class='kw'>=</span> <span class='st'>"qcExtended_summary"</span>,
-  <span class='kw'>isFractions</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plotMS1SCANS</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>plotMS2</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>plotMSMS</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>plotISOTOPE</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>printPDF</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>artmsQualityControlSummaryExtended</span><span class='op'>(</span>
+  <span class='va'>summary_file</span>,
+  <span class='va'>keys_file</span>,
+  output_name <span class='op'>=</span> <span class='st'>"qcExtended_summary"</span>,
+  isFractions <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  plotMS1SCANS <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  plotMS2 <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  plotMSMS <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  plotISOTOPE <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  printPDF <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -218,8 +218,9 @@ objects are not returned due to the large number of them.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Testing warning if files are not submitted</span>
-<span class='no'>test</span> <span class='kw'>&lt;-</span> <span class='fu'>artmsQualityControlSummaryExtended</span>(<span class='kw'>summary_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-<span class='kw'>keys_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</div><div class='output co'>#&gt; <span class='message'>---------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>artMS: EXTENDED QUALITY CONTROL (-summary.txt based)</span></div><div class='output co'>#&gt; <span class='message'>---------------------------------------------</span></div></pre>
+<span class='va'>test</span> <span class='op'>&lt;-</span> <span class='fu'>artmsQualityControlSummaryExtended</span><span class='op'>(</span>summary_file <span class='op'>=</span> <span class='cn'>NULL</span>,
+keys_file <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>---------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>artMS: EXTENDED QUALITY CONTROL (-summary.txt based)</span></div><div class='output co'>#&gt; <span class='message'>---------------------------------------------</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -231,11 +232,11 @@ objects are not returned due to the large number of them.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Danielle Swaney.</p>
+  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Nevan Krogan, Danielle Swaney.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

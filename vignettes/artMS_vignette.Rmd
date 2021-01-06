@@ -1223,32 +1223,27 @@ Spectrometry (`APMS`), and global analysis of posttranslational modifications
 - `enrich`: If `TRUE`, it will perform enrichment analysis using `gProfileR`
 - `isBackground`. If `enrich = TRUE`, the user can provide a background 
 gene list (add the file path as well)
-- `mnbr`: Minimal Number of Biological Replicates for **imputation**. Missing 
-values will be imputed. This argument is set to specify the minimal 
-number of biological replicates that are required in at least one of the 
-conditions, for all the proteins. For example, `mnbr = 2` would indicate
-that only proteins found in *at least* two biological replicates will be 
-imputed. **CAUTION**: `mnbr` would also add the constrain that any protein 
+- `mnbr`: **PARAMETER FOR NAIVE IMPUTATION**. 
+Minimal number of biological replicates for "naive 
+imputation" and filtering. Default: `mnbr = 2`. 
+*Details*:
+Intensity values for proteins/PTMs that are completely missed in one 
+of the two conditions compared ("condition A"), but are found in 
+at least 2 biological replicates (`mnbr = 2`) of the other "condition B", 
+are imputed (values artificially assigned) and the log2FC values calculated. 
+The goal is to keep those proteins/PTMs that are consistently found in 
+one of the two conditions (in this case "condition B") and facilitate the 
+inclusion in downstream analysis (if wished). The imputed intensity values 
+are sampled from the lowest intensity values detected in the experiment, 
+and (**WARNING**) the p-values are just randomly assigned between 
+0.05 and 0.01 for illustration purposes (when generating a volcano 
+plot with the output of `artmsAnalysisQuantifications`) or to include 
+them when making a cutoff of `p-value < 0.05` for enrichment analysis or similar.
+**CAUTION**: `mnbr` would also add the constraint that any protein 
 must be identified in at least `nmbr` biological replicates of the 
 **same** condition or it will be filtered out. That is,
 if `mnbr = 2`, a protein found in two conditions but only in one
 biological replicate in each of them, it would be removed.
-- `l2fc_thres`: log2fc cutoff for enrichment analysis, absolute 
-value, e.g., if it is set to 1, it will consider significant `log2fc > +1` 
-and `log2fc < -1`. 
-- `ipval`: select whether `pvalue` or `adjpvalue` id used for the analysis.
-The default option is `adjpvalue` (multiple testing correction). 
-But if the number of biological replicates for a given experiment is too 
-low (for example n = 2), then `pvalue` is recommended. 
-
-***Notes on Imputation***: artMS imputes the missing values by default. 
-The `nmbr` can be used to specify the minimal number of biological replicates 
-required to impute the missing values on the condition for which the protein 
-is not missed (default: 2). That is, if one protein is fully missed in one 
-condition but found in at least 2 biological replicates, the MS intensity value
-will be imputed for that protein in the missed condition and the log2FC value
-recalculated. The missing values will be imputed from randomly sampling the 
-range within the lowest 5 MS intensities.
 
 ## Outputs
 

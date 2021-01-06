@@ -4,7 +4,8 @@
 \name{artms_data_ph_config}
 \alias{artms_data_ph_config}
 \title{artMS configuration for the available PH dataset}
-\format{The configuration (\code{yaml}) file contains the following sections:
+\format{
+The configuration (\code{yaml}) file contains the following sections:
 \describe{
 \item{files}{
 \itemize{
@@ -82,7 +83,8 @@
 \item heatmap_display : log2FC}
 }
 }
-}}
+}
+}
 \usage{
 artms_data_ph_config
 }

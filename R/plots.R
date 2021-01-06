@@ -12,15 +12,15 @@
 #' @return (pdf) file with each individual protein abundance plot for each
 #' conditions
 #' @keywords abundance, dotplots, plot
-#' @examples \donttest{
+#' @examples \dontrun{
 #' artmsDataPlots(input_file = "results/ab-results-mss-normalized.txt",
 #'                output_file = "results/ab-results-mss-normalized.pdf")
 #' }
 #' @export
 artmsDataPlots <- function(input_file, 
-                            output_file,
-                            verbose = TRUE) {
-  
+                           output_file,
+                           verbose = TRUE) {
+                            
   if(any(missing(input_file) | 
          missing(output_file)))
     stop("Missed (one or many) required argument(s)

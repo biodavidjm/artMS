@@ -23,7 +23,7 @@ Protein abundance dot plots for each unique uniprot id. It can
 take a long time
 }
 \examples{
-\donttest{
+\dontrun{
 artmsDataPlots(input_file = "results/ab-results-mss-normalized.txt",
                output_file = "results/ab-results-mss-normalized.pdf")
 }

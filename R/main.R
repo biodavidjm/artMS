@@ -196,7 +196,7 @@ utils::globalVariables(
 #' specified in the keys/contrast file resulting from running MSstats, in
 #' addition to quality control plots (if selected)
 #' @keywords main, driver, function
-#' @examples \donttest{
+#' @examples \dontrun{
 #' artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
 #' }
 #' @export
@@ -430,10 +430,15 @@ artmsQuantification <- function(yaml_config_file,
                                                     verbose = verbose))
     }else{
       if(verbose) message("\t(MSstats messages are turned off. Select <display_msstats = TRUE> to activate MSstats outputs)")
-      capture.output( suppressMessages(suppressWarnings(results <- .artms_runMSstats(dmss = dmss, 
-                                                                               contrasts = contrasts, 
-                                                                               config = config,
-                                                                               verbose = verbose))) )
+      capture.output( 
+        suppressMessages(
+          suppressWarnings(results <- .artms_runMSstats(dmss = dmss,
+                                                        contrasts = contrasts, 
+                                                        config = config,
+                                                        verbose = verbose)
+                           )
+          )
+        )
     }
     
     if(verbose) message(">> MSstats done")

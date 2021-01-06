@@ -1,6 +1,5 @@
 utils::globalVariables(c("Organism"))
 
-# ------------------------------------------------------------------------------
 #' @importFrom scales percent
 #' @title Quality Control analysis of the MaxQuant evidence file
 #'
@@ -114,8 +113,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   prot_exp <- toupper(prot_exp)
   prot_exp <- match.arg(prot_exp)
   
-  # ---------------------------------------------------------------------------
-  # GETTING DATA.FRAMES READY
+  # GETTING DATA.FRAMES READY----
   
   if (fractions) {
     # Check that the keys file is correct
@@ -170,8 +168,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                  "_", 
                                  evidencekeys$Charge)
   
-  # ============================================================================
-  # GENERAL QUALITY CONTROL: CHECK PROPORTION OF CONTAMINANTS
+  # GENERAL QUALITY CONTROL: CHECK PROPORTION OF CONTAMINANTS-----
   # sum of total intensities, label them as contaminants and non-contaminants
   # and plot intensities for each group
   
@@ -314,9 +311,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     technicalReplicas <- TRUE
   }
   
-  #################
-  # PLOT TIME
-  #################
+  # PLOT TIME-----
   
   if(plotINTDIST){
     if(verbose) message("-- Plot: intensity distribution")

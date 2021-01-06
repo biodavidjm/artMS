@@ -73,7 +73,7 @@ if supported, check whether the annotation package is installed." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.7.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.1</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ if supported, check whether the annotation package is installed." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ if supported, check whether the annotation package is installed." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/biodavidjm/artMS/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -131,7 +131,7 @@ if supported, check whether the annotation package is installed." />
 if supported, check whether the annotation package is installed.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>artmsIsSpeciesSupported</span>(<span class='no'>species</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>artmsIsSpeciesSupported</span><span class='op'>(</span><span class='va'>species</span>, verbose <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,7 +173,9 @@ install the corresponding org.db package:</p><ul>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Should return TRUE</span>
-<span class='fu'>artmsIsSpeciesSupported</span>(<span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"HUMAN"</span>)</div><div class='output co'>#&gt; [1] "org.Hs.eg.db"</div><div class='input'><span class='fu'>artmsIsSpeciesSupported</span>(<span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"CHIMP"</span>)</div><div class='output co'>#&gt; <span class='message'>---(-) The package &lt;org.Pt.eg.db&gt; is not installed in your system.</span>
+<span class='fu'>artmsIsSpeciesSupported</span><span class='op'>(</span>species <span class='op'>=</span> <span class='st'>"HUMAN"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "org.Hs.eg.db"</div><div class='input'><span class='fu'>artmsIsSpeciesSupported</span><span class='op'>(</span>species <span class='op'>=</span> <span class='st'>"CHIMP"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>---(-) The package &lt;org.Pt.eg.db&gt; is not installed in your system.</span>
 #&gt; <span class='message'>           Just run: install.packages('org.Pt.eg.db') and try again</span></div><div class='output co'>#&gt; [1] FALSE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -186,11 +188,11 @@ install the corresponding org.db package:</p><ul>
 
       <footer>
       <div class="copyright">
-  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Danielle Swaney.</p>
+  <p>Developed by David Jimenez-Morales, Alexandre Rosa Campos, John Von Dollen, Nevan Krogan, Danielle Swaney.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

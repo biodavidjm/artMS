@@ -41,9 +41,10 @@ artmsAvgIntensityRT <- function(evidence_file,
   # read in data
   if(verbose) message(">> READING IN FILES... ")
   dat <- .artms_checkIfFile(evidence_file, is.evidence = TRUE)
-  suppressMessages(dat <-
-                     artmsAnnotationUniprot(dat, "Proteins", 
-                                             species = species))
+  suppressMessages(
+    dat <- artmsAnnotationUniprot(dat, "Proteins", 
+                                  species = species)
+    )
   
   if (!is.null(protein_file)) {
     if(verbose) message(">> FILTERING OUT UNWANTED PROTEINS... ")
