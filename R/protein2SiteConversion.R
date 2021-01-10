@@ -48,6 +48,11 @@
 #' - `UB`: Protein Ubiquitination
 #' - `PH`: Protein Phosphorylation
 #' - `AC`: Protein Acetylation
+#' - `PTM:XXX:yy` : User defined PTM. Replace XXX with 1 or more 1-letter amino
+#' acid codes on which to find modifications (all uppercase).  Replace yy with 
+#' modification name used within the evidence file (require lowercase characters).
+#' Example: `PTM:STY:ph` will find modifications on aa S,T,Y with this example 
+#' format `_AAGGAPS(ph)PPPPVR_`
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
@@ -83,11 +88,45 @@ artmsProtein2SiteConversion <- function (evidence_file,
          missing(mod_type)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
+
   
+  .parseFlexibleModFormat <- function(inputStr){
+    parts <- unlist(strsplit(inputStr, split = ":"))
+    if (length(parts) != 3){
+      message("PTM format requires exactly three parts separated by colons (:); example PTM:STY:ph")
+      return (NULL)
+    }
+    if (grepl("[^A-Z]", parts[2])){
+      message ("The second position in ", inputStr," must be all uppercase characters specifying amino acids by their 1-letter code")
+      return (NULL)
+    }
+    if (grepl("[^a-z]", parts[3])){
+      message ("The PTM name used in the evidence file, and the third position in ", inputStr, " must be all lowercase characters")
+      # possibly numeric characters and "_" could be used as currently coded, but to be safe... 
+      return (NULL)
+    }
+    
+    # take something like STY, split then paste to S|T|Y
+    mod_residue <- paste(unlist(strsplit(parts[2], split = "")), collapse = "|")
+    maxq_mod_residue <- paste0("(", mod_residue, ")", "\\(", parts[3], "\\)", collapse = "")
+    return (c(parts[1], maxq_mod_residue, mod_residue))
+  }
+  
+  # expect format like PTM:STY:ph where STY and ph can be set to any set of amino acids and any case-sensitive name used in evidence file
+  
+  if (substr(mod_type, 1, 4) == "PTM:"){
+    parsed <- .parseFlexibleModFormat(mod_type)
+    if (is.null(parsed))
+      stop("Error: unexpected format for specifying a user-defined modification type", mod_type)
+    mod_type <- parsed[1]
+    maxq_mod_residue <- parsed[2]
+    mod_residue <- parsed[3]
+  }
+  else{
   mod_type <- toupper(mod_type)
   if(!mod_type %in% c("PH", "UB", "AC"))
     stop("the mod_type ", mod_type, " is not supported")
-  
+  }
   # CHECK PROTEIN COLUMN
   column_name <- match.arg(column_name)
   
@@ -123,6 +162,9 @@ then make the argument 'overwrite_evidence = TRUE'")
     if(verbose) message('--- SELECTING << AC >> MODIFIED PEPTIDES ')
     maxq_mod_residue <- 'K\\(ac\\)'
     mod_residue <- 'K'
+  } else if (mod_type == "PTM"){
+    if(verbose) message ("--- SELECTING PEPTIDES MODIFIED WITH USER DEFINED PTM, with this regex: ", maxq_mod_residue)
+    
   } else{
     stop(
       mod_type, " is not supported. 
@@ -284,6 +326,9 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   mod_sites <- c()
   mod_seqs <- c()
   
+  # keep a count of peptides with mod found in file
+  num_mod_peptides <- 0 
+  
   if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
    (This might take a long time depending on the size of the fasta/evidence file) ")
   for (i in seq_len(nrow(unique_peptides_in_data))) {
@@ -296,6 +341,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
       str_locate_all(string = peptide_seq, pattern = maxq_mod_residue)[[1]][, 1]
     
     if (length(mod_sites_in_peptide) > 0) {
+      num_mod_peptides <- num_mod_peptides + 1
       uniprot_acs <- entry[[column_name]]
       # separates the ambiguous cases (;) and appends the site info to all 
       # the proteins
@@ -364,6 +410,9 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   }
   
   # CHECK that the mapping went well
+  if (num_mod_peptides == 0)
+    stop("No peptides were found in the evidence file with the selected modification")
+  
   if(is.null(mod_seqs))
     stop("Protein IDs from evidence file and sequence database do not match. 
          Are you sure that you are using the right sequence database?")
