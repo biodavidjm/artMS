@@ -94,7 +94,7 @@ are no NA values for the notation of phophopeptides.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.2</span>
       </span>
     </div>
 
@@ -216,6 +216,11 @@ other database IDs</p></li>
 <li><p><code>UB</code>: Protein Ubiquitination</p></li>
 <li><p><code>PH</code>: Protein Phosphorylation</p></li>
 <li><p><code>AC</code>: Protein Acetylation</p></li>
+<li><p><code>PTM:XXX:yy</code> : User defined PTM. Replace XXX with 1 or more 1-letter amino
+acid codes on which to find modifications (all uppercase).  Replace yy with
+modification name used within the evidence file (require lowercase characters).
+Example: <code>PTM:STY:ph</code> will find modifications on aa S,T,Y with this example
+format <code>_AAGGAPS(ph)PPPPVR_</code>. This would be equivalent to the <code>PH</code> PTM.</p></li>
 </ul></td>
     </tr>
     <tr>

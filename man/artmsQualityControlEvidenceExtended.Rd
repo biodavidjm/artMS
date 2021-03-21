@@ -7,6 +7,7 @@
 artmsQualityControlEvidenceExtended(
   evidence_file,
   keys_file,
+  output_dir = "qc_extended",
   output_name = "qcExtended_evidence",
   isSILAC = FALSE,
   plotPSM = TRUE,
@@ -37,6 +38,9 @@ data.frame}
 
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
+
+\item{output_dir}{(char) Name for the folder to output the results plots.
+Default is "qc_extended".}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcExtended_evidence"}

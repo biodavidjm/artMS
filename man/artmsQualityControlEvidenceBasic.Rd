@@ -7,8 +7,9 @@
 artmsQualityControlEvidenceBasic(
   evidence_file,
   keys_file,
-  prot_exp = c("AB", "PH", "UB", "AC", "APMS"),
+  prot_exp = c("AB", "PH", "UB", "AC", "APMS", "PTM:XXX:yy"),
   fractions = 0,
+  output_dir = "qc_basic",
   output_name = "qcBasic_evidence",
   isSILAC = FALSE,
   plotINTDIST = FALSE,
@@ -27,20 +28,29 @@ data.frame}
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
 
-\item{prot_exp}{(char) Proteomics experiment. 4 options available:
+\item{prot_exp}{(char) Proteomics experiment. 6 options available:
 \itemize{
 \item \code{APMS}: affinity purification mass spectrometry
 \item \code{AB}: protein abundance
 \item \code{PH}: protein phosphorylation
 \item \code{UB}: protein ubiquitination (aka ubiquitylation)
 \item \code{AC}: protein acetylation
+\item \code{PTM:XXX:yy} : User defined PTM. Replace XXX with 1 or more 1-letter amino
+acid codes on which to find modifications (all uppercase).  Replace yy with
+modification name used within the evidence file (require lowercase characters).
+Example for phosphorylation: \code{PTM:STY:ph} will find modifications on
+aa S,T,Y with this example format \verb{_AAGGAPS(ph)PPPPVR_}. This means that
+the user could select phosphorylation as \code{PH} or \code{PTM:STY:ph}
 }}
 
-\item{fractions}{(binary) Is a fractionated experiment?
+\item{fractions}{(binary) Are there fractions in this experiment?
 \itemize{
 \item 1 yes
 \item 0 no (default)
 }}
+
+\item{output_dir}{(char) Name for the folder to output the results plots.
+Default is "qc_basic".}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcBasic_evidence"}

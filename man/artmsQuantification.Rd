@@ -13,14 +13,14 @@ artmsQuantification(
 )
 }
 \arguments{
-\item{yaml_config_file}{(char) The yaml file name and location}
+\item{yaml_config_file}{(char, required) The yaml file name and location}
 
 \item{data_object}{(logical) flag to indicate whether the configuration file
-is a string to a file that should be opened or config object (yaml)}
+is a string to a file that should be opened or config object (yaml). Default is \code{FALSE}}
 
-\item{printPDF}{(logical) if \code{TRUE}, prints out pdf}
+\item{printPDF}{(logical) if \code{TRUE} (default), prints out pdf}
 
-\item{display_msstats}{(logical) if \code{TRUE}, prints MSstats outputs}
+\item{display_msstats}{(logical) if \code{TRUE}, prints MSstats outputs (default is \code{FALSE})}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }

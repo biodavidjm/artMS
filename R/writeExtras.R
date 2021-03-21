@@ -64,7 +64,7 @@
   }else{
     sign_labels <- unique(sign_hits$Label)
     if(verbose) message( sprintf(
-      "-- Selected hits for plots with LFC between %s and %s at %s FDR:\t%s ",
+      "-- Selected hits for plots with LFC between %s and %s at %s FDR:%s ",
       lfc_lower,
       lfc_upper,
       config$output_extras$plots$FDR,

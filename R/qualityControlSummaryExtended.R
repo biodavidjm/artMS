@@ -9,6 +9,8 @@
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
+#' @param output_dir (char) Name for the folder to output the results plots. 
+#' Default is "qc_summary".
 #' @param output_name (char) prefix output name (no extension).
 #' Default: "qcExtended_summary"
 #' @param isFractions (logical) `TRUE` if it is a 2D experiment (fractions).
@@ -47,6 +49,7 @@
 #' @export
 artmsQualityControlSummaryExtended <- function(summary_file,
                                                keys_file,
+                                               output_dir = "qc_summary",
                                                output_name = "qcExtended_summary",
                                                isFractions = FALSE,
                                                plotMS1SCANS = TRUE,
@@ -57,6 +60,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                                                verbose = TRUE) {
   
   # # DEBUG
+  # output_dir = "qc_summary"
   # output_name = "qcExtended_summary"
   # isFractions = FALSE
   # plotMS1SCANS = TRUE
@@ -74,6 +78,10 @@ artmsQualityControlSummaryExtended <- function(summary_file,
   
   if (is.null(summary_file) & is.null(keys_file)) {
     return("You need to provide both evidence and keys")
+  }
+  
+  if(is.null(output_dir)){
+    return("The output_dir argument cannot be NULL")
   }
   
   if(any(missing(summary_file) | missing(keys_file)))
@@ -146,14 +154,22 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     pct.MS2Id.sem = sd(ms.ms.identified....) / sqrt(length(ms.ms.identified....))
   )
   
-  # PLOTS
+  # PLOTS-----
   if(verbose) message(">> GENERATING QC PLOTS ")
+  
+  # create output directory if it doesn't exist
+  if(printPDF){
+    if (!dir.exists(output_dir)) {
+      if(verbose) message("-- Output folder created: ", output_dir)
+      dir.create(output_dir, recursive = TRUE)
+    }
+  }
   
   ## NUMBER OF MS1 SCANS
   if (plotMS1SCANS) {
     if(verbose) message("--- Plot Number of MS1 scans", appendLF = FALSE)
     if(printPDF){
-      pdf(paste0(output_name,'.qcplot.MS1scans.pdf'),
+      pdf(paste0(output_dir, "/", output_name,'.qcplot.MS1scans.pdf'),
           width = 10, #nsamples * 3
           height = 6,
           onefile = TRUE)
@@ -261,7 +277,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     if(verbose) message("--- Plot Number of MS2 scans", appendLF = FALSE)
     
     if(printPDF){
-      pdf(paste0(output_name,'.qcplot.MS2scans.pdf'),
+      pdf(paste0(output_dir, "/", output_name,'.qcplot.MS2scans.pdf'),
           width = 10, #nsamples * 3
           height = 6,
           onefile = TRUE)
@@ -410,7 +426,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     if(verbose) message("--- Plot Number of msms.identification rate", appendLF = FALSE)
     
     if(printPDF){
-      pdf(paste0(output_name,'.qcplot.MSMS.pdf'),
+      pdf(paste0(output_dir, "/", output_name,'.qcplot.MSMS.pdf'),
           width = 10, #nsamples * 3
           height = 6,
           onefile = TRUE)
@@ -522,7 +538,7 @@ artmsQualityControlSummaryExtended <- function(summary_file,
     if(verbose) message("--- Plot Number of isotope patterns", appendLF = FALSE)
     
     if(printPDF){
-      pdf(paste0(output_name,'.qcplot.Isotope.pdf'),
+      pdf(paste0(output_dir, "/", output_name,'.qcplot.Isotope.pdf'),
           width = 10, #nsamples * 3
           height = 6,
           onefile = TRUE)

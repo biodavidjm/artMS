@@ -7,6 +7,7 @@
 artmsQualityControlSummaryExtended(
   summary_file,
   keys_file,
+  output_dir = "qc_summary",
   output_name = "qcExtended_summary",
   isFractions = FALSE,
   plotMS1SCANS = TRUE,
@@ -23,6 +24,9 @@ data.frame}
 
 \item{keys_file}{(char or data.frame) The keys file path and name or
 data.frame}
+
+\item{output_dir}{(char) Name for the folder to output the results plots.
+Default is "qc_summary".}
 
 \item{output_name}{(char) prefix output name (no extension).
 Default: "qcExtended_summary"}

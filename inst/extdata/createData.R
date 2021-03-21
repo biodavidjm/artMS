@@ -128,7 +128,7 @@ save(artms_data_corum_mito_database,
 # CONFIGURATION FILE----
 
 # library(yaml)
-artms_config <- yaml.load_file("inst/extdata/artms_config.yaml")
+artms_config <- yaml.load_file("~/github/biodavidjm/artMS/inst/extdata/artms_config.yaml")
 save(artms_config, file = 'data/artms_config.RData', compress = 'xz')
 
 
