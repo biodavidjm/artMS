@@ -116,4 +116,4 @@ Do you need to remember the basics of markdown? [Check out this fantastic link](
 
 ## artMS Help available online
 
-The vignette can also be accessed at [https://artms.org](https://artms.org)
+The vignette can also be accessed at [http://artms.org](http://artms.org)

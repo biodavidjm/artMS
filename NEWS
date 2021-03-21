@@ -1,3 +1,14 @@
+Changes in version 1.8.2 (2021-03-18)
++ artmsProtein2SiteConversion: New PTM available as argument, a new user defined `PTM:XXX:yy`. Check documentation to find out more
++ QC plots: by default, all qc plots are now output to a folder directory, by type (qc-basic, qc-extended, qc_summary)
++ artMS working directory: artMS will create all the folders and subfolders relative to the working directory. No need to specify the full path to the working directory, but the user must set the working directory: setwd("/path/to/working/directory/")
++ Configuration file data object updates:
+   + "output" the user can add a folder where would like to have the output results file. For example, "output: results_202003/example-results.txt" would create the "resutls_202003" folder (if it does not exist) with all the results files available there
+   + "LFC" (log2fc) updated to range -0.58 to 0.58, i.e., a fold change larger than a 1.5 (instead of 2 as before)
++ Update and improve documentation and vignette
++ Several bug fixes
+
+
 Changes in version 1.8.1 (2020-10-27)
 + Update "plotPCA" message
 + Update documentation and vignettes

@@ -186,11 +186,11 @@ utils::globalVariables(
 #' - plots
 #' - quantifications (log2fc, pvalues, etc)
 #' - normalized abundance values
-#' @param yaml_config_file (char) The yaml file name and location
+#' @param yaml_config_file (char, required) The yaml file name and location
 #' @param data_object (logical) flag to indicate whether the configuration file
-#' is a string to a file that should be opened or config object (yaml)
-#' @param printPDF (logical) if `TRUE`, prints out pdf
-#' @param display_msstats (logical) if `TRUE`, prints MSstats outputs
+#' is a string to a file that should be opened or config object (yaml). Default is `FALSE`
+#' @param printPDF (logical) if `TRUE` (default), prints out pdf
+#' @param display_msstats (logical) if `TRUE`, prints MSstats outputs (default is `FALSE`)
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The relative quantification of the conditions and comparisons
 #' specified in the keys/contrast file resulting from running MSstats, in
@@ -234,7 +234,7 @@ artmsQuantification <- function(yaml_config_file,
   }
 
   if(!(grepl("\\.txt$", config$files$output))){
-    stop("the file ", config$files$output, " must have extension .txt " )
+    stop("the file ", config$files$output, " must have extension .txt (tab delimited)" )
   }
   
   # LET'S HELP THE DISTRACTED USER
@@ -293,8 +293,20 @@ artmsQuantification <- function(yaml_config_file,
     message(">> Reading the configuration file")
   }
   
+  # Create output folder
+  output_full_path <- config$files$output
+  output_dir <- dirname(output_full_path)
   
-  # process MaxQuant data, link with keys, and convert for MSStats format
+  message("output_full_path: ", output_full_path)
+  message("output_dir: ", output_dir) 
+  
+  # create output directory if it doesn't exist-----
+  if (!dir.exists(output_dir)) {
+    if(verbose) message(">> Folder: [", output_dir, "] created" )
+    dir.create(output_dir, recursive = TRUE)
+  }
+  
+  # process MaxQuant data, link with keys, and convert for MSStats format-----
   if (config$data$enabled) {
     if(verbose) message(">> LOADING DATA ")
     ## Found more bugs in fread (issue submitted to data.table on github by
@@ -361,7 +373,7 @@ artmsQuantification <- function(yaml_config_file,
     ## fix for weird converted values from fread
     x[Intensity < 1, ]$Intensity <- NA
     
-    ## FILTERING : handles Protein Groups and Modifications
+    ## FILTERING : handles Protein Groups and Modifications-----
     if (config$data$filters$enabled){
       data_f <- .artms_filterData(x = x, 
                                   config = config, 
@@ -420,7 +432,7 @@ artmsQuantification <- function(yaml_config_file,
                          sep = '\t')
     }
     
-    if(verbose) message(">> RUNNING MSstats (it might take some time)")
+    if(verbose) message(">> RUNNING MSstats (it usually takes a 'long' time: please, be patient)")
 
     if(display_msstats){
       
@@ -488,6 +500,7 @@ artmsWriteConfigYamlFile <- function(config_file_name = "artms_config_file.yaml"
       if(overwrite){
         if(file.exists(config_file_name)){
           if(verbose) message("- Overwriting the configuration file")
+          write_yaml(x = artms_config, file = config_file_name )
         }
       }else{
         if(file.exists(config_file_name)){

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.2</span>
       </span>
     </div>
 
@@ -132,8 +132,9 @@
     <pre class="usage"><span class='fu'>artmsQualityControlEvidenceBasic</span><span class='op'>(</span>
   <span class='va'>evidence_file</span>,
   <span class='va'>keys_file</span>,
-  prot_exp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AB"</span>, <span class='st'>"PH"</span>, <span class='st'>"UB"</span>, <span class='st'>"AC"</span>, <span class='st'>"APMS"</span><span class='op'>)</span>,
+  prot_exp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AB"</span>, <span class='st'>"PH"</span>, <span class='st'>"UB"</span>, <span class='st'>"AC"</span>, <span class='st'>"APMS"</span>, <span class='st'>"PTM:XXX:yy"</span><span class='op'>)</span>,
   fractions <span class='op'>=</span> <span class='fl'>0</span>,
+  output_dir <span class='op'>=</span> <span class='st'>"qc_basic"</span>,
   output_name <span class='op'>=</span> <span class='st'>"qcBasic_evidence"</span>,
   isSILAC <span class='op'>=</span> <span class='cn'>FALSE</span>,
   plotINTDIST <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -160,20 +161,31 @@ data.frame</p></td>
     </tr>
     <tr>
       <th>prot_exp</th>
-      <td><p>(char) Proteomics experiment. 4 options available:</p><ul>
+      <td><p>(char) Proteomics experiment. 6 options available:</p><ul>
 <li><p><code>APMS</code>: affinity purification mass spectrometry</p></li>
 <li><p><code>AB</code>: protein abundance</p></li>
 <li><p><code>PH</code>: protein phosphorylation</p></li>
 <li><p><code>UB</code>: protein ubiquitination (aka ubiquitylation)</p></li>
 <li><p><code>AC</code>: protein acetylation</p></li>
+<li><p><code>PTM:XXX:yy</code> : User defined PTM. Replace XXX with 1 or more 1-letter amino
+acid codes on which to find modifications (all uppercase).  Replace yy with
+modification name used within the evidence file (require lowercase characters).
+Example for phosphorylation: <code>PTM:STY:ph</code> will find modifications on
+aa S,T,Y with this example format <code>_AAGGAPS(ph)PPPPVR_</code>. This means that
+the user could select phosphorylation as <code>PH</code> or <code>PTM:STY:ph</code></p></li>
 </ul></td>
     </tr>
     <tr>
       <th>fractions</th>
-      <td><p>(binary) Is a fractionated experiment?</p><ul>
+      <td><p>(binary) Are there fractions in this experiment?</p><ul>
 <li><p>1 yes</p></li>
 <li><p>0 no (default)</p></li>
 </ul></td>
+    </tr>
+    <tr>
+      <th>output_dir</th>
+      <td><p>(char) Name for the folder to output the results plots.
+Default is "qc_basic".</p></td>
     </tr>
     <tr>
       <th>output_name</th>

@@ -9,15 +9,23 @@ utils::globalVariables(c("Organism"))
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or 
 #' data.frame
+#' @param output_dir (char) Name for the folder to output the results plots. 
+#' Default is "qc_basic".
 #' @param output_name (char) prefix output name (no extension).
 #' Default: "qcBasic_evidence"
-#' @param prot_exp (char) Proteomics experiment. 4 options available:
+#' @param prot_exp (char) Proteomics experiment. 6 options available:
 #' - `APMS`: affinity purification mass spectrometry
 #' - `AB`: protein abundance
 #' - `PH`: protein phosphorylation
 #' - `UB`: protein ubiquitination (aka ubiquitylation)
 #' - `AC`: protein acetylation
-#' @param fractions (binary) Is a fractionated experiment?
+#' - `PTM:XXX:yy` : User defined PTM. Replace XXX with 1 or more 1-letter amino
+#' acid codes on which to find modifications (all uppercase).  Replace yy with 
+#' modification name used within the evidence file (require lowercase characters).
+#' Example for phosphorylation: `PTM:STY:ph` will find modifications on 
+#' aa S,T,Y with this example format `_AAGGAPS(ph)PPPPVR_`. This means that 
+#' the user could select phosphorylation as `PH` or `PTM:STY:ph`
+#' @param fractions (binary) Are there fractions in this experiment?
 #' - 1 yes
 #' - 0 no (default)
 #' @param isSILAC if `TRUE` processes SILAC input files. Default is `FALSE`
@@ -76,8 +84,9 @@ utils::globalVariables(c("Organism"))
 #' @export
 artmsQualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
-                             prot_exp = c('AB', 'PH', 'UB', 'AC', 'APMS'),
+                             prot_exp = c('AB', 'PH', 'UB', 'AC', 'APMS', 'PTM:XXX:yy'),
                              fractions = 0,
+                             output_dir = "qc_basic",
                              output_name = "qcBasic_evidence",
                              isSILAC = FALSE,
                              plotINTDIST = FALSE,
@@ -94,8 +103,9 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # #Debug
   # evidence_file <- artms_data_ph_evidence
   # keys_file <- artms_data_ph_keys
-  # prot_exp = "PH"
+  # prot_exp = "PTM:STY:ph"
   # fractions = 0
+  # output_dir = "qc_basic"
   # output_name = "qcBasic_evidence"
   # isSILAC = FALSE
   # plotINTDIST = TRUE
@@ -103,15 +113,33 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # plotCORMAT = TRUE
   # plotINTMISC = TRUE
   # plotPTMSTATS = TRUE
-  # printPDF = TRUE
+  # printPDF = FALSE
   # verbose = TRUE
 
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("Evidence and keys cannot be NULL")
   }
   
-  prot_exp <- toupper(prot_exp)
-  prot_exp <- match.arg(prot_exp)
+  if(is.null(output_dir)){
+    return("The output_dir argument cannot be NULL")
+  }
+  
+  if (substr(prot_exp, 1, 4) == "PTM:"){
+    parsed <- .parseFlexibleModFormat(prot_exp)
+    if (is.null(parsed))
+      stop("Error: unexpected format for specifying a user-defined modification type", prot_exp)
+    prot_exp <- parsed[1]
+    maxq_mod_residue <- parsed[2]
+    mod_residue <- parsed[3]
+  }else{
+    prot_exp <- toupper(prot_exp)
+    if(!prot_exp %in% c('AB', 'PH', 'UB', 'AC', 'APMS')){
+      stop("the prot_exp ", prot_exp, " is not supported")
+    }else{
+      prot_exp <- match.arg(prot_exp)
+    }
+  }
+
   
   # GETTING DATA.FRAMES READY----
   
@@ -130,13 +158,13 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     message("---------------------------------------------------")
   }
   
-  # OPEN KEYS
+  # open keys-----
   keys <- .artms_checkIfFile(keys_file)
   keys <- .artms_checkRawFileColumnName(keys)
   
   printSmall <- ifelse(length(unique(keys$BioReplicate))<5, TRUE, FALSE)
   
-  # Check SILAC
+  # check silac-----
   if(isSILAC){
     evidence_silac  <- artmsSILACtoLong(evidence_file,
                                        output = NULL,
@@ -204,6 +232,10 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   } else if (prot_exp == "AC") {
     evidencekeys$PTM <- ifelse(grepl("(ac)", evidencekeys$Modified.sequence),
                                "ac",
+                               "other")
+  } else if (prot_exp == "PTM") {
+    evidencekeys$PTM <- ifelse(grepl(maxq_mod_residue, evidencekeys$Modified.sequence),
+                               "ptm",
                                "other")
   }
   
@@ -296,6 +328,17 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       'Run'
     )]
     evidencekeysclean <- evidencekeysclean[grep("(ac)", evidencekeysclean$Modified.sequence), ]
+  }else if (prot_exp == "PTM") {
+    evidencekeysclean <- evidencekeysclean[c(
+      'Feature',
+      'Modified.sequence',
+      'Proteins',
+      'Intensity',
+      'Condition',
+      'BioReplicate',
+      'Run'
+    )]
+    evidencekeysclean <- evidencekeysclean[grep(maxq_mod_residue, evidencekeysclean$Modified.sequence), ]
   }
   
   
@@ -313,9 +356,19 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   # PLOT TIME-----
   
+  # Create output folder----
+  
+  # create output directory if it doesn't exist
+  if(printPDF){
+    if (!dir.exists(output_dir)) {
+      if(verbose) message("-- Output folder created: ", output_dir)
+      dir.create(output_dir, recursive = TRUE)
+    }
+  }
+  
   if(plotINTDIST){
     if(verbose) message("-- Plot: intensity distribution")
-      intDistribution <- paste0(output_name, ".qcplot.IntensityDistributions.pdf")
+      intDistribution <- paste0(output_dir, "/", output_name, ".qcplot.IntensityDistributions.pdf")
     
     j <- ggplot(ekselectaBioreplica, aes(BioReplicate, Intensity))
     j <- j + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
@@ -339,7 +392,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
 
   if(plotREPRO){
     if(verbose) message("-- Plot: Reproducibility scatter plots")
-    seqReproName <- paste0(output_name, ".qcplot.BasicReproducibility.pdf")
+    seqReproName <- paste0(output_dir, "/", output_name, ".qcplot.BasicReproducibility.pdf")
 
     if(printPDF) pdf(seqReproName)
       .artms_plotReproducibilityEvidence(data =  evidencekeysclean, 
@@ -474,7 +527,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     
     ## pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
     
-    matrixCorrelationMatrix <- paste0(output_name, ".qcplot.CorrelationMatrix.pdf")
+    matrixCorrelationMatrix <- paste0(output_dir, "/", output_name, ".qcplot.CorrelationMatrix.pdf")
     if(printPDF){
       if(printSmall){
         pdf(matrixCorrelationMatrix)
@@ -526,7 +579,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     if(printPDF) garbage <- dev.off()
     
     
-    matrixCorrelationMatrixCluster <- paste0(output_name, ".qcplot.CorrelationMatrixCluster.pdf")
+    matrixCorrelationMatrixCluster <- paste0(output_dir, "/", output_name, ".qcplot.CorrelationMatrixCluster.pdf")
     if(printPDF){
       if(printSmall){
         pdf(matrixCorrelationMatrixCluster)
@@ -622,7 +675,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       cc$TR <- paste0(ekselecta$BioReplicate, "_", ekselecta$Run)
       ccc <- cc[c('Proteins', 'Condition', 'TR')]
       cd <- unique(ccc)
-    } else if (prot_exp == "UB" | prot_exp == "PH" | prot_exp == "AC") {
+    } else if (prot_exp == "UB" | prot_exp == "PH" | prot_exp == "AC" | prot_exp == "PTM") {
       ekselectall <- evidencekeysclean[c('Feature',
                                          'Modified.sequence',
                                          'Proteins',
@@ -638,6 +691,8 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
         ekselectgly <- ekselectall[grep("(ph)", ekselectall$Modified.sequence), ]
       }else if(prot_exp == "AC"){
         ekselectgly <- ekselectall[grep("(ac)", ekselectall$Modified.sequence), ]
+      }else if(prot_exp == "PTM"){
+        ekselectgly <- ekselectall[grep(maxq_mod_residue, ekselectall$Modified.sequence), ]
       }else{
         stop("Impossible error. Please report to developers (artms.help@gmail.com)")
       }
@@ -675,6 +730,10 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       }else if(prot_exp == "AC"){
         evidencekeys$PTM <- ifelse(grepl("(ac)", evidencekeys$Modified.sequence),
                                    "ac",
+                                   "other")
+      }else if(prot_exp == "PTM"){
+        evidencekeys$PTM <- ifelse(grepl(maxq_mod_residue, evidencekeys$Modified.sequence),
+                                   "ptm",
                                    "other")
       }else{
         stop("Impossible error. Please report to developers (artms.help@gmail.com)")
@@ -1083,7 +1142,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     }
     
     if(verbose) message("---- ", prot_exp, " PROCESSED ")
-    reproName <- paste0(output_name, ".qcplot.IntensityStats.pdf")
+    reproName <- paste0(output_dir, "/", output_name, ".qcplot.IntensityStats.pdf")
 
     if(printPDF){
       if(printSmall){
@@ -1117,9 +1176,9 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   }# ends plotINTMISC
   
   if(plotPTMSTATS){
-    if (prot_exp == "PH" | prot_exp == "UB" | prot_exp == "AC") {
+    if (prot_exp == "PH" | prot_exp == "UB" | prot_exp == "AC" | prot_exp == "PTM") {
       if(verbose) message("-- Plot: PTM ", prot_exp, " stats")
-      modName <- paste0(output_name, ".qcplot.PTMStats.pdf")
+      modName <- paste0(output_dir, "/", output_name, ".qcplot.PTMStats.pdf")
       
       x <- ggplot(evidencekeys, aes(x = BioReplicate, fill = PTM))
       x <- x + geom_bar(stat = "count",

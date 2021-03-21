@@ -138,8 +138,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # log2fc_file = artms_data_ph_msstats_results
   # modelqc_file = artms_data_ph_msstats_modelqc
   # species = "human"
+  
   # choosePvalue = "adjpvalue"
-  # 
   # output_dir = "analysis_quant"
   # outliers = "keep"
   # enrich = TRUE
@@ -257,12 +257,17 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   print(session)
   sink()
   
-  output_dir <- paste0(output_dir, "_", choosePvalue)
+  log2dirname <- normalizePath(dirname(log2fc_file))
+  output_dir <- file.path(log2dirname, paste0(output_dir, "_", choosePvalue))
   
-  # create output directory if it doesn't exist
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
+  if(!dir.exists(file.path(output_dir))){
+    dir.create(file.path(output_dir), recursive = TRUE)
   }
+  
+  # Create the ouput_directory in the results folder
+  # dirname(log2fc_file)
+  # getwd()
+
   
   # open log2fc----
   if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
@@ -276,6 +281,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                               stringsAsFactors = FALSE)
   }
   
+  # use this as a template to generate the output file names
+  log2fc_file <- basename(log2fc_file)
   
   # modelqc ----
   if(verbose) message(">> LOADING modelqc FILE (ABUNDANCE) ")

@@ -1,5 +1,4 @@
 
-# ------------------------------------------------------------------------------
 #' @title Converts the Protein ID column of the evidence 
 #' file selected by the user to mod-site-specific notation: 
 #' `ProteinID` to `ProteinID_AAnumber` notation
@@ -51,8 +50,8 @@
 #' - `PTM:XXX:yy` : User defined PTM. Replace XXX with 1 or more 1-letter amino
 #' acid codes on which to find modifications (all uppercase).  Replace yy with 
 #' modification name used within the evidence file (require lowercase characters).
-#' Example: `PTM:STY:ph` will find modifications on aa S,T,Y with this example 
-#' format `_AAGGAPS(ph)PPPPVR_`
+#' Example: `PTM:STY:ph` will find modifications on aa S,T,Y with this 
+#' format `_AAGGAPS(ph)PPPPVR_`. This would be equivalent to `mod_type = PH` 
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
@@ -88,29 +87,6 @@ artmsProtein2SiteConversion <- function (evidence_file,
          missing(mod_type)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
-
-  
-  .parseFlexibleModFormat <- function(inputStr){
-    parts <- unlist(strsplit(inputStr, split = ":"))
-    if (length(parts) != 3){
-      message("PTM format requires exactly three parts separated by colons (:); example PTM:STY:ph")
-      return (NULL)
-    }
-    if (grepl("[^A-Z]", parts[2])){
-      message ("The second position in ", inputStr," must be all uppercase characters specifying amino acids by their 1-letter code")
-      return (NULL)
-    }
-    if (grepl("[^a-z]", parts[3])){
-      message ("The PTM name used in the evidence file, and the third position in ", inputStr, " must be all lowercase characters")
-      # possibly numeric characters and "_" could be used as currently coded, but to be safe... 
-      return (NULL)
-    }
-    
-    # take something like STY, split then paste to S|T|Y
-    mod_residue <- paste(unlist(strsplit(parts[2], split = "")), collapse = "|")
-    maxq_mod_residue <- paste0("(", mod_residue, ")", "\\(", parts[3], "\\)", collapse = "")
-    return (c(parts[1], maxq_mod_residue, mod_residue))
-  }
   
   # expect format like PTM:STY:ph where STY and ph can be set to any set of amino acids and any case-sensitive name used in evidence file
   
@@ -121,11 +97,10 @@ artmsProtein2SiteConversion <- function (evidence_file,
     mod_type <- parsed[1]
     maxq_mod_residue <- parsed[2]
     mod_residue <- parsed[3]
-  }
-  else{
-  mod_type <- toupper(mod_type)
-  if(!mod_type %in% c("PH", "UB", "AC"))
-    stop("the mod_type ", mod_type, " is not supported")
+  }else{
+    mod_type <- toupper(mod_type)
+    if(!mod_type %in% c("PH", "UB", "AC"))
+      stop("the mod_type ", mod_type, " is not supported")
   }
   # CHECK PROTEIN COLUMN
   column_name <- match.arg(column_name)
@@ -136,8 +111,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
     if(!overwrite_evidence){
       if(evidence_file == output_file) 
         stop("<output_file> cannot be the same as <evidence_file>. 
-If you are confident about overwritting the evidence file, 
-then make the argument 'overwrite_evidence = TRUE'")
+              If you are confident about overwritting the evidence file, 
+              then make the argument 'overwrite_evidence = TRUE'")
     }
   }
   
@@ -490,7 +465,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   if(verbose) message(">> CONVERSION COMPLETED")
 }
 
-# 
+
 # @title Convert PTM long notation to short
 #
 # @description One version of MaxQuant annotates the peptides in a strange way 
@@ -522,4 +497,34 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
     }
   }
   return (result)
+}
+
+
+# @title Parse Flexible PTM format
+#
+# @description One version of MaxQuant annotates the peptides in a strange way 
+# XXXXS(Phospho (STY))XXXX. This function converts them to the old notation
+# @inputStr input string. It should be
+# @param mods (char) the PTM modification: PH, UB, CAM, MOX, NAC
+# @keywords PTM
+.parseFlexibleModFormat <- function(inputStr){
+  parts <- unlist(strsplit(inputStr, split = ":"))
+  if (length(parts) != 3){
+    message("PTM format requires exactly three parts separated by colons (:); example PTM:STY:ph")
+    return (NULL)
+  }
+  if (grepl("[^A-Z]", parts[2])){
+    message ("The second position in ", inputStr," must be all uppercase characters specifying amino acids by their 1-letter code")
+    return (NULL)
+  }
+  if (grepl("[^a-z]", parts[3])){
+    message ("The PTM name used in the evidence file, and the third position in ", inputStr, " must be all lowercase characters")
+    # possibly numeric characters and "_" could be used as currently coded, but to be safe... 
+    return (NULL)
+  }
+  
+  # take something like STY, split then paste to S|T|Y
+  mod_residue <- paste(unlist(strsplit(parts[2], split = "")), collapse = "|")
+  maxq_mod_residue <- paste0("(", mod_residue, ")", "\\(", parts[3], "\\)", collapse = "")
+  return (c(parts[1], maxq_mod_residue, mod_residue))
 }

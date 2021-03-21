@@ -41,6 +41,11 @@ other database IDs
 \item \code{UB}: Protein Ubiquitination
 \item \code{PH}: Protein Phosphorylation
 \item \code{AC}: Protein Acetylation
+\item \code{PTM:XXX:yy} : User defined PTM. Replace XXX with 1 or more 1-letter amino
+acid codes on which to find modifications (all uppercase).  Replace yy with
+modification name used within the evidence file (require lowercase characters).
+Example: \code{PTM:STY:ph} will find modifications on aa S,T,Y with this
+format \verb{_AAGGAPS(ph)PPPPVR_}. This would be equivalent to \code{mod_type = PH}
 }}
 
 \item{overwrite_evidence}{(logical) if <output_file> is the same

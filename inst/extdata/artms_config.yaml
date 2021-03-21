@@ -1,9 +1,9 @@
 files :
-  evidence : /path/to/the/evidence.txt
-  keys : /path/to/the/keys.txt
-  contrasts : /path/to/the/contrast.txt
-  summary: /path/to/the/summary.txt # Optional
-  output : /path/to/the/output/results/results.txt # The folder must exist
+  evidence : evidence.txt
+  keys : keys.txt
+  contrasts : contrast.txt
+  summary: summary.txt # Optional
+  output : results_folder_name/results.txt # The folder must exist
 qc:
   basic: 1 # 1 = yes; 0 = no
   extended: 1 # 1 = yes; 0 = no
@@ -39,7 +39,7 @@ output_extras :
   plots:
     volcano: 1
     heatmap: 1
-    LFC : -1 1 # Range of minimal log2fc
+    LFC : -0.58 0.58 # Range of minimal log2fc. Default log2fc: 0.58 (a fold change of 1.5)
     FDR : 0.05 # adjusted p-value, false discovery rate
     heatmap_cluster_cols : 0
     heatmap_display : log2FC # log2FC or pvalue

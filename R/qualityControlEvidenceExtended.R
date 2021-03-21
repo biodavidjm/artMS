@@ -7,6 +7,8 @@
 #' data.frame
 #' @param keys_file (char or data.frame) The keys file path and name or
 #' data.frame
+#' @param output_dir (char) Name for the folder to output the results plots. 
+#' Default is "qc_extended".
 #' @param output_name (char) prefix output name (no extension).
 #' Default: "qcExtended_evidence"
 #' @param isSILAC if `TRUE` processes SILAC input files. Default is `FALSE`
@@ -116,6 +118,7 @@
 #' @export
 artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 keys_file,
+                                                output_dir = "qc_extended",
                                                 output_name = "qcExtended_evidence",
                                                 isSILAC = FALSE,
                                                 plotPSM = TRUE,
@@ -145,6 +148,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   # DEBUG
   # evidence_file = artms_data_ph_evidence
   # keys_file = artms_data_ph_keys
+  # output_dir = "qc_extended"
   # output_name = "qcExtended_evidence"
   # isSILAC = FALSE
   # plotPSM = TRUE
@@ -176,6 +180,10 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("Evidence and keys cannot be NULL")
+  }
+  
+  if(is.null(output_dir)){
+    return("The output_dir argument cannot be NULL")
   }
   
   hmcol <- colorRampPalette(RColorBrewer::brewer.pal(10, "RdBu"))(256)
@@ -373,6 +381,14 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   # PLOTS-----
   if(verbose) message(">> GENERATING QC PLOTS ")
   
+  # create output directory if it doesn't exist
+  if(printPDF){
+    if (!dir.exists(output_dir)) {
+      if(verbose) message("-- Output folder created: ", output_dir)
+      dir.create(output_dir, recursive = TRUE)
+    }
+  }
+  
   nsamples <- length(unique(evidencekeys$bioreplicate))
   nconditions <- length(unique(evidencekeys$condition))
   
@@ -380,7 +396,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPSM) {
     if(verbose) message("--- Plot PSM", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PSM.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PSM.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -510,7 +526,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot IONS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.Ions.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.Ions.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -635,7 +651,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot TYPE", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.Type.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.Type.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -681,7 +697,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PEPTIDES", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.Peptides.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.Peptides.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -840,7 +856,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     )
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PeptidesOverlap.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PeptidesOverlap.pdf'),
       width = 10,
       height = 6,
       onefile = TRUE
@@ -859,7 +875,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PROTEINS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.Proteins.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.Proteins.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -978,7 +994,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     )
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.ProteinOverlap.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.ProteinOverlap.pdf'),
       width = 10,
       height = 6,
       onefile = TRUE
@@ -997,7 +1013,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Plot Ion Oversampling", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PepIonOversampling.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PepIonOversampling.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1105,7 +1121,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Charge State", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.ChargeState.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.ChargeState.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE)
@@ -1151,7 +1167,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotME) {
     if(verbose) message("--- Plot Mass Error", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.MassError.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.MassError.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1197,7 +1213,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Mass-over-Charge distribution", appendLF = FALSE)
     
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.MZ.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.MZ.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1236,7 +1252,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPEPICV) {
     if(verbose) message("--- Plot Peptide Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PeptideIntensityCV.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PeptideIntensityCV.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1334,7 +1350,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPEPDETECT) {
     if(verbose) message("--- Plot Peptide Detection (using modified.sequence)", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PeptideDetection.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PeptideDetection.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1377,7 +1393,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPROTICV) {
     if(verbose) message("--- Plot Protein Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.ProteinIntensityCV.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.ProteinIntensityCV.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1466,7 +1482,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPROTDETECT) {
     if(verbose) message("--- Plot Protein Detection", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.ProteinDetection.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.ProteinDetection.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1563,7 +1579,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotIDoverlap) {
     if(verbose) message("--- Plot ID overlap", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.ID-Overlap.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.ID-Overlap.pdf'),
       width = 20, #nsamples * 3
       height = 20,
       onefile = TRUE
@@ -1700,7 +1716,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPCA) {
     if(verbose) message("--- Plot PCA and Inter-Correlation (WARNING: it might take a long time. Please, be patient)")
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.PCA.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.PCA.pdf'),
       width = 12, #nsamples * 3
       height = 10,
       onefile = TRUE
@@ -1832,7 +1848,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
 
     if(verbose) message("--- Plot Sample Preparation", appendLF = FALSE)
     if(printPDF) pdf(
-      paste0(output_name,'.qcplot.SamplePrep.pdf'),
+      paste0(output_dir, "/", output_name,'.qcplot.SamplePrep.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
