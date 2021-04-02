@@ -267,7 +267,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z,\\.,\\_]+)', '\\1', names)]
   
   # UNIPROT
-  ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_]+)(\\|[A-Z,a-z,0-9,_]+)',
+  ref_table[, uniprot_ac := gsub('([a-z,0-9,A-Z]+\\|{1})([A-Z,0-9,\\_, \\-]+)(\\|[A-Z,a-z,0-9,_]+)',
                                  '\\2', names)]
             
   
