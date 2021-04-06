@@ -459,11 +459,9 @@ Let's break it down:
     - `0`: no normalization (not recommended)
     - `globalStandards` if selected, specified the reference protein in 
     `normalization_reference` (next)
-- `normalization_reference :` UniProt id if `globalStandards` is chosen 
-as the `normalization_method` (above)
-- `summaryMethod :` TMP # "TMP"(default) means Tukey's median polish, which 
-is robust estimation method. "linear" uses linear mixed model. "logOfSum" 
-conducts log2 (sum of intensities) per run.
+- `normalization_reference :` provide a protein id if and only if `normalization_method: globalStandards` is selected 
+as the `normalization_method` (above), otherwise leave blank. If multiple protein IDs are used for normalization, then provide them comma separated (for example `normalization_reference: Q86U42, O75822`)
+- `summaryMethod :` TMP # "TMP"(default) means Tukey's median polish, which is robust estimation method. "linear" uses linear mixed model. "logOfSum" conducts log2 (sum of intensities) per run.
 - `censoredInt :` 
     - `NA` (default) Missing values are censored or at random. 'NA' assumes 
     that all 'NA's in 'Intensity' column are censored. 

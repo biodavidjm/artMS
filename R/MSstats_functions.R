@@ -134,8 +134,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
   }
   
   if (config$data$filters$protein_groups == 'remove') {
-    if(verbose) message("-- READY TO REMOVE PROTEIN GROUPS: ")
-    
+    if(verbose) message("-- Removing protein groups")
     # SELECT FIRST THE LEADING RAZOR PROTEIN AS PROTEINS, DEPENDING ON THE 
     # MAXQUANT VERSION
     
@@ -152,7 +151,7 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
     if ( "Leading.razor.protein" %in% colnames(x) ) {
       x$Proteins <- NULL
       data_f <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
-      if(verbose) message("---- Use <Leading.razor.protein> as Protein ID")
+      if(verbose) message("-- Use <Leading.razor.protein> as Protein ID")
     }else{
       stop("<Leading razor protein> column not found. Proteins groups cannot be removed")
     }
@@ -161,11 +160,11 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
     # data_f <- .artms_removeMaxQProteinGroups(x)
 
   } else if (config$data$filters$protein_groups == 'keep') {
-    if(verbose) message("-- PROTEIN GROUPS KEPT")
+    if(verbose) message("-- Protein groups are kept")
     data_f <- x
   } else{
     stop(
-      "filtering option for <protein_groups> not valid 
+      "\nfiltering option for <protein_groups> not valid 
       (options available: keep or remove)"
     )
   }
@@ -219,7 +218,7 @@ artmsFilterEvidenceContaminants <- function(x,
   if (length(blank.idx) > 0)
     data_selected = data_selected[-blank.idx, ]
   
-  if(verbose) message("-- CONTAMINANTS CON__|REV__ REMOVED ")
+  if(verbose) message("-- Contaminants CON__|REV__ removed")
   return(data_selected)
 }
 

@@ -1,15 +1,16 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.8.2
-Date: 2021-03-18
+Version: 1.8.3
+Date: 2021-04-05
 Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
                      email = "biodavidjm@gmail.com",
                      comment = c(ORCID = "0000-0003-4356-6461")),
              person("Alexandre", "Rosa Campos", role = c("aut","ctb"),
                      comment = c(ORCID = "0000-0003-3988-7764")),
-             person("John", "Von Dollen", role = c("aut", "ctb")),
-             person("Nevan", "Krogan", role = c("aut")),
+             person("John", "Von Dollen", role = c("aut")),
+             person("Nevan", "Krogan", role = c("aut"),
+             comment = c(ORCID = "0000-0003-4902-337X")),
              person("Danielle", "Swaney", role = c("aut", "ctb"),
                      comment = c(ORCID = "0000-0001-6119-6084")))
 Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>

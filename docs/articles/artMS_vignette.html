@@ -16,7 +16,13 @@
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<![endif]--><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26635029-4"></script><script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26635029-4');
+</script>
 </head>
 <body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
@@ -31,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.3</span>
       </span>
     </div>
 
@@ -82,7 +88,7 @@
       <h1 data-toc-skip>artMS: Analytical R Tools for Mass Spectrometry</h1>
                         <h4 class="author">David Jimenez-Morales</h4>
             
-            <h4 class="date">2021-03-20</h4>
+            <h4 class="date">2021-04-05</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/biodavidjm/artMS/blob/master/vignettes/artMS_vignette.Rmd"><code>vignettes/artMS_vignette.Rmd</code></a></small>
       <div class="hidden name"><code>artMS_vignette.Rmd</code></div>
@@ -489,7 +495,7 @@ HSC6-Cal_33-1</code></pre>
 </ul>
 </li>
 <li>
-<code>normalization_reference :</code> UniProt id if <code>globalStandards</code> is chosen as the <code>normalization_method</code> (above)</li>
+<code>normalization_reference :</code> provide a protein id if and only if <code>normalization_method: globalStandards</code> is selected as the <code>normalization_method</code> (above), otherwise leave blank. If multiple protein IDs are used for normalization, then provide them comma separated (for example <code>normalization_reference: Q86U42, O75822</code>)</li>
 <li>
 <code>summaryMethod :</code> TMP # “TMP”(default) means Tukey’s median polish, which is robust estimation method. “linear” uses linear mixed model. “logOfSum” conducts log2 (sum of intensities) per run.</li>
 <li>

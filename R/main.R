@@ -297,12 +297,12 @@ artmsQuantification <- function(yaml_config_file,
   output_full_path <- config$files$output
   output_dir <- dirname(output_full_path)
   
-  message("output_full_path: ", output_full_path)
-  message("output_dir: ", output_dir) 
+  # message("output_full_path: ", output_full_path)
+  # message("output_dir: ", output_dir) 
   
   # create output directory if it doesn't exist-----
   if (!dir.exists(output_dir)) {
-    if(verbose) message(">> Folder: [", output_dir, "] created" )
+    if(verbose) message("-- Folder: [", output_dir, "] created" )
     dir.create(output_dir, recursive = TRUE)
   }
   
