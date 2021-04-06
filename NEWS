@@ -1,3 +1,7 @@
+Changes in version 1.8.3 (2021-0-05)
++ artmsProtein2SiteConversion now supports uniprot id isoforms (thanks Emily King)
++ Update vignette to make clearer how to provide several protein ids in "normalization_reference" (thanks Olga Schubert)
+
 Changes in version 1.8.2 (2021-03-18)
 + artmsProtein2SiteConversion: New PTM available as argument, a new user defined `PTM:XXX:yy`. Check documentation to find out more
 + QC plots: by default, all qc plots are now output to a folder directory, by type (qc-basic, qc-extended, qc_summary)
