@@ -144,34 +144,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   
   # Local variables
   keysilac = NULL
-  
-  # DEBUG
-  # evidence_file = artms_data_ph_evidence
-  # keys_file = artms_data_ph_keys
-  # output_dir = "qc_extended"
-  # output_name = "qcExtended_evidence"
-  # isSILAC = FALSE
-  # plotPSM = TRUE
-  # plotIONS = TRUE
-  # plotTYPE = TRUE
-  # plotPEPTIDES = TRUE
-  # plotPROTEINS = TRUE
-  # plotPIO = TRUE
-  # plotCS = TRUE
-  # plotME = TRUE
-  # plotMOCD = TRUE
-  # plotPEPICV = TRUE
-  # plotPEPDETECT = TRUE
-  # plotPROTICV = TRUE
-  # plotPROTDETECT = TRUE
-  # plotIDoverlap = TRUE
-  # plotPCA = TRUE
-  # plotSP = TRUE
-  # printPDF = FALSE
-  # verbose = TRUE
-  
-  
-  
+
   if(verbose){
     message("---------------------------------------------")
     message("artMS: EXTENDED QUALITY CONTROL (-evidence.txt based)")

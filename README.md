@@ -37,7 +37,7 @@ We assume that you have both R and [RStudio](https://www.rstudio.com/) already i
 getRversion()
 ```
 
-If the outcome is `>= 3.6.0`, congratulations! you can move forward
+If the outcome is `>= 4.0.0`, congratulations! you can move forward
 
 *If it is not, then you need to [install the latest version of R in your system](https://www.r-project.org/)*. After updating to the latest R version, open RStudio and try again `getRversion()` to make sure it worked.
 
@@ -51,7 +51,7 @@ Run the following lines:
 ```
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("artMS", version = "3.8")
+BiocManager::install("artMS")
 ```
 
 Why Bioconductor? [Here you can find a nice summary of good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor).
@@ -60,7 +60,7 @@ Why Bioconductor? [Here you can find a nice summary of good reasons](https://bio
 
 (***Warning***: not stable, but it has the latest)
 
-Assuming that you have an `R (>= 3.6)` version running on your system, 
+Assuming that you have an `R (>= 4.0)` version running on your system, 
 follow these steps:
 
 

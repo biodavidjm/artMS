@@ -206,11 +206,6 @@ artmsQuantification <- function(yaml_config_file,
                                 display_msstats = FALSE,
                                 verbose = TRUE) {
   
-  # Debugging:
-  # yaml_config_file <- artms_data_ph_config
-  # data_object = TRUE
-  # verbose = TRUE
-  
   # Check if the yaml file is already open first
   if(data_object){
     config <- yaml_config_file

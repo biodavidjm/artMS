@@ -99,22 +99,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   # Define global variables
   TechReplica = ..prop.. = ..x.. = PTM = keysilac = Run = Feature = BioReplicate_Run = NULL
-  
-  # #Debug
-  # evidence_file <- artms_data_ph_evidence
-  # keys_file <- artms_data_ph_keys
-  # prot_exp = "PTM:STY:ph"
-  # fractions = 0
-  # output_dir = "qc_basic"
-  # output_name = "qcBasic_evidence"
-  # isSILAC = FALSE
-  # plotINTDIST = TRUE
-  # plotREPRO = TRUE
-  # plotCORMAT = TRUE
-  # plotINTMISC = TRUE
-  # plotPTMSTATS = TRUE
-  # printPDF = FALSE
-  # verbose = TRUE
 
   if (is.null(evidence_file) & is.null(keys_file)) {
     return("Evidence and keys cannot be NULL")
@@ -139,9 +123,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       prot_exp <- match.arg(prot_exp)
     }
   }
-
-  
-  # GETTING DATA.FRAMES READY----
   
   if (fractions) {
     # Check that the keys file is correct
@@ -178,6 +159,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                               verbose = verbose)
   }
 
+  # DATA PROCESSING-----
   ekselecta <- aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
                          data = evidencekeys,
                          FUN = sum)
@@ -196,7 +178,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                  "_", 
                                  evidencekeys$Charge)
   
-  # GENERAL QUALITY CONTROL: CHECK PROPORTION OF CONTAMINANTS-----
+  # GENERAL QUALITY CONTROL: CHECK PROPORTION OF CONTAMINANTS 
   # sum of total intensities, label them as contaminants and non-contaminants
   # and plot intensities for each group
   
@@ -209,7 +191,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                           "Leading.proteins")
   }
   
-  # Combine all the fractions if this is a fractioning experiment by summing
+  # Combine all the fractions if this is a fractionning experiment by summing
   # them up
   if (fractions) {
     # Sum up all the fractions first
@@ -356,7 +338,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   
   # PLOT TIME-----
   
-  # Create output folder----
+  # Create output folder
   
   # create output directory if it doesn't exist
   if(printPDF){
@@ -366,6 +348,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     }
   }
   
+  # plotINTDIST------
   if(plotINTDIST){
     if(verbose) message("-- Plot: intensity distribution")
       intDistribution <- paste0(output_dir, "/", output_name, ".qcplot.IntensityDistributions.pdf")
@@ -522,11 +505,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     precordfConditions <- evidencekeyscleanDCASTconditions[, 3:dim(evidencekeyscleanDCASTconditions)[2]]
     Mcond <- cor(precordfConditions, use = "pairwise.complete.obs")
     
-    
-    ## END PROCESSING
-    
-    ## pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
-    
     matrixCorrelationMatrix <- paste0(output_dir, "/", output_name, ".qcplot.CorrelationMatrix.pdf")
     if(printPDF){
       if(printSmall){
@@ -637,7 +615,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
       
   } # plotCORMAT ends
   
-  
+  # plotINTMISC-----
   if(plotINTMISC){
     # DETAILS
     if(verbose) message("-- Plot: intensity stats")
@@ -1175,6 +1153,7 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     if(printPDF) garbage <- dev.off()
   }# ends plotINTMISC
   
+  # plotPTMSTATS-----
   if(plotPTMSTATS){
     if (prot_exp == "PH" | prot_exp == "UB" | prot_exp == "AC" | prot_exp == "PTM") {
       if(verbose) message("-- Plot: PTM ", prot_exp, " stats")

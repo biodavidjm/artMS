@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">artMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.9.4</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
 <a href="#how-to-install" class="anchor"></a>How to install</h1>
 <p>We assume that you have both R and <a href="https://www.rstudio.com/">RStudio</a> already installed on your system. Please, ensure that your system is running an <code>R version &gt;= 3.6</code> or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:</p>
 <pre><code><a href="https://rdrr.io/r/base/numeric_version.html">getRversion()</a></code></pre>
-<p>If the outcome is <code>&gt;= 3.6.0</code>, congratulations! you can move forward</p>
+<p>If the outcome is <code>&gt;= 4.0.0</code>, congratulations! you can move forward</p>
 <p><em>If it is not, then you need to <a href="https://www.r-project.org/">install the latest version of R in your system</a></em>. After updating to the latest R version, open RStudio and try again <code><a href="https://rdrr.io/r/base/numeric_version.html">getRversion()</a></code> to make sure it worked.</p>
 <p>Two options to install <code>artMS</code></p>
 <div id="official-bioconductor-releases-recommended" class="section level2">
@@ -137,14 +137,14 @@
 <p><code>artMS</code> is available on <a href="https://www.bioconductor.org/">BioConductor</a>. Run the following lines:</p>
 <pre><code>if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("artMS", version = "3.8")</code></pre>
+BiocManager::install("artMS")</code></pre>
 <p>Why Bioconductor? <a href="https://bioinformatics.stackexchange.com/questions/639/why-bioconductor">Here you can find a nice summary of good reasons</a>.</p>
 </div>
 <div id="development-version-from-this-repo" class="section level2">
 <h2 class="hasAnchor">
 <a href="#development-version-from-this-repo" class="anchor"></a>Development version from this repo</h2>
 <p>(<strong><em>Warning</em></strong>: not stable, but it has the latest)</p>
-<p>Assuming that you have an <code>R (&gt;= 3.6)</code> version running on your system, follow these steps:</p>
+<p>Assuming that you have an <code>R (&gt;= 4.0)</code> version running on your system, follow these steps:</p>
 <pre><code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages("devtools")
 library(devtools)
 install_github("biodavidjm/artMS")</a></code></pre>

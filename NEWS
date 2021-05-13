@@ -1,4 +1,12 @@
-Changes in version 1.8.3 (2021-0-05)
+Changes in version 1.8.4 (2021-05-12)
++ Several adjustments in artmsAnalysisQuantifications function:
+   - Use NAs instead of 0 when reshaping the data for missing values (-log2fc-wide.txt and -log2fc-long.txt files)
+   - plotClusteringAnalysis only available when 3 or more comparisons available in the configuration file
++ R > v4.0.0 is now required
++ Update documentation & vignette
++ Code cleaning
+
+Changes in version 1.8.3 (2021-04-05)
 + artmsProtein2SiteConversion now supports uniprot id isoforms (thanks Emily King)
 + Update vignette to make clearer how to provide several protein ids in "normalization_reference" (thanks Olga Schubert)
 
@@ -11,7 +19,6 @@ Changes in version 1.8.2 (2021-03-18)
    + "LFC" (log2fc) updated to range -0.58 to 0.58, i.e., a fold change larger than a 1.5 (instead of 2 as before)
 + Update and improve documentation and vignette
 + Several bug fixes
-
 
 Changes in version 1.8.1 (2020-10-27)
 + Update "plotPCA" message

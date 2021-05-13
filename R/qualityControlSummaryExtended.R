@@ -58,18 +58,6 @@ artmsQualityControlSummaryExtended <- function(summary_file,
                                                plotISOTOPE = TRUE,
                                                printPDF = TRUE,
                                                verbose = TRUE) {
-  
-  # # DEBUG
-  # output_dir = "qc_summary"
-  # output_name = "qcExtended_summary"
-  # isFractions = FALSE
-  # plotMS1SCANS = TRUE
-  # plotMS2 = TRUE
-  # plotMSMS = TRUE
-  # plotISOTOPE = TRUE
-  # printPDF = TRUE
-  # verbose = TRUE
-  
   if(verbose){
     message("---------------------------------------------")
     message("artMS: EXTENDED QUALITY CONTROL (-summary.txt based)")

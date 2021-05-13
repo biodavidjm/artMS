@@ -133,35 +133,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                          printPDF = TRUE,
                                          verbose = TRUE
                                          ) {
-  
-  ## DEBUG
-  # log2fc_file = artms_data_ph_msstats_results
-  # modelqc_file = artms_data_ph_msstats_modelqc
-  # species = "human"
-  
-  # choosePvalue = "adjpvalue"
-  # output_dir = "analysis_quant"
-  # outliers = "keep"
-  # enrich = TRUE
-  # l2fc_thres = 1
-  # isBackground = "nobackground"
-  # isPtm = "global"
-  # mnbr = 2
-  # pathogen = "nopathogen"
-  # plotPvaluesLog2fcDist = TRUE
-  # plotAbundanceStats = TRUE
-  # plotReproAbundance = TRUE
-  # plotCorrConditions = TRUE
-  # plotCorrQuant = TRUE
-  # plotPCAabundance = TRUE
-  # plotFinalDistributions = TRUE
-  # plotPropImputation = TRUE
-  # plotHeatmapsChanges = TRUE
-  # plotTotalQuant = TRUE
-  # plotClusteringAnalysis = TRUE
-  # data_object = FALSE
-  # printPDF = TRUE
-  # verbose = TRUE
 
   Uniprot_PTM = imputed = Gene_Protein = NULL
   
@@ -177,8 +148,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
    stop("One (or many) of the required arguments missed. 
         Please, check the help for this function to find out more")
   
-  if(is.null(log2fc_file) & is.null(modelqc_file) & 
-     is.null(species) & is.null(output_dir)){
+  if(is.null(log2fc_file) & 
+     is.null(modelqc_file) & 
+     is.null(species) & 
+     is.null(output_dir)){
     return("The evidence_file, modelqc_file, species and output_dir arguments cannot be NULL")
   }
   
@@ -268,7 +241,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # dirname(log2fc_file)
   # getwd()
 
-  
   # open log2fc----
   if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
   if(data_object){
@@ -741,14 +713,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   abundance_dcsum <- abundance %>% pivot_wider(names_from = Bait, 
                                                 id_cols = Prey,
                                                 values_from = Abundance, 
-                                                values_fn = list(Abundance = sum),
-                                                values_fill = list(Abundance = 0))
+                                                values_fn = list(Abundance = sum))
   
   abundance_dcmean <- abundance %>% pivot_wider(names_from = Bait, 
                                                  id_cols = Prey,
                                                  values_from = Abundance, 
-                                                 values_fn = list(Abundance = mean),
-                                                 values_fill = list(Abundance = 0))
+                                                 values_fn = list(Abundance = mean))
                                                
   # Melt again the sum and mean
   ##LEGACY
@@ -773,6 +743,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # We dont need the 0 values
   abundancelongsum <- abundancelongsum[!(abundancelongsum$AbSum == 0), ]
   abundancelongmean <- abundancelongmean[!(abundancelongmean$AbMean == 0), ]
+  
+  abundancelongsum <- abundancelongsum[!(is.na(abundancelongsum$AbSum)), ]
+  abundancelongmean <- abundancelongmean[!( is.na(abundancelongmean$AbMean) ), ]
   
   abundancelongsummean <- merge(abundancelongsum, abundancelongmean, by = c('Prey', 'Bait'))
   
@@ -799,16 +772,16 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   nbr_wide <- abundance %>% pivot_wider(names_from = Bait, 
                                          id_cols = Prey,
                                          values_from = Abundance, 
-                                         values_fn = list(Abundance = length),
-                                         values_fill = list(Abundance = 0))
+                                         values_fn = list(Abundance = length))
+  nbr_wide[(is.na(nbr_wide))] <- 0
   
   nbr_long <- nbr_wide %>% pivot_longer(cols = -Prey, 
                                         names_to = "Bait", 
                                         values_to = "BioRep")
   
   nbr_long <- nbr_long[!(nbr_long$BioRep == 0), ]
+  nbr_long <- nbr_long[!( is.na(nbr_long$BioRep) ), ]
                                                        
-
   # Get the number of replicates in long format
   ##LEGACY
   # OUTreprod <- data.table::dcast(data = nbr_long, Prey ~ Bait, value.var = 'BioRep')
@@ -817,8 +790,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   OUTreprod <- abundance %>% pivot_wider(id_cols = Prey, 
                                         names_from = Bait, 
                                         values_from = Abundance, 
-                                        values_fn = list(Abundance = length), 
-                                        values_fill = list(Abundance = 0))
+                                        values_fn = list(Abundance = length))
+  
+  OUTreprod[is.na(OUTreprod)] <- 0
+  
   # Make a copy for conditions
   OUTreproCondition <- OUTreprod
   
@@ -828,6 +803,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   bioReplicaInfo <- OUTreprod
   
   # And get the total number of biological replicates
+  
   OUTreprod$BiorepCount <- rowSums(OUTreprod[, 2:here])
   
   # Get whether a protein is found in all conditions
@@ -931,7 +907,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                           )]
     
     
-  if(verbose) message("--- Merging Changes with bioReplica Info ")
+  if(verbose) message("--- Merging Changes with replication data ")
   imputedDF <- merge(imputedDF,
                      bioReplicaInfo,
                      by.x = 'Protein',
@@ -946,11 +922,16 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                             imputedDF$iLog2FC,
                             imputedDF$Label)
   
-  if(verbose) message("--- Removing proteins not found in a minimal number (",
+  if(verbose) message("--- Removing proteins not found in a minimal number <",
                       mnbr,
-                      ") of biological replicates ")
-
+                      "> (user selected) of biological replicates ")
+  
+  before <- dim(imputedDF)[1]
   imputedDF <- .artms_RemoveProtBelowThres(imputedDF, mnbr)
+  after <- dim(imputedDF)[1]
+  total_remove <- before - after
+  
+  if(verbose) message("\t", total_remove, " proteins removed (i.e., not found in more than <", mnbr, "> biological replicates in at least one condition)")
   
   if(verbose) message("--- Filtering is done! ")
   
@@ -1514,8 +1495,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_log2fc <- imputedDF %>%
       tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID, Uniprot_PTM), 
                          names_from = Comparison, 
-                         values_from = iLog2FC, 
-                         values_fill = list(iLog2FC = 0))
+                         values_from = iLog2FC)
       
     ##LEGACY NOT TESTED!
     # imputedDF_wide_pvalue <-
@@ -1529,8 +1509,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_pvalue <- imputedDF %>%
       tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID, Uniprot_PTM), 
                          names_from = Comparison, 
-                         values_from = iPvalue, 
-                         values_fill = list(iPvalue = 0))
+                         values_from = iPvalue)
     
   } else if (isPtm == "global") {
     suppressMessages(
@@ -1553,8 +1532,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_log2fc <- imputedDF %>%
       tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID), 
                          names_from = Comparison, 
-                         values_from = iLog2FC, 
-                         values_fill = list(iLog2FC = 0))
+                         values_from = iLog2FC)
     
     # LEGACY
     # imputedDF_wide_pvalue <- data.table::dcast(data = imputedDF,
@@ -1565,8 +1543,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     imputedDF_wide_pvalue <- imputedDF %>%
       tidyr::pivot_wider(id_cols = c(Gene, Protein, EntrezID), 
                          names_from = Comparison, 
-                         values_from = iPvalue, 
-                         values_fill = list(iPvalue = 0))
+                         values_from = iPvalue)
       
       
   } else{
@@ -1575,7 +1552,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # boxplot of relative quantifications
+  # boxplot of relative quantification
   if(plotTotalQuant){
     if(verbose) message(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED")
     numimputedfinal <- gsub(".txt", ".TotalQuantifications.pdf", log2fc_file)
@@ -1642,7 +1619,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         
         # if this dataset only have one comparison,
         # this analysis does not makes sense: check it out:
-        if ( dim(vamos)[2] > 1 ) {
+        if ( dim(vamos)[2] > 2 ) {
           venga <- as.matrix(vamos)
           
           # EXPERIMENT BASED
