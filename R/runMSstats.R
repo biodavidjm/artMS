@@ -25,20 +25,33 @@
                               config,
                               verbose = TRUE) {
   
+  # Check configuration patameters for 
+  config <- .artms_provide_msstats_config_miss_parameters(config = config, 
+                                                          verbose = verbose)
+
   # plot the data BEFORE normalization
   if (grepl('before', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: before")
     mssquant <- dataProcess(
       raw = dmss,
+      logTrans = config$msstats$logTrans,
       normalization = FALSE,
-      #Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
+      nameStandards = NULL,
+      featureSubset = config$msstats$feature_subset,
+      remove_uninformative_feature_outlier = config$msstats$remove_uninformative_feature_outlier,
+      min_feature_count = config$msstats$min_feature_count,
+      n_top_feature = config$msstats$n_top_feature,
       summaryMethod = config$msstats$summaryMethod,
+      equalFeatureVar = config$msstats$equalFeatureVar,
       censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
       MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
+      remove50missing = config$msstats$remove50missing,
+      fix_missing = unlist(config$msstats$fix_missing),
+      maxQuantileforCensored = config$msstats$maxQuantileforCensored,
+      use_log_file = config$msstats$use_log_file,
+      append = config$msstats$append,
+      verbose = verbose,
+      log_file_path = unlist(config$msstats$log_file_path)
     )
     dataProcessPlots(
       data = mssquant,
@@ -64,16 +77,24 @@
     ))
     mssquant <- dataProcess(
       raw = dmss,
+      logTrans = config$msstats$logTrans,
       normalization = config$msstats$normalization_method,
       nameStandards = normalization_refs,
-      # Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
+      featureSubset = config$msstats$feature_subset,
+      remove_uninformative_feature_outlier = config$msstats$remove_uninformative_feature_outlier,
+      min_feature_count = config$msstats$min_feature_count,
+      n_top_feature = config$msstats$n_top_feature,
       summaryMethod = config$msstats$summaryMethod,
+      equalFeatureVar = config$msstats$equalFeatureVar,
       censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
       MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
+      remove50missing = config$msstats$remove50missing,
+      fix_missing = unlist(config$msstats$fix_missing),
+      maxQuantileforCensored = config$msstats$maxQuantileforCensored,
+      use_log_file = config$msstats$use_log_file,
+      append = config$msstats$append,
+      verbose = verbose,
+      log_file_path = unlist(config$msstats$log_file_path)
     )
   } else{
     if(verbose) message(
@@ -85,15 +106,24 @@
   
     mssquant = dataProcess(
       raw = dmss,
+      logTrans = config$msstats$logTrans,
       normalization = config$msstats$normalization_method,
-      #Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
+      nameStandards = NULL,
+      featureSubset = config$msstats$feature_subset,
+      remove_uninformative_feature_outlier = config$msstats$remove_uninformative_feature_outlier,
+      min_feature_count = config$msstats$min_feature_count,
+      n_top_feature = config$msstats$n_top_feature,
       summaryMethod = config$msstats$summaryMethod,
+      equalFeatureVar = config$msstats$equalFeatureVar,
       censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
       MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
+      remove50missing = config$msstats$remove50missing,
+      fix_missing = unlist(config$msstats$fix_missing),
+      maxQuantileforCensored = config$msstats$maxQuantileforCensored,
+      use_log_file = config$msstats$use_log_file,
+      append = config$msstats$append,
+      verbose = verbose,
+      log_file_path = unlist(config$msstats$log_file_path)
     )
   }
   
@@ -126,7 +156,7 @@
   
   # protein sample/group quantification
   write.table(
-    quantification(mssquant),
+    quantification(mssquant, type = "Sample"),
     file = gsub('.txt', '-mss-sampleQuant.txt', config$files$output),
     eol = "\n",
     sep = "\t",
@@ -147,8 +177,18 @@
   if(verbose) message(sprintf('-- FITTING CONTRASTS:\t%s\n',paste(rownames(contrasts), collapse = ',')))
   
   write.table(
-    mssquant$ProcessedData,
-    file = gsub('.txt', '-mss-normalized.txt', config$files$output),
+    mssquant$FeatureLevelData,
+    file = gsub('.txt', '-mss-FeatureLevelData.txt', config$files$output),
+    eol = "\n",
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE
+  )
+  
+  write.table(
+    mssquant$ProteinLevelData,
+    file = gsub('.txt', '-mss-ProteinLevelData.txt', config$files$output),
     eol = "\n",
     sep = "\t",
     quote = FALSE,
@@ -177,36 +217,27 @@
     row.names = FALSE,
     col.names = TRUE
   )
-  write.table(
-    mssquant$RunlevelData,
-    file = gsub(".txt", "_RunLevelData.txt", config$files$output),
-    eol = "\n",
-    sep = "\t",
-    quote = FALSE,
-    row.names = FALSE,
-    col.names = TRUE
-  )
 
   if(verbose) message("-- MSstats FINISHED! ")
   
   #(1) Minimal number of biological replicates per condition
   if(verbose) message(">> CALCULATING SAMPLE SIZE FOR FUTURE EXPERIMENTS ")
-  results.ss1 <- designSampleSize(data = results$fittedmodel,
+  results.ss1 <- designSampleSize(data = results$FittedModel,
                                   numSample = TRUE,
-                                  desiredFC = c(1.25, 2),
+                                  desiredFC = c(0.58, 2),
                                   FDR = 0.05,
                                   power = 0.95)
     
     
-  results.ss2 <- designSampleSize(data = results$fittedmodel,
+  results.ss2 <- designSampleSize(data = results$FittedModel,
                                   numSample = TRUE,
-                                  desiredFC = c(1.25, 2),
+                                  desiredFC = c(0.58, 2),
                                   FDR = 0.05,
                                   power = 0.9)
   
-  results.ss3 <- designSampleSize(data = results$fittedmodel,
+  results.ss3 <- designSampleSize(data = results$FittedModel,
                                   numSample = TRUE,
-                                  desiredFC = c(1.25, 2),
+                                  desiredFC = c(0.58, 2),
                                   FDR = 0.05,
                                   power = 0.8)
     
@@ -224,23 +255,29 @@
   
   #(2) Power calculation
   if(verbose) message(">> CALCULATING POWER OF EXPERIMENT")
-  results.power1 <-
-    designSampleSize(
-      data = results$fittedmodel,
-      numSample = 3,
-      desiredFC = c(1.25, 2),
-      FDR = 0.05,
-      power = TRUE
-    )
-  results.power2 <-
-    designSampleSize(
-      data = results$fittedmodel,
-      numSample = 2,
-      desiredFC = c(1.25, 2),
-      FDR = 0.05,
-      power = TRUE
-    )
-  results.power <- rbind(results.power1, results.power2)
+  results.power1 <- designSampleSize(data = results$FittedModel,
+                                     numSample = 2,
+                                     desiredFC = c(0.58, 2),
+                                     FDR = 0.05,
+                                     power = TRUE)
+  results.power2 <- designSampleSize(data = results$FittedModel,
+                                     numSample = 3,
+                                     desiredFC = c(0.58, 2),
+                                     FDR = 0.05,
+                                     power = TRUE)
+  results.power3 <- designSampleSize(data = results$FittedModel,
+                                     numSample = 4,
+                                     desiredFC = c(0.58, 2),
+                                     FDR = 0.05,
+                                     power = TRUE)
+  results.power4 <- designSampleSize(data = results$FittedModel,
+                                     numSample = 5,
+                                     desiredFC = c(0.58, 2),
+                                     FDR = 0.05,
+                                     power = TRUE)
+
+  results.power <- rbind(results.power1, results.power2, results.power3, results.power4)
+  
   write.table(
     results.power,
     file = gsub(".txt", "_experimentPower.txt", config$files$output),

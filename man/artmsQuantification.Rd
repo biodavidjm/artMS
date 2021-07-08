@@ -16,7 +16,8 @@ artmsQuantification(
 \item{yaml_config_file}{(char, required) The yaml file name and location}
 
 \item{data_object}{(logical) flag to indicate whether the configuration file
-is a string to a file that should be opened or config object (yaml). Default is \code{FALSE}}
+is a string to a file that should be opened or config object (yaml).
+Default is \code{FALSE}. Choose \code{TRUE} if \code{yaml_config_file} is a yaml object}
 
 \item{printPDF}{(logical) if \code{TRUE} (default), prints out pdf}
 

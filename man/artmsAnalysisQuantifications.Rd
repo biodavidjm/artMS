@@ -43,10 +43,9 @@ a full analysis (including enrichment analysis):
 \itemize{
 \item HUMAN
 \item MOUSE
-}
-
 To find out species supported only for annotation check
-\code{?artmsIsSpeciesSupported()}}
+\code{?artmsIsSpeciesSupported()}
+}}
 
 \item{output_dir}{(char) Name for the folder to output the results from the
 function. Default is current directory (recommended to provide a new folder
@@ -163,6 +162,14 @@ Analysis of relative quantifications, including:
 \item PCA of quantifications
 \item Clustering analysis
 \item Basic imputation of missing values
+}
+
+To run this function, the following packages must be installed on your system:
+\itemize{
+\item From bioconductor:
+\code{BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))}
+\item From CRAN:
+\code{install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))}
 }
 }
 \examples{

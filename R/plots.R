@@ -29,7 +29,7 @@ artmsDataPlots <- function(input_file,
   
   data_mss = fread(input_file, integer64 = 'double')
   unique_subjects <- unique(data_mss$PROTEIN)
-  condition_length <- length(unique(data_mss$GROUP_ORIGINAL))
+  condition_length <- length(unique(data_mss$GROUP))
   min_abu <- min(data_mss$ABUNDANCE, na.rm = TRUE)
   max_abu <- max(data_mss$ABUNDANCE, na.rm = TRUE)
   
@@ -40,10 +40,10 @@ artmsDataPlots <- function(input_file,
     if(verbose) message(sprintf('%s ', subject))
     p <-
       ggplot(data = subject_data,
-             aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, colour = FEATURE))
+             aes(x = SUBJECT, y = ABUNDANCE, colour = FEATURE))
     p <- p + geom_point(size = 2, na.rm = TRUE) +
       facet_wrap(
-        facets = ~ GROUP_ORIGINAL,
+        facets = ~ GROUP,
         drop = TRUE,
         scales = 'free_x',
         ncol = condition_length
@@ -211,7 +211,9 @@ artmsDataPlots <- function(input_file,
 #' @return (pdf or ggplot2 object) heatmap of the MSStats results using the
 #' selected metric
 #' @keywords heatmap, log2fc
-#' @examples 
+#' @examples
+#' # Unfortunately, the example does not contain any significant hits
+#' # Use for illustration purposes
 #' artmsPlotHeatmapQuant(input_file = artms_data_ph_msstats_results,
 #'                        species = "human",
 #'                        output_file = NULL,
@@ -250,7 +252,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   sign_hits <- sign_hits[complete.cases(sign_hits$log2FC), ]
   sign_hits <- sign_hits[is.finite(sign_hits$log2FC), ]
   if (dim(sign_hits)[1] == 0) {
-    stop("--- not enough significant hits!")
+    return(message("--- not enough significant hits!"))
   }
   
   sign_labels <- unique(sign_hits$Label)
@@ -585,10 +587,10 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @keywords internal, plot, abundance
 .artms_plotAbundanceBoxplots <- function(df) {
   p1 <- ggplot2::ggplot(df, 
-                        aes(x = SUBJECT_ORIGINAL, 
+                        aes(x = SUBJECT, 
                             y = ABUNDANCE, 
                             fill = ABUNDANCE))
-  p1 <- p1 + geom_boxplot(aes(fill = SUBJECT_ORIGINAL),
+  p1 <- p1 + geom_boxplot(aes(fill = SUBJECT),
                           na.rm = TRUE)
   p1 <- p1 + theme_linedraw()
   p1 <-
@@ -606,11 +608,11 @@ artmsPlotHeatmapQuant <- function(input_file,
   
   p2 <-
     ggplot2::ggplot(df, aes(
-      x = as.factor(GROUP_ORIGINAL),
+      x = as.factor(GROUP),
       y = ABUNDANCE,
       fill = ABUNDANCE
     ))
-  p2 <- p2 + geom_boxplot(aes(fill = GROUP_ORIGINAL),
+  p2 <- p2 + geom_boxplot(aes(fill = GROUP),
                           na.rm = TRUE)
   p2 <- p2 + theme_linedraw()
   p2 <-
@@ -637,9 +639,9 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @return (pdf) Barplots with the number of proteins per br / condition
 # @keywords internal, plots, abundance, counts
 .artms_plotNumberProteinsAbundance <- function(df) {
-  x <- df[,c('PROTEIN', 'SUBJECT_ORIGINAL')]
+  x <- df[,c('PROTEIN', 'SUBJECT')]
   y <- unique(x)
-  names(y)[grep('SUBJECT_ORIGINAL', names(y))] <- 'BioReplicate'
+  names(y)[grep('SUBJECT', names(y))] <- 'BioReplicate'
   z <-
     ggplot2::ggplot(y, aes(x = BioReplicate, fill = BioReplicate))
   z <- z + geom_bar(stat = "count", na.rm = TRUE)
@@ -654,9 +656,9 @@ artmsPlotHeatmapQuant <- function(input_file,
   z <- z + ggtitle("Unique Proteins in BioReplicates")
   print(z)
   
-  a <- df[,c('PROTEIN', 'GROUP_ORIGINAL')]
+  a <- df[,c('PROTEIN', 'GROUP')]
   b <- unique(a)
-  names(b)[grep('GROUP_ORIGINAL', names(b))] <- 'Condition'
+  names(b)[grep('GROUP', names(b))] <- 'Condition'
   c <- ggplot2::ggplot(b, aes(x = Condition, fill = Condition))
   c <- c + geom_bar(stat = "count", na.rm = TRUE)
   c <- c + theme_linedraw()
@@ -712,7 +714,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 # @keywords plot, reproducibility, abundance
 .artms_plotReproducibilityAbundance <- function(x,
                                                 verbose = verbose) {
-  condi <- unique(x$GROUP_ORIGINAL)
+  condi <- unique(x$GROUP)
   
   # Progress bar
   if(verbose) pb <- txtProgressBar(min = 0,
@@ -729,14 +731,14 @@ artmsPlotHeatmapQuant <- function(input_file,
     # message("TECHNICAL REPLICAS --------------------------- ")
     # message("- ", eCondition," ")
     
-    conditionOne <- x[which(x$GROUP_ORIGINAL == eCondition), ]
+    conditionOne <- x[which(x$GROUP == eCondition), ]
     
     # FIRST CHECK FOR TECHNICAL REPLICAS
-    bioreplicasAll <- unique(conditionOne$SUBJECT_ORIGINAL)
+    bioreplicasAll <- unique(conditionOne$SUBJECT)
     # plot_tr = list()
     for (eBioreplica in bioreplicasAll) {
       # message('\tChecking for technical replicas in ',eBioreplica, " ")
-      biorepli <- conditionOne[conditionOne$SUBJECT_ORIGINAL == eBioreplica, ]
+      biorepli <- conditionOne[conditionOne$SUBJECT == eBioreplica, ]
       here <- unique(biorepli$RUN)
       
       if (length(here) > 1) {
@@ -803,15 +805,15 @@ artmsPlotHeatmapQuant <- function(input_file,
     # aggregate on the technical replicas
     # message(" BIOLOGICAL REPLICAS --------------------------- ")
     b <- aggregate(
-      ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+      ABUNDANCE ~ PROTEIN + GROUP + SUBJECT,
       data = conditionOne,
       FUN = mean
     ) 
     
     # Remove the dash
-    b$SUBJECT_ORIGINAL <- gsub("-", "_", b$SUBJECT_ORIGINAL)
+    b$SUBJECT <- gsub("-", "_", b$SUBJECT)
       
-    blist <- unique(b$SUBJECT_ORIGINAL)
+    blist <- unique(b$SUBJECT)
     if ( length(blist) > 1 ) {
       # We need at least TWO BIOLOGICAL REPLICAS
       to <- length(blist) - 1
@@ -824,12 +826,12 @@ artmsPlotHeatmapQuant <- function(input_file,
           
           ##LEGACY
           # bc <- data.table::dcast(data = b,
-          #                        PROTEIN ~ SUBJECT_ORIGINAL,
+          #                        PROTEIN ~ SUBJECT,
           #                        value.var = 'ABUNDANCE')
           
           bc <- b %>% 
             tidyr::pivot_wider(id_cols = PROTEIN, 
-                               names_from = SUBJECT_ORIGINAL, 
+                               names_from = SUBJECT, 
                                values_from = ABUNDANCE)
             
           bc <- bc[complete.cases(bc), ]
@@ -877,7 +879,7 @@ artmsPlotHeatmapQuant <- function(input_file,
 .artms_plotCorrelationConditions <- function(x, numberBiologicalReplicas) {
   # Before jumping to merging biological replicas:
   # Technical replicas: aggregate on the technical replicas
-  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP + SUBJECT,
                  data = x,
                  FUN = mean)
     
@@ -889,20 +891,20 @@ artmsPlotHeatmapQuant <- function(input_file,
   # ifelse(sum(!is.na(x)) == numberBiologicalReplicas, 
   # mean(x, na.rm = TRUE), NA)}
   # datadc <- data.table::dcast(data=b, 
-  # PROTEIN~GROUP_ORIGINAL, value.var = 'ABUNDANCE', 
+  # PROTEIN~GROUP, value.var = 'ABUNDANCE', 
   # fun.aggregate = allBiologicalReplicas, fill = 0)
   
   # Or a most relaxed way:
   
   ##LEGACY
   # datadc <- data.table::dcast(data = b,
-  #                             PROTEIN ~ GROUP_ORIGINAL,
+  #                             PROTEIN ~ GROUP,
   #                             value.var = 'ABUNDANCE',
   #                             fun.aggregate = mean) 
   
   datadc <- b %>% 
     tidyr::pivot_wider(id_cols = PROTEIN,
-                       names_from = GROUP_ORIGINAL, 
+                       names_from = GROUP, 
                        values_from = ABUNDANCE, 
                        values_fn = list(ABUNDANCE = mean))
     
@@ -917,7 +919,7 @@ artmsPlotHeatmapQuant <- function(input_file,
   # before, " Removing the 0s: ",evenafter, 
   # " Total proteins (only complete cases): ", after, "  ")
   
-  blist <- unique(b$GROUP_ORIGINAL)
+  blist <- unique(b$GROUP)
   if (length(blist) > 1) {
     # We need at least TWO CONDITIONS
     to <- length(blist) - 1

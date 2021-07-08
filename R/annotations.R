@@ -13,7 +13,7 @@
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
 #' @examples
-#' # This example adds annotations to the evidence file available in
+#' # This example adds annotations to the example evidence file included in
 #' # artMS, based on the column 'Proteins'.
 #'
 #' evidence_anno <- artmsAnnotationUniprot(x = artms_data_ph_evidence,
@@ -203,10 +203,13 @@ artmsLeaveOnlyUniprotEntryID <- function(x, columnid){
 #' exampleID <- c("Q6P996", "B1N8M6")
 #' artmsMapUniprot2Entrez(uniprotkb = exampleID, 
 #'                        species = "HUMAN")
-#'                        
 #' @export
 artmsMapUniprot2Entrez <- function(uniprotkb, 
                                    species) {
+  
+  if( !("org.Hs.eg.db" %in% installed.packages()) ){
+    stop("Package <org.Hs.eg.db> required to run this function. Please, install and run it again")
+  }
   
   if(any(missing(uniprotkb) | 
          missing(species)))

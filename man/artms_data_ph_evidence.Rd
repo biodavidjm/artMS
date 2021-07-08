@@ -15,11 +15,11 @@ artms_data_ph_evidence
 Evidence file from a PH experiment consisting of two
 head and neck cancer cell lines ("Conditions" \code{"Cal33"} and \code{"HSC6"}).
 
-Unfortunately, the number of lines was reduced to 1/8 due
-to bioconductor limitations on data size, which means that this data is
-not very representative of a real evidence file. However, both the
-full evidence.txt and keys.txt file are available at:
-http://kroganlab.ucsf.edu/artms/ph/evidence.txt
-http://kroganlab.ucsf.edu/artms/ph/keys.txt
+Unfortunately, the number of lines was reduced to 1/20 due
+to bioconductor limitations on data size, but it should be enough to test the
+qc and quantification functions. The number of total columns
+from the original evidence file was also reduced to 36
+(out of the original 66 columns).
+Check \code{colnames(artms_data_ph_evidence)} for details
 }
 \keyword{datasets}

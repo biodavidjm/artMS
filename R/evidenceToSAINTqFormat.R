@@ -74,9 +74,13 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
   
   if(fractions){
     if(verbose) message("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE ")
-    requiredColumns <- c('RawFile','IsotopeLabelType','Condition',
-                         'BioReplicate','Run', 
-                         'FractionKey', 'SAINT')
+    requiredColumns <- c('RawFile',
+                         'IsotopeLabelType',
+                         'Condition',
+                         'BioReplicate',
+                         'Run', 
+                         'Fraction',
+                         'SAINT')
     if(any(! requiredColumns %in% colnames(keys)))
       stop('Column names in keys not conform to schema. Required columns:', 
            sprintf('\t%s\n',requiredColumns))

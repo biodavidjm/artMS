@@ -8,7 +8,6 @@ artmsQualityControlEvidenceBasic(
   evidence_file,
   keys_file,
   prot_exp = c("AB", "PH", "UB", "AC", "APMS", "PTM:XXX:yy"),
-  fractions = 0,
   output_dir = "qc_basic",
   output_name = "qcBasic_evidence",
   isSILAC = FALSE,
@@ -41,12 +40,6 @@ modification name used within the evidence file (require lowercase characters).
 Example for phosphorylation: \code{PTM:STY:ph} will find modifications on
 aa S,T,Y with this example format \verb{_AAGGAPS(ph)PPPPVR_}. This means that
 the user could select phosphorylation as \code{PH} or \code{PTM:STY:ph}
-}}
-
-\item{fractions}{(binary) Are there fractions in this experiment?
-\itemize{
-\item 1 yes
-\item 0 no (default)
 }}
 
 \item{output_dir}{(char) Name for the folder to output the results plots.

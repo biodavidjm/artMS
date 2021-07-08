@@ -60,6 +60,8 @@ selected metric
 Heatmap of the Relative Quantifications (MSStats results)
 }
 \examples{
+# Unfortunately, the example does not contain any significant hits
+# Use for illustration purposes
 artmsPlotHeatmapQuant(input_file = artms_data_ph_msstats_results,
                        species = "human",
                        output_file = NULL,

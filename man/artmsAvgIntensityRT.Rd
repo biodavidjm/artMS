@@ -8,7 +8,6 @@ artmsAvgIntensityRT(
   evidence_file,
   protein_file = NULL,
   output_file = FALSE,
-  species,
   verbose = TRUE
 )
 }
@@ -16,15 +15,12 @@ artmsAvgIntensityRT(
 \item{evidence_file}{(char) The filepath to the MaxQuant searched data
 (evidence) file (txt tab delimited file).}
 
-\item{protein_file}{(char) The filepath to a file or vector conatining
+\item{protein_file}{(char) The file path to a file or vector containing
 a list of proteins of interest.}
 
 \item{output_file}{(char) The file name for the results
 (must have the extension \code{.txt}). If empty, then the
 results will be returned as an R object.}
-
-\item{species}{(char) The species name.
-Check \code{?artmsMapUniprot2Entrez} for supported species}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
@@ -42,8 +38,7 @@ retention time. If a list of proteins is provided, then only those proteins
 will be summarized and returned.
 }
 \examples{
-ave_int <- artmsAvgIntensityRT(evidence_file = artms_data_ph_evidence,
-                                  species = "human")
+ave_int <- artmsAvgIntensityRT(evidence_file = artms_data_ph_evidence)
 }
 \keyword{MaxQuant,}
 \keyword{caliberated}
