@@ -1,17 +1,31 @@
-Changes in version 1.8.4 (2021-05-12)
-+ Several adjustments in artmsAnalysisQuantifications function:
-   - Use NAs instead of 0 when reshaping the data for missing values (-log2fc-wide.txt and -log2fc-long.txt files)
-   - plotClusteringAnalysis only available when 3 or more comparisons available in the configuration file
+Changes in version 1.10.1 (2021-06-30)
++ Addressing major changes in MSstats
+   - R version larger than 4.1 is now required
+   - Fractions: the option "Fractions" is removed from the configuration file. If fractions are present, the user must include a "Fraction" column in the keys.txt file, which artMS will detect automatically.
+   - {artmsQualityControlEvidenceBasic}: fraction parameter no longer required (automatically detected from the keys file)
+   - {keys.txt}: use {Fraction} instead of {FractionKey}
++ External packages used exclusively by the {artmsAnalysisQuantifications} function are not required. Those packages will have to be installed before running this function.
++ {artmsAvgIntensityRT}: argument {species} is not longer required
++ Example datasets: 
+   - {artms_data_ph_evidence}: the size has been significantly reduced (bioconductor requirement). Only two biological replicates and 1/20 of the lines selected randomly. Including only 36 columns from the original evidence file
+   - {artms_data_ph_msstats_results}: output from running {artmsQuantification} on the full version of the evidence file, including 4 biological replicates (instead of the reduced version available in the package)
+   - {artms_data_ph_msstats_modelqc}: output from running {artmsQuantification} on the full version of the evidence file, including 4 biological replicates (instead of the reduced version available in the package)
+
+Changes in version 1.10.0 (2021-05-12)
++ Bioconductor release 3.13
++ Several adjustments in {artmsAnalysisQuantifications} function:
+   - Use NAs instead of 0 when reshaping the data for missing values ({-log2fc-wide.txt} and {-log2fc-long.txt} files)
+   - {plotClusteringAnalysis} only available when 3 or more comparisons available in the configuration file
 + R > v4.0.0 is now required
 + Update documentation & vignette
 + Code cleaning
 
 Changes in version 1.8.3 (2021-04-05)
-+ artmsProtein2SiteConversion now supports uniprot id isoforms (thanks Emily King)
++ {artmsProtein2SiteConversion} now supports uniprot id isoforms (thanks Emily King)
 + Update vignette to make clearer how to provide several protein ids in "normalization_reference" (thanks Olga Schubert)
 
 Changes in version 1.8.2 (2021-03-18)
-+ artmsProtein2SiteConversion: New PTM available as argument, a new user defined `PTM:XXX:yy`. Check documentation to find out more
++ {artmsProtein2SiteConversion}: New PTM available as argument, a new user defined `PTM:XXX:yy`. Check documentation to find out more
 + QC plots: by default, all qc plots are now output to a folder directory, by type (qc-basic, qc-extended, qc_summary)
 + artMS working directory: artMS will create all the folders and subfolders relative to the working directory. No need to specify the full path to the working directory, but the user must set the working directory: setwd("/path/to/working/directory/")
 + Configuration file data object updates:

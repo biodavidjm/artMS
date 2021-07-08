@@ -84,6 +84,7 @@ This function uses the following \code{gprofiler} arguments as default:
 }
 }
 \examples{
+\dontrun{
 # annotate the MSstats results to get the Gene name
 data_annotated <- artmsAnnotationUniprot(
                                      x = artms_data_ph_msstats_results,
@@ -100,5 +101,6 @@ data_annotated_enrich <- artmsEnrichProfiler(
                                    categorySource = c('KEGG'),
                                    species = "hsapiens",
                                    background = unique(data_annotated$Gene))
+}
 }
 \keyword{enrichment}

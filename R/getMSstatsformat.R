@@ -5,22 +5,16 @@
 # generates the input data.frame required by MSstats.
 # It processes fractionated data as well.
 # @param data_f (data.frame) of the filtered Maxquant evidence file.
-# @param fraction (boolean) 1 or 0 option to specified whether or not
-#  is a fractionated experiment
 # @param output_name (char) Output file name (to generate the output files). 
 # '.txt' extension required
-# @param funfunc (char) The function to use to aggregating the data if it is a
-# fractionated experiment (default: `sum`)
 # @param data_object (logical) if TRUE the output_name cannot be the evidence file
 # since it would be an data_object
 # @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) MSstats compatible format
 # @keywords internal, MSstats, format, input, fractions
 .artms_getMSstatsFormat <- function(data_f, 
-                                    fraction, 
                                     output_name, 
-                                    funfunc = "sum",
-                                    data_object = data_object,
+                                    data_object = FALSE,
                                     verbose = TRUE) {
   
   Run = PeptideSequence = Condition_BioReplicate_Run = NULL
@@ -28,7 +22,6 @@
   if(verbose) message(">> CONVERTING THE DATA TO MSSTATS FORMAT ")
 
   if(any(missing(data_f) | 
-         missing(fraction) |
          missing(output_name)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
@@ -42,64 +35,34 @@
   }
   
   data_f <- artmsChangeColumnName(data_f, 
-                                   "Modified.sequence", 
-                                   "PeptideSequence")
+                                  "Modified.sequence", 
+                                  "PeptideSequence")
   
   data_f$PeptideSequence <- gsub("_", "", data_f$PeptideSequence)
   
-  if(verbose)
+  if(verbose) 
     message("-- Selecting Sequence Type: MaxQuant 'Modified.sequence' column")
   
-  # DEAL WITH FRACTIONS FIRST (but in reality it is just checking,
-  # because it is doing a sum up of redundant features anyway)
-  if (any(grepl("FractionKey", colnames(data_f))) & fraction) {
-    if(verbose)
-      message("-- DEALING WITH FRACTIONS (sum up msint per features) ")
-    
-    predmss <- aggregate(data = data_f,
-                         Intensity ~ Proteins + 
-                           PeptideSequence + 
-                           Charge + 
-                           IsotopeLabelType + 
-                           Condition +
-                           BioReplicate + Run,
-                         FUN = funfunc)
-      
-      
-    predmss <- predmss[, c("Proteins",
-                           "PeptideSequence",
-                           "Charge",
-                           "IsotopeLabelType",
-                           "Condition",
-                           "BioReplicate",
-                           "Run",
-                           "Intensity")]
-      
-      
-  } else{
-    # If there are duplications, sum up
-    predmss <- aggregate(data = data_f,
-                         Intensity ~ Proteins + PeptideSequence + Charge + 
-                           IsotopeLabelType + Condition + BioReplicate + Run,
-                         FUN = sum)
-      
-        
-    predmss <- predmss[, c("Proteins",
-                           "PeptideSequence",
-                           "Charge",
-                           "IsotopeLabelType",
-                           "Condition",
-                           "BioReplicate",
-                           "Run",
-                           "Intensity")]
+  # DEAL WITH FRACTIONS FIRST 
+  if( !("Fraction" %in% colnames(data_f)) ){
+    if(verbose) message("\t(+) <Fraction> column added (with value 1, MSstats requirement)")
+    data_f$Fraction <- 1
   }
+  
+  predmss <- data_f[, c("Proteins",
+                        "PeptideSequence",
+                        "Charge",
+                        "IsotopeLabelType",
+                        "Condition",
+                        "BioReplicate",
+                        "Fraction",
+                        "Run",
+                        "Intensity")]
   
   # step required by MSstats to add 'NA' intensity values for those
   # features not found in certain bioreplicates/runs
   # If this is not done, MSstats will still works,
   # but it will generate a gigantic warning.
-  # Using dcast from data.table because it has the option "sep" that allows to
-  # choose the 'collapse' character to use.
   if(verbose)
     message("-- Adding NA values for missing values (required by MSstats) ")
   
@@ -111,11 +74,11 @@
   #                                 fun.aggregate = sum,
   #                                 sep = "___")
   predmss_dc <- predmss %>% 
-    dplyr::mutate(Condition_BioReplicate_Run = paste(Condition, BioReplicate, Run, sep = "___") ) %>%
+    dplyr::mutate(Condition_BioReplicate_Run = paste(Condition, BioReplicate, Run, Fraction, sep = "___") ) %>%
     tidyr::pivot_wider(id_cols = c(Proteins, PeptideSequence, Charge, IsotopeLabelType), 
                        names_from = Condition_BioReplicate_Run, 
                        values_from = Intensity, 
-                       values_fn = list(Intensity = sum), values_fill = list(Intensity = 0))
+                       values_fn = list(Intensity = sum), values_fill = list(Intensity = NA))
                     
   
   ##LEGACY
@@ -125,16 +88,16 @@
   #                                              'Charge', 
   #                                              'IsotopeLabelType'),
   #                                  value.name = "Intensity")
-  
   predmss_melt <- predmss_dc %>%
     tidyr::pivot_longer(cols = -c(Proteins, PeptideSequence, Charge, IsotopeLabelType), 
                         names_to = "variable", 
                         values_to = "Intensity")
   
   # And put back the condition, bioreplicate and run columns
-  predmss_melt$Condition <- gsub("(.*)(___)(.*)(___)(.*)", "\\1", predmss_melt$variable)
-  predmss_melt$BioReplicate <- gsub("(.*)(___)(.*)(___)(.*)", "\\3", predmss_melt$variable)
-  predmss_melt$Run <- gsub("(.*)(___)(.*)(___)(.*)", "\\5", predmss_melt$variable)
+  predmss_melt$Condition <- gsub("(.*)(___)(.*)(___)(.*)(___)(.*)", "\\1", predmss_melt$variable)
+  predmss_melt$BioReplicate <- gsub("(.*)(___)(.*)(___)(.*)(___)(.*)", "\\3", predmss_melt$variable)
+  predmss_melt$Run <- gsub("(.*)(___)(.*)(___)(.*)(___)(.*)", "\\5", predmss_melt$variable)
+  predmss_melt$Fraction <- gsub("(.*)(___)(.*)(___)(.*)(___)(.*)", "\\7", predmss_melt$variable)
   
   # After the data has been aggregated, then we add the columns
   predmss_melt$ProductCharge <- NA
@@ -142,7 +105,6 @@
   
   # Names required by MSstats
   predmss_melt <- artmsChangeColumnName(predmss_melt, "Proteins", "ProteinName")
-    
   predmss_melt <- artmsChangeColumnName(predmss_melt, "Charge", "PrecursorCharge")
 
   # And re-sort it as msstats likes it
@@ -155,10 +117,11 @@
                            "Condition",
                            "BioReplicate",
                            "Run",
+                           "Fraction",
                            "Intensity")]
   
   ## sanity check for zero's
-  if (nrow(dmss[!is.na(dmss$Intensity) & dmss$Intensity == 0, ]) > 0) {
+  if ( nrow(dmss[!is.na(dmss$Intensity) & dmss$Intensity == 0, ]) > 0) {
     dmss[!is.na(dmss$Intensity) & dmss$Intensity == 0, ]$Intensity = NA
   }
   

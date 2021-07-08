@@ -8,9 +8,6 @@ utils::globalVariables(
     "Modified.sequence",
     "RawFile_IsotopeLabelType"))
 
-# Small MSstats-related Functions
-
-
 # @title Long to Wide format selecting the `Modified.sequence` column of the
 # evidence file
 #
@@ -271,7 +268,22 @@ artmsMergeEvidenceAndKeys <- function(x,
     }
   }
   
-  requiredColumns <- c('RawFile', 'IsotopeLabelType',
+  # Processing FRACTIONS
+  # Helping users: processing old requirement
+  if("FractionKey" %in% colnames(keys)){
+    keys <- artmsChangeColumnName(keys, "FractionKey", "Fraction")
+    if(verbose) message("-- (!!) WARNING: column name <FractionKey> deprecated. Please, use <Fraction> instead")
+  }
+  
+  if("Fraction" %in% colnames(keys)){
+    # The Fraction column will be the one to use: delete from evidence
+    if("Fraction" %in% colnames(x)){
+      x <- subset(x, select = -c(Fraction))
+    }
+  }
+  
+  requiredColumns <- c('RawFile', 
+                       'IsotopeLabelType',
                        'Condition',
                        'BioReplicate', 
                        'Run')
@@ -286,14 +298,15 @@ artmsMergeEvidenceAndKeys <- function(x,
   unique_data <- sort(unique(x$RawFile))
   unique_keys <- sort(unique(keys$RawFile))
   
-  if (length(unique_keys) != length(unique_data)) {
-    keys_not_found <- setdiff(unique_keys, unique_data)
-    data_not_found <- setdiff(unique_data, unique_keys)
+  keys_not_found <- setdiff(unique_keys, unique_data)
+  data_not_found <- setdiff(unique_data, unique_keys)
+  
+  if(length(keys_not_found) > 0 | length(data_not_found) > 0){
     if(length(keys_not_found) != 0){
       message(
         sprintf(
-          "--(-) Raw.files in keys not found in evidence file: %s\n",
-          paste(keys_not_found, collapse = '\t'))
+          "--(-) Raw.files in keys not found in evidence file:\n %s\n",
+          paste(keys_not_found, collapse = ';'))
       ) 
     }
     if(length(data_not_found) != 0){
@@ -387,6 +400,103 @@ artmsSILACtoLong <- function(evidence_file,
   return(tmp_long)
 }
 
+# @title Provide missing MSstats configuration parameters 
+#
+# @description MSstats version > 4 introduced a number of major changes 
+# affecting the `dataProcess` function. As consequence, the artMS configuration 
+# file was updated. The user can now provide any parameter required by 
+# dataProcess. But if the user is still using old artMS configuration files,
+# this function provides the new extra paramenters not available in previous
+# versions
+# @param d_long (data.frame) in long format
+# @return (data.frame) Evidence file reshaped by rawfile and IsotopeLabelType
+# @keywords msstats, parameters
+.artms_provide_msstats_config_miss_parameters <- function(config, 
+                                                          verbose = TRUE){
+  
+  Fraction = NULL
+  
+  if(any(grepl("^msstats$", names(config)))){
+    
+    cmmp = 0 #count missing msstats parameters
+    
+    if( !any(grepl("^logTrans$", names(config$msstats))) ){
+      config$msstats$logTrans = 2
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^normalization_method$", names(config$msstats))) ){
+      config$msstats$normalization_method = "equalizeMedians"
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^normalization_reference$", names(config$msstats))) ){
+      config$msstats$normalization_reference = list(NULL)
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^feature_subset$", names(config$msstats))) ){
+      config$msstats$feature_subset = "all"
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^remove_uninformative_feature_outlier$", names(config$msstats))) ){
+      config$msstats$remove_uninformative_feature_outlier = FALSE
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^min_feature_count$", names(config$msstats))) ){
+      config$msstats$min_feature_count = 2
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^n_top_feature$", names(config$msstats))) ){
+      config$msstats$n_top_feature = 3
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^summaryMethod$", names(config$msstats))) ){
+      config$msstats$summaryMethod = "TMP"
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^equalFeatureVar$", names(config$msstats))) ){
+      config$msstats$equalFeatureVar = TRUE
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^censoredInt$", names(config$msstats))) ){
+      config$msstats$censoredInt = "NA"
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^MBimpute$", names(config$msstats))) ){
+      config$msstats$MBimpute = TRUE
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^remove50missing$", names(config$msstats))) ){
+      config$msstats$remove50missing = FALSE
+      cmmp = cmmp + 1
+    }
+    if( !any(grepl("^fix_missing$", names(config$msstats))) ){
+      config$msstats$fix_missing = list(NULL)
+      cmmp = cmmp + 1
+    }
+    if(!any(grepl("^maxQuantileforCensored$", names(config$msstats)))){
+      config$msstats$maxQuantileforCensored = 0.999
+      cmmp = cmmp + 1
+    }
+    if(!any(grepl("^use_log_file$", names(config$msstats)))){
+      config$msstats$use_log_file = TRUE
+      cmmp = cmmp + 1
+    }
+    if(!any(grepl("^append$", names(config$msstats)))){
+      config$msstats$append = FALSE
+      cmmp = cmmp + 1
+    }
+    if(!any(grepl("^log_file_path$", names(config$msstats)))){
+      config$msstats$log_file_path = list(NULL)
+    }
+    
+    if(cmmp > 0){
+      message(paste("(!) WARNING:", cmmp," <msstats> parameter(s) missing. 
+                Default paramenter(s) will be provided. 
+                Please, check the artMS configuration file: you might be using an old version. 
+                To get a new version use artmsWriteConfigYamlFile()"))
+    }
+    return(config)
+  }
+}
 
 
 # @title Merge keys and Evidence from SILAC experiments

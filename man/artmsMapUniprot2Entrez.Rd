@@ -24,7 +24,6 @@ Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 exampleID <- c("Q6P996", "B1N8M6")
 artmsMapUniprot2Entrez(uniprotkb = exampleID, 
                        species = "HUMAN")
-                       
 }
 \keyword{annotation,}
 \keyword{ids}

@@ -5,7 +5,7 @@
 \alias{artms_data_ph_msstats_modelqc}
 \title{MSstats modelQC example}
 \format{
-A data frame resulting from running the lastest version of
+A data frame resulting from running the latest version of
 \code{MSstats::groupComparison} function required as input for
 artmsAnalysisQuantifications()
 }

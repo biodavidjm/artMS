@@ -1,5 +1,3 @@
-
-# 
 #' @title Analysis of the Relative Quantifications
 #'
 #' @description Analysis of relative quantifications, including:
@@ -11,14 +9,19 @@
 #' - PCA of quantifications
 #' - Clustering analysis
 #' - Basic imputation of missing values
-#'
+#' 
+#' To run this function, the following packages must be installed on your system:
+#' - From bioconductor:
+#' `BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))`
+#' - From CRAN:
+#' `install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))`
+#' 
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
 #' @param species (char) Select one species. Species currently supported for
 #' a full analysis (including enrichment analysis):
 #' - HUMAN
 #' - MOUSE
-#' 
 #' To find out species supported only for annotation check 
 #' `?artmsIsSpeciesSupported()`
 #' 
@@ -142,6 +145,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     message("---------------------------------------------")
   }
   
+  # Checking arguments-----
+  
   if(any(missing(log2fc_file) | 
          missing(modelqc_file) |
          missing(species) ))
@@ -154,9 +159,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
      is.null(output_dir)){
     return("The evidence_file, modelqc_file, species and output_dir arguments cannot be NULL")
   }
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Checking arguments
 
   # CHECK POINT: DO THE FILES EXIST?
   if (!is.logical(data_object)) {
@@ -196,12 +198,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   choosePvalue <- tolower(choosePvalue)
   choosePvalue <- match.arg(choosePvalue)
   
-  # CHECK IF THE SPECIES IS SUPPORTED
+  # Check supported species------
   if(isFALSE(artmsIsSpeciesSupported(species))){
     if(verbose) message("----(-) ", species, " is not supported. \n\tGene Symbol, Protein Name, and EntrezID won't be provided")
   }
   
-  # Because the species is known to be supported, let's keep going...
   species <- tolower(species)
   if(!(species %in% c('human', 'mouse'))){
     if(enrich){
@@ -210,6 +211,50 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     }
   }
   
+  # Checking required packages-----
+
+  ## Bioconductor-----
+  cp <- 0
+  if(species == "human"){
+    if (!"org.Hs.eg.db" %in% installed.packages()){
+      message(paste0('- Package < org.Hs.eg.db > not installed in your system. 
+                     Please, install running < BiocManager::install(\"org.Hs.eg.db\") >'))
+      cp = cp + 1
+    }
+  }else if(species == "mouse"){
+    if (!"org.Mm.eg.db" %in% installed.packages()){
+      message(paste0('- Package < org.Mm.eg.db > not installed in your system. 
+                     Please, install running < BiocManager::install(\"org.Mm.eg.db\") >'))
+      cp = cp + 1
+    }
+  }
+  
+  ## CRAN -----
+  required_bioc_packages <- c("ComplexHeatmap")
+  for(p in required_cran_packages){
+    if(!(p %in% installed.packages())){
+      message(paste0('- Package < ', p, ' > not installed in your system. 
+                     Please, install running < BiocManager::install(\"',p,'\") >'))
+      cp <- cp + 1
+    }
+  }
+  
+  required_cran_packages <- c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics")
+  
+  for(p in required_cran_packages){
+    if(!(p %in% installed.packages())){
+      message(paste0('- Package < ', p, ' > not installed in your system. 
+                     Please, install running < install.packages(\"',p,'\") >'))
+      cp <- cp + 1
+    }
+  }
+
+  if(cp > 0){
+    stop("\nRequired packages to run artmsAnalysisQuantifications() not available. Please, install and run again")
+  }
+  
+  
+  # Check pathogens-----
   pathogen <- tolower(pathogen)
   if (pathogen == "nopathogen") {
     if(verbose) message("--- No Pathogen extra in these samples")
@@ -225,11 +270,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     stop("This pathogen is not supported yet")
   }
   
+  # Session info-----
   session <- sessionInfo()
   sink("artms_sessionInfo_analysisQuant.txt")
   print(session)
   sink()
   
+  # Create dir-----
   log2dirname <- normalizePath(dirname(log2fc_file))
   output_dir <- file.path(log2dirname, paste0(output_dir, "_", choosePvalue))
   
@@ -241,7 +288,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # dirname(log2fc_file)
   # getwd()
 
-  # open log2fc----
+  # Open log2fc-----
   if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
   if(data_object){
     dflog2fcraw <- log2fc_file
@@ -256,7 +303,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # use this as a template to generate the output file names
   log2fc_file <- basename(log2fc_file)
   
-  # modelqc ----
+  # Open modelqc ----
   if(verbose) message(">> LOADING modelqc FILE (ABUNDANCE) ")
   if(data_object){
     dfmq <- modelqc_file
@@ -266,10 +313,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                        header = TRUE,
                        sep = "\t",
                        stringsAsFactors = FALSE)
+    colnames(dfmq) <- toupper(colnames(dfmq))
   }
 
   
-  # Removing the empty protein names
+  # Removing the empty protein names-----
   if (any(dfmq$PROTEIN == "")) {
     dfmq <- dfmq[-which(dfmq$PROTEIN == ""), ]
     if(verbose) message("--- Empty ID proteins removed from abundance data")
@@ -277,13 +325,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN)
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN)
   
-  # CHECK THE PROTEIN ID
+  # Check protein ID----
   if( length(dfmq$PROTEIN[grep("\\w{2}_\\d{1,}\\.\\d{1,}", dfmq$PROTEIN)]) > 100 ){
     if(verbose) message("----(-) Many RefSeq IDs detected in this dataset, which is not supported yet.
                         Gene Symbol, Protein Name, and EntrezID won't be provided")
   }
   
-  # # Remove outliers
+  # Remove outliers------
   if (outliers == "iqr" | outliers == "std"){
 
     if(outliers == "iqr"){
@@ -323,7 +371,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       )
       
       # PLOT Outliers
-      k <- ggplot(dfmq, aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE, color = outliers))
+      k <- ggplot(dfmq, aes(x = SUBJECT, y = ABUNDANCE, color = outliers))
       k <- k + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
       k <- k + theme_minimal()
       k <- k + ggtitle("Distribution of ABUNDANCE with outliers")
@@ -334,7 +382,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       ))
       
       # Distribution without ouliers
-      l <- ggplot(dfmq[which(dfmq$outliers == "no"),], aes(x = SUBJECT_ORIGINAL, y = ABUNDANCE))
+      l <- ggplot(dfmq[which(dfmq$outliers == "no"),], aes(x = SUBJECT, y = ABUNDANCE))
       l <- l + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
       l <- l + theme_minimal()
       l <- l + ggtitle("Distribution of ABUNDANCE (outliers removed)")
@@ -361,11 +409,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     dfmq <- dfmq
   }
 
-  # First, let's take the conditions, which will be used later in several places
-  conditions <- unique(dfmq$GROUP_ORIGINAL)
+  # Conditions----
+  conditions <- unique(dfmq$GROUP)
   numberConditions <- length(conditions)
   
-  # KEY STEP: GETTING THE BACKGROUND GENE LIST
+  # KEY STEP: getting background gene list-----
   if (isBackground == "nobackground") {
     # If not list of background genes is provided,
     # then extract them from the modelqc file
@@ -377,7 +425,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       if(verbose) message("--- Total number of genes/proteins: ", numberTotalGenes, " ")
       listOfGenes <- unique(dfmq2Genes$Gene)
     } else if (grepl("ptm", isPtm)) {
-      dfmq2Genes <- dfmq[c('PROTEIN', 'GROUP_ORIGINAL')] 
+      dfmq2Genes <- dfmq[c('PROTEIN', 'GROUP')] 
       names(dfmq2Genes)[grep('PROTEIN', names(dfmq2Genes))] <- 'Protein'
       # # Removing party sites
       # dfmq2Genes <- dfmq2Genes[grep(",", dfmq2Genes$Protein, invert = TRUE), ]
@@ -411,7 +459,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   backgroundNumber <- length(listOfGenes)
   
   
-  # log2fc----
+  # Process log2fc----
   
   if (any(dflog2fcraw$Protein == "")) {
     dflog2fcraw <- dflog2fcraw[-which(dflog2fcraw$Protein == ""), ]
@@ -423,7 +471,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dflog2fcfinites <- dflog2fcraw[is.finite(dflog2fcraw$log2FC), ]
   
   
-  # Removing log2fc outliers?
+  ## Removing log2fc outliers----
   cutofflog2fc <- 15
   if(verbose) message(
     "--- Removing log2fc outliers (",
@@ -441,7 +489,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     dflog2fcfinites <- dflog2fcfinites[-which(abs(dflog2fcfinites$log2FC) > cutofflog2fc), ]
   }
   
-  # IMPUTING MISSING VALUES
+  ## IMPUTING MISSING VALUES-----
   # When a value is completely missed in one of the conditions,
   # the log2fc = Inf / -Inf. Here, we impute those values.
   # The imputation method works as follow. The assumption is that those
@@ -490,7 +538,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dflog2fcfinites$imputed <- "no"
   dflog2fcfinites$iLog2FC <- dflog2fcfinites$log2FC
   
-  # Choose the pvalue or adjusted pvalue as the iPvalue
+  ## Choose the pvalue or adjusted pvalue as the iPvalue-----
   if (choosePvalue == "pvalue") {
     dflog2fcfinites$iPvalue <- dflog2fcfinites$pvalue
   } else if (choosePvalue == "adjpvalue") {
@@ -506,6 +554,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     dflog2fc <- rbind(dflog2fcfinites, theImputedL2FC)
   }
   
+  ## Plot pvalue distributions-----
   if(plotPvaluesLog2fcDist){
     if(verbose) message("--- Plotting distributions of log2fc and pvalues ")
     
@@ -624,54 +673,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(printPDF) garbage <- dev.off()
   }
   
-  
-  # Relationship between conditions
-  # Get the number of biological replicas based on the first condition
-  theConditions <- unique(dfmq$GROUP_ORIGINAL)
-  theFirstCond <- theConditions[2]
-  condFirst <- dfmq[which(dfmq$GROUP_ORIGINAL == theFirstCond), ]
-  theBiologicalReplicas <- unique(condFirst$SUBJECT_ORIGINAL)
-  numberBioReplicas <- length(theBiologicalReplicas)
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # ABUNDANCE PLOTS
-  
-  if(plotAbundanceStats){
-    if(verbose) message(">> PLOTS: ABUNDANCE PLOTS ")
-    abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
-    abundancesName <- paste0("plot.", abundancesName)
-    abundancesName <- paste0(output_dir, "/", abundancesName)
-    if(printPDF) pdf(abundancesName)
-    .artms_plotAbundanceBoxplots(df = dfmq)
-    .artms_plotNumberProteinsAbundance(df = dfmq)
-    if(printPDF) garbage <- dev.off()
-  }
-  
-  # Reproducibility plots based on normalized abundance
-  if(plotReproAbundance){
-    if(verbose) message(">> PLOTS: REPRODUCIBILITY PLOTS ")
-    reproName <- gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
-    reproName <- paste0("plot.", reproName)
-    reproName <- paste0(output_dir, "/", reproName)
-    if(printPDF) pdf(reproName)
-    .artms_plotReproducibilityAbundance(x = dfmq, verbose = verbose)
-    if(printPDF) garbage <- dev.off()
-  }
-  
-  # Conditions
-  if(plotCorrConditions){
-    if(verbose) message(">> PLOT: CORRELATION BETWEEN ALL COMPARISONS ")
-    relaCond <- gsub(".txt", ".correlationConditions.pdf", log2fc_file)
-    relaCond <- paste0("plot.", relaCond)
-    relaCond <- paste0(output_dir, "/", relaCond)
-    if(printPDF) pdf(relaCond)
-    .artms_plotCorrelationConditions(x = dfmq, 
-                                     numberBiologicalReplicas = numberBioReplicas)
-    if(printPDF) garbage <- dev.off()
-  }
-  
+  # Plot correlations based on log2fc------
   if(plotCorrQuant){
-    # Relationship between log2fc comparisons
     if(verbose) message(">> PLOT: CORRELATION BETWEEN QUANTIFICATIONS (based on log2fc values)")
     if (length(unique(dflog2fc$Label)) > 1) {
       relaChanges <- gsub(".txt", ".correlationQuantifications.pdf", log2fc_file)
@@ -685,8 +688,52 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     }
   }
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # ABUNDANCE DATA, CREATE FILTERS
+  # ABUNDANCE-----
+  ## Relationship between conditions------
+  # Get the number of biological replicas based on the first condition
+  theConditions <- unique(dfmq$GROUP)
+  theFirstCond <- theConditions[2]
+  condFirst <- dfmq[which(dfmq$GROUP == theFirstCond), ]
+  theBiologicalReplicas <- unique(condFirst$SUBJECT)
+  numberBioReplicas <- length(theBiologicalReplicas)
+
+  ## ABUNDANCE PLOTS----
+  
+  if(plotAbundanceStats){
+    if(verbose) message(">> PLOTS: ABUNDANCE PLOTS ")
+    abundancesName <- gsub(".txt", ".relativeABUNDANCE.pdf", log2fc_file)
+    abundancesName <- paste0("plot.", abundancesName)
+    abundancesName <- paste0(output_dir, "/", abundancesName)
+    if(printPDF) pdf(abundancesName)
+    .artms_plotAbundanceBoxplots(df = dfmq)
+    .artms_plotNumberProteinsAbundance(df = dfmq)
+    if(printPDF) garbage <- dev.off()
+  }
+  
+  ## Reproducibility plots-----
+  if(plotReproAbundance){
+    if(verbose) message(">> PLOTS: REPRODUCIBILITY PLOTS ")
+    reproName <- gsub(".txt", ".reproducibilityAbundance.pdf", log2fc_file)
+    reproName <- paste0("plot.", reproName)
+    reproName <- paste0(output_dir, "/", reproName)
+    if(printPDF) pdf(reproName)
+    .artms_plotReproducibilityAbundance(x = dfmq, verbose = verbose)
+    if(printPDF) garbage <- dev.off()
+  }
+  
+  ## Correlation between Conditions------
+  if(plotCorrConditions){
+    if(verbose) message(">> PLOT: CORRELATION BETWEEN ALL COMPARISONS ")
+    relaCond <- gsub(".txt", ".correlationConditions.pdf", log2fc_file)
+    relaCond <- paste0("plot.", relaCond)
+    relaCond <- paste0(output_dir, "/", relaCond)
+    if(printPDF) pdf(relaCond)
+    .artms_plotCorrelationConditions(x = dfmq, 
+                                     numberBiologicalReplicas = numberBioReplicas)
+    if(printPDF) garbage <- dev.off()
+  }
+  
+  ## ABUNDANCE DATA, CREATE FILTERS-----
   abundance <- .artms_loadModelqcBasic(dfmq)
   names(abundance)[grep('Protein', names(abundance))] <- 'Prey'
   names(abundance)[grep('Condition', names(abundance))] <- 'Bait'
@@ -825,13 +872,11 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # This version will be printed out below
   OUTreprodFinal <- merge(OUTreprod, reprocondition2merge, by = 'Prey')
   
-  
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # PCA ANALYSIS
+  # PCA ANALYSIS-----
   # It requires a simplified version for modelqc
   if(plotPCAabundance){
     if(verbose) message(">> PRINCIPAL COMPONENT ANALYSIS BASED ON ABUNDANCE ")
-    modelqcabundance <- .artms_loadModelQCstrict(df_input = dfmq,
+    modelqcabundance <- .artms_loadModelQCstrict(df = dfmq,
                                                  species = species,
                                                  ptmis = isPtm,
                                                  verbose = verbose)
@@ -841,9 +886,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                         filename = out.pca, 
                                         allConditions = conditions))
   }
-  
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # ANNOTATIONS
+
+  # ANNOTATIONS-----
   modelqc_file_splc <- .artms_mergeAbNbr(df_input =  dfmq, 
                                          repro =  nbr_wide, 
                                          species =  species)
@@ -935,6 +979,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   if(verbose) message("--- Filtering is done! ")
   
+  # PLOTS: GENERATING QC PLOTS ABOUT CHANGES-----
   if(plotFinalDistributions){
     if(verbose) message(">> GENERATING QC PLOTS ABOUT CHANGES (log2fc) ")
     if(verbose) message("--- Distribution of log2fc and pvalues ")
@@ -1015,7 +1060,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                       log2fc_file)
         
         outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
-        pheatmap(
+        plotPhLog1 <- pheatmap(
           l2fcolmatrix,
           filename = outHeatMapOverallL2fc,
           cellwidth = 20,
@@ -1029,6 +1074,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           fontsize_col = 10,
           border_color = NA
         )
+        print(plotPhLog1)
       }else{
         plotPhLog2 <- pheatmap(
           l2fcolmatrix,
@@ -1068,7 +1114,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                       ".clustering.log2fcSign.all-overview.pdf",
                                       log2fc_file)
         outHeatMapOverallL2fc <- paste0(output_dir, "/", outHeatMapOverallL2fc)
-        pheatmap(
+        plotPh1 <- pheatmap(
           l2fcolSignificantsmatrix,
           filename = outHeatMapOverallL2fc,
           cellwidth = 20,
@@ -1080,10 +1126,10 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           fontsize_row = 8,
           fontsize_col = 8,
           border_color = NA,
-          fontfamily = "Helvetica"
-        )
+          fontfamily = "Helvetica")
+        print(plotPh1)
       }else{
-        plotPh1 <- pheatmap(
+        plotPh2 <- pheatmap(
           l2fcolSignificantsmatrix,
           cellwidth = 20,
           main = "Clustering Log2FC (p-value < 0.05)",
@@ -1095,14 +1141,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           fontsize_col = 8,
           border_color = NA,
           fontfamily = "Helvetica")
-          
-        print(plotPh1)
+        print(plotPh2)
       }
     }
   }
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)
+
+  # ENRICHMENT OF MOST ABUNDANT PROTEINS (from IMPUTED LOG2FC values)-----
   # Let's select first significance based on pvalue, by using the iPvalue
   # we are already including the imputed pvalues...
   
@@ -1119,6 +1163,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   l2fcol4enrichment <- as.data.frame(l2fcol4enrichment)
   
+  ## GPROFILER=====
   if (enrich == TRUE & dim(l2fcol4enrichment)[1] > 0) {
     if(verbose) message(">> ENRICHMENT ANALYSIS OF SELECTED CHANGES USING GPROFILER ")
     
@@ -1417,9 +1462,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     mac.pos <- NULL
     mac.neg <- NULL
   }
-  # END enrichments
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  # Superunified data version-----
   superunified <- merge(abundancelongsummean,
                         nbr_long,
                         by = c('Bait', 'Prey'),
@@ -1452,8 +1496,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if(verbose) message("--- Annotating species(s) in files ")
   superunified <- artmsAnnotateSpecie(superunified, pathogen, species)
 
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (grepl("ptm", isPtm)) {
     if(verbose) message(">> GENERATING EXTENDED DETAILED VERSION OF PH-SITE ")
     imputedDFext <- artmsGeneratePhSiteExtended(df = imputedDF,
@@ -1463,7 +1505,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                                 output_name = paste0(output_dir, "/", log2fc_file))
   }
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Final OUTPUT FILES------
   if(verbose) message(">> GENERATING FINAL OUTPUT FILES ")
   if (grepl("ptm", isPtm)) {
     names(imputedDF)[grep('Protein', names(imputedDF))] <- 'Uniprot_PTM'
@@ -1550,9 +1592,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     stop(" WRONG isPTM SELECTED. 
          OPTIONS AVAILABLE: global, ptmph, ptmsites ")
   }
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # boxplot of relative quantification
+
+  # PLOTS: boxplot of relative quantification------
   if(plotTotalQuant){
     if(verbose) message(">> PLOT OUT: TOTAL NUMBER OF PROTEINS/SITES QUANTIFIED")
     numimputedfinal <- gsub(".txt", ".TotalQuantifications.pdf", log2fc_file)
@@ -1563,7 +1604,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     if(printPDF) garbage <- dev.off()
   }
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # CLUSTERING analysis of quantifications-----
   if(plotClusteringAnalysis){
     if (isPtm == "global") {
       if(verbose) message(">> CLUSTERING ANALYSIS OF QUANTIFICATIONS ")
@@ -1678,8 +1719,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           } else{
             print(pca_all)
           }
-          
-          
           
           # Determine the OPTIMAL NUMBER OF CLUSTERS:
           
@@ -1883,8 +1922,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     } # if (isPtm == "global") {
   }
   # End of clustering analysis
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  # END: WRITING OUTPUT FILES------
   if(verbose) message(">> WRITING THE OUTPUT FILES")
   
   # PRINT OUT IMPUTED
@@ -1970,7 +2009,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     # If it gets up to here... it would be very weird
   }
   
-  # Defining style for the header
+  ## EXCEL: Defining style for the header-----
   hs <- openxlsx::createStyle(fontName = "Arial",
                               fontColour = "white",
                               fgFill = "#000000",
@@ -2374,37 +2413,40 @@ artmsGeneratePhSiteExtended <- function(df,
 # @title Load limited columns from abundance (modelqc) annotated
 #
 # @description Load limited columns from abundance (modelqc) annotated
-# @param df_input (data.frame) with the raw abundance data (modelqc)
+# @param df (data.frame) with the raw abundance data (modelqc)
 # @param species (char) Species name for annotation purposes
 # @param ptmis (char) Specify whether is a PTM dataset: `global`, `ptmsites`,
 # `ptmph`
 # @param verbose (logical) `TRUE` (default) shows function messages
 # @return annotated data.frame of abundance data
 # @keywords abundance, annotated
-.artms_loadModelQCstrict <- function (df_input, 
+.artms_loadModelQCstrict <- function (df, 
                                       species, 
                                       ptmis,
                                       verbose = TRUE) {
+  
+  colnames(df) <- toupper(colnames(df))
+  
   # Remove empty entries
-  if (any(df_input$PROTEIN == "")) {
-    df_input <- df_input[-which(df_input$PROTEIN == ""), ]
+  if (any(df$PROTEIN == "")) {
+    df <- df[-which(df$PROTEIN == ""), ]
   }
-  df_input$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df_input$PROTEIN)
-  df_input$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df_input$PROTEIN)
+  df$PROTEIN <- gsub("(^sp\\|)(.*)(\\|.*)", "\\2", df$PROTEIN)
+  df$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", df$PROTEIN)
   
   # Technical replicas: aggregate on the mean the technical replicas
-  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
-                 data = df_input,
+  b <- aggregate(ABUNDANCE ~ PROTEIN + GROUP + SUBJECT,
+                 data = df,
                  FUN = mean)
   
   ##LEGACY
   # datadc <- data.table::dcast(data = b,
-  #                             PROTEIN ~ GROUP_ORIGINAL,
+  #                             PROTEIN ~ GROUP,
   #                             value.var = 'ABUNDANCE',
   #                             fun.aggregate = mean)
   
   datadc <- b %>% pivot_wider(id_cols = PROTEIN, 
-                              names_from = GROUP_ORIGINAL, 
+                              names_from = GROUP, 
                               values_from = ABUNDANCE, 
                               values_fn = list(ABUNDANCE = mean))
                                
@@ -2450,18 +2492,17 @@ artmsGeneratePhSiteExtended <- function(df,
   } else{
     stop("<ABUNDANCE> protein not found!")
   }
-  if ("GROUP_ORIGINAL" %in% colnames(x)) {
-    names(x)[grep("GROUP_ORIGINAL", names(x))] <- 'Condition'
+  if ("GROUP" %in% colnames(x)) {
+    names(x)[grep("GROUP", names(x))] <- 'Condition'
   } else{
-    stop("<GROUP_ORIGINAL> not found")
+    stop("<GROUP> not found")
   }
-  if ("SUBJECT_ORIGINAL" %in% colnames(x)) {
-    names(x)[grep("SUBJECT_ORIGINAL", names(x))] <- 'BioReplicate'
+  if ("SUBJECT" %in% colnames(x)) {
+    names(x)[grep("SUBJECT", names(x))] <- 'BioReplicate'
   } else{
-    stop("<SUBJECT_ORIGINAL> not found")
+    stop("<SUBJECT> not found")
   }
-  x <- subset(x, 
-                 select = c(Protein, Abundance, Condition, BioReplicate))
+  x <- subset(x, select = c(Protein, Abundance, Condition, BioReplicate))
   return(x)
 }
 
@@ -2487,19 +2528,19 @@ artmsGeneratePhSiteExtended <- function(df,
   # this means that we will find
   # two values for the same protein in the same bioreplica, 
   # therefore we need to aggregate first just in case:
-  df_input <- aggregate(ABUNDANCE ~ PROTEIN + GROUP_ORIGINAL + SUBJECT_ORIGINAL,
+  df_input <- aggregate(ABUNDANCE ~ PROTEIN + GROUP + SUBJECT,
                         data = df_input,
                         FUN = mean)
     
   ##LEGACY
-  # dc_input <- data.table::dcast( data = df_input[, c('PROTEIN', 'ABUNDANCE', 'GROUP_ORIGINAL')],
-  #                                PROTEIN ~ GROUP_ORIGINAL,
+  # dc_input <- data.table::dcast( data = df_input[, c('PROTEIN', 'ABUNDANCE', 'GROUP')],
+  #                                PROTEIN ~ GROUP,
   #                                value.var = 'ABUNDANCE',
   #                                fun.aggregate = mean,
   #                                fill = 0)
   
   dc_input <- df_input %>% pivot_wider(id_cols = PROTEIN, 
-                                        names_from = GROUP_ORIGINAL, 
+                                        names_from = GROUP, 
                                         values_from = ABUNDANCE, 
                                         values_fn = list(ABUNDANCE = mean), 
                                         values_fill = list(ABUNDANCE = 0))

@@ -8,7 +8,7 @@ ___Analytical R Tools for Mass Spectrometry___
 [![codecov](https://codecov.io/github/biodavidjm/artMS/branch/master/graphs/badge.svg)](https://codecov.io/github/biodavidjm/artMS) 
 
 
-# Overview
+## Overview
 
 `artMS` is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
 [MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). The functions available in `artMS` can be grouped into 4 major categories:
@@ -29,40 +29,31 @@ package `MaxQuant`.
 
 
 
-# How to install
+## How to install
 
-We assume that you have both R and [RStudio](https://www.rstudio.com/) already installed on your system. Please, ensure that your system is running an `R version >= 3.6` or otherwise nothing will work (Bioconductor requirement). You can check the R version currently running on your system by executing this command in RStudio:
+### Bioconductor
 
-```
-getRversion()
-```
+`artMS version >= 1.10.1` had many changes to adjust for changes in MSstats. This version requires:
 
-If the outcome is `>= 4.0.0`, congratulations! you can move forward
-
-*If it is not, then you need to [install the latest version of R in your system](https://www.r-project.org/)*. After updating to the latest R version, open RStudio and try again `getRversion()` to make sure it worked.
-
-Two options to install `artMS`
-
-## Official BioConductor releases (recommended)
-
-`artMS` is available on [BioConductor](https://www.bioconductor.org/). 
-Run the following lines:
+- Install `R version >= 4.1.0` (check the R version running on your system by executing the function `getRversion()`)
+- Bioconductor: `BiocManager::install("BiocVersion")`
+- artMS: `BiocManager::install("artMS")`
+- If you are planning to use the `artmsAnalysisQuantifications()` to perform a comprehensive downstream analysis of the quantitative results, then install the following packages:
 
 ```
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("artMS")
+# From bioconductor:
+BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))
+
+# From CRAN:
+install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))
 ```
 
-Why Bioconductor? [Here you can find a nice summary of good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor).
+Extra: Why Bioconductor? [Here you can find a nice summary of many good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor)).
 
-## Development version from this repo
+### Development version from Github (unstable)
 
-(***Warning***: not stable, but it has the latest)
-
-Assuming that you have an `R (>= 4.0)` version running on your system, 
+Assuming that you have an `R (>= 4.1)` version running on your system, 
 follow these steps:
-
 
 ```
 install.packages("devtools")
@@ -70,11 +61,11 @@ library(devtools)
 install_github("biodavidjm/artMS")
 ```
 
-Check that it is up and running by checking, for example, the documentation of the qc function `artmsQualityControlEvidenceBasic`:
+Once installed, the package can be loaded and attached to your current 
+workspace as follows:
 
-```
+```{r, eval=TRUE}
 library(artMS)
-?artmsQualityControlEvidenceBasic
 ```
 
 Once installed, we suggest you to do a quick test by running the quality control functions using the "evidence" (`artms_data_ph_evidence`) and "keys" (`artms_data_ph_keys`) files included in `artMS` as test datasets.
@@ -92,11 +83,9 @@ artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 (To learn more about these testing datasets, check the documentation by running `?artms_data_ph_keys` or `?artms_data_ph_evidence` on the R console)
 
 
-Once the QC is done, go to the folder `"/path/to/your/working/directory/"` and check out all the generated QC (pdf) files.
+Once the QC is done, go to the folder `"/path/to/your/working/directory/"` and check out all the generated QC (pdf) files available in the `qc_basic` folder
 
-
-
-# How to Contribute to artMS
+## How to Contribute to artMS
 
 `artMS` is an open source project, therefore you are more than welcome to contribute and make the analysis of Mass Spectrometry data easier and better using this fantastic language and environment for statistical computing and graphics (i.e. `R`).
 
@@ -107,11 +96,18 @@ There are multiple options:
 some very useful guides for beginners can be found <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/" target="blank">here</a>
 and <a href="https://github.com/Bioconductor/Contributions/blob/master/CONTRIBUTING.md" target="blank">there</a> (or even <a href="http://lmgtfy.com/?q=how+to+contribute+to+a+github+project" target="blank">beyond</a>). When submitting a Pull Request, don't forget to select @biodavidjm as the reviewer
 
-## Tips
-
-Do you need to remember the basics of markdown? [Check out this fantastic link](https://commonmark.org/help/tutorial/index.html).
+__Tips__: Do you need to remember the basics of markdown? [Check out this fantastic link](https://commonmark.org/help/tutorial/index.html).
 
 
 ## artMS Help available online
 
-The vignette can also be accessed at [http://artms.org](http://artms.org)
+- The vignette can also be accessed at [http://artms.org](http://artms.org)
+- Errors or warnings? Please, 
+<a href="https://github.com/biodavidjm/artMS/issues" target="_blank">submit them as a new issue</a>
+at the official Github repository
+- Any other inquiries: <artms.help@gmail.com>
+
+
+
+
+

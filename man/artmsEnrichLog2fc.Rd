@@ -38,6 +38,7 @@ and heatmaps (if selected)
 Enrichment analysis of the selected proteins
 }
 \examples{
+\dontrun{
 # The data must be annotated (Protein and Gene columns)
 data_annotated <- artmsAnnotationUniprot(
                       x = artms_data_ph_msstats_results,
@@ -48,5 +49,6 @@ enrich_set <- artmsEnrichLog2fc(
                    dataset = data_annotated,
                    species = "human",
                    background = unique(data_annotated$Gene))
+}
 }
 \keyword{enrichment}
