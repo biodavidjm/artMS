@@ -1137,7 +1137,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   }
   
   # Mass error
-  if (plotME) {
+  if (plotME & any(grepl("uncalibrated.mass.error..ppm.", colnames(evidencekeys))) ) {
     if(verbose) message("--- Plot Mass Error", appendLF = FALSE)
     if(printPDF) pdf(
       paste0(output_dir, "/", output_name,'.qcplot.MassError.pdf'),

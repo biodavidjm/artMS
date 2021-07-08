@@ -1,8 +1,8 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.10.0
-Date: 2021-05-12
+Version: 1.10.1
+Date: 2021-07-08
 Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
                      email = "biodavidjm@gmail.com",
                      comment = c(ORCID = "0000-0003-4356-6461")),
@@ -13,7 +13,6 @@ Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
              comment = c(ORCID = "0000-0003-4902-337X")),
              person("Danielle", "Swaney", role = c("aut", "ctb"),
                      comment = c(ORCID = "0000-0001-6119-6084")))
-Maintainer: David Jimenez-Morales <biodavidjm@gmail.com>
 Description: artMS provides a set of tools for the analysis of proteomics 
     label-free datasets. It takes as input the MaxQuant search result 
     output (evidence.txt file) and performs quality control, 
@@ -25,25 +24,20 @@ Description: artMS provides a set of tools for the analysis of proteomics
 License: GPL (>= 3) + file LICENSE
 URL: http://artms.org
 BugReports: https://github.com/biodavidjm/artMS/issues
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.1.0)
 Imports:
   AnnotationDbi,
-  biomaRt,
   bit64,
   circlize,
   cluster,
-  ComplexHeatmap,
   corrplot,
   data.table,
   dplyr,
-  factoextra,
-  FactoMineR,
   getopt,
   ggdendro,
   ggplot2,
   gplots,
   ggrepel,
-  gProfileR,
   graphics,
   grDevices,
   grid,
@@ -51,8 +45,6 @@ Imports:
   MSstats,
   openxlsx,
   org.Hs.eg.db,
-  org.Mm.eg.db,
-  PerformanceAnalytics,
   pheatmap,
   plotly,
   plyr,
@@ -67,8 +59,14 @@ Imports:
   VennDiagram,
   yaml
 Suggests: 
-  BiocStyle, 
+  BiocStyle,
+  ComplexHeatmap,
+  factoextra,
+  FactoMineR,
+  gProfileR,
   knitr, 
+  PerformanceAnalytics,
+  org.Mm.eg.db,
   rmarkdown,
   testthat
 Encoding: UTF-8

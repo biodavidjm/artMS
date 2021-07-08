@@ -27,10 +27,6 @@ The configuration (\code{yaml}) file contains the following sections:
 \item{data}{
 \itemize{
 \item enabled : 1 # 1 = yes; 0 = no
-\item fractions:
-\itemize{
-\item enabled : 0 # 1 for protein fractionation
-}
 \item silac:
 \itemize{
 \item enabled : 0 # 1 for SILAC experiments
@@ -61,16 +57,10 @@ which is robust estimation method. "linear" uses linear mixed model.
 '0' uses zero intensities as censored intensity. In this case,
 NA intensities are missing at random. The output from Skyline
 should use '0'. Null assumes that all NA intensites are randomly missing.
-\item cutoffCensored : minFeature  # Cutoff value for censoring. only
-with censoredInt='NA' or '0'. Default is 'minFeature', which uses
-minimum value for each feature.'minFeatureNRun' uses the smallest between
-minimum value of corresponding feature and minimum value of corresponding
-run. 'minRun' uses minumum value for each run.
 \item MBimpute : 1 # only for summaryMethod="TMP" and censoredInt='NA' or '0'.
 TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by
-Accelated failure model. FALSE uses the values assigned by cutoffCensored.
-\item feature_subset: all # all|highQuality  : highQuality seems to be buggy
-right now
+Accelated failure model. FALSE uses the values assigned by cutoffCensored
+\item For all othe features, please check documentation for MSstats' dataProcess function
 }
 }
 

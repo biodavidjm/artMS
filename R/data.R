@@ -21,8 +21,6 @@
 #' 
 #' \item{data}{
 #' - enabled : 1 # 1 = yes; 0 = no
-#' - fractions: 
-#'   - enabled : 0 # 1 for protein fractionation
 #' - silac: 
 #'   - enabled : 0 # 1 for SILAC experiments
 #' - filters: 
@@ -47,16 +45,10 @@
 #' '0' uses zero intensities as censored intensity. In this case, 
 #' NA intensities are missing at random. The output from Skyline 
 #' should use '0'. Null assumes that all NA intensites are randomly missing.
-#' -  cutoffCensored : minFeature  # Cutoff value for censoring. only 
-#' with censoredInt='NA' or '0'. Default is 'minFeature', which uses 
-#' minimum value for each feature.'minFeatureNRun' uses the smallest between 
-#' minimum value of corresponding feature and minimum value of corresponding
-#'  run. 'minRun' uses minumum value for each run.
 #' -  MBimpute : 1 # only for summaryMethod="TMP" and censoredInt='NA' or '0'.
 #'  TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by 
-#'  Accelated failure model. FALSE uses the values assigned by cutoffCensored.
-#' -  feature_subset: all # all|highQuality  : highQuality seems to be buggy 
-#' right now
+#'  Accelated failure model. FALSE uses the values assigned by cutoffCensored
+#' - For all othe features, please check documentation for MSstats' dataProcess function
 #' }
 #' 
 #' \item{output_extras}{
@@ -115,12 +107,12 @@
 #' @description Evidence file from a PH experiment consisting of two 
 #' head and neck cancer cell lines ("Conditions" `"Cal33"` and `"HSC6"`). 
 #' 
-#' Unfortunately, the number of lines was reduced to 1/8 due 
-#' to bioconductor limitations on data size, which means that this data is 
-#' not very representative of a real evidence file. However, both the 
-#' full evidence.txt and keys.txt file are available at:
-#' http://kroganlab.ucsf.edu/artms/ph/evidence.txt
-#' http://kroganlab.ucsf.edu/artms/ph/keys.txt
+#' Unfortunately, the number of lines was reduced to 1/20 due 
+#' to bioconductor limitations on data size, but it should be enough to test the 
+#' qc and quantification functions. The number of total columns 
+#' from the original evidence file was also reduced to 36 
+#' (out of the original 66 columns). 
+#' Check `colnames(artms_data_ph_evidence)` for details
 #'
 #' @format A data frame with all the columns available in an evidence file
 #' generated with MaxQuant version 1.6.2.3
@@ -174,7 +166,7 @@
 #' Changes in protein phosphorylation were quantified between two conditions
 #' (check `artms_data_ph_contrast`)
 #'
-#' @format A data frame resulting from running the lastest version of MSstats
+#' @format A data frame resulting from running the latest version of MSstats
 "artms_data_ph_msstats_results"
 
 #' MSstats modelQC example
@@ -182,7 +174,7 @@
 #' @description Normalized data obtained from the `artmsQuantification()` step
 #' of the PH dataset (global analysis)
 #'
-#' @format A data frame resulting from running the lastest version of
+#' @format A data frame resulting from running the latest version of
 #' `MSstats::groupComparison` function required as input for 
 #' artmsAnalysisQuantifications()
 "artms_data_ph_msstats_modelqc"
@@ -201,7 +193,6 @@
 "artms_data_randomDF"
 
 
-
 #' artMS configuration for the available PH dataset
 #' 
 #' @description The configuration file with default options to run the
@@ -210,9 +201,9 @@
 #' @format The configuration (`yaml`) file contains the following sections:
 #' \describe{
 #' \item{files}{ 
-#' - `evidence` : artms_data_ph_evidence
-#' - `keys` : artms_data_ph_keys
-#' - `contrasts` : artms_data_ph_contrast
+#' - `evidence` : Empty. To test an example, run `artms_data_ph_config$files$evidence <- artms_data_ph_evidence`
+#' - `keys` : Empty To test an example datasets run `artms_data_ph_config$files$keys <- artms_data_ph_keys`
+#' - `contrasts` : Empty. To test the example datasets, run `artms_data_ph_config$files$contrasts <- artms_data_ph_contrast`
 #' - `summary` : 
 #' - `output` : "results.txt"
 #' }
@@ -220,13 +211,11 @@
 #' \item{qc}{
 #' - basic: 0
 #' - extended: 0
-#' - extendedSummary: 0 =
+#' - extendedSummary: 0
 #' }
 #' 
 #' \item{data}{
 #' - enabled : 1 
-#' - fractions: 
-#'   - enabled : 0 
 #' - silac: 
 #'   - enabled : 0 
 #' - filters: 

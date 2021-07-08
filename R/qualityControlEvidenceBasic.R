@@ -25,9 +25,6 @@ utils::globalVariables(c("Organism"))
 #' Example for phosphorylation: `PTM:STY:ph` will find modifications on 
 #' aa S,T,Y with this example format `_AAGGAPS(ph)PPPPVR_`. This means that 
 #' the user could select phosphorylation as `PH` or `PTM:STY:ph`
-#' @param fractions (binary) Are there fractions in this experiment?
-#' - 1 yes
-#' - 0 no (default)
 #' @param isSILAC if `TRUE` processes SILAC input files. Default is `FALSE`
 #' @param plotINTDIST if `TRUE` plots both *Box-dot plot* 
 #' and *Jitter plot* of biological replicates based on MS (raw) 
@@ -85,7 +82,6 @@ utils::globalVariables(c("Organism"))
 artmsQualityControlEvidenceBasic <- function(evidence_file,
                              keys_file,
                              prot_exp = c('AB', 'PH', 'UB', 'AC', 'APMS', 'PTM:XXX:yy'),
-                             fractions = 0,
                              output_dir = "qc_basic",
                              output_name = "qcBasic_evidence",
                              isSILAC = FALSE,
@@ -124,15 +120,6 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     }
   }
   
-  if (fractions) {
-    # Check that the keys file is correct
-    keys <- .artms_checkIfFile(keys_file)
-    keys <- .artms_checkRawFileColumnName(keys)
-    if (any(!'FractionKey' %in% colnames(keys))) {
-      stop(' <fractions> was activated but <fractionkey> column not found in the keys file ')
-    }
-  }
-  
   if(verbose){
     message("---------------------------------------------------")
     message("artMS: BASIC QUALITY CONTROL (evidence.txt based)")
@@ -154,12 +141,12 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
     evidencekeys <- .artmsMergeSilacEvidenceKeys(evisilac = evidence_silac,
                                                  keysilac = keys)
   }else{
-    evidencekeys <- artmsMergeEvidenceAndKeys(evidence_file, 
-                                              keys,
+    evidencekeys <- artmsMergeEvidenceAndKeys(x = evidence_file, 
+                                              keys = keys,
                                               verbose = verbose)
   }
 
-  # DATA PROCESSING-----
+  # Data processing-----
   ekselecta <- aggregate(Intensity ~ Proteins + Condition + BioReplicate + Run,
                          data = evidencekeys,
                          FUN = sum)
@@ -191,15 +178,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
                                           "Leading.proteins")
   }
   
-  # Combine all the fractions if this is a fractionning experiment by summing
-  # them up
-  if (fractions) {
+  # Combine all the fractions if this is a fraction experiment by summing them up
+  if ( "Fraction" %in% colnames(evidencekeys) ){
     # Sum up all the fractions first
-    evidencekeys <- aggregate(Intensity~Feature+Proteins+Leading.proteins+Condition+BioReplicate+Run,
+    if(verbose) message("-- Processing Fractions (sum up intensities)")
+    evidencekeys <- aggregate(Intensity~RawFile+Feature+Proteins+Leading.proteins+Condition+BioReplicate+Run,
                               data = evidencekeys, 
                               FUN = sum)
   }
-  
   
   # Check the total number of modified and non-modified residues to plot
   if (prot_exp == "UB") {

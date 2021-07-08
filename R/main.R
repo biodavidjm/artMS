@@ -1,21 +1,15 @@
 #' @rawNamespace import(AnnotationDbi, except = c(head))
-#' @rawNamespace import(biomaRt, except = c(select, getSequence)) #delete?
 #' @import bit64
 #' @import circlize
 #' @importFrom cluster pam
-#' @rawNamespace import(ComplexHeatmap, except = c(pheatmap))
 #' @importFrom corrplot corrplot
 #' @importFrom dplyr mutate desc count arrange desc everything one_of
 #' @import data.table
-#' @importFrom factoextra fviz_pca_var fviz_contrib fviz_pca_ind 
-#' fviz_nbclust get_dist fviz_silhouette fviz_cluster
-#' @importFrom FactoMineR PCA
 #' @import getopt
 #' @import ggdendro
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
 #' @import ggrepel
-#' @import gProfileR
 #' @importFrom graphics pairs plot barplot hist lines par panel.smooth rect strwidth text
 #' @importFrom grDevices colorRampPalette dev.off pdf
 #' @import grid
@@ -23,8 +17,6 @@
 #' @import MSstats
 #' @import openxlsx
 #' @import org.Hs.eg.db
-#' @import org.Mm.eg.db
-#' @importFrom PerformanceAnalytics chart.Correlation
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
 #' rename, summarise, select, add_heatmap))
@@ -75,11 +67,12 @@ utils::globalVariables(
     "Experiment",
     "FEATURE",
     "fraction",
+    "Fraction",
     "fxDx",
     "FxOverSamp",
     "Gene",
     "GENENAME",
-    "GROUP_ORIGINAL",
+    "GROUP",
     "iLog2FC",
     "imputedDFext",
     "installed.packages",
@@ -160,7 +153,7 @@ utils::globalVariables(
     "Species",
     "species",
     "strwidth",
-    "SUBJECT_ORIGINAL",
+    "SUBJECT",
     "sumInt",
     "SYMBOL",
     "text",
@@ -188,7 +181,8 @@ utils::globalVariables(
 #' - normalized abundance values
 #' @param yaml_config_file (char, required) The yaml file name and location
 #' @param data_object (logical) flag to indicate whether the configuration file
-#' is a string to a file that should be opened or config object (yaml). Default is `FALSE`
+#' is a string to a file that should be opened or config object (yaml). 
+#' Default is `FALSE`. Choose `TRUE` if `yaml_config_file` is a yaml object
 #' @param printPDF (logical) if `TRUE` (default), prints out pdf
 #' @param display_msstats (logical) if `TRUE`, prints MSstats outputs (default is `FALSE`)
 #' @param verbose (logical) `TRUE` (default) shows function messages
@@ -248,18 +242,13 @@ artmsQuantification <- function(yaml_config_file,
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
-      fractions = config$data$fractions$enabled,
       isSILAC = config$data$silac$enabled)
-  }else{
-    if(verbose) message("-- No QC basic selected")
   }
   
   if (config$qc$extended) {
     artmsQualityControlEvidenceExtended(evidence_file = config$files$evidence,
                                         keys_file = config$files$keys,
                                         isSILAC = config$data$silac$enabled)
-  }else{
-    if(verbose) message("-- No evidence-extended QC selected")
   }
   
   if(!is.null(config$qc$extendedSummary)){
@@ -273,11 +262,8 @@ artmsQuantification <- function(yaml_config_file,
           message("\tQC report based on summary.txt won't be performed\n")
         }
       }else{
-        message("\n\tWARNING: QC Summary-based selected but file path/name not provided. Skiped\n")
+        message("\n\tWARNING: QC Summary-based selected but file path/name not provided. Skipped\n")
       }
-      
-    }else{
-      if(verbose) message("-- No summary-based QC selected")
     }
   }
   
@@ -366,6 +352,7 @@ artmsQuantification <- function(yaml_config_file,
     }
     
     ## fix for weird converted values from fread
+    if(verbose) message(">> CONVERT Intensity values < 1 to NA")
     x[Intensity < 1, ]$Intensity <- NA
     
     ## FILTERING : handles Protein Groups and Modifications-----
@@ -409,15 +396,17 @@ artmsQuantification <- function(yaml_config_file,
       
     selectedConditions <- as.character(colnames(contrasts))
     
-    if (is.null(config$msstats$msstats_input)) {
+    if ( is.null(config$msstats$msstats_input) ) {
       # Check point to prevent MSstats crashed in the number of conditions
       # in the comparisons is not the same than the one in the keys file
-      data_f <- data_f[which(data_f$Condition %in% selectedConditions),]
+      if(!all(unique(data_f$Condition) %in% selectedConditions)){
+        if(verbose) message(" (!) WARNING! the number of unique conditions in evidence file are different from the conditions in contrast!
+                                  All the extra conditions will be deleted from the evidence file")
+        data_f <- data_f[data_f$Condition %in% selectedConditions,]
+      }
       dmss <- .artms_getMSstatsFormat(data_f = data_f,
-                                      fraction = config$data$fractions$enabled,
                                       output_name = config$files$evidence,
                                       data_object = data_object,
-                                      funfunc = "sum",
                                       verbose = verbose)
     } else {
       if(verbose) message(sprintf("\t+ READING PREPROCESSED FILE: %s ",

@@ -9,9 +9,9 @@ The configuration (\code{yaml}) file contains the following sections:
 \describe{
 \item{files}{
 \itemize{
-\item \code{evidence} : artms_data_ph_evidence
-\item \code{keys} : artms_data_ph_keys
-\item \code{contrasts} : artms_data_ph_contrast
+\item \code{evidence} : Empty. To test an example, run \code{artms_data_ph_config$files$evidence <- artms_data_ph_evidence}
+\item \code{keys} : Empty To test an example datasets run \code{artms_data_ph_config$files$keys <- artms_data_ph_keys}
+\item \code{contrasts} : Empty. To test the example datasets, run \code{artms_data_ph_config$files$contrasts <- artms_data_ph_contrast}
 \item \code{summary} :
 \item \code{output} : "results.txt"
 }
@@ -21,17 +21,13 @@ The configuration (\code{yaml}) file contains the following sections:
 \itemize{
 \item basic: 0
 \item extended: 0
-\item extendedSummary: 0 =
+\item extendedSummary: 0
 }
 }
 
 \item{data}{
 \itemize{
 \item enabled : 1
-\item fractions:
-\itemize{
-\item enabled : 0
-}
 \item silac:
 \itemize{
 \item enabled : 0

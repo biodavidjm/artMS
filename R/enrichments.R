@@ -57,7 +57,7 @@
 #' @return (data.frame) Results from the enrichment analysis using Gprofiler
 #' and heatmaps (if selected)
 #' @keywords enrichment
-#' @examples
+#' @examples \dontrun{
 #' # The data must be annotated (Protein and Gene columns)
 #' data_annotated <- artmsAnnotationUniprot(
 #'                       x = artms_data_ph_msstats_results,
@@ -68,13 +68,18 @@
 #'                    dataset = data_annotated,
 #'                    species = "human",
 #'                    background = unique(data_annotated$Gene))
+#'}
 #' @export
 artmsEnrichLog2fc <- function(dataset,
-                               species,
-                               background,
-                               heatmaps = FALSE,
-                               output_name = "enrichment.txt",
-                               verbose = TRUE) {
+                              species,
+                              background,
+                              heatmaps = FALSE,
+                              output_name = "enrichment.txt",
+                              verbose = TRUE) {
+                               
+  if( !("gProfileR" %in% installed.packages()) ){
+    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  }
   
   if(any(missing(dataset) | 
          missing(species) |
@@ -299,7 +304,7 @@ artmsEnrichLog2fc <- function(dataset,
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The enrichment results as provided by gprofiler
 #' @keywords enrichment
-#' @examples
+#' @examples \dontrun{
 #' # annotate the MSstats results to get the Gene name
 #' data_annotated <- artmsAnnotationUniprot(
 #'                                      x = artms_data_ph_msstats_results,
@@ -316,12 +321,18 @@ artmsEnrichLog2fc <- function(dataset,
 #'                                    categorySource = c('KEGG'),
 #'                                    species = "hsapiens",
 #'                                    background = unique(data_annotated$Gene))
+#'}
 #' @export
 artmsEnrichProfiler <- function(x,
                                 categorySource = c('GO'),
                                 species,
                                 background = NA,
                                 verbose = TRUE) {
+  gprofiler = NULL
+  
+  if( !("gProfileR" %in% installed.packages()) ){
+    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  }
                                  
   if(any(missing(x) | missing(species)))
     stop("Missed (one or many) required argument(s)
