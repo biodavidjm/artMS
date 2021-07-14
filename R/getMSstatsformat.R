@@ -9,12 +9,14 @@
 # '.txt' extension required
 # @param data_object (logical) if TRUE the output_name cannot be the evidence file
 # since it would be an data_object
+# @param printTables (logical) `TRUE` (default) prints results tables
 # @param verbose (logical) `TRUE` (default) shows function messages
 # @return (data.frame) MSstats compatible format
 # @keywords internal, MSstats, format, input, fractions
 .artms_getMSstatsFormat <- function(data_f, 
                                     output_name, 
                                     data_object = FALSE,
+                                    printTables = TRUE,
                                     verbose = TRUE) {
   
   Run = PeptideSequence = Condition_BioReplicate_Run = NULL
@@ -126,14 +128,15 @@
   }
   
   dmss <- as.data.frame(dmss)
-  if(verbose) message("-- Write out the MSstats input file (-mss.txt) ")
-  write.table(dmss,
-              file = gsub('.txt', '-mss.txt', output_name),
-              eol = "\n",
-              sep = "\t",
-              quote = FALSE,
-              row.names = FALSE,
-              col.names = TRUE)
-    
+  if(printTables){
+    if(verbose) message("-- Write out the MSstats input file (-mss.txt) ")
+    write.table(dmss,
+                file = gsub('.txt', '-mss.txt', output_name),
+                eol = "\n",
+                sep = "\t",
+                quote = FALSE,
+                row.names = FALSE,
+                col.names = TRUE)
+  }
   return(dmss)
 }

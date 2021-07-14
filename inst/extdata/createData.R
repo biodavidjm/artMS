@@ -123,7 +123,7 @@ artms_data_ph_config$files$evidence <- ""
 artms_data_ph_config$files$keys <- ""
 artms_data_ph_config$files$contrasts <- ""
 artms_data_ph_config$files$summary <- ""
-artms_data_ph_config$files$output <- "quant/results.txt"
+artms_data_ph_config$files$output <- "quant-test/results.txt"
 artms_data_ph_config$qc$basic <- 0
 artms_data_ph_config$qc$extended <- 0
 artms_data_ph_config$qc$extendedSummary <- 0
@@ -136,10 +136,17 @@ save(artms_data_ph_config,
 artms_data_ph_config$files$evidence <- artms_data_ph_evidence
 artms_data_ph_config$files$keys <- artms_data_ph_keys
 artms_data_ph_config$files$contrasts <- artms_data_ph_contrast
+artms_data_ph_config$output_extras <- 0
+artms_data_ph_config$msstats$profilePlots <- "before, after"
 
-here <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
-                    data_object = TRUE, 
-                    display_msstats = TRUE)
+msresults <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
+                                 data_object = TRUE,  
+                                 display_msstats = FALSE, 
+                                 verbose = TRUE, 
+                                 printPDF = FALSE, 
+                                 printTables = FALSE)
+                            
+                    
 
 # Results -----
 

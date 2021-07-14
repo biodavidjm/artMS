@@ -8,7 +8,9 @@ artmsQuantification(
   yaml_config_file,
   data_object = FALSE,
   printPDF = TRUE,
+  printTables = TRUE,
   display_msstats = FALSE,
+  return_results_object = FALSE,
   verbose = TRUE
 )
 }
@@ -21,7 +23,19 @@ Default is \code{FALSE}. Choose \code{TRUE} if \code{yaml_config_file} is a yaml
 
 \item{printPDF}{(logical) if \code{TRUE} (default), prints out pdf}
 
+\item{printTables}{(logical) \code{TRUE} (default) print results tables}
+
 \item{display_msstats}{(logical) if \code{TRUE}, prints MSstats outputs (default is \code{FALSE})}
+
+\item{return_results_object}{(logical) Default is \code{FALSE}.
+If \code{TRUE}, it returns a list of data frames with MSstats results, including:
+\itemize{
+\item \code{comparisonResult}: comparison results
+\item \code{ModelQC}
+\item \code{FittedModel}: fit model details
+\item \code{power}: power calculations
+\item \code{sample_size}: sample size estimations
+}}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
@@ -39,9 +53,22 @@ Relative quantification using MSstats including:
 }
 }
 \examples{
-\dontrun{
-artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
-}
+# Recommended
+# artmsQuantification(yaml_config_file = "your-config-file.yaml")
+
+# Example to test this function using the example dataset available in artMS
+# Step 1: Add evidence, keys, and contrast to configuration object
+artms_data_ph_config$files$evidence <- artms_data_ph_evidence
+artms_data_ph_config$files$keys <- artms_data_ph_keys
+artms_data_ph_config$files$contrasts <- artms_data_ph_contrast
+
+# Step 2: Run the quantification step
+quant_results <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
+                                     data_object = TRUE, 
+                                     display_msstats = FALSE,
+                                     printPDF = FALSE,
+                                     printTables = FALSE)
+# Check the list of data frames "quant_results". Nothing should be printed out. 
 }
 \keyword{driver,}
 \keyword{function}

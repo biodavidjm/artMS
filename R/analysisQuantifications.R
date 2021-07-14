@@ -231,7 +231,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   
   ## CRAN -----
   required_bioc_packages <- c("ComplexHeatmap")
-  for(p in required_cran_packages){
+  for(p in required_bioc_packages){
     if(!(p %in% installed.packages())){
       message(paste0('- Package < ', p, ' > not installed in your system. 
                      Please, install running < BiocManager::install(\"',p,'\") >'))
@@ -315,7 +315,19 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                        stringsAsFactors = FALSE)
     colnames(dfmq) <- toupper(colnames(dfmq))
   }
-
+  
+  # ModelQC: fix old files-----
+  if("GROUP_ORIGINAL" %in% colnames(dfmq)){
+    if(verbose) message("\n------------------------------------------------------------")
+    if(verbose) message("(!) WARNING!")
+    if(verbose) message("Be aware that you are analyzing a dataset that was generated with an old version of MSstats (< 4.0)")
+    if(verbose) message("Some changes will be applied")
+    if(verbose) message(" ------------------------------------------------------------\n")
+    dfmq$GROUP <- NULL
+    dfmq$GROUP <- dfmq$GROUP_ORIGINAL
+    dfmq$SUBJECT <- NULL
+    dfmq$SUBJECT <- dfmq$SUBJECT_ORIGINAL
+  }
   
   # Removing the empty protein names-----
   if (any(dfmq$PROTEIN == "")) {
@@ -2019,7 +2031,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     list_of_datasets,
     file = outexcel,
     asTable = FALSE,
-    headerStyle = hs
+    headerStyle = hs, 
+    overwrite = TRUE
   )
   
   if(verbose) message("Folder <", output_dir, "> ")

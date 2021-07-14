@@ -184,20 +184,44 @@ utils::globalVariables(
 #' is a string to a file that should be opened or config object (yaml). 
 #' Default is `FALSE`. Choose `TRUE` if `yaml_config_file` is a yaml object
 #' @param printPDF (logical) if `TRUE` (default), prints out pdf
+#' @param printTables (logical) `TRUE` (default) print results tables
 #' @param display_msstats (logical) if `TRUE`, prints MSstats outputs (default is `FALSE`)
+#' @param return_results_object (logical) Default is `FALSE`. 
+#' If `TRUE`, it returns a list of data frames with MSstats results, including:
+#' - `comparisonResult`: comparison results
+#' - `ModelQC`
+#' - `FittedModel`: fit model details
+#' - `power`: power calculations
+#' - `sample_size`: sample size estimations
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return The relative quantification of the conditions and comparisons
 #' specified in the keys/contrast file resulting from running MSstats, in
 #' addition to quality control plots (if selected)
 #' @keywords main, driver, function
-#' @examples \dontrun{
-#' artmsQuantification(yaml_config_file = "path/to/artms-ab-config.yaml")
-#' }
+#' @examples
+#' # Recommended
+#' # artmsQuantification(yaml_config_file = "your-config-file.yaml")
+#' 
+#' # Example to test this function using the example dataset available in artMS
+#' # Step 1: Add evidence, keys, and contrast to configuration object
+#' artms_data_ph_config$files$evidence <- artms_data_ph_evidence
+#' artms_data_ph_config$files$keys <- artms_data_ph_keys
+#' artms_data_ph_config$files$contrasts <- artms_data_ph_contrast
+#' 
+#' # Step 2: Run the quantification step
+#' quant_results <- artmsQuantification(yaml_config_file = artms_data_ph_config, 
+#'                                      data_object = TRUE, 
+#'                                      display_msstats = FALSE,
+#'                                      printPDF = FALSE,
+#'                                      printTables = FALSE)
+#' # Check the list of data frames "quant_results". Nothing should be printed out. 
 #' @export
 artmsQuantification <- function(yaml_config_file,
                                 data_object = FALSE,
                                 printPDF = TRUE,
+                                printTables = TRUE,
                                 display_msstats = FALSE,
+                                return_results_object = FALSE,
                                 verbose = TRUE) {
   
   # Check if the yaml file is already open first
@@ -231,10 +255,16 @@ artmsQuantification <- function(yaml_config_file,
     config$data$filters$modification <- toupper(config$data$filters$modification)
   }
   
-  session <- sessionInfo()
-  sink("artms_sessionInfo_quantification.txt")
-  print(session)
-  sink()
+  if(isFALSE(printTables) & isFALSE(printPDF) & isFALSE(return_results_object)){
+    return_results_object = TRUE
+  }
+  
+  if(printTables){
+    session <- sessionInfo()
+    sink("artms_sessionInfo_quantification.log")
+    print(session)
+    sink()
+  }
   
   # Quality Control
   if (config$qc$basic) {
@@ -282,13 +312,15 @@ artmsQuantification <- function(yaml_config_file,
   # message("output_dir: ", output_dir) 
   
   # create output directory if it doesn't exist-----
-  if (!dir.exists(output_dir)) {
-    if(verbose) message("-- Folder: [", output_dir, "] created" )
-    dir.create(output_dir, recursive = TRUE)
+  if(printTables | printPDF){
+    if (!dir.exists(output_dir)) {
+      if(verbose) message("-- Folder: [", output_dir, "] created" )
+      dir.create(output_dir, recursive = TRUE)
+    }
   }
-  
+
   # process MaxQuant data, link with keys, and convert for MSStats format-----
-  if (config$data$enabled) {
+  if ( config$data$enabled ) {
     if(verbose) message(">> LOADING DATA ")
     ## Found more bugs in fread (issue submitted to data.table on github by
     ## JVD but it was closed with the excuse that 'is was not reproducible'
@@ -407,6 +439,7 @@ artmsQuantification <- function(yaml_config_file,
       dmss <- .artms_getMSstatsFormat(data_f = data_f,
                                       output_name = config$files$evidence,
                                       data_object = data_object,
+                                      printTables = printTables,
                                       verbose = verbose)
     } else {
       if(verbose) message(sprintf("\t+ READING PREPROCESSED FILE: %s ",
@@ -431,6 +464,8 @@ artmsQuantification <- function(yaml_config_file,
           suppressWarnings(results <- .artms_runMSstats(dmss = dmss,
                                                         contrasts = contrasts, 
                                                         config = config,
+                                                        printTables = printTables,
+                                                        printPDF = printPDF,
                                                         verbose = verbose)
                            )
           )
@@ -441,7 +476,11 @@ artmsQuantification <- function(yaml_config_file,
     
     if(data_object){
       return(results)
-    } 
+    }else{
+      if(return_results_object){
+        return(results)
+      }
+    }
     
   } else{
     if(verbose) message("\t+ MSstats not selected")
