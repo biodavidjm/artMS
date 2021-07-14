@@ -1,40 +1,23 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
+# Use R language
 language: r
 
-sudo: required
+#Define multiple R-versions, one from bioconductor
+r:
+  - oldrel
+  - release
+  - devel
+  - bioc-devel
+  
+env: _R_CHECK_CRAN_INCOMING_=false
 
-env: _R_CHECK_CRAN_INCOMING_=FALSE
-
-cache: packages
-
-bioc_packages:
-- BiocStyle
-- biomaRt
-- ComplexHeatmap
-- limma
-- MSstats
-- org.Ag.eg.db
-- org.At.tair.db
-- org.Bt.eg.db
-- org.Ce.eg.db
-- org.Cf.eg.db
-- org.Dm.eg.db
-- org.Dr.eg.db
-- org.EcK12.eg.db
-- org.EcSakai.eg.db
-- org.Gg.eg.db
-- org.Hs.eg.db
-- org.Mm.eg.db
-- org.Mmu.eg.db
-- org.Pf.plasmo.db
-- org.Pt.eg.db
-- org.Rn.eg.db
-- org.Ss.eg.db
-- org.Xl.eg.db
-
+cache: 
+  packages: true
+  
 addons:
   apt:
+    update: true
     packages:
       - libgit2-dev
 
@@ -45,9 +28,18 @@ r_packages:
 r_github_packages:
   - biodavidjm/artMS
 
+bioc_packages:
+- BiocStyle
+- biomaRt
+- ComplexHeatmap
+- limma
+- MSstats
+- org.Hs.eg.db
+- org.Mm.eg.db
+
 r_check_args: --no-build-vignettes --no-vignettes
 
 warnings_are_errors: true
 
-after_success:
-  - Rscript -e 'library(covr); codecov()'
+# after_success:
+#   - Rscript -e 'library(covr); codecov()'
