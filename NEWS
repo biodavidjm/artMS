@@ -1,3 +1,13 @@
+Changes in version 1.10.2 (2021-07-13)
++ Bug fix affecting {artmsAnalysisQuantifications()}
++ Allow {artmsAnalysisQuantifications()} to process previous versions of artMS
++ Change Extension of {artms_sessionInfo_quantification} file from {.txt} to {.log}
++ New parameters available in {artmsQuantification()}, including:
+   - Parameter {printTables}. Default {TRUE}, prints tables. FALSE otherwise.
+   - Parameter {return_results_object}. If TRUE, it returns a list of data frames with MSstats results. Default is FALSE
+   - If both {printTables} and {printPDF} are FALSE, then {return_results_object} becames TRUE and a list of data frames is returned
++ Change default parameters of the configuration files: less verbose
+
 Changes in version 1.10.1 (2021-06-30)
 + Addressing major changes in MSstats
    - R version larger than 4.1 is now required

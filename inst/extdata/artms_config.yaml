@@ -36,7 +36,7 @@ msstats: # check ?MSstats::dataProcess() to find out more
   remove50missing: FALSE
   fix_missing: 
   maxQuantileforCensored: 0.999
-  use_log_file: TRUE
+  use_log_file: FALSE
   append: FALSE
   log_file_path: 
 output_extras:

@@ -477,7 +477,7 @@ artmsSILACtoLong <- function(evidence_file,
       cmmp = cmmp + 1
     }
     if(!any(grepl("^use_log_file$", names(config$msstats)))){
-      config$msstats$use_log_file = TRUE
+      config$msstats$use_log_file = FALSE
       cmmp = cmmp + 1
     }
     if(!any(grepl("^append$", names(config$msstats)))){

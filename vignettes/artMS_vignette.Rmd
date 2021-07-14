@@ -1754,10 +1754,13 @@ HELP
 
 # HELP
 
-- Errors or warnings? Please, 
-<a href="https://github.com/biodavidjm/artMS/issues" target="_blank">submit them as a new issue</a>
-at the official Github repository
-- Any other inquiries: <artms.help@gmail.com>
+Errors or warnings? try to update the package first (resinstall) just in case 
+a newer version is already available fixing the issue. 
+
+**Does the issue persist after reinstallation?** Then, please, 
+<a href="https://github.com/biodavidjm/artMS/issues" target="_blank">submit your error as a new issue</a> at the official Github repository.
+
+Any other inquiries: <artms.help@gmail.com>
 
 
 

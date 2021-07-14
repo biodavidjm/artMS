@@ -1,10 +1,16 @@
 Meta
 doc
+
 # History files
 **.Rhistory
 **.Rapp.history
 **.Rprofile
 **.DS_Store
+
+# TESTS
+tests/testthat/*log
+tests/testthat/*txt
+tests/testthat/*pdf
 
 # MSstats files
 msstats.log*
