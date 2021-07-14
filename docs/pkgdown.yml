@@ -3,7 +3,7 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   artMS_vignette: artMS_vignette.html
-last_built: 2021-07-08T21:01Z
+last_built: 2021-07-14T07:23Z
 urls:
   reference: http://artms.org//reference
   article: http://artms.org//articles
