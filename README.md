@@ -10,8 +10,8 @@ ___Analytical R Tools for Mass Spectrometry___
 
 ## Overview
 
-`artMS` is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
-[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). The functions available in `artMS` can be grouped into 4 major categories:
+`artMS` ([http://artms.org/](http://artms.org/)) is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
+[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). The [functions available in artMS](https://biodavidjm.github.io/artMS/reference/index.html) can be grouped into 4 major categories:
 
 - Multiple quality control (QC).
 - Relative quantification using [MSstats](http://msstats.org/).
