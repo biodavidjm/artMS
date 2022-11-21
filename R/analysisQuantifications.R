@@ -12,7 +12,7 @@
 #' 
 #' To run this function, the following packages must be installed on your system:
 #' - From bioconductor:
-#' `BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))`
+#' `BiocManager::install(c("ComplexHeatmap", "org.Hs.eg.db", "org.Mm.eg.db"))`
 #' - From CRAN:
 #' `install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))`
 #' 
@@ -218,13 +218,13 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if(species == "human"){
     if (!"org.Hs.eg.db" %in% installed.packages()){
       message(paste0('- Package < org.Hs.eg.db > not installed in your system. 
-                     Please, install running < BiocManager::install(\"org.Hs.eg.db\") >'))
+      Please, install running:  BiocManager::install(\"org.Hs.eg.db\")'))
       cp = cp + 1
     }
   }else if(species == "mouse"){
     if (!"org.Mm.eg.db" %in% installed.packages()){
       message(paste0('- Package < org.Mm.eg.db > not installed in your system. 
-                     Please, install running < BiocManager::install(\"org.Mm.eg.db\") >'))
+      Please, install running:  BiocManager::install(\"org.Mm.eg.db\") '))
       cp = cp + 1
     }
   }
@@ -234,7 +234,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   for(p in required_bioc_packages){
     if(!(p %in% installed.packages())){
       message(paste0('- Package < ', p, ' > not installed in your system. 
-                     Please, install running < BiocManager::install(\"',p,'\") >'))
+      Please, install running:  BiocManager::install(\"',p,'\")'))
       cp <- cp + 1
     }
   }
@@ -244,7 +244,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   for(p in required_cran_packages){
     if(!(p %in% installed.packages())){
       message(paste0('- Package < ', p, ' > not installed in your system. 
-                     Please, install running < install.packages(\"',p,'\") >'))
+      Please, install running:  install.packages(\"',p,'\")'))
       cp <- cp + 1
     }
   }
@@ -283,10 +283,6 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   if(!dir.exists(file.path(output_dir))){
     dir.create(file.path(output_dir), recursive = TRUE)
   }
-  
-  # Create the ouput_directory in the results folder
-  # dirname(log2fc_file)
-  # getwd()
 
   # Open log2fc-----
   if(verbose) message(">> LOADING QUANTIFICATIONS (-results.txt from MSstats) ")
@@ -303,7 +299,9 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   # use this as a template to generate the output file names
   log2fc_file <- basename(log2fc_file)
   
-  # Open modelqc ----
+  # ModelQC----
+  
+  ## Open modelqc ----
   if(verbose) message(">> LOADING modelqc FILE (ABUNDANCE) ")
   if(data_object){
     dfmq <- modelqc_file
@@ -316,7 +314,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     colnames(dfmq) <- toupper(colnames(dfmq))
   }
   
-  # ModelQC: fix old files-----
+  ## ModelQC: fix old files-----
   if("GROUP_ORIGINAL" %in% colnames(dfmq)){
     if(verbose) message("\n------------------------------------------------------------")
     if(verbose) message("(!) WARNING!")
@@ -329,7 +327,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     dfmq$SUBJECT <- dfmq$SUBJECT_ORIGINAL
   }
   
-  # Removing the empty protein names-----
+  ## Removing the empty protein names-----
   if (any(dfmq$PROTEIN == "")) {
     dfmq <- dfmq[-which(dfmq$PROTEIN == ""), ]
     if(verbose) message("--- Empty ID proteins removed from abundance data")
@@ -337,13 +335,20 @@ artmsAnalysisQuantifications <- function(log2fc_file,
   dfmq$PROTEIN <- gsub("(sp\\|)(.*)(\\|.*)", "\\2", dfmq$PROTEIN)
   dfmq$PROTEIN <- gsub("(.*)(\\|.*)", "\\1", dfmq$PROTEIN)
   
-  # Check protein ID----
+  ## Check protein ID----
   if( length(dfmq$PROTEIN[grep("\\w{2}_\\d{1,}\\.\\d{1,}", dfmq$PROTEIN)]) > 100 ){
     if(verbose) message("----(-) Many RefSeq IDs detected in this dataset, which is not supported yet.
                         Gene Symbol, Protein Name, and EntrezID won't be provided")
   }
   
-  # Remove outliers------
+  ## Abundance: Check negative values-----
+  negatives <- length(dfmq$ABUNDANCE[which(dfmq$ABUNDANCE <= 0)])
+  if(negatives > 0){
+    if(verbose) message("----(-) Remove negative values")
+    dfmq <- dplyr::filter(dfmq, ABUNDANCE > 0)
+  }
+
+  ## Remove outliers------
   if (outliers == "iqr" | outliers == "std"){
 
     if(outliers == "iqr"){
@@ -360,12 +365,12 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       lowlim <- m-3*std
     }
 
-    # Record outliers for plotting
+    ## Record outliers for plotting-----
     dfmq$outliers <- ifelse(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim, "no", "yes")
     
     outliers_number <- length(dfmq$outliers[which(dfmq$outliers == "yes")])
     
-    # Report outliers removed
+    ## Report outliers removed-------
     if (outliers_number == 0){
       if(verbose) message("------> No outliers have been removed")
     }else{
@@ -382,7 +387,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         col.names = TRUE
       )
       
-      # PLOT Outliers
+      ### PLOT Outliers-----
       k <- ggplot(dfmq, aes(x = SUBJECT, y = ABUNDANCE, color = outliers))
       k <- k + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
       k <- k + theme_minimal()
@@ -393,7 +398,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
         vjust = 0.5
       ))
       
-      # Distribution without ouliers
+      ### Distribution without ouliers------
       l <- ggplot(dfmq[which(dfmq$outliers == "no"),], aes(x = SUBJECT, y = ABUNDANCE))
       l <- l + geom_jitter(width = 0.3, size = 0.5, na.rm = TRUE)
       l <- l + theme_minimal()
@@ -413,7 +418,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       
       if(verbose) message("------> Check table and plot to find out more about outliers removed")
 
-      # Remove outliers
+      ### Remove outliers-----
       dfmq <- dfmq[which(dfmq$ABUNDANCE > lowlim & dfmq$ABUNDANCE < uplim), ]
     }
   }else{
@@ -693,7 +698,8 @@ artmsAnalysisQuantifications <- function(log2fc_file,
       relaChanges <- paste0("plot.", relaChanges)
       relaChanges <- paste0(output_dir, "/", relaChanges)
       if(printPDF) pdf(relaChanges)
-      .artms_plotRatioLog2fc(dflog2fc, verbose = verbose)
+      .artms_plotRatioLog2fc(datai = dflog2fc, 
+                             verbose = verbose)
       if(printPDF) garbage <- dev.off()
     } else{
       if(verbose) message("--- Only one Comparison is available (correlation is not possible) ")

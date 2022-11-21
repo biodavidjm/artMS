@@ -1,3 +1,8 @@
+Changes in version 1.10.3 (2021-07-27)
++ {artmsAnalysisQuantifications()}: remove features with negative abundance values
++ The human annotation library org.Hs.eg.db is not required by artMS with the goal of reducing the size of the package. Alternatively, the user will be responsible of installing and calling the library before running artMS functions
++ Fix bug reporting the number of Intensity = 0
+
 Changes in version 1.10.2 (2021-07-13)
 + Bug fix affecting {artmsAnalysisQuantifications()}
 + Allow {artmsAnalysisQuantifications()} to process previous versions of artMS

@@ -54,7 +54,7 @@
 #' as well for the heatmaps (if `heatmaps` is selected)
 #' Default `output_name = "enrichment.txt"`
 #' @param verbose (logical) `TRUE` (default) shows function messages
-#' @return (data.frame) Results from the enrichment analysis using Gprofiler
+#' @return (data.frame) Results from the enrichment analysis using gprofiler2
 #' and heatmaps (if selected)
 #' @keywords enrichment
 #' @examples \dontrun{
@@ -77,8 +77,8 @@ artmsEnrichLog2fc <- function(dataset,
                               output_name = "enrichment.txt",
                               verbose = TRUE) {
                                
-  if( !("gProfileR" %in% installed.packages()) ){
-    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  if( !("gprofiler2" %in% installed.packages()) ){
+    stop("Package <gprofiler2> required to run this function. Please, install and run it again")
   }
   
   if(any(missing(dataset) | 
@@ -246,17 +246,17 @@ artmsEnrichLog2fc <- function(dataset,
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @title Enrichment analysis using GprofileR
+#' @title Enrichment analysis using gprofiler2
 #'
 #' @description This function simplifies the enrichment analysis performed by
-#' the excellent tool GprofileR.
+#' the excellent tool gprofiler2.
 #' @param x (list, data.frame) List of protein ids. It can be anything:
 #' either a list of ids, or you could also send a data.frame and it will find
 #' the columns with the IDs. Is not cool? Multiple list can be also sent
 #' simultaneously, as for example running:
 #' `tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)`
 #' @param categorySource (vector) Resources providing the terms on which
-#' the enrichment will be performed. The supported resources by gprofiler are:
+#' the enrichment will be performed. The supported resources by gprofiler2 are:
 #' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
 #' - KEGG: Biological pathways
 #' - REAC: Biological pathways (Reactome)
@@ -280,7 +280,7 @@ artmsEnrichLog2fc <- function(dataset,
 #' - No biological data (ND) / Not annotated or not in background (NA)
 #' @param species (char) Specie code: Organism names are constructed by
 #' concatenating the first letter of the name and the family name.
-#' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
+#' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gprofiler2 to find out
 #' more about supported species.
 #' @param background (vector) gene list to use as background for the enrichment
 #' analysis. Default: `NA`
@@ -302,7 +302,7 @@ artmsEnrichLog2fc <- function(dataset,
 #' - png_fn = NULL
 #' - include_graph = TRUE
 #' @param verbose (logical) `TRUE` (default) shows function messages
-#' @return The enrichment results as provided by gprofiler
+#' @return The enrichment results as provided by gprofiler2
 #' @keywords enrichment
 #' @examples \dontrun{
 #' # annotate the MSstats results to get the Gene name
@@ -328,20 +328,20 @@ artmsEnrichProfiler <- function(x,
                                 species,
                                 background = NA,
                                 verbose = TRUE) {
-  gprofiler = NULL
+  gprofiler2 = NULL
   
-  if( !("gProfileR" %in% installed.packages()) ){
-    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  if( !("gprofiler2" %in% installed.packages()) ){
+    stop("Package <gprofiler2> required to run this function. Please, install and run it again")
   }
                                  
   if(any(missing(x) | missing(species)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  suppressWarnings(gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler"))
-  if(verbose) message("---+ Enrichment analysis using gProfiler...", appendLF = FALSE) 
+  suppressWarnings(gprofiler2::set_base_url("http://biit.cs.ut.ee/gprofiler"))
+  if(verbose) message("---+ Enrichment analysis using gprofiler2...", appendLF = FALSE) 
   suppressWarnings(
-    enrichData <- gprofiler(x,
+    enrichData <- gprofiler2(x,
                             organism = species,
                             # "scerevisiae","hsapiens", "mmusculus"
                             ordered_query = FALSE,
@@ -373,10 +373,10 @@ artmsEnrichProfiler <- function(x,
 
 # Little function to
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# @title Simplify the gProfiler output
+# @title Simplify the gprofiler2 output
 #
 # @description Simplify the output from `artmsEnrichProfiler` resulted from
-# running `gProfileR`
+# running `gprofiler2`
 # @param gp (data.frame) with the results
 # @return (data.frame) with the following columns:
 #       'query.number', 'domain', 'p.value', 'query.size', 'overlap.size',
@@ -404,7 +404,7 @@ artmsEnrichProfiler <- function(x,
 # @title Plot and save heatmaps of the significant enrichment results
 #
 # @description plot and save heatmaps of the significant enrichment results
-# @param x (data.frame) output from gprofiler
+# @param x (data.frame) output from gprofiler2
 # @param out_file (char) output file name (must have `.txt` extension)
 # @return (pdf) A heatmap of the most significant enrichments
 # @keywords internal, plot, heatmap, enrichments

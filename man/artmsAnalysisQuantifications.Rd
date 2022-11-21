@@ -167,7 +167,7 @@ Analysis of relative quantifications, including:
 To run this function, the following packages must be installed on your system:
 \itemize{
 \item From bioconductor:
-\code{BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))}
+\code{BiocManager::install(c("ComplexHeatmap", "org.Hs.eg.db", "org.Mm.eg.db"))}
 \item From CRAN:
 \code{install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))}
 }

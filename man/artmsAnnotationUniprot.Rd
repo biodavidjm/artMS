@@ -26,12 +26,15 @@ search for the gene symbol, name, and entrez based on the species (\code{species
 argument) and merge the information back to the input data.frame
 }
 \examples{
+\dontrun{
 # This example adds annotations to the example evidence file included in
 # artMS, based on the column 'Proteins'.
 
+library(org.Hs.eg.db)
 evidence_anno <- artmsAnnotationUniprot(x = artms_data_ph_evidence,
                                          columnid = 'Proteins',
                                          species = 'human')
+}
 }
 \keyword{annotation,}
 \keyword{uniprot}

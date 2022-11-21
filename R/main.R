@@ -16,7 +16,6 @@
 #' @import limma
 #' @import MSstats
 #' @import openxlsx
-#' @import org.Hs.eg.db
 #' @import pheatmap
 #' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
 #' rename, summarise, select, add_heatmap))
@@ -179,7 +178,9 @@ utils::globalVariables(
 #' - plots
 #' - quantifications (log2fc, pvalues, etc)
 #' - normalized abundance values
-#' @param yaml_config_file (char, required) The yaml file name and location
+#' @param yaml_config_file (char, required) The yaml file name and location. 
+#' Check vignette or visit http://artms.org/ (section "The artMS configuration file") 
+#' to find out more
 #' @param data_object (logical) flag to indicate whether the configuration file
 #' is a string to a file that should be opened or config object (yaml). 
 #' Default is `FALSE`. Choose `TRUE` if `yaml_config_file` is a yaml object
@@ -384,8 +385,10 @@ artmsQuantification <- function(yaml_config_file,
     }
     
     ## fix for weird converted values from fread
-    if(verbose) message(">> CONVERT Intensity values < 1 to NA")
-    x[Intensity < 1, ]$Intensity <- NA
+    if( dim(x[which(x$Intensity < 1 & x$Intensity > 0),])[1] > 0 ){
+      if(verbose) message(">> CONVERT Intensity values 0 < x < 1 to NA")
+      x[which(x$Intensity < 1 & x$Intensity > 0),] <- NA
+    }
     
     ## FILTERING : handles Protein Groups and Modifications-----
     if (config$data$filters$enabled){

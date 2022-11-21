@@ -42,7 +42,7 @@ package `MaxQuant`.
 
 ```
 # From bioconductor:
-BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))
+BiocManager::install(c("ComplexHeatmap"))
 
 # From CRAN:
 install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))

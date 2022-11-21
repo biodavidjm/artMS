@@ -15,7 +15,9 @@ artmsQuantification(
 )
 }
 \arguments{
-\item{yaml_config_file}{(char, required) The yaml file name and location}
+\item{yaml_config_file}{(char, required) The yaml file name and location.
+Check vignette or visit http://artms.org/ (section "The artMS configuration file")
+to find out more}
 
 \item{data_object}{(logical) flag to indicate whether the configuration file
 is a string to a file that should be opened or config object (yaml).

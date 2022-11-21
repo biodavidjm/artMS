@@ -48,7 +48,6 @@ import(ggrepel)
 import(grid)
 import(limma)
 import(openxlsx)
-import(org.Hs.eg.db)
 import(pheatmap)
 import(plotly, except = c(last_plot, mutate, arrange, 
 rename, summarise, select, add_heatmap))

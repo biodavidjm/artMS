@@ -44,7 +44,6 @@ Imports:
   limma,
   MSstats,
   openxlsx,
-  org.Hs.eg.db,
   pheatmap,
   plotly,
   plyr,
@@ -66,6 +65,7 @@ Suggests:
   gProfileR,
   knitr, 
   PerformanceAnalytics,
+  org.Hs.eg.db,
   org.Mm.eg.db,
   rmarkdown,
   testthat

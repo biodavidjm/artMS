@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichments.R
 \name{artmsEnrichProfiler}
 \alias{artmsEnrichProfiler}
-\title{Enrichment analysis using GprofileR}
+\title{Enrichment analysis using gprofiler2}
 \usage{
 artmsEnrichProfiler(
   x,
@@ -20,7 +20,7 @@ simultaneously, as for example running:
 \code{tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)}}
 
 \item{categorySource}{(vector) Resources providing the terms on which
-the enrichment will be performed. The supported resources by gprofiler are:
+the enrichment will be performed. The supported resources by gprofiler2 are:
 \itemize{
 \item GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
 \item KEGG: Biological pathways
@@ -47,7 +47,7 @@ Inferred by curator (IC)
 
 \item{species}{(char) Specie code: Organism names are constructed by
 concatenating the first letter of the name and the family name.
-Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
+Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gprofiler2 to find out
 more about supported species.}
 
 \item{background}{(vector) gene list to use as background for the enrichment
@@ -56,11 +56,11 @@ analysis. Default: \code{NA}}
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
-The enrichment results as provided by gprofiler
+The enrichment results as provided by gprofiler2
 }
 \description{
 This function simplifies the enrichment analysis performed by
-the excellent tool GprofileR.
+the excellent tool gprofiler2.
 }
 \details{
 This function uses the following \code{gprofiler} arguments as default:

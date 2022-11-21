@@ -31,7 +31,7 @@ Default \code{output_name = "enrichment.txt"}}
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
-(data.frame) Results from the enrichment analysis using Gprofiler
+(data.frame) Results from the enrichment analysis using gprofiler2
 and heatmaps (if selected)
 }
 \description{

@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Annotate table with Gene Symbol and Name based on Uniprot ID(s)
 #'
 #' @description Annotate gene name and symbol based on uniprot ids. It will 
@@ -12,13 +12,15 @@
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @return (data.frame) with two new columns: `Gene` and `Protein.name`
 #' @keywords annotation, uniprot
-#' @examples
+#' @examples \dontrun{
 #' # This example adds annotations to the example evidence file included in
 #' # artMS, based on the column 'Proteins'.
-#'
+#' 
+#' library(org.Hs.eg.db)
 #' evidence_anno <- artmsAnnotationUniprot(x = artms_data_ph_evidence,
 #'                                          columnid = 'Proteins',
 #'                                          species = 'human')
+#' }
 #' @export
 artmsAnnotationUniprot <- function(x, 
                                    columnid, 
@@ -111,7 +113,7 @@ artmsAnnotationUniprot <- function(x,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Select the entry 
 #
 # @description Selet the Uniprot Entry ID from a full Uniprot id. For example:
@@ -132,7 +134,7 @@ artmsAnnotationUniprot <- function(x,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Leave only the Entry ID from a typical full Uniprot IDs in a 
 #' given column 
 #'
@@ -188,7 +190,7 @@ artmsLeaveOnlyUniprotEntryID <- function(x, columnid){
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
 #'
 #' @description Map GENE SYMBOL, NAME, AND ENTREZID to a vector of Uniprot IDS
@@ -207,8 +209,9 @@ artmsLeaveOnlyUniprotEntryID <- function(x, columnid){
 artmsMapUniprot2Entrez <- function(uniprotkb, 
                                    species) {
   
-  if( !("org.Hs.eg.db" %in% installed.packages()) ){
-    stop("Package <org.Hs.eg.db> required to run this function. Please, install and run it again")
+  if( !( all(c("org.Hs.eg.db", "org.Mm.eg.db") %in% installed.packages()) ) ){
+    stop("Packages <org.Hs.eg.db> and <org.Mm.eg.db> required to run this function. 
+         Please, install and run it again")
   }
   
   if(any(missing(uniprotkb) | 
@@ -227,11 +230,9 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
 
   suppressMessages(
     mappings <-
-      AnnotationDbi::select(
-        eval(as.symbol(thePack)),
-        uniprotkb,
-        c("UNIPROT", "SYMBOL",
-          "GENENAME", "ENTREZID"),
+      AnnotationDbi::select(x = eval(as.symbol(thePack)),
+        keys = uniprotkb,
+        columns = c("UNIPROT", "SYMBOL", "GENENAME", "ENTREZID"),
         keytype = "UNIPROT"
       )
   )
@@ -244,7 +245,7 @@ artmsMapUniprot2Entrez <- function(uniprotkb,
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @title Check if a species is supported and available
 #'
 #' @description Given a species name, it checkes whether is supported, and 
@@ -284,7 +285,7 @@ artmsIsSpeciesSupported <- function(species,
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  if(!is.character(species)) stop("Argument <species> is not a vector")
+  if(!is.character(species)) stop("Argument <species> is not character")
   
   species <- toupper(species)
   

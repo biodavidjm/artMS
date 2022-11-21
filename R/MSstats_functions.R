@@ -241,38 +241,92 @@ artmsMergeEvidenceAndKeys <- function(x,
                                      isSummary = FALSE,
                                      verbose = TRUE) {
 
+  critical_issue <- FALSE
+  
   if(verbose){
     message(">> MERGING FILES ")
   }
 
-  x <- .artms_checkIfFile(x)
+  # KEYS ----
   keys <- .artms_checkIfFile(keys)
-  
-  x <- .artms_checkRawFileColumnName(x)
   keys <- .artms_checkRawFileColumnName(keys)
   
-  # Make sure that the Intensity column is not empty
+  if(any(grepl("Experiment", colnames(keys)))){
+    keys <- artmsChangeColumnName(keys, "Experiment", "ExperimentKeys")
+  }
+  
+  ## Processing FRACTIONS----
+  ## Helping users: processing old requirement
+  if("FractionKey" %in% colnames(keys)){
+    keys <- artmsChangeColumnName(keys, "FractionKey", "Fraction")
+    if(verbose) message("-- (!!) WARNING: column name <FractionKey> deprecated. Please, use <Fraction> instead")
+  }
+  
+  ## Check required columns----
+  requiredColumns <- c('RawFile', 
+                       'IsotopeLabelType',
+                       'Condition',
+                       'BioReplicate', 
+                       'Run')
+  
+  if (any(!requiredColumns %in% colnames(keys))) {
+    stop('Column names in keys not conform to schema. Required columns:\n', 
+         sprintf('\t%s ', requiredColumns))
+  }
+  
+  ## Check Condition / BioReplicate-----
+  ### Get all keys
+  
+  all_keys <- unique(keys$BioReplicate)
+  for(k in all_keys){
+    if(!grepl("-", k)){
+      message("(!) ERROR in keys file. BioReplicate <", k, "> is not according to requirements")
+      message("    This is an easy fix. Check vignette (or http://artms.org), 
+              section 'REQUIRED INPUT FILES > keys.txt' to find out how to fix it\n")
+      critical_issue <- TRUE
+    }
+  }
+  
+  if(critical_issue){
+    stop("Issues affecting <keys.txt> file must be fixed. Run again when ready")
+  }
+  
+  .artms_check_condition_bioreplicate <- function(condition, bioreplicate) {
+    critical_issue = FALSE
+    condbiorep <- gsub("(.*)(-.*)", "\\1", bioreplicate)
+    if(condition != condbiorep){
+      message(" (!) The left term of the BioReplicate <", bioreplicate, "> does not match the condition name <", condition,">. Please, fix")
+      critical_issue = TRUE
+      return(critical_issue)
+    }else{
+      return(critical_issue)
+    }
+  }
+  
+  keys$CheckCondBio <-  mapply(.artms_check_condition_bioreplicate,
+                               keys$Condition,
+                               keys$BioReplicate)
+  
+  if(any(keys$CheckCondBio)){
+    stop("Issues affecting <keys.txt> file must be fixed. Run again when ready")
+  }
+  
+  keys$CheckCondBio <- NULL
+  
+  # EVIDENCE / SUMMARY-----
+  x <- .artms_checkIfFile(x)
+  x <- .artms_checkRawFileColumnName(x)
+  # Intensity column is not empty----
   if(!isSummary){
     if(all(is.na(x$Intensity))){
       stop("The <Intensity> column of the evidence file is empty. artMS cannot continue")
     }  
   }
   
-  if(any(grepl("Experiment", colnames(keys)))){
-    keys <- artmsChangeColumnName(keys, "Experiment", "ExperimentKeys")
-  }
-  
   if(isSummary){
     if(any(grepl("Experiment", colnames(x)))){
       x <- subset(x, Experiment != "") 
     }
-  }
-  
-  # Processing FRACTIONS
-  # Helping users: processing old requirement
-  if("FractionKey" %in% colnames(keys)){
-    keys <- artmsChangeColumnName(keys, "FractionKey", "Fraction")
-    if(verbose) message("-- (!!) WARNING: column name <FractionKey> deprecated. Please, use <Fraction> instead")
   }
   
   if("Fraction" %in% colnames(keys)){
@@ -282,17 +336,7 @@ artmsMergeEvidenceAndKeys <- function(x,
     }
   }
   
-  requiredColumns <- c('RawFile', 
-                       'IsotopeLabelType',
-                       'Condition',
-                       'BioReplicate', 
-                       'Run')
-                   
-  # Check that the keys file is correct
-  if (any(!requiredColumns %in% colnames(keys))) {
-    stop('Column names in keys not conform to schema. Required columns:\n', 
-           sprintf('\t%s ', requiredColumns))
-  }
+
   
   # Check if the number of RawFiles is the same.
   unique_data <- sort(unique(x$RawFile))
@@ -321,16 +365,15 @@ artmsMergeEvidenceAndKeys <- function(x,
     }
   }
   
-  x <- merge(x, keys, by = by)
   
+  x <- merge(x, keys, by = by)
   # Make the 0 values, NA values
   if(any(x$Intensity == 0, na.rm = TRUE)){
-    zero_values <- length(x$Intensity[(x$Intensity == 0)])
-    total_values <- length(x$Intensity)
+    zero_values <- dim(dplyr::filter(x, Intensity == 0))[1]
+    total_values <- dim(x)[1]
     x$Intensity[(x$Intensity == 0)] <- NA
     message("---- (r) ", zero_values, " peptides with Intensity = 0 out of ", total_values, " replaced by NAs")
   }
-  
   return(x)
 }
 

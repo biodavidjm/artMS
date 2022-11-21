@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Check if an input is a file or a data object
 # @description This function is used in order to make it so a user can submit
 #  either a path to a data file or a data object in data.frame or data.table
@@ -76,7 +76,7 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
 }
 
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Read the Evidence File
 #
 # @description Read in a MaxQuant searched Evidence file using data.table.
@@ -301,7 +301,7 @@ artmsIsEvidenceNewVersion <- function(evidence_file) {
   return(x)
 }
 
-# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # @title Unify column names
 #
 # @description The newer versions of MaxQuant change the letter case in the
