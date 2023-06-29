@@ -6,7 +6,7 @@ ___Analytical R Tools for Mass Spectrometry___
 
 [![Build Status](https://travis-ci.com/biodavidjm/artMS.svg?branch=master)](https://travis-ci.com/biodavidjm/artMS)
 [![codecov](https://codecov.io/github/biodavidjm/artMS/branch/master/graphs/badge.svg)](https://codecov.io/github/biodavidjm/artMS) 
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8093247.svg)](https://doi.org/10.5281/zenodo.8093247)
 
 ## Overview
 
