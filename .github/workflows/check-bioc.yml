@@ -1,0 +1,42 @@
+# Build and check artMS on the Bioconductor devel Docker image, which uses the
+# same R and Bioconductor versions as the Bioconductor build machines.
+# - R CMD check fails the job on any ERROR or WARNING (Bioconductor's rule
+#   for releases).
+# - BiocCheck runs as a report only (it does not fail the job).
+name: R-CMD-check-bioc
+
+on:
+  push:
+    branches: [master, devel]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:devel
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: |
+          Rscript -e 'BiocManager::install(c("remotes", "rcmdcheck", "BiocCheck"), ask = FALSE, update = FALSE)'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")'
+
+      - name: R CMD build
+        run: R CMD build --keep-empty-dirs --no-resave-data .
+
+      - name: R CMD check
+        run: |
+          Rscript -e 'rcmdcheck::rcmdcheck(Sys.glob("artMS_*.tar.gz"), args = c("--no-manual", "--no-vignettes", "--timings"), error_on = "warning", check_dir = "check")'
+
+      - name: BiocCheck (report only)
+        run: |
+          Rscript -e 'BiocCheck::BiocCheck(Sys.glob("artMS_*.tar.gz"), `quit-with-status` = FALSE)'
+
+      - name: Upload check folder if the job fails
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: check-results
+          path: check

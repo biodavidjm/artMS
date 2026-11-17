@@ -4,8 +4,9 @@ ___Analytical R Tools for Mass Spectrometry___
 
 ---
 
-[![Build Status](https://travis-ci.com/biodavidjm/artMS.svg?branch=master)](https://travis-ci.com/biodavidjm/artMS)
-[![codecov](https://codecov.io/github/biodavidjm/artMS/branch/master/graphs/badge.svg)](https://codecov.io/github/biodavidjm/artMS) 
+[![R-CMD-check-bioc](https://github.com/biodavidjm/artMS/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/biodavidjm/artMS/actions/workflows/check-bioc.yml)
+[![Bioconductor release build](https://bioconductor.org/shields/build/release/bioc/artMS.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/artMS/)
+[![Bioconductor devel build](https://bioconductor.org/shields/build/devel/bioc/artMS.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/artMS/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8093247.svg)](https://doi.org/10.5281/zenodo.8093247)
 
 ## Overview

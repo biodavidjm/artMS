@@ -3,7 +3,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
-codecov.yml
-.travis.yml
 ^.*\.git$
-_pkgdown.yml
+^_pkgdown\.yml$
+^docs$
+^\.github$
+^.*\.code-workspace$
