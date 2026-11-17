@@ -3,9 +3,8 @@
 #' @import circlize
 #' @importFrom cluster pam
 #' @importFrom corrplot corrplot
-#' @importFrom dplyr mutate desc count arrange desc everything one_of
+#' @importFrom dplyr mutate desc count arrange everything one_of %>%
 #' @import data.table
-#' @import getopt
 #' @import ggdendro
 #' @import ggplot2
 #' @importFrom gplots heatmap.2
@@ -18,18 +17,16 @@
 #' @import openxlsx
 #' @import org.Hs.eg.db
 #' @import pheatmap
-#' @rawNamespace import(plotly, except = c(last_plot, mutate, arrange, 
-#' rename, summarise, select, add_heatmap))
 #' @importFrom plyr ddply summarise rename
 #' @import RColorBrewer
 #' @rawNamespace import(seqinr, except = c(zscore, count, a))
 #' @importFrom stats aggregate as.dendrogram cor dist fisher.test hclust prcomp quantile sd
-#' kmeans median order.dendrogram phyper as.dist complete.cases qt IQR
+#'   kmeans median order.dendrogram phyper as.dist complete.cases qt IQR
 #' @import stringr
 #' @importFrom tidyr unnest pivot_wider pivot_longer
 #' @import UpSetR
-#' @importFrom utils combn read.delim sessionInfo write.table setTxtProgressBar 
-#' txtProgressBar head globalVariables capture.output
+#' @importFrom utils combn read.delim sessionInfo write.table setTxtProgressBar
+#'   txtProgressBar head globalVariables capture.output
 #' @import VennDiagram
 #' @import yaml
 

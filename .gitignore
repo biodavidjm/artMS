@@ -40,3 +40,5 @@ vignettes/*.pdf
 .Rproj.user
 # The PDF is too large to be included
 inst/doc
+# R code extracted from vignettes
+vignettes/*.R
