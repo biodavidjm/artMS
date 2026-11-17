@@ -25,9 +25,13 @@ test_that("Check artmsQuantification() output", {
   # Test
   expect_equal( length(msresults), 5 )
   expect_equal(dim(msresults$ComparisonResult)[1], 2)
-  expect_equal(dim(msresults$ComparisonResult)[2], 11)
   expect_equal(dim(msresults$ModelQC)[1], 5)
-  expect_equal(dim(msresults$ModelQC)[2], 13)
+  # MSstats adds columns over time (e.g. ModelQC gained a 'LABEL' column), so
+  # check that the columns artMS uses are present instead of an exact count
+  expect_true(all(c("Protein", "Label", "log2FC", "pvalue", "adj.pvalue") %in%
+                    colnames(msresults$ComparisonResult)))
+  expect_true(all(c("Protein", "ABUNDANCE", "GROUP", "SUBJECT") %in%
+                    colnames(msresults$ModelQC)))
   expect_equal(length(msresults$FittedModel[[1]]), 13)
 })
 

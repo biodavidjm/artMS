@@ -14,7 +14,7 @@
 #' - From bioconductor:
 #' `BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))`
 #' - From CRAN:
-#' `install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))`
+#' `install.packages(c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics"))`
 #' 
 #' @param log2fc_file (char) MSstats results file location
 #' @param modelqc_file (char) MSstats modelqc file location
@@ -239,7 +239,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
     }
   }
   
-  required_cran_packages <- c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics")
+  required_cran_packages <- c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics")
   
   for(p in required_cran_packages){
     if(!(p %in% installed.packages())){
@@ -1247,7 +1247,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           verbose = verbose
         ), error = function(e){
           message("\n\t(Error): Enrichment is not possible! ")
-          message("\tgProfiler server night be down or your internet connection is not working")
+          message("\tgProfiler server might be down or your internet connection is not working")
           enrich <- FALSE
           }
       )
@@ -1329,7 +1329,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
             verbose = verbose
           ), error = function(e){
             message("\n\t(Error): Enrichment is not possible! ")
-            message("\tgProfiler server night be down or your internet connection is not working")
+            message("\tgProfiler server might be down or your internet connection is not working")
             enrich = FALSE
           }
       )
@@ -1412,7 +1412,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
           verbose = verbose), 
         error = function(e){
           message("\n\t(Error): Enrichment is not possible! ")
-          message("\tgProfiler server night be down or your internet connection is not working")
+          message("\tgProfiler server might be down or your internet connection is not working")
           enrich <- FALSE
         })
       
@@ -1865,15 +1865,14 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                                             'KEGG',
                                                             'REAC',
                                                             'CORUM',
-                                                            'HPA',
-                                                            'OMIM'
+                                                            'HPA'
                                                           ),
                                                           species = 'hsapiens',
                                                           listOfGenes,
                                                           verbose = verbose), 
                        error = function(e){
                          message("\n\t(Error): Enrichment is not possible! ")
-                         message("\tgProfiler server night be down or your internet connection is not working")
+                         message("\tgProfiler server might be down or your internet connection is not working")
                          enrich <- FALSE
                        }
               )
@@ -1891,7 +1890,7 @@ artmsAnalysisQuantifications <- function(log2fc_file,
                                                           verbose = verbose),
                        error = function(e){
                          message("\n\t(Error): Enrichment is not possible! ")
-                         message("\tgProfiler server night be down or your internet connection is not working")
+                         message("\tgProfiler server might be down or your internet connection is not working")
                          enrich <- FALSE
                        }
               )

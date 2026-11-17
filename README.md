@@ -45,7 +45,7 @@ package `MaxQuant`.
 BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))
 
 # From CRAN:
-install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))
+install.packages(c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics"))
 ```
 
 Extra: Why Bioconductor? [Here you can find a nice summary of many good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor)).

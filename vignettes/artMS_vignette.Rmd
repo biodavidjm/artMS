@@ -72,7 +72,7 @@ Check the repo [NEWS file](https://github.com/biodavidjm/artMS/blob/master/NEWS)
 BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))
 
 # From CRAN:
-install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))
+install.packages(c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics"))
 ```
 
 Extra: Why Bioconductor? [Here you can find a nice summary of many good reasons](https://bioinformatics.stackexchange.com/questions/639/why-bioconductor)).
@@ -1217,7 +1217,7 @@ BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))
 
 - From CRAN:
 ```
-install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))
+install.packages(c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics"))
 ```
 
 `artmsAnalysisQuantifications()` performs a comprehensive analysis of the 
@@ -1229,7 +1229,8 @@ quantifications outputs obtained from the function
 - Basic Imputation (see *Notes on Imputation* and input option **`mnbr`** below)
 - Numerous summary plots
 - Enrichment analysis using 
-[Gprofiler](https://cran.r-project.org/web/packages/gProfileR/index.html)
+[g:Profiler](https://biit.cs.ut.ee/gprofiler/) (R package
+[gprofiler2](https://cran.r-project.org/package=gprofiler2))
 - PCA of protein abundance
 - PCA of quantifications
 - Clustering analysis
@@ -1274,7 +1275,7 @@ Spectrometry (`APMS`), and global analysis of posttranslational modifications
    + `keep`: keeps the outliers 
    + `iqr`: removes any outlier outside +/- 6 x interquartile range from the mean (recommended) 
    + `std`: it removes any outliers outside +/- 6 x the standard deviation from the mean
-- `enrich`: If `TRUE`, it will perform enrichment analysis using `gProfileR`
+- `enrich`: If `TRUE`, it will perform enrichment analysis using `gprofiler2`
 - `isBackground`. If `enrich = TRUE`, the user can provide a background 
 gene list (add the file path as well)
 - `mnbr`: **PARAMETER FOR NAIVE IMPUTATION**. 
@@ -1347,7 +1348,7 @@ protein) of pvalues and adj.pvalues for each comparison
 
 **Gene Enrichment analysis**: enrichment analysis only supported for 
 human and mouse. Check the 
-[GprofileR documentation](https://cran.r-project.org/web/packages/gProfileR/index.html) 
+[gprofiler2 documentation](https://cran.r-project.org/package=gprofiler2) 
 to find out more about the details:
 
 - `results-enrich-MAC-allsignificants.txt`: all significant changes 
@@ -1498,9 +1499,10 @@ enrich_set <- artmsEnrichLog2fc(
                    verbose = FALSE)
 ```
 
-## Enrichment analysis using gProfileR
+## Enrichment analysis using g:Profiler
 
-Function that simplifies enrichment analysis using gProfileR
+Function that simplifies enrichment analysis using g:Profiler
+(through the `gprofiler2` package; requires an internet connection)
 
 ```
 # annotate the MSstats results to get the Gene name

@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichments.R
 \name{artmsEnrichProfiler}
 \alias{artmsEnrichProfiler}
-\title{Enrichment analysis using GprofileR}
+\title{Enrichment analysis using g:Profiler (gprofiler2)}
 \usage{
 artmsEnrichProfiler(
   x,
@@ -20,68 +20,60 @@ simultaneously, as for example running:
 \code{tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)}}
 
 \item{categorySource}{(vector) Resources providing the terms on which
-the enrichment will be performed. The supported resources by gprofiler are:
+the enrichment will be performed. The resources supported by g:Profiler are:
 \itemize{
-\item GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
+\item GO (GO:BP, GO:MF, GO:CC): Gene Ontology. \code{GO} selects the three of them
 \item KEGG: Biological pathways
 \item REAC: Biological pathways (Reactome)
+\item WP: Biological pathways (WikiPathways)
 \item TF: Regulatory motifs in DNA (TRANSFAC TFBS)
-\item MI: Regulatory motifs in DNA (miRBase microRNAs)
+\item MIRNA: Regulatory motifs in DNA (miRTarBase microRNAs)
 \item CORUM: protein complexes database
 \item HP: Human Phenotype Ontology
 \item HPA: Protein databases (Human Protein Atlas)
-\item OMIM: Online Mendelian Inheritance in Man annotations:
-\item BIOGRID: BioGRID protein-protein interactions
-The type of annotations for Gene Ontology:
-\item Inferred from experiment (IDA, IPI, IMP, IGI, IEP)
-\item Direct assay (IDA) / Mutant phenotype (IMP]
-\item Genetic interaction (IGI) / Physical interaction (IPI)
-\item Traceable author (TAS) / Non-traceable author (NAS) /
-Inferred by curator (IC)
-\item Expression pattern (IEP) / Sequence or structural similarity (ISS)
-/ Genomic context (IGC)
-\item Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
-\item Reviewed computational analysis (RCA) / Electronic annotation (IEA)
-\item No biological data (ND) / Not annotated or not in background (NA)
+\code{OMIM} is no longer available in g:Profiler and it is ignored.
+Electronic GO annotations (IEA) are excluded.
 }}
 
 \item{species}{(char) Specie code: Organism names are constructed by
 concatenating the first letter of the name and the family name.
-Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
-more about supported species.}
+Example: human - ’hsapiens’, mouse - ’mmusculus’. Check g:Profiler to find
+out more about supported species.}
 
 \item{background}{(vector) gene list to use as background for the enrichment
-analysis. Default: \code{NA}}
+analysis. Default: \code{NA} (no custom background: all known genes are used)}
 
 \item{verbose}{(logical) \code{TRUE} (default) shows function messages}
 }
 \value{
-The enrichment results as provided by gprofiler
+(data.frame) The significant enrichment results (zero rows if
+there are none)
 }
 \description{
 This function simplifies the enrichment analysis performed by
-the excellent tool GprofileR.
+the excellent tool g:Profiler, using the \code{gost()} function of the
+\code{gprofiler2} package (which replaces the deprecated \code{gProfileR} package).
+An internet connection is required.
 }
 \details{
-This function uses the following \code{gprofiler} arguments as default:
+This function calls \code{gprofiler2::gost()} with these arguments:
 \itemize{
 \item ordered_query = FALSE
 \item significant = TRUE
 \item exclude_iea = TRUE
-\item underrep = FALSE
-\item evcodes = FALSE
-\item region_query = FALSE
-\item max_p_value = 0.05
-\item min_set_size = 0
-\item max_set_size = 0
-\item min_isect_size = 0
-\item correction_method = "analytical" #Options: "gSCS", "fdr", "bonferroni"
-\item hier_filtering = "none"
-\item domain_size = "known" # annotated or known
-\item numeric_ns = ""
-\item png_fn = NULL
-\item include_graph = TRUE
+\item measure_underrepresentation = FALSE
+\item evcodes = TRUE (needed to report the \code{intersection} column)
+\item user_threshold = 0.05
+\item correction_method = "g_SCS" (named "analytical" in gProfileR)
+\item domain_scope = "known", or "custom" when a \code{background} is provided
 }
+
+The column names of the results are kept as in previous versions of artMS
+(based on \code{gProfileR}): \code{query.number}, \code{significant}, \code{p.value},
+\code{term.size}, \code{query.size}, \code{overlap.size}, \code{recall}, \code{precision},
+\code{term.id}, \code{domain}, \code{term.name}, \code{intersection}.
+Note that \code{domain} now uses the g:Profiler source names (e.g. \code{GO:BP},
+\code{KEGG}, \code{REAC}).
 }
 \examples{
 \dontrun{

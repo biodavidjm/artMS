@@ -77,11 +77,12 @@ artmsEnrichLog2fc <- function(dataset,
                               output_name = "enrichment.txt",
                               verbose = TRUE) {
                                
-  if( !("gProfileR" %in% installed.packages()) ){
-    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  if (!requireNamespace("gprofiler2", quietly = TRUE)) {
+    stop("Package <gprofiler2> required to run this function. ",
+         "Please, install it (install.packages('gprofiler2')) and run it again")
   }
-  
-  if(any(missing(dataset) | 
+
+  if(any(missing(dataset) |
          missing(species) |
          missing(background)))
     stop("Missed (one or many) required argument(s)
@@ -118,8 +119,7 @@ artmsEnrichLog2fc <- function(dataset,
                                          'KEGG',
                                          'REAC',
                                          'CORUM',
-                                         'HPA',
-                                         'OMIM'
+                                         'HPA'
                                        ),
                                        species = 'hsapiens',
                                        background = background,
@@ -246,63 +246,55 @@ artmsEnrichLog2fc <- function(dataset,
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @title Enrichment analysis using GprofileR
+#' @title Enrichment analysis using g:Profiler (gprofiler2)
 #'
 #' @description This function simplifies the enrichment analysis performed by
-#' the excellent tool GprofileR.
+#' the excellent tool g:Profiler, using the `gost()` function of the
+#' `gprofiler2` package (which replaces the deprecated `gProfileR` package).
+#' An internet connection is required.
 #' @param x (list, data.frame) List of protein ids. It can be anything:
 #' either a list of ids, or you could also send a data.frame and it will find
 #' the columns with the IDs. Is not cool? Multiple list can be also sent
 #' simultaneously, as for example running:
 #' `tmp <- split(enrichment$Gene, enrichment$cl_number, drop= TRUE)`
 #' @param categorySource (vector) Resources providing the terms on which
-#' the enrichment will be performed. The supported resources by gprofiler are:
-#' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology (see more below)
+#' the enrichment will be performed. The resources supported by g:Profiler are:
+#' - GO (GO:BP, GO:MF, GO:CC): Gene Ontology. `GO` selects the three of them
 #' - KEGG: Biological pathways
 #' - REAC: Biological pathways (Reactome)
+#' - WP: Biological pathways (WikiPathways)
 #' - TF: Regulatory motifs in DNA (TRANSFAC TFBS)
-#' - MI: Regulatory motifs in DNA (miRBase microRNAs)
+#' - MIRNA: Regulatory motifs in DNA (miRTarBase microRNAs)
 #' - CORUM: protein complexes database
 #' - HP: Human Phenotype Ontology
 #' - HPA: Protein databases (Human Protein Atlas)
-#' - OMIM: Online Mendelian Inheritance in Man annotations:
-#' - BIOGRID: BioGRID protein-protein interactions
-#' The type of annotations for Gene Ontology:
-#' - Inferred from experiment (IDA, IPI, IMP, IGI, IEP)
-#' - Direct assay (IDA) / Mutant phenotype (IMP]
-#' - Genetic interaction (IGI) / Physical interaction (IPI)
-#' - Traceable author (TAS) / Non-traceable author (NAS) /
-#' Inferred by curator (IC)
-#' - Expression pattern (IEP) / Sequence or structural similarity (ISS)
-#' / Genomic context (IGC)
-#' - Biological aspect of ancestor (IBA) / Rapid divergence (IRD)
-#' - Reviewed computational analysis (RCA) / Electronic annotation (IEA)
-#' - No biological data (ND) / Not annotated or not in background (NA)
+#' `OMIM` is no longer available in g:Profiler and it is ignored.
+#' Electronic GO annotations (IEA) are excluded.
 #' @param species (char) Specie code: Organism names are constructed by
 #' concatenating the first letter of the name and the family name.
-#' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check gProfileR to find out
-#' more about supported species.
+#' Example: human - ’hsapiens’, mouse - ’mmusculus’. Check g:Profiler to find
+#' out more about supported species.
 #' @param background (vector) gene list to use as background for the enrichment
-#' analysis. Default: `NA`
-#' @details This function uses the following `gprofiler` arguments as default:
+#' analysis. Default: `NA` (no custom background: all known genes are used)
+#' @details This function calls `gprofiler2::gost()` with these arguments:
 #' - ordered_query = FALSE
 #' - significant = TRUE
 #' - exclude_iea = TRUE
-#' - underrep = FALSE
-#' - evcodes = FALSE
-#' - region_query = FALSE
-#' - max_p_value = 0.05
-#' - min_set_size = 0
-#' - max_set_size = 0
-#' - min_isect_size = 0
-#' - correction_method = "analytical" #Options: "gSCS", "fdr", "bonferroni"
-#' - hier_filtering = "none"
-#' - domain_size = "known" # annotated or known
-#' - numeric_ns = ""
-#' - png_fn = NULL
-#' - include_graph = TRUE
+#' - measure_underrepresentation = FALSE
+#' - evcodes = TRUE (needed to report the `intersection` column)
+#' - user_threshold = 0.05
+#' - correction_method = "g_SCS" (named "analytical" in gProfileR)
+#' - domain_scope = "known", or "custom" when a `background` is provided
+#'
+#' The column names of the results are kept as in previous versions of artMS
+#' (based on `gProfileR`): `query.number`, `significant`, `p.value`,
+#' `term.size`, `query.size`, `overlap.size`, `recall`, `precision`,
+#' `term.id`, `domain`, `term.name`, `intersection`.
+#' Note that `domain` now uses the g:Profiler source names (e.g. `GO:BP`,
+#' `KEGG`, `REAC`).
 #' @param verbose (logical) `TRUE` (default) shows function messages
-#' @return The enrichment results as provided by gprofiler
+#' @return (data.frame) The significant enrichment results (zero rows if
+#' there are none)
 #' @keywords enrichment
 #' @examples \dontrun{
 #' # annotate the MSstats results to get the Gene name
@@ -328,47 +320,89 @@ artmsEnrichProfiler <- function(x,
                                 species,
                                 background = NA,
                                 verbose = TRUE) {
-  gprofiler = NULL
-  
-  if( !("gProfileR" %in% installed.packages()) ){
-    stop("Package <gProfileR> required to run this function. Please, install and run it again")
+  if (!requireNamespace("gprofiler2", quietly = TRUE)) {
+    stop("Package <gprofiler2> required to run this function. ",
+         "Please, install it (install.packages('gprofiler2')) and run it again")
   }
-                                 
+
   if(any(missing(x) | missing(species)))
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
-  
-  suppressWarnings(gProfileR::set_base_url("http://biit.cs.ut.ee/gprofiler"))
-  if(verbose) message("---+ Enrichment analysis using gProfiler...", appendLF = FALSE) 
-  suppressWarnings(
-    enrichData <- gprofiler(x,
-                            organism = species,
-                            # "scerevisiae","hsapiens", "mmusculus"
-                            ordered_query = FALSE,
-                            significant = TRUE,
-                            exclude_iea = TRUE,
-                            # do you want to exclude electronic annotations (IEA)?
-                            underrep = FALSE,
-                            evcodes = FALSE,
-                            region_query = FALSE,
-                            max_p_value = 0.05,
-                            min_set_size = 0,
-                            max_set_size = 0,
-                            min_isect_size = 0,
-                            correction_method = "analytical",
-                            #Options: "gSCS", "fdr", "bonferroni"
-                            hier_filtering = "none",
-                            domain_size = "known",
-                            # annotated or known
-                            custom_bg = background,
-                            numeric_ns = "",
-                            png_fn = NULL,
-                            include_graph = TRUE,
-                            src_filter = categorySource)
+
+  # 'GO' selects the three Gene Ontology branches
+  if ("GO" %in% categorySource) {
+    categorySource <- unique(c(setdiff(categorySource, "GO"),
+                               "GO:BP", "GO:MF", "GO:CC"))
+  }
+  # OMIM is no longer a g:Profiler data source
+  if ("OMIM" %in% categorySource) {
+    if(verbose) message("---(!) 'OMIM' is no longer available in ",
+                        "g:Profiler: ignored")
+    categorySource <- setdiff(categorySource, "OMIM")
+  }
+
+  # No custom background unless the user provides one
+  custom_bg <- NULL
+  if (length(background) > 0 && !all(is.na(background))) {
+    custom_bg <- unique(as.character(background[!is.na(background)]))
+  }
+
+  if(verbose) message("---+ Enrichment analysis using gProfiler...", appendLF = FALSE)
+  scope <- if (is.null(custom_bg)) "known" else "custom"
+  gp <- suppressWarnings(
+    gprofiler2::gost(query = x,
+                     organism = species,
+                     ordered_query = FALSE,
+                     multi_query = FALSE,
+                     significant = TRUE,
+                     exclude_iea = TRUE,
+                     measure_underrepresentation = FALSE,
+                     evcodes = TRUE,
+                     user_threshold = 0.05,
+                     correction_method = "g_SCS",
+                     domain_scope = scope,
+                     custom_bg = custom_bg,
+                     sources = categorySource)
   )
-    
+  enrichData <- .artms_gostToGprofiler(gp$result)
+
   if(verbose) message("done! ")
   return(enrichData)
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# @title Convert gprofiler2::gost() results to the gProfileR column names
+#
+# @description Earlier versions of artMS used `gProfileR::gprofiler()`. This
+# function keeps those column names so that downstream code and the output
+# files keep the same format. List columns (e.g. `parents`) are dropped
+# because they cannot be written to text files.
+# @param res (data.frame) the `result` element returned by `gost()`, or `NULL`
+# when there are no significant results
+# @return (data.frame) with the columns 'query.number', 'significant',
+# 'p.value', 'term.size', 'query.size', 'overlap.size', 'recall', 'precision',
+# 'term.id', 'domain', 'term.name', 'intersection' (zero rows if `res` is NULL)
+# @keywords internal, enrichment
+.artms_gostToGprofiler <- function(res) {
+  legacy_names <- c("query.number", "significant", "p.value", "term.size",
+                    "query.size", "overlap.size", "recall", "precision",
+                    "term.id", "domain", "term.name", "intersection")
+  gost_names <- c("query", "significant", "p_value", "term_size",
+                  "query_size", "intersection_size", "recall", "precision",
+                  "term_id", "source", "term_name", "intersection")
+  if (is.null(res) || nrow(res) == 0) {
+    empty <- as.data.frame(matrix(nrow = 0, ncol = length(legacy_names)))
+    colnames(empty) <- legacy_names
+    return(empty)
+  }
+  missing_cols <- setdiff(gost_names, colnames(res))
+  if (length(missing_cols) > 0) {
+    stop("Unexpected gprofiler2 output. Missing column(s): ",
+         paste(missing_cols, collapse = ", "))
+  }
+  out <- as.data.frame(res)[gost_names]
+  colnames(out) <- legacy_names
+  return(out)
 }
 
 # Little function to

@@ -169,7 +169,7 @@ To run this function, the following packages must be installed on your system:
 \item From bioconductor:
 \code{BiocManager::install(c("ComplexHeatmap", "org.Mm.eg.db"))}
 \item From CRAN:
-\code{install.packages(c("factoextra", "FactoMineR", "gProfileR", "PerformanceAnalytics"))}
+\code{install.packages(c("factoextra", "FactoMineR", "gprofiler2", "PerformanceAnalytics"))}
 }
 }
 \examples{

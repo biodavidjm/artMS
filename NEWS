@@ -1,3 +1,19 @@
+Changes in version 1.31.1 (2026-11-16)
++ Fix the unit test that made R CMD check fail on Bioconductor: MSstats now
+  returns an extra {LABEL} column in the {ModelQC} output of {artmsQuantification()}.
+  The test now checks that the columns used by artMS are present instead of an
+  exact number of columns.
++ Enrichment analysis now uses the {gprofiler2} package instead of {gProfileR}.
+  {gProfileR} is deprecated and its server no longer accepts requests, so the
+  enrichment in {artmsEnrichProfiler()}, {artmsEnrichLog2fc()} and
+  {artmsAnalysisQuantifications()} was failing. The results keep the same column
+  names as before, with two differences:
+   - the {domain} column now uses the g:Profiler source names ({GO:BP}, {KEGG}, {REAC}, ...)
+   - the gProfileR-only columns {subgraph.number} and {relative.depth} are no longer included
+  {OMIM} is no longer available in g:Profiler and is ignored.
+  Install {gprofiler2} to use these functions: {install.packages("gprofiler2")}
++ Fix typo in the enrichment error message
+
 Changes in version 1.10.2 (2021-07-13)
 + Bug fix affecting {artmsAnalysisQuantifications()}
 + Allow {artmsAnalysisQuantifications()} to process previous versions of artMS
