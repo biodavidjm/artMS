@@ -85,6 +85,26 @@ artmsQualityControlEvidenceBasic(evidence_file = artms_data_ph_evidence,
 
 Once the QC is done, go to the folder `"/path/to/your/working/directory/"` and check out all the generated QC (pdf) files available in the `qc_basic` folder
 
+## Package Modernization and Refactoring
+
+artMS is currently undergoing a comprehensive modernization effort to improve code quality, performance, and user experience while maintaining backward compatibility. 
+
+**Documentation for Refactoring:**
+- **[REFACTORING_OVERVIEW.md](REFACTORING_OVERVIEW.md)** - Quick reference summary and visual timeline
+- **[REFACTORING_PLAN.md](REFACTORING_PLAN.md)** - Detailed implementation plan (3 phases, 6 months)
+- **[DEPENDENCIES.md](DEPENDENCIES.md)** - Complete dependency audit and migration paths
+- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - User guide for transitioning between versions
+- **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** - Developer reference for implementing changes
+
+**Key improvements planned:**
+- Modern R practices (tidyverse compatibility, input validation)
+- Enhanced testing (from 30% to 80% coverage)
+- Better documentation (6 comprehensive vignettes)
+- Performance optimization and optional parallel processing
+- Improved user experience (progress indicators, better error messages)
+
+All changes maintain backward compatibility with clear deprecation paths.
+
 ## How to Contribute to artMS
 
 `artMS` is an open source project, therefore you are more than welcome to contribute and make the analysis of Mass Spectrometry data easier and better using this fantastic language and environment for statistical computing and graphics (i.e. `R`).
@@ -92,6 +112,7 @@ Once the QC is done, go to the folder `"/path/to/your/working/directory/"` and c
 There are multiple options:
 
 - [Submit issues to this repo](https://github.com/biodavidjm/artMS/issues) reporting problems, bugs, or suggesting new features.
+- **Contribute to refactoring:** See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) for detailed guidance on implementing planned improvements
 - Fork and make pull requests. To find out more about this option, 
 some very useful guides for beginners can be found <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/" target="blank">here</a>
 and <a href="https://github.com/Bioconductor/Contributions/blob/master/CONTRIBUTING.md" target="blank">there</a> (or even <a href="http://lmgtfy.com/?q=how+to+contribute+to+a+github+project" target="blank">beyond</a>). When submitting a Pull Request, don't forget to select @biodavidjm as the reviewer
