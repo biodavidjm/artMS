@@ -1,7 +1,7 @@
 Package: artMS
 Type: Package
 Title: Analytical R tools for Mass Spectrometry
-Version: 1.33.0
+Version: 1.33.1
 Date: 2026-11-16
 Authors@R: c(person("David", "Jimenez-Morales", role = c("aut","cre"),
                      email = "biodavidjm@gmail.com",
@@ -33,7 +33,6 @@ Imports:
   corrplot,
   data.table,
   dplyr,
-  getopt,
   ggdendro,
   ggplot2,
   gplots,
@@ -46,7 +45,6 @@ Imports:
   openxlsx,
   org.Hs.eg.db,
   pheatmap,
-  plotly,
   plyr,
   RColorBrewer,
   scales,
@@ -86,5 +84,5 @@ biocViews: Proteomics,
   MultipleComparison
 NeedsCompilation: no
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1

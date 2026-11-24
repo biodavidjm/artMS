@@ -1,3 +1,9 @@
+Changes in version 1.33.1 (2026-11-16)
++ Remove unused dependencies: {plotly} and {getopt}
++ Replace Travis CI with a GitHub Actions workflow that checks the package on the
+  Bioconductor devel Docker image
++ Update documentation (roxygen2 8.1.1), README badges and the pkgdown website
+
 Changes in version 1.31.1 (2026-11-16)
 + Fix the unit test that made R CMD check fail on Bioconductor: MSstats now
   returns an extra {LABEL} column in the {ModelQC} output of {artmsQuantification()}.

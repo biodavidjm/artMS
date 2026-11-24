@@ -3,7 +3,6 @@ utils::globalVariables(c("Organism"))
 #' @importFrom scales percent
 #' @title Quality Control analysis of the MaxQuant evidence file
 #'
-#'
 #' @description Quality Control analysis of the MaxQuant evidence file
 #' @param evidence_file (char or data.frame) The evidence file path and name, or
 #' data.frame
