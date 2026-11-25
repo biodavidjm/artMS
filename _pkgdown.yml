@@ -1,4 +1,86 @@
-url: http://artms.org/
+url: https://biodavidjm.github.io/artMS/
 
 template:
   bootstrap: 5
+
+home:
+  links:
+  - text: Ask a question (Bioconductor support site)
+    href: https://support.bioconductor.org/tag/artMS
+
+navbar:
+  structure:
+    left: [vignette, reference, news]
+    right: [search, bioconductor, github]
+  components:
+    vignette:
+      text: Get started
+      href: articles/artMS_vignette.html
+    bioconductor:
+      text: Bioconductor
+      href: https://bioconductor.org/packages/artMS
+      aria-label: artMS on Bioconductor
+
+news:
+  cran_dates: false
+
+reference:
+- title: Quality control
+  desc: Quality control of MaxQuant (and metabolomics) result files.
+  contents:
+  - artmsQualityControlEvidenceBasic
+  - artmsQualityControlEvidenceExtended
+  - artmsQualityControlSummaryExtended
+  - artmsQualityControlMetabolomics
+
+- title: Relative quantification
+  desc: Configuration and relative quantification with MSstats.
+  contents:
+  - artmsWriteConfigYamlFile
+  - artmsQuantification
+  - artmsProtein2SiteConversion
+
+- title: Analysis of quantifications
+  desc: Downstream analysis, summaries and plots of the MSstats results.
+  contents:
+  - artmsAnalysisQuantifications
+  - artmsMsstatsSummary
+  - artmsResultsWide
+  - artmsVolcanoPlot
+  - artmsPlotHeatmapQuant
+  - artmsDataPlots
+  - artmsAvgIntensityRT
+  - artmsSpectralCounts
+
+- title: Annotation and enrichment
+  contents:
+  - artmsAnnotationUniprot
+  - artmsMapUniprot2Entrez
+  - artmsAnnotateSpecie
+  - artmsIsSpeciesSupported
+  - artmsEnrichProfiler
+  - artmsEnrichLog2fc
+
+- title: Input files for other tools
+  desc: SAINTq, SAINTexpress, Phosfate and PHOTON.
+  contents:
+  - artmsEvidenceToSAINTq
+  - artmsEvidenceToSaintExpress
+  - artmsPhosfateOutput
+  - artmsPhotonOutput
+  - artmsGeneratePhSiteExtended
+
+- title: Data preparation and utilities
+  contents:
+  - artmsMergeEvidenceAndKeys
+  - artmsFilterEvidenceContaminants
+  - artmsSILACtoLong
+  - artmsConvertMetabolomics
+  - artmsIsEvidenceNewVersion
+  - artmsLeaveOnlyUniprotEntryID
+  - artmsChangeColumnName
+
+- title: Example datasets and templates
+  contents:
+  - artms_config
+  - starts_with("artms_data")

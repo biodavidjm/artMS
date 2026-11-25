@@ -85,7 +85,7 @@
 #' \describe{
 #' To find out more about the format and columns available at CORUM, 
 #' please visit this 
-#' [link](http://mips.helmholtz-muenchen.de/corum/)
+#' [link](https://mips.helmholtz-muenchen.de/corum/)
 #' }
 "artms_data_corum_mito_database"
 

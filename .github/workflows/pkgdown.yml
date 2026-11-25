@@ -1,0 +1,56 @@
+# Build the pkgdown website and publish it on GitHub Pages
+# (https://biodavidjm.github.io/artMS/) on every push to master.
+# - Uses the Bioconductor devel Docker image, like check-bioc.yml.
+# - On pull requests the site is only built (to catch errors), not published.
+# - The built site is not stored in the repository (docs/ is git-ignored).
+name: pkgdown
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deployments at the same time
+concurrency:
+  group: pkgdown-${{ github.event_name == 'pull_request' && github.run_id || 'deploy' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:devel
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: |
+          Rscript -e 'BiocManager::install(c("remotes", "pkgdown"), ask = FALSE, update = FALSE)'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")'
+          R CMD INSTALL .
+
+      - name: Build site
+        run: Rscript -e 'pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)'
+
+      - name: Upload site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -4,15 +4,17 @@ ___Analytical R Tools for Mass Spectrometry___
 
 ---
 
+<!-- badges: start -->
 [![R-CMD-check-bioc](https://github.com/biodavidjm/artMS/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/biodavidjm/artMS/actions/workflows/check-bioc.yml)
 [![Bioconductor release build](https://bioconductor.org/shields/build/release/bioc/artMS.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/artMS/)
 [![Bioconductor devel build](https://bioconductor.org/shields/build/devel/bioc/artMS.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/artMS/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8093247.svg)](https://doi.org/10.5281/zenodo.8093247)
+<!-- badges: end -->
 
 ## Overview
 
-`artMS` ([http://artms.org/](http://artms.org/)) is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
-[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). The [functions available in artMS](https://biodavidjm.github.io/artMS/reference/index.html) can be grouped into 4 major categories:
+`artMS` ([website](https://biodavidjm.github.io/artMS/)) is an R package that provides a set of tools for the analysis and integration of large-scale proteomics (mass-spectrometry-based) datasets obtained using the popular proteomics software package 
+[MaxQuant](https://maxquant.org/). The [functions available in artMS](https://biodavidjm.github.io/artMS/reference/index.html) can be grouped into 4 major categories:
 
 - Multiple quality control (QC).
 - Relative quantification using [MSstats](http://msstats.org/).
@@ -102,7 +104,7 @@ __Tips__: Do you need to remember the basics of markdown? [Check out this fantas
 
 ## artMS Help available online
 
-- The vignette can also be accessed at [http://artms.org](http://artms.org)
+- The vignette is also available on the [artMS website](https://biodavidjm.github.io/artMS/articles/artMS_vignette.html)
 - Errors or warnings? Please, 
 <a href="https://github.com/biodavidjm/artMS/issues" target="_blank">submit them as a new issue</a>
 at the official Github repository
