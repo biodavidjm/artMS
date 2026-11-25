@@ -1,3 +1,7 @@
+# artMS 1.33.3 (2026-11-25)
+
+- Fix the vignette link to the changelog (it pointed to the old `NEWS` file)
+
 # artMS 1.33.2 (2026-11-25)
 
 - The website (<https://biodavidjm.github.io/artMS/>) is now built and published automatically by a GitHub Actions workflow on every push to `master`; the built files are no longer stored in the repository
