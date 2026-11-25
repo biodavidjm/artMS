@@ -54,7 +54,7 @@ For a graphical overview check
 
 ## What's new?
 
-Check the repo [NEWS file](https://github.com/biodavidjm/artMS/blob/master/NEWS) to be up to date with the new features, improvements, bug fixes affecting the package.
+Check the [Changelog](https://biodavidjm.github.io/artMS/news/) to be up to date with the new features, improvements, bug fixes affecting the package.
 
 ## How to install
 
