@@ -42,3 +42,5 @@ vignettes/*.pdf
 inst/doc
 # R code extracted from vignettes
 vignettes/*.R
+# pkgdown website (built and published by .github/workflows/pkgdown.yml)
+docs/

@@ -9,7 +9,7 @@ Tab delimited file.
 \describe{
 To find out more about the format and columns available at CORUM,
 please visit this
-\href{http://mips.helmholtz-muenchen.de/corum/}{link}
+\href{https://mips.helmholtz-muenchen.de/corum/}{link}
 }
 }
 \usage{

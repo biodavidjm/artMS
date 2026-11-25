@@ -33,7 +33,7 @@ options(width = 2000)
 that provides a set of tools for the analysis and integration of 
 large-scale proteomics (mass-spectrometry-based) datasets 
 obtained using the popular proteomics software 
-[MaxQuant](https://www.maxquant.org/). 
+[MaxQuant](https://maxquant.org/). 
 
 The functions available in artMS can be grouped into the 
 following categories:
@@ -206,7 +206,7 @@ operations:
 ### `evidence.txt`
 
 The output of the quantitative proteomics software package 
-[MaxQuant](http://www.biochem.mpg.de/5111795/maxquant). It combines all the 
+[MaxQuant](https://maxquant.org/). It combines all the 
 information about the identified peptides.
 
 ### `keys.txt`
@@ -952,7 +952,7 @@ would quantify changes at the *site level*, i.e., each modified peptide for ever
 is / are quantified independently between the different conditions (one or more different peptides could be detected for the same PTM)
 
 Only two sections need to be filled up using the **default** 
-`r Biocpkg("artMS", vignette="input-files.html", label="configuration")` 
+[configuration](#configfile) 
 file:
 
 ```
@@ -1731,7 +1731,7 @@ following urls:
 - `url_keys <- 'http://kroganlab.ucsf.edu/artms/ph/keys.txt'`
 
 **Protein Complexes dataset**: downloaded (2017-08-01) from 
-[CORUM](http://mips.helmholtz-muenchen.de/corum/) database  
+[CORUM](https://mips.helmholtz-muenchen.de/corum/) database  
 and further enriched with annotations of mouse mitochondrial complexes 
 not available at CORUM. Used for complex enrichment calculations.
 
