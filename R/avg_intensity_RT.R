@@ -89,7 +89,7 @@ artmsAvgIntensityRT <- function(evidence_file,
       all.y = TRUE
     )
   # add 'Avg' to names
-  names(results)[4:6] = paste0("Avg_", names(results)[5:7])
+  names(results)[4:6] = paste0("Avg_", names(results)[4:6])
   
   if(verbose) message(">> SUMMARIZATION COMPLETE!! ")
   
